@@ -1,52 +1,52 @@
 @import "tailwindcss";
 :root {
-    --primaryColor: #00395d;
-    --secondaryColor: #000000;
-    --tertiaryColor: #b6d7a8;
-    --accentColor: #eeeeee;
+  --primaryColor: #00395d;
+  --secondaryColor: #000000;
+  --tertiaryColor: #b6d7a8;
+  --accentColor: #eeeeee;
 }
 /* Using CSS variables for custom classes */
 .primaryBgColor {
-    background-color: var(--primaryColor);
+  background-color: var(--primaryColor);
 }
 
 .secondaryBgColor {
-    background-color: var(--secondaryColor);
+  background-color: var(--secondaryColor);
 }
 
 .tertiaryBgColor {
-    background-color: var(--tertiaryColor);
+  background-color: var(--tertiaryColor);
 }
 
 .accentBgColor {
-    background-color: var( --accentColor);
+  background-color: var(--accentColor);
 }
 .primaryTextColor {
-    color: var(--primaryColor);
+  color: var(--primaryColor);
 }
 .secondaryTextColor {
-    color: var(--secondaryColor);
+  color: var(--secondaryColor);
 }
 .tertiaryTextColor {
-    color: var(--tertiaryColor);
+  color: var(--tertiaryColor);
 }
 .accentTextColor {
-    color: var(--accentColor);
+  color: var(--accentColor);
 }
 
 /* Use the custom color variable in Tailwind classes */
 .hover\:primaryTextColor:hover {
-    color: var(--primaryColor);
+  color: var(--primaryColor);
 }
 .hover\:secondaryTextColor:hover {
-    color: var(--secondaryColor);
+  color: var(--secondaryColor);
 }
 .hover\:tertiaryTextColor:hover {
-    color: var(--tertiaryColor);
+  color: var(--tertiaryColor);
 }
 .hover\:accentTextColor:hover {
-    color: var(--accentColor);
+  color: var(--accentColor);
 }
 .hover\:tertiaryTextColor:hover {
-    color: var(--tertiaryColor);
+  color: var(--tertiaryColor);
 }

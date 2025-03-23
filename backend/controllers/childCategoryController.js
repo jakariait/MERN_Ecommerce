@@ -1,11 +1,18 @@
 const childCategoryService = require("../services/childCategoryService");
+const mongoose = require("mongoose");
 
 // Create a new child category
 const createChildCategory = async (req, res) => {
   try {
     const childCategoryData = req.body;
-    const childCategory =
-      await childCategoryService.createChildCategory(childCategoryData);
+
+    if (!childCategoryData.name || !childCategoryData.category || !childCategoryData.subCategory) {
+      return res.status(400).json({
+        message: "Name, category, and subcategory are required fields.",
+      });
+    }
+
+    const childCategory = await childCategoryService.createChildCategory(childCategoryData);
     res.status(201).json({
       message: "Child category created successfully",
       childCategory,
@@ -20,8 +27,7 @@ const createChildCategory = async (req, res) => {
 // Get all child categories
 const getAllChildCategories = async (req, res) => {
   try {
-    const childCategories =
-      await childCategoryService.getAllChildCategories();
+    const childCategories = await childCategoryService.getAllChildCategories();
     if (!childCategories || childCategories.length === 0) {
       return res.status(404).json({
         message: "No child categories found",
@@ -32,19 +38,16 @@ const getAllChildCategories = async (req, res) => {
       childCategories,
     });
   } catch (error) {
-    res.status(400).json({
+    res.status(500).json({
       message: "Error fetching child categories: " + error.message,
     });
   }
 };
 
 // Get a single child category by ID
-const mongoose = require("mongoose");
-
 const getChildCategoryById = async (req, res) => {
   const { id } = req.params;
 
-  // Check if ID is a valid MongoDB ObjectId
   if (!mongoose.Types.ObjectId.isValid(id)) {
     return res.status(400).json({
       message: "Invalid child category ID",
@@ -73,9 +76,15 @@ const getChildCategoryById = async (req, res) => {
 const updateChildCategory = async (req, res) => {
   const { id } = req.params;
   const updatedData = req.body;
+
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(400).json({
+      message: "Invalid child category ID",
+    });
+  }
+
   try {
-    const childCategory =
-      await childCategoryService.updateChildCategory(id, updatedData);
+    const childCategory = await childCategoryService.updateChildCategory(id, updatedData);
     if (!childCategory) {
       return res.status(404).json({
         message: `Child category with ID ${id} not found`,
@@ -86,7 +95,7 @@ const updateChildCategory = async (req, res) => {
       childCategory,
     });
   } catch (error) {
-    res.status(400).json({
+    res.status(500).json({
       message: "Error updating child category: " + error.message,
     });
   }
@@ -95,6 +104,13 @@ const updateChildCategory = async (req, res) => {
 // Delete a child category
 const deleteChildCategory = async (req, res) => {
   const { id } = req.params;
+
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(400).json({
+      message: "Invalid child category ID",
+    });
+  }
+
   try {
     const response = await childCategoryService.deleteChildCategory(id);
     if (!response) {
@@ -106,7 +122,7 @@ const deleteChildCategory = async (req, res) => {
       message: "Child category deleted successfully",
     });
   } catch (error) {
-    res.status(400).json({
+    res.status(500).json({
       message: "Error deleting child category: " + error.message,
     });
   }

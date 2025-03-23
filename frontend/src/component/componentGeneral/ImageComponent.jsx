@@ -1,19 +1,20 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import Skeleton from "react-loading-skeleton";
+import {CircularProgress} from "@mui/material";
 
-const ImageComponent = ({ imageName, className = "" }) => {
+const ImageComponent = ({ imageName, className = "", altName , skeletonHeight}) => {
   const [imageSrc, setImageSrc] = useState("");
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Skip if imageName is undefined or empty
     if (!imageName) {
-      setIsLoading(false); // Stop loading if no imageName is provided
+      setIsLoading(false);
       return;
     }
 
     const fetchImage = async () => {
-      setIsLoading(true); // Start loading
+      setIsLoading(true);
       try {
         const response = await axios.get(
           `http://localhost:5050/uploads/${imageName}`,
@@ -24,21 +25,19 @@ const ImageComponent = ({ imageName, className = "" }) => {
       } catch (error) {
         setImageSrc(""); // Clear the image source on error
       } finally {
-        setIsLoading(false); // Stop loading after fetch completes
+        setIsLoading(false);
       }
     };
 
     fetchImage();
-  }, [imageName]); // Runs only when imageName changes
-
+  }, [imageName]);
   return (
     <div>
       {isLoading ? (
-        <p>Loading image...</p> // Show loading state
-      ) : imageSrc ? (
-        <img src={imageSrc} alt="Uploaded" className={className} /> // Show the image
+        <Skeleton height={skeletonHeight} width={"100%"} />
+
       ) : (
-        <p>No image available.</p> // Show a fallback message
+        <img src={imageSrc} alt={altName} className={className} />
       )}
     </div>
   );

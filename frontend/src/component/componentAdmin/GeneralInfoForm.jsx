@@ -123,12 +123,24 @@ export default function GeneralInfoForm() {
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4  mt-8">
-          <ImageComponent imageName={formData.PrimaryLogo} className={"w-40"} />
+          <ImageComponent
+            imageName={formData.PrimaryLogo}
+            className={"w-40"}
+            altName={formData.CompanyName}
+            skeletonHeight={200}
+          />
           <ImageComponent
             imageName={formData.SecondaryLogo}
             className={"w-40"}
+            altName={formData.CompanyName}
+            skeletonHeight={200}
           />
-          <ImageComponent imageName={formData.Favicon} className={"w-40"} />
+          <ImageComponent
+            imageName={formData.Favicon}
+            className={"w-40"}
+            altName={formData.CompanyName}
+            skeletonHeight={200}
+          />
         </div>
 
         {/* Image Upload Section */}
@@ -338,15 +350,15 @@ export default function GeneralInfoForm() {
 
         {/* Submit Button */}
 
-          <Button
-            variant="contained"
-            color="primary"
-            type="submit"
-            fullWidth
-            className="mt-4"
-          >
-            Update General Info
-          </Button>
+        <Button
+          variant="contained"
+          color="primary"
+          type="submit"
+          fullWidth
+          className="mt-4"
+        >
+          Update General Info
+        </Button>
       </form>
 
       {/* Snackbar for Success/Error Messages */}

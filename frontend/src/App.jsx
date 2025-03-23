@@ -15,6 +15,8 @@ import CategoryStore from "./store/useCategoryStore.js";
 import SubCategoryStore from "./store/useSubCategoryStore.js";
 import useSocialMediaLinkStore from "./store/SocialMediaLinkStore.js";
 import useProductSizeStore from "./store/useProductSizeStore.js";
+import useFlagStore from "./store/useFlagStore.js";
+import useChildCategoryStore from "./store/useChildCategoryStore.js";
 import ContactRequestPage from "./pagesAdmin/ContactRequestPage.jsx";
 import AdminLogin from "./component/componentAdmin/AdminLogin.jsx";
 import ProtectedRoute from "./component/componentAdmin/ProtectedRoute.jsx";
@@ -32,7 +34,7 @@ import AddNewProductSizePage from "./pagesAdmin/AddNewProductSizePage.jsx";
 import ProductSizeListPage from "./pagesAdmin/ProductSizeListPage.jsx";
 import EditProductSizePage from "./pagesAdmin/EditProductSizePage.jsx";
 import ProductFlagPage from "./pagesAdmin/ProductFlagPage.jsx";
-
+import ShopPage from "./pagesUser/ShopPage.jsx";
 
 function App() {
   const { GeneralInfoListRequest } = GeneralInfoStore();
@@ -43,6 +45,9 @@ function App() {
   const { fetchCategories } = CategoryStore();
   const { fetchSubCategories } = SubCategoryStore();
   const { fetchProductSizes } = useProductSizeStore();
+  const { fetchFlags } = useFlagStore();
+  const { fetchChildCategories } = useChildCategoryStore();
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -55,6 +60,8 @@ function App() {
           fetchCategories(),
           fetchSubCategories(),
           fetchProductSizes(),
+          fetchFlags(),
+          fetchChildCategories(),
         ]);
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -91,6 +98,7 @@ function App() {
         <Routes>
           {/* General User Routes */}
           <Route path="/" element={<HomePage />} />
+          <Route path="/shop" element={<ShopPage />} />
           <Route path="/contact-us" element={<ContactUsPage />} />
           <Route path="/admin/login" element={<AdminLogin />} />
           {/* Protected Admin Routes */}
@@ -164,10 +172,7 @@ function App() {
             element={<EditProductSizePage />}
           />
           {/*Product Flag Routes*/}
-          <Route
-            path="admin/product-flags"
-            element={<ProductFlagPage/>}
-          />
+          <Route path="admin/product-flags" element={<ProductFlagPage />} />
           <Route path="*" element={<NotFoundPage />} />
           {/* Handle unknown routes */}
         </Routes>

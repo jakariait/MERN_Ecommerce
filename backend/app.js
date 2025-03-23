@@ -11,23 +11,20 @@ const cookieParser = require("cookie-parser");
 const mongoose = require("mongoose");
 const path = require("path");
 
-let URL =
-  "mongodb+srv://<username>:<password>@jakaria.kd2ej.mongodb.net/ClothingEcommerce?retryWrites=true&w=majority";
-let option = { user: "jakariait", pass: "Jg0njUydl1srGwDE" };
+require("dotenv").config(); // ✅ Load environment variables
+
+const URL = process.env.MONGO_URI; // ✅ Use environment variable
 
 mongoose
-  .connect(URL, option)
-  .then((res) => {
-    console.log("Database Connected");
-  })
-  .catch((err) => {
-    console.log(err);
-  });
+  .connect(URL)
+  .then(() => console.log("Database Connected"))
+  .catch((err) => console.log("DB Connection Error:", err));
 
 const corsOptions = {
-  origin: "*",  // Allow React app (adjust if different)
+  origin: "*",
   methods: ["GET", "POST", "PUT", "DELETE"],
   allowedHeaders: ["Content-Type", "Authorization"],
+  exposedHeaders: ["Content-Length", "X-Favicon"], // Expose required headers
 };
 
 app.use(cookieParser());
@@ -40,12 +37,11 @@ app.use(hpp());
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ extended: true }));
 
-const limiter = rateLimit({ windowMs: 1 * 60 * 1000, max: 200 });
+const limiter = rateLimit({ windowMs: 60 * 1000, max: 2000 });
 app.use(limiter);
 
 // ✅ Serve Uploaded Files (directly under /uploads)
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
-
 
 app.use("/api/", router);
 

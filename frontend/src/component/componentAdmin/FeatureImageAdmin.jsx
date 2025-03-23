@@ -162,6 +162,7 @@ const FeatureImageAdmin = () => {
             <ImageComponent
               imageName={feature.imgSrc}
               className="w-full h-60 "
+              skeletonHeight={200}
             />
             <h3 className="text-center font-semibold mt-2">{feature.title}</h3>
 

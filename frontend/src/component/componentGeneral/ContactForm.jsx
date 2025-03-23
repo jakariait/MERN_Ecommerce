@@ -3,15 +3,10 @@ import SocialMedia from "./SocialMedia.jsx";
 import GeneralInfoStore from "../../store/GeneralInfoStore.js";
 import { HiOutlineBuildingOffice2 } from "react-icons/hi2";
 import { MdEmail, MdOutlinePhoneInTalk } from "react-icons/md";
-import {
-  Breadcrumb,
-  BreadcrumbDivider,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-} from "keep-react";
 import axios from "axios";
 import Skeleton from "react-loading-skeleton";
+import { Breadcrumbs, Link, Typography } from '@mui/material';
+import { Link as RouterLink } from 'react-router-dom';
 
 const ContactForm = () => {
   const { GeneralInfoList, GeneralInfoListLoading, GeneralInfoListError } =
@@ -97,17 +92,12 @@ const ContactForm = () => {
           {/* Breadcrumb Section */}
           <div className="flex flex-col items-center justify-center p-6 md:p-10 gap-3">
             <h1 className="text-2xl">Contact Us</h1>
-            <Breadcrumb>
-              <BreadcrumbList>
-                <BreadcrumbItem>
-                  <BreadcrumbLink href="/">Home</BreadcrumbLink>
-                </BreadcrumbItem>
-                <BreadcrumbDivider />
-                <BreadcrumbItem>
-                  <BreadcrumbLink href="/contact-us">Contact Us</BreadcrumbLink>
-                </BreadcrumbItem>
-              </BreadcrumbList>
-            </Breadcrumb>
+            <Breadcrumbs aria-label="breadcrumb">
+              <Link component={RouterLink} to="/" color="inherit">
+                Home
+              </Link>
+              <Typography color="text.primary">Contact Us</Typography>
+            </Breadcrumbs>
           </div>
 
           <div className="p-3">

@@ -1,0 +1,255 @@
+const ProductModel = require("../models/ProductModel");
+const FlagModel = require("../models/FlagModel");
+const CategoryModel = require("../models/CategoryModel");
+const SubCategoryModel = require("../models/SubCategoryModel");
+const ChildCategoryModel = require("../models/ChildCategoryModel");
+
+// Create a new product
+const createProduct = async (data) => {
+  try {
+    const product = new ProductModel(data); // Save product with image names
+    await product.save();
+    return product;
+  } catch (error) {
+    throw new Error(error.message);
+  }
+};
+
+/**
+ * Get all products without pagination or filters
+ */
+const getProducts = async () => {
+  try {
+    // Fetch all products without any pagination or filters
+    const products = await ProductModel.find()
+      .select("-createdAt -updatedAt") // Optional fields to exclude from the response
+      .populate([
+        { path: "category", select: "-createdAt -updatedAt" },
+        { path: "subCategory", select: "-createdAt -updatedAt" },
+        { path: "childCategory", select: "-createdAt -updatedAt" },
+        { path: "flags", select: "-createdAt -updatedAt" },
+        { path: "variants", select: "-createdAt -updatedAt" },
+        { path: "variants.size", select: "-createdAt -updatedAt" }, // If size is nested
+      ]);
+
+    return products;
+  } catch (error) {
+    throw new Error(error.message);
+  }
+};
+
+/**
+ * Get a single product by ID
+ */
+const getProductById = async (productId) => {
+  try {
+    const product = await ProductModel.findOne({ productId }).populate([
+      { path: "category", select: "-createdAt -updatedAt" },
+      { path: "subCategory", select: "-createdAt -updatedAt" },
+      { path: "childCategory", select: "-createdAt -updatedAt" },
+      { path: "flags", select: "-createdAt -updatedAt" },
+      { path: "variants", select: "-createdAt -updatedAt" },
+      { path: "variants.size", select: "-createdAt -updatedAt" }, // If size is nested
+    ]);
+    if (!product) throw new Error("Product not found");
+    return product;
+  } catch (error) {
+    throw new Error(error.message);
+  }
+};
+
+// Get a product by slug
+const getProductBySlug = async (slug) => {
+  try {
+    // Ensure to use the slug directly, not the productId
+    const product = await ProductModel.findOne({ slug }).populate([
+      { path: "category", select: "-createdAt -updatedAt" },
+      { path: "subCategory", select: "-createdAt -updatedAt" },
+      { path: "childCategory", select: "-createdAt -updatedAt" },
+      { path: "flags", select: "-createdAt -updatedAt" },
+      { path: "variants", select: "-createdAt -updatedAt" },
+      { path: "variants.size", select: "-createdAt -updatedAt" }, // If size is nested
+    ]);
+
+    if (!product) throw new Error("Product not found");
+
+    return product;
+  } catch (error) {
+    throw new Error(error.message);
+  }
+};
+
+/**
+ * Delete a product by ID
+ */
+const deleteProduct = async (productId) => {
+  try {
+    const deletedProduct = await ProductModel.findOneAndDelete({ productId });
+    if (!deletedProduct) throw new Error("Product not found");
+    return deletedProduct;
+  } catch (error) {
+    throw new Error(error.message);
+  }
+};
+
+// Get all products with pagination, filters, and sorting where isActive is true
+const getAllProducts = async ({
+  page = 1,
+  limit = 10,
+  sort,
+  category,
+  subcategory,
+  childCategory,
+  stock,
+  flags,
+}) => {
+  try {
+    let filter = { isActive: true }; // Only active products will be fetched
+
+    // Fetch category, subcategory, and childCategory independently
+    const [categoryDoc, subCategoryDoc, childCategoryDoc, flagDocs] =
+      await Promise.all([
+        category
+          ? CategoryModel.findOne({ name: category }).select("_id")
+          : null,
+        subcategory
+          ? SubCategoryModel.findOne({
+              slug: subcategory,
+              isActive: true,
+            }).select("_id")
+          : null,
+        childCategory
+          ? ChildCategoryModel.findOne({
+              slug: childCategory,
+              isActive: true,
+            }).select("_id")
+          : null,
+        flags
+          ? FlagModel.find({
+              name: { $in: flags.split(",") },
+              isActive: true,
+            }).select("_id")
+          : [],
+      ]);
+
+    // If any provided category, subcategory, or childCategory is invalid, return an empty result
+    if (
+      (category && !categoryDoc) ||
+      (subcategory && !subCategoryDoc) ||
+      (childCategory && !childCategoryDoc) ||
+      (flags && flagDocs.length === 0)
+    ) {
+      return {
+        products: [],
+        totalProducts: 0,
+        totalPages: 0,
+        currentPage: page,
+      };
+    }
+
+    // Apply filters for valid active categories, subcategories, and child categories
+    if (categoryDoc) filter.category = categoryDoc._id;
+    if (subCategoryDoc) filter.subCategory = subCategoryDoc._id;
+    if (childCategoryDoc) filter.childCategory = childCategoryDoc._id;
+
+    // Apply stock filter (in-stock or out-of-stock)
+    if (stock) filter.stock = stock === "in" ? { $gt: 0 } : { $lte: 0 };
+
+    // Apply flags filter if provided
+    if (flagDocs.length)
+      filter.flags = { $in: flagDocs.map((flag) => flag._id) };
+
+    // Check for valid sorting values
+    let sortOption = {};
+
+    const validSortValues = [
+      "price_high",
+      "price_low",
+      "name_asc",
+      "name_desc",
+      "latest",
+      "oldest",
+    ];
+    if (sort && !validSortValues.includes(sort)) {
+      return {
+        products: [],
+        totalProducts: 0,
+        totalPages: 0,
+        currentPage: page,
+      };
+    }
+
+    // Sorting logic
+    if (sort === "price_high") sortOption.finalDiscount = -1;
+    if (sort === "price_low") sortOption.finalDiscount = 1;
+    if (sort === "name_asc") sortOption.name = 1; // A-Z
+    if (sort === "name_desc") sortOption.name = -1; // Z-A
+    if (sort === "latest") sortOption.createdAt = -1; // Latest first
+    if (sort === "oldest") sortOption.createdAt = 1; // Oldest first
+
+    // Count total products based on the active filter
+    const totalProducts = await ProductModel.countDocuments(filter);
+
+    // Fetch products with filters, sorting, and pagination
+    const products = await ProductModel.find(filter)
+      .sort(sortOption)
+      .skip((page - 1) * limit)
+      .limit(limit)
+      .select("name slug finalDiscount finalPrice finalStock thumbnailImage");
+
+    return {
+      products,
+      totalProducts,
+      totalPages: Math.ceil(totalProducts / limit),
+      currentPage: page,
+    };
+  } catch (error) {
+    throw new Error(error.message);
+  }
+};
+
+// Update a product by ID
+const updateProduct = async (productId, updatedData, files) => {
+  try {
+    let product = await ProductModel.findOne({ productId });
+    if (!product) {
+      throw new Error("Product not found.");
+    }
+
+    // 🚫 Prevent updating productId
+    delete updatedData.productId;
+
+    // ✅ Handle file uploads from Multer
+    if (files) {
+      // If new thumbnail image is uploaded, update it
+      if (files.thumbnailImage) {
+        updatedData.thumbnailImage = files.thumbnailImage[0].filename; // Save only filename
+      }
+
+      // If new images are uploaded, append them to existing ones
+      if (files.images) {
+        const newImagePaths = files.images.map((file) => file.filename); // Get new image filenames
+        updatedData.images = [...product.images, ...newImagePaths]; // Retain existing images and add new ones
+      }
+    }
+
+    // ✅ Apply updates manually
+    Object.assign(product, updatedData);
+    await product.save();
+
+    return product;
+  } catch (err) {
+    throw new Error(err.message);
+  }
+};
+
+
+module.exports = {
+  createProduct,
+  getProducts,
+  getProductBySlug,
+  getProductById,
+  updateProduct,
+  deleteProduct,
+  getAllProducts,
+};

@@ -1,20 +1,23 @@
-import { useState, useEffect, memo } from "react";
-import { Link } from "react-router-dom";
+import { useState, memo } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { FaAngleDown } from "react-icons/fa6";
 import useCategoryStore from "../../store/useCategoryStore.js";
 import useSubCategoryStore from "../../store/useSubCategoryStore.js";
 import useChildCategoryStore from "../../store/useChildCategoryStore.js";
 
 const MenuBar = () => {
-  const { categories, fetchCategories } = useCategoryStore();
-  const { subCategories, fetchSubCategories } = useSubCategoryStore();
-  const { childCategories, fetchChildCategories } = useChildCategoryStore();
+  const { categories } = useCategoryStore();
+  const { subCategories } = useSubCategoryStore();
+  const { childCategories } = useChildCategoryStore();
+  const navigate = useNavigate();
 
-  useEffect(() => {
-    fetchCategories();
-    fetchSubCategories();
-    fetchChildCategories();
-  }, []);
+  // Function to build the query string
+  const buildQueryString = (categoryName) => {
+    const params = new URLSearchParams({
+      category: categoryName, // Dynamically pass the category
+    });
+    return params.toString();
+  };
 
   return (
     <div className="lg:shadow lg:bg-white ">
@@ -29,7 +32,9 @@ const MenuBar = () => {
               <MenuItem
                 key={category._id}
                 label={
-                  <Link to={`/shop/${category.name}`}>{category.name}</Link>
+                  <Link to={`/shop?${buildQueryString(category.name)}`}>
+                    {category.name}
+                  </Link>
                 }
               >
                 <SubMenu
@@ -119,7 +124,9 @@ const SubMenu = memo(
         {filteredSubCategories.map((subCategory) => (
           <li key={subCategory._id} className="px-4 py-2">
             <Link
-              to={`/shop/${subCategory._id}`}
+              to={`/shop?${new URLSearchParams({
+                subcategory: subCategory.slug, // Dynamically pass the subcategory
+              }).toString()}`}
               className="block w-full h-full"
             >
               {subCategory.name}
@@ -158,7 +165,13 @@ const ChildSubMenu = memo(({ childCategories, subCategoryId }) => {
     <ul className="ml-4">
       {filteredChildCategories.map((childCategory) => (
         <li key={childCategory._id} className="px-4 py-2">
-          <Link to={`/shop/${childCategory._id}`}>{childCategory.name}</Link>
+          <Link
+            to={`/shop?${new URLSearchParams({
+              childCategory: childCategory.slug, // Dynamically pass the child category
+            }).toString()}`}
+          >
+            {childCategory.name}
+          </Link>
         </li>
       ))}
     </ul>

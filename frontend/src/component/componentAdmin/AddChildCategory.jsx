@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import useCategoryStore from "../../store/useCategoryStore.js";
 import useSubCategoryStore from "../../store/useSubCategoryStore.js";
 import useChildCategoryStore from "../../store/useChildCategoryStore.js";
@@ -16,8 +16,8 @@ import { useNavigate } from "react-router-dom";
 import Skeleton from "react-loading-skeleton";
 
 const AddChildCategory = () => {
-  const { categories, loading: categoryLoading, fetchCategories } = useCategoryStore();
-  const { subCategories, loading: subCategoryLoading, fetchSubCategories } = useSubCategoryStore();
+  const { categories, loading: categoryLoading } = useCategoryStore();
+  const { subCategories, loading: subCategoryLoading } = useSubCategoryStore();
   const { createChildCategory } = useChildCategoryStore();
 
   const [selectedCategory, setSelectedCategory] = useState("");
@@ -31,10 +31,6 @@ const AddChildCategory = () => {
 
   const navigate = useNavigate();
 
-  useEffect(() => {
-    fetchCategories();
-    fetchSubCategories();
-  }, []);
 
   // Handle category selection change
   const handleCategoryChange = (e) => {

@@ -1,24 +1,31 @@
-const SubCategory = require("../models/SubCategoryModel"); // Import the SubCategory model
+const SubCategory = require("../models/SubCategoryModel");
+const CounterModel = require("../models/CategoryCounterModel");
+const slugify = require("slugify");
 
 // Create a new subcategory
 const createSubCategory = async (subCategoryData) => {
   try {
-    const subCategory = new SubCategory(subCategoryData);
-    await subCategory.save();
+    // Auto-increment categoryId
+    const counter = await CounterModel.findOneAndUpdate(
+      { name: "SubCategory" },
+      { $inc: { value: 1 } },
+      { new: true, upsert: true }
+    );
+
+    subCategoryData.categoryId = counter.value;
+    subCategoryData.slug = slugify(`${subCategoryData.name}-${subCategoryData.categoryId}`, { lower: true });
+
+    const subCategory = await SubCategory.create(subCategoryData);
     return subCategory;
   } catch (error) {
-    throw new Error("Error creating subcategory: " + error.message);
+    throw new Error(error.message);
   }
-}
+};
 
 // Get all subcategories
 const getAllSubCategories = async () => {
   try {
-    const subCategories = await SubCategory.find()
-      .populate("category", "name")
-      .select("-createdAt -updatedAt") // Exclude createdAt and updatedAt fields
-      .exec();
-    return subCategories;
+    return await SubCategory.find().populate("category", "name").select("-createdAt -updatedAt");
   } catch (error) {
     throw new Error("Error fetching subcategories: " + error.message);
   }
@@ -27,9 +34,7 @@ const getAllSubCategories = async () => {
 // Get a single subcategory by ID
 const getSubCategoryById = async (id) => {
   try {
-    const subCategory = await SubCategory.findById(id)
-      .select("-createdAt -updatedAt") // Exclude createdAt and updatedAt fields
-      .populate("category", "name"); // Populate category's name field
+    const subCategory = await SubCategory.findById(id).populate("category", "name").select("-createdAt -updatedAt");
     if (!subCategory) throw new Error("Subcategory not found");
     return subCategory;
   } catch (error) {
@@ -40,11 +45,14 @@ const getSubCategoryById = async (id) => {
 // Update a subcategory
 const updateSubCategory = async (id, updatedData) => {
   try {
-    const subCategory = await SubCategory.findByIdAndUpdate(id, updatedData, {
-      new: true,
-    })
-      .populate("category", "name")  // Populate category's name field
-      .select("-createdAt -updatedAt");   // Exclude createdAt and updatedAt fields
+    if (updatedData.name) {
+      updatedData.slug = slugify(`${updatedData.name}-${id}`, { lower: true });
+    }
+
+    const subCategory = await SubCategory.findByIdAndUpdate(id, updatedData, { new: true })
+      .populate("category", "name")
+      .select("-createdAt -updatedAt");
+
     if (!subCategory) throw new Error("Subcategory not found");
     return subCategory;
   } catch (error) {

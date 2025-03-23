@@ -14,6 +14,8 @@ const subCategoryController = require("../controllers/subCategoryController");
 const childCategoryController = require("../controllers/childCategoryController");
 const productSizeController = require("../controllers/productSizeController");
 const flagController = require("../controllers/flagController");
+const productController = require("../controllers/productController");
+
 const { adminProtect } = require("../middlewares/authAdminMiddleware");
 const { authenticateToken } = require("../middlewares/authenticateToken");
 require("dotenv").config();
@@ -51,6 +53,13 @@ const upload = multer({ storage }).fields([
   {
     name: "categoryBanner",
     maxCount: 1,
+  },
+  {
+    name: "thumbnailImage",
+    maxCount: 1,
+  },
+  {
+    name: "images",
   },
 ]);
 
@@ -217,5 +226,19 @@ router.get("/flags/:id", flagController.getFlagById);
 router.post("/flags", adminProtect, flagController.createFlag);
 router.put("/flags/:id", adminProtect, flagController.updateFlag);
 router.delete("/flags/:id", adminProtect, flagController.deleteFlag);
+
+// Routes for Products
+router.get("/products", productController.getProducts); // All Products Without Sorting
+router.get("/getAllProducts", productController.getAllProducts); // All Products With Sorting
+router.get("/products/:id", productController.getProductById);
+router.get("/products/slug/:slug", productController.getProductBySlug);
+router.post("/products", adminProtect, upload, productController.createProduct);
+router.put(
+  "/products/:id",
+  adminProtect,
+  upload,
+  productController.updateProduct,
+);
+router.delete("/products/:id", adminProtect, productController.deleteProduct);
 
 module.exports = router;

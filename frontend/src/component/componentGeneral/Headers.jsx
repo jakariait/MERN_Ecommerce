@@ -252,7 +252,6 @@ const Headers = () => {
           <div className={"hidden lg:block"}>
             <MenuBar />
           </div>
-
         </div>
       )}
     </div>

@@ -51,7 +51,7 @@ const FlagsComponent = () => {
     try {
       await createFlag({ name: newFlagName, isActive: true });
       setNewFlagName("");
-      fetchFlags();  // Re-fetch to get the latest data
+      fetchFlags(); // Re-fetch to get the latest data
       showSnackbar("Flag created successfully!", "success");
     } catch (err) {
       showSnackbar("Failed to create flag", "error");
@@ -62,11 +62,14 @@ const FlagsComponent = () => {
   const handleUpdateFlag = async () => {
     if (!selectedFlagId || !updateFlagName) return;
     try {
-      await updateFlag(selectedFlagId, { name: updateFlagName, isActive: updateIsActive });
+      await updateFlag(selectedFlagId, {
+        name: updateFlagName,
+        isActive: updateIsActive,
+      });
       setUpdateFlagName("");
       setUpdateIsActive(true); // Reset isActive to true after update
-      setSelectedFlagId(null);  // Reset the selectedFlagId
-      fetchFlags();  // Re-fetch to get the latest data
+      setSelectedFlagId(null); // Reset the selectedFlagId
+      fetchFlags(); // Re-fetch to get the latest data
       showSnackbar("Flag updated successfully!", "success");
     } catch (err) {
       showSnackbar("Failed to update flag", "error");
@@ -79,7 +82,7 @@ const FlagsComponent = () => {
       await deleteFlag(flagToDelete);
       setOpenDeleteDialog(false); // Close dialog after deletion
       setFlagToDelete(null); // Reset the flagToDelete state
-      fetchFlags();  // Re-fetch to get the latest data
+      fetchFlags(); // Re-fetch to get the latest data
       showSnackbar("Flag deleted successfully!", "success");
     } catch (err) {
       showSnackbar("Failed to delete flag", "error");
@@ -115,7 +118,11 @@ const FlagsComponent = () => {
 
   return (
     <Box className="p-8 shadow rounded-lg">
-      <Typography variant="h5" gutterBottom className="mb-4 text-xl font-semibold">
+      <Typography
+        variant="h5"
+        gutterBottom
+        className="mb-4 text-xl font-semibold"
+      >
         Flags Management
       </Typography>
 
@@ -195,39 +202,49 @@ const FlagsComponent = () => {
 
           {/* Flags List */}
           <Box className="space-y-4">
-            {flags.map((flag) => (
-              <Box key={flag._id} className="flex justify-between bg-gray-100 items-center p-4 rounded-md">
-                <Box>
-                  <Typography variant="body1" className="font-medium">
-                    {flag.name} ({flag.isActive ? "Active" : "Inactive"})
-                  </Typography>
+            {Array.isArray(flags) && flags.length > 0 ? (
+              flags.map((flag) => (
+                <Box key={flag._id} className="flex justify-between bg-gray-100 items-center p-4 rounded-md">
+                  <Box>
+                    <Typography variant="body1" className="font-medium">
+                      {flag.name} ({flag.isActive ? "Active" : "Inactive"})
+                    </Typography>
+                  </Box>
+                  <Box className="flex items-center justify-center lg:gap-10">
+                    <Button
+                      variant="outlined"
+                      color="primary"
+                      onClick={() =>
+                        handleSelectFlagForUpdate(flag._id, flag.name, flag.isActive)
+                      }
+                      className="mr-2"
+                    >
+                      Update
+                    </Button>
+                    <Button
+                      variant="outlined"
+                      color="error"
+                      onClick={() => openDeleteConfirmation(flag._id)}
+                    >
+                      Delete
+                    </Button>
+                  </Box>
                 </Box>
-                <Box className="flex items-center justify-center lg:gap-10">
-                  <Button
-                    variant="outlined"
-                    color="primary"
-                    onClick={() => handleSelectFlagForUpdate(flag._id, flag.name, flag.isActive)}
-                    className="mr-2"
-                  >
-                    Update
-                  </Button>
-                  <Button
-                    variant="outlined"
-                    color="error"
-                    onClick={() => openDeleteConfirmation(flag._id)}
-                  >
-                    Delete
-                  </Button>
-                </Box>
-              </Box>
-            ))}
+              ))
+            ) : (
+              <Typography>No flags available</Typography>
+            )}
           </Box>
+
+
 
           {/* Delete Confirmation Dialog */}
           <Dialog open={openDeleteDialog} onClose={closeDeleteConfirmation}>
             <DialogTitle>Delete Flag</DialogTitle>
             <DialogContent>
-              <Typography>Are you sure you want to delete this flag?</Typography>
+              <Typography>
+                Are you sure you want to delete this flag?
+              </Typography>
             </DialogContent>
             <DialogActions>
               <Button onClick={closeDeleteConfirmation} color="primary">

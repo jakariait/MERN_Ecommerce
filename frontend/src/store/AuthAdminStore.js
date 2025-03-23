@@ -21,15 +21,22 @@ const useAuthAdminStore = create((set) => ({
         set({ admin: res.data.admin, token, loading: false });
       } catch (error) {
         console.error("Error initializing admin:", error.response || error);
-        set({
-          error: error?.response?.data?.message || "Failed to initialize admin",
-          loading: false,
-        });
+        if (error?.response?.status === 403) {
+          // Token expired or invalid, log out the user
+          localStorage.removeItem("token");
+          set({ admin: null, token: null, error: "Token expired or invalid", loading: false });
+        } else {
+          set({
+            error: error?.response?.data?.message || "Failed to initialize admin",
+            loading: false,
+          });
+        }
       }
     } else {
       set({ loading: false });
     }
   },
+
 
   login: async (email, password) => {
     set({ loading: true, error: null });

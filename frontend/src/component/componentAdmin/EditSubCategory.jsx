@@ -140,17 +140,17 @@ const EditSubCategory = () => {
             <FormControl fullWidth>
               <InputLabel>Active</InputLabel>
               <Select
-                value={subCategory?.isActive}
+                value={subCategory?.isActive ?? ""}
                 onChange={(e) =>
                   setSubCategory({
                     ...subCategory,
-                    isActive: e.target.value === "true",
+                    isActive: e.target.value === "true" ? true : false,
                   })
                 }
                 label="Active"
               >
-                <MenuItem value={true}>Yes</MenuItem>
-                <MenuItem value={false}>No</MenuItem>
+                <MenuItem value={"true"}>Yes</MenuItem>
+                <MenuItem value={"false"}>No</MenuItem>
               </Select>
             </FormControl>
           </div>

@@ -4,6 +4,9 @@ import CarouselStore from "../../store/CarouselStore.js";
 import ImageComponent from "./ImageComponent.jsx";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import Skeleton from "react-loading-skeleton";
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
+
 
 const ProductCarousel = () => {
   const { CarouselStoreList, CarouselStoreListLoading, CarouselStoreListError } = CarouselStore();
@@ -53,10 +56,11 @@ const ProductCarousel = () => {
         <>
           <Slider ref={sliderRef} {...settings}>
             {products.map((product, index) => (
-              <div key={index} className="relative ">
+              <div key={index} className="relative">
                 <ImageComponent
                   imageName={product.imgSrc}
                   className="w-full h-full object-cover"
+                  skeletonHeight={400}
                 />
               </div>
             ))}
