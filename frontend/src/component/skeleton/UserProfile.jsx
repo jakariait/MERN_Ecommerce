@@ -19,6 +19,7 @@ const UserProfile = () => {
           <p>
             <Skeleton inline width={100} /> is typing...
           </p>
+          <img src="http://localhost:5050/uploads/1740833945386.svg" alt="sss"/>
         </>
       ) : (
         <>

@@ -106,14 +106,14 @@ const EditCategory = () => {
 							<FormControl fullWidth>
 								<InputLabel>Feature Category</InputLabel>
 								<Select
-									value={category?.featureCategory || false}
+									value={category?.featureCategory === true ? "true" : "false"} // Convert boolean to string
 									onChange={(e) =>
-										setCategory({ ...category, featureCategory: e.target.value === "true" })
+										setCategory({ ...category, featureCategory: e.target.value === "true" }) // Convert back to boolean
 									}
 									label="Feature Category"
 								>
-									<MenuItem value={true}>Yes</MenuItem>
-									<MenuItem value={false}>No</MenuItem>
+									<MenuItem value="true">Yes</MenuItem>
+									<MenuItem value="false">No</MenuItem>
 								</Select>
 							</FormControl>
 						</div>
@@ -123,14 +123,14 @@ const EditCategory = () => {
 							<FormControl fullWidth>
 								<InputLabel>Show on Navbar</InputLabel>
 								<Select
-									value={category?.showOnNavbar || false}
+									value={category?.showOnNavbar === true ? "true" : "false"} // Convert boolean to string
 									onChange={(e) =>
-										setCategory({ ...category, showOnNavbar: e.target.value === "true" })
+										setCategory({ ...category, showOnNavbar: e.target.value === "true" }) // Convert back to boolean
 									}
 									label="Show on Navbar"
 								>
-									<MenuItem value={true}>Yes</MenuItem>
-									<MenuItem value={false}>No</MenuItem>
+									<MenuItem value="true">Yes</MenuItem>
+									<MenuItem value="false">No</MenuItem>
 								</Select>
 							</FormControl>
 						</div>

@@ -15,7 +15,7 @@ const Feature = () => {
     ); // Display error message
   }
   return (
-    <div className="container md:mx-auto pb-6 px-3">
+    <div className="xl:container xl:mx-auto pb-6 px-3">
       {FeatureStoreListLoading ? (
         <>
           <div className={"grid grid-cols-2 md:grid-cols-4 gap-6 mb-6"}>

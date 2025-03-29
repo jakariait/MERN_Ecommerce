@@ -121,6 +121,16 @@ const productSchema = new mongoose.Schema(
         message: "Stock cannot be negative",
       },
     },
+    purchasePrice: {
+      type: Number,
+      min: 0,
+      validate: {
+        validator: function (value) {
+          return value >= 0; // Ensure the value is greater than or equal to 0
+        },
+        message: "Purchase cannot be negative",
+      },
+    },
   },
   {
     timestamps: true,
@@ -145,10 +155,6 @@ productSchema.pre("validate", async function (next) {
     }
   }
 
-  // Ensure productCode
-  if (!this.productCode || this.productCode.trim() === "") {
-    this.productCode = `${this.productId}`;
-  }
 
   // Generate slug when name changes
   if (this.isModified("name") || this.isNew) {

@@ -27,9 +27,15 @@ const corsOptions = {
   exposedHeaders: ["Content-Length", "X-Favicon"], // Expose required headers
 };
 
+
+// Serve static files from the 'uploads' folder
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+
 app.use(cookieParser());
 app.use(cors(corsOptions));
 app.use(helmet());
+
+
 app.use(mongoSanitize());
 app.use(xss());
 app.use(hpp());
@@ -39,9 +45,6 @@ app.use(express.urlencoded({ extended: true }));
 
 const limiter = rateLimit({ windowMs: 60 * 1000, max: 2000 });
 app.use(limiter);
-
-// ✅ Serve Uploaded Files (directly under /uploads)
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 app.use("/api/", router);
 

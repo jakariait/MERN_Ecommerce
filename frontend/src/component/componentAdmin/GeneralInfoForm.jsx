@@ -8,10 +8,7 @@ export default function GeneralInfoForm() {
   const { token } = useAuthAdminStore();
   const {
     GeneralInfoList,
-    GeneralInfoListRequest,
-    GeneralInfoUpdate,
-    GeneralInfoSuccessMessage,
-    GeneralInfoErrorMessage,
+    GeneralInfoUpdate
   } = useGeneralInfoStore();
 
   const [formData, setFormData] = useState({
@@ -39,9 +36,6 @@ export default function GeneralInfoForm() {
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState("success");
 
-  useEffect(() => {
-    GeneralInfoListRequest();
-  }, []);
 
   useEffect(() => {
     if (GeneralInfoList) {

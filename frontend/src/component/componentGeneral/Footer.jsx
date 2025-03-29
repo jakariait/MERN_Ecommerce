@@ -34,7 +34,7 @@ const Footer = () => {
         <>
           <div
             className={
-              "grid grid-cols-2 md:grid-cols-4 gap-3 container md:mx-auto p-3"
+              "grid grid-cols-2 md:grid-cols-4 gap-3 xl:container xl:mx-auto p-3"
             }
           >
             <Skeleton height={200} width={"100%"} />
@@ -49,7 +49,7 @@ const Footer = () => {
           <div className={"secondaryBgColor  text-white"}>
             {" "}
             {/*Mobile Footer*/}
-            <div className={"lg:hidden"}>
+            <div className={"lg:hidden px-0 py-3"}>
               <Accordion flush={true} type="single" collapsible>
                 {/*About Us Section*/}
                 <AccordionItem value="value-1" style={{ borderBottom: "none" }}>
@@ -150,7 +150,7 @@ const Footer = () => {
             {/*Desktop Footer*/}
             <div
               className={
-                "container md:mx-auto lg:grid grid-cols-1 lg:grid-cols-12 gap-10 justify-between py-10 px-3 hidden"
+                "xl:container xl:mx-auto lg:grid grid-cols-1 lg:grid-cols-12 gap-10 justify-between py-10 px-6  hidden"
               }
             >
               <div className={"col-span-5 relative"}>

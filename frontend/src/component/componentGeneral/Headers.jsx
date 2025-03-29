@@ -13,6 +13,8 @@ import { MdClose } from "react-icons/md";
 import { Link } from "react-router-dom";
 import Skeleton from "react-loading-skeleton";
 import MobileMenu from "./MobileMenu.jsx";
+import useCartStore from "../../store/useCartStore.js";
+import Cart from "./Cart.jsx";
 
 const Headers = () => {
   const { GeneralInfoList, GeneralInfoListLoading, GeneralInfoListError } =
@@ -22,7 +24,11 @@ const Headers = () => {
   const menuRef = useRef(null);
   const hamburgerRef = useRef(null);
   const cartButtonRef = useRef(null);
+  const { cart } = useCartStore();
 
+  const handleCloseCartMenu = () => {
+    setIsCartMenuOpen(false);
+  };
   // Function to handle click outside the menu
   const handleClickOutside = (event) => {
     if (
@@ -51,6 +57,19 @@ const Headers = () => {
     };
   }, [isMenuOpen, isCartMenuOpen]);
 
+  const prevCartCount = useRef(cart.reduce((total, item) => total + item.quantity, 0));
+
+  useEffect(() => {
+    const currentCartCount = cart.reduce((total, item) => total + item.quantity, 0);
+
+    if (currentCartCount > prevCartCount.current) {
+      setIsCartMenuOpen(true); // Open cart only when quantity increases
+    }
+
+    prevCartCount.current = currentCartCount; // Update previous cart count
+  }, [cart]);
+
+
   if (GeneralInfoListError) {
     return (
       <div className="primaryTextColor container md:mx-auto text-center p-3">
@@ -62,7 +81,7 @@ const Headers = () => {
   return (
     <div>
       {GeneralInfoListLoading ? (
-        <div className={"container md:mx-auto p-3"}>
+        <div className={"xl:container xl:mx-auto p-3"}>
           <Skeleton height={40} width={"100%"} />
           <Skeleton height={60} width={"100%"} />
           <Skeleton height={40} width={"100%"} />
@@ -71,7 +90,7 @@ const Headers = () => {
         <div>
           {/* Top Header Section */}
           <div className="primaryBgColor text-white">
-            <div className="flex gap-6 container md:mx-auto p-3 justify-center md:justify-start">
+            <div className="flex gap-6 xl:container xl:mx-auto p-3 justify-center md:justify-start">
               <h1 className="md:border-r-1 px-4">
                 Welcome to {GeneralInfoList?.CompanyName}
               </h1>
@@ -91,10 +110,10 @@ const Headers = () => {
           </div>
 
           {/* Mobile Header Section */}
-          <div className="justify-between p-2 border-b border-gray-200">
+          <div className="justify-between  border-b border-gray-200 md:px-3">
             <div
               className={
-                "container md:mx-auto py-3 px-3 flex gap-6 items-center justify-between"
+                "xl:container xl:mx-auto py-3 px-3 flex gap-6 items-center justify-between"
               }
             >
               {/* Hamburger Menu on the left */}
@@ -141,8 +160,9 @@ const Headers = () => {
                       className="w-7 h-7 cursor-pointer"
                       onClick={() => setIsCartMenuOpen(!isCartMenuOpen)} // Toggle cart menu
                     />
-                    <span className="absolute -top-1 -right-1 lg:right-4 primaryBgColor rounded-full h-4 w-4 flex items-center justify-center text-xs text-white">
-                      0
+                    {/*Showing Cart Quantity*/}
+                    <span className="absolute -top-2 -right-3 lg:right-1 primaryBgColor rounded-full h-6 w-6 p-2 flex items-center justify-center text-xs text-white">
+                      {cart.reduce((total, item) => total + item.quantity, 0)}
                     </span>
                   </div>
                   <span className="text-sm hidden lg:block pt-1">My Cart</span>
@@ -189,7 +209,7 @@ const Headers = () => {
                   </button>
                 </div>
                 <div className="space-y-2">
-                  <MobileMenu/>
+                  <MobileMenu />
                 </div>
                 <div className="gap-3 inline-flex items-center justify-between mt-4">
                   <IoPersonOutline className="w-10 h-10 primaryBgColor rounded-full flex items-center justify-center text-xs text-white p-2" />
@@ -213,7 +233,7 @@ const Headers = () => {
             />
 
             <div
-              className="relative bg-white w-80 h-full shadow-lg transform transition-transform duration-400 ease-in-out"
+              className="relative bg-white w-80 h-full shadow-lg transform transition-transform duration-400 ease-in-out overflow-y-auto"
               style={{
                 transform: isCartMenuOpen
                   ? "translateX(0)"
@@ -221,14 +241,26 @@ const Headers = () => {
                 position: "fixed",
                 top: 0,
                 right: 0,
-                width: "300px", // Adjust the width of the menu
+                width: "400px", // Adjust the width of the menu
                 height: "100vh", // Ensure the menu takes the full height of the viewport
                 transition: "transform 0.3s ease-in-out", // Smooth transition for sliding in/out
               }}
             >
               <div className="p-4">
                 <div className="flex items-center justify-between">
-                  <h1>Shopping Cart</h1>
+                  <div className="flex items-center justify-between gap-5 text-lg">
+                    <h1>Your Cart</h1>
+                    <h1>
+                      {cart.reduce((total, item) => total + item.quantity, 0)}{" "}
+                      {cart.reduce(
+                        (total, item) => total + item.quantity,
+                        0,
+                      ) === 1
+                        ? "item"
+                        : "items"}
+                    </h1>
+                  </div>
+
                   <button
                     onClick={() => setIsCartMenuOpen(!isCartMenuOpen)}
                     className="cursor-pointer"
@@ -237,12 +269,7 @@ const Headers = () => {
                   </button>
                 </div>
                 <div className="space-y-2">
-                  <div className="p-2 hover:bg-gray-100 cursor-pointer">
-                    Cart Items (0)
-                  </div>
-                  <div className="p-2 hover:bg-gray-100 cursor-pointer">
-                    Checkout
-                  </div>
+                  <Cart onCloseCartMenu={handleCloseCartMenu} />
                 </div>
               </div>
             </div>

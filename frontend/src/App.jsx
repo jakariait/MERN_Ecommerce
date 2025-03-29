@@ -35,6 +35,8 @@ import ProductSizeListPage from "./pagesAdmin/ProductSizeListPage.jsx";
 import EditProductSizePage from "./pagesAdmin/EditProductSizePage.jsx";
 import ProductFlagPage from "./pagesAdmin/ProductFlagPage.jsx";
 import ShopPage from "./pagesUser/ShopPage.jsx";
+import AddNewProductPage from "./pagesAdmin/AddNewProductPage.jsx";
+import ProductDetailsPage from "./pagesUser/ProductDetailsPage.jsx";
 
 function App() {
   const { GeneralInfoListRequest } = GeneralInfoStore();
@@ -47,6 +49,7 @@ function App() {
   const { fetchProductSizes } = useProductSizeStore();
   const { fetchFlags } = useFlagStore();
   const { fetchChildCategories } = useChildCategoryStore();
+
 
   useEffect(() => {
     const fetchData = async () => {
@@ -99,6 +102,7 @@ function App() {
           {/* General User Routes */}
           <Route path="/" element={<HomePage />} />
           <Route path="/shop" element={<ShopPage />} />
+          <Route path="/product/:slug" element={<ProductDetailsPage />} />
           <Route path="/contact-us" element={<ContactUsPage />} />
           <Route path="/admin/login" element={<AdminLogin />} />
           {/* Protected Admin Routes */}
@@ -173,8 +177,13 @@ function App() {
           />
           {/*Product Flag Routes*/}
           <Route path="admin/product-flags" element={<ProductFlagPage />} />
-          <Route path="*" element={<NotFoundPage />} />
+
+          {/*Product Routes*/}
+          <Route path="/admin/addnewproduct" element={<AddNewProductPage />} />
           {/* Handle unknown routes */}
+          <Route path="*" element={<NotFoundPage />} />
+
+
         </Routes>
       </div>
     </Router>

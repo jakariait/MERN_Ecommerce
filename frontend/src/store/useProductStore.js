@@ -57,7 +57,7 @@ const useProductStore = create((set) => ({
 
     try {
       const response = await axios.get(`${apiUrl}/products/slug/${slug}`);
-      set({ product: response.data || null, loading: false });
+      set({ product: response.data.data || null, loading: false });
     } catch (error) {
       set({
         error: error.response?.data?.message || "Failed to fetch product by slug",
@@ -66,29 +66,7 @@ const useProductStore = create((set) => ({
     }
   },
 
-  // ✅ Create a new product
-  createProduct: async (data) => {
-    set({ loading: true, error: null });
-
-    try {
-      const token = useAuthStore.getState().token;
-      if (!token) throw new Error("Unauthorized: No token found");
-
-      const response = await axios.post(`${apiUrl}/products`, data, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      set((state) => ({
-        products: [...state.products, response.data],
-        loading: false,
-      }));
-    } catch (error) {
-      set({
-        error: error.response?.data?.message || "Failed to create product",
-        loading: false,
-      });
-    }
-  },
+  resetProduct: () => set({ product: null, loading: false, error: null }),
 
   // ✅ Update an existing product
   updateProduct: async (id, data) => {

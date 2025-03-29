@@ -104,8 +104,6 @@ const getAllProducts = async ({
   flags,
 }) => {
   try {
-    let filter = { isActive: true }; // Only active products will be fetched
-
     // Fetch category, subcategory, and childCategory independently
     const [categoryDoc, subCategoryDoc, childCategoryDoc, flagDocs] =
       await Promise.all([
@@ -147,21 +145,25 @@ const getAllProducts = async ({
       };
     }
 
+    let query = {};
+
     // Apply filters for valid active categories, subcategories, and child categories
-    if (categoryDoc) filter.category = categoryDoc._id;
-    if (subCategoryDoc) filter.subCategory = subCategoryDoc._id;
-    if (childCategoryDoc) filter.childCategory = childCategoryDoc._id;
+    if (categoryDoc) query.category = categoryDoc._id;
+    if (subCategoryDoc) query.subCategory = subCategoryDoc._id;
+    if (childCategoryDoc) query.childCategory = childCategoryDoc._id;
 
     // Apply stock filter (in-stock or out-of-stock)
-    if (stock) filter.stock = stock === "in" ? { $gt: 0 } : { $lte: 0 };
+    if (stock === "in") query.finalStock = { $gt: 0 };
+    if (stock === "out") query.finalStock = { $lte: 0 };
 
     // Apply flags filter if provided
     if (flagDocs.length)
-      filter.flags = { $in: flagDocs.map((flag) => flag._id) };
+      query.flags = { $in: flagDocs.map((flag) => flag._id) };
+
+    // Default sorting to newest first
+    let sortOption = { createdAt: -1 };
 
     // Check for valid sorting values
-    let sortOption = {};
-
     const validSortValues = [
       "price_high",
       "price_low",
@@ -180,22 +182,23 @@ const getAllProducts = async ({
     }
 
     // Sorting logic
-    if (sort === "price_high") sortOption.finalDiscount = -1;
-    if (sort === "price_low") sortOption.finalDiscount = 1;
-    if (sort === "name_asc") sortOption.name = 1; // A-Z
-    if (sort === "name_desc") sortOption.name = -1; // Z-A
-    if (sort === "latest") sortOption.createdAt = -1; // Latest first
-    if (sort === "oldest") sortOption.createdAt = 1; // Oldest first
+    if (sort === "price_high") sortOption = { finalDiscount: -1 };
+    if (sort === "price_low") sortOption = { finalDiscount: 1 };
+    if (sort === "name_asc") sortOption = { name: 1 }; // A-Z
+    if (sort === "name_desc") sortOption = { name: -1 }; // Z-A
+    if (sort === "oldest") sortOption = { createdAt: 1 }; // Oldest first
 
     // Count total products based on the active filter
-    const totalProducts = await ProductModel.countDocuments(filter);
+    const totalProducts = await ProductModel.countDocuments(query);
 
     // Fetch products with filters, sorting, and pagination
-    const products = await ProductModel.find(filter)
+    const products = await ProductModel.find(query)
       .sort(sortOption)
       .skip((page - 1) * limit)
       .limit(limit)
-      .select("name slug finalDiscount finalPrice finalStock thumbnailImage");
+      .select(
+        "name slug finalDiscount finalPrice finalStock thumbnailImage isActive",
+      );
 
     return {
       products,
@@ -242,7 +245,6 @@ const updateProduct = async (productId, updatedData, files) => {
     throw new Error(err.message);
   }
 };
-
 
 module.exports = {
   createProduct,

@@ -1,5 +1,5 @@
 import { useState, memo } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { FaAngleDown } from "react-icons/fa6";
 import useCategoryStore from "../../store/useCategoryStore.js";
 import useSubCategoryStore from "../../store/useSubCategoryStore.js";
@@ -9,7 +9,6 @@ const MenuBar = () => {
   const { categories } = useCategoryStore();
   const { subCategories } = useSubCategoryStore();
   const { childCategories } = useChildCategoryStore();
-  const navigate = useNavigate();
 
   // Function to build the query string
   const buildQueryString = (categoryName) => {
@@ -21,37 +20,46 @@ const MenuBar = () => {
 
   return (
     <div className="lg:shadow lg:bg-white ">
-      <nav className="py-3 container mx-auto">
+      <nav className="p-3 xl:container xl:mx-auto">
         <ul className="lg:flex space-x-3">
           <MenuItem label={<Link to="/">Home</Link>} />
           <MenuItem label={<Link to="/shop">Shop</Link>} />
 
           {/* Categories & Subcategories */}
           {categories?.length ? (
-            categories.map((category) => (
-              <MenuItem
-                key={category._id}
-                label={
-                  <Link to={`/shop?${buildQueryString(category.name)}`}>
-                    {category.name}
-                  </Link>
-                }
-              >
-                <SubMenu
-                  subCategories={subCategories}
-                  categoryId={category._id}
-                  childCategories={childCategories}
-                />
-              </MenuItem>
-            ))
+            categories
+              .filter((category) => category.showOnNavbar)
+              .map((category) => (
+                <MenuItem
+                  key={category._id}
+                  label={
+                    <Link to={`/shop?${buildQueryString(category.name)}`}>
+                      <span
+                        className={
+                          "grid grid-cols-2 gap-1 items-center justify-center"
+                        }
+                      >
+                        {category.name}
+                        <FaAngleDown />
+                      </span>
+                    </Link>
+                  }
+                >
+                  <SubMenu
+                    subCategories={subCategories}
+                    categoryId={category._id}
+                    childCategories={childCategories}
+                  />
+                </MenuItem>
+              ))
           ) : (
-            <MenuItem label={<span>Loading Categories...</span>} />
+            <MenuItem label={<span></span>} />
           )}
 
           {/* More Dropdown */}
           <MenuItem
             label={
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-1 cursor-pointer">
                 More <FaAngleDown />
               </div>
             }
@@ -121,22 +129,24 @@ const SubMenu = memo(
 
     return (
       <ul className="text-black p-2">
-        {filteredSubCategories.map((subCategory) => (
-          <li key={subCategory._id} className="px-4 py-2">
-            <Link
-              to={`/shop?${new URLSearchParams({
-                subcategory: subCategory.slug, // Dynamically pass the subcategory
-              }).toString()}`}
-              className="block w-full h-full"
-            >
-              {subCategory.name}
-            </Link>
-            <ChildSubMenu
-              subCategoryId={subCategory._id}
-              childCategories={childCategories}
-            />
-          </li>
-        ))}
+        {filteredSubCategories
+          .filter((subCategory) => subCategory.isActive)
+          .map((subCategory) => (
+            <li key={subCategory._id} className="px-4 py-2">
+              <Link
+                to={`/shop?${new URLSearchParams({
+                  subcategory: subCategory.slug, // Dynamically pass the subcategory
+                }).toString()}`}
+                className="block w-full h-full"
+              >
+                {subCategory.name}
+              </Link>
+              <ChildSubMenu
+                subCategoryId={subCategory._id}
+                childCategories={childCategories}
+              />
+            </li>
+          ))}
 
         {items?.map((item, index) => (
           <li key={index} className="px-4 py-2">
@@ -163,17 +173,19 @@ const ChildSubMenu = memo(({ childCategories, subCategoryId }) => {
 
   return (
     <ul className="ml-4">
-      {filteredChildCategories.map((childCategory) => (
-        <li key={childCategory._id} className="px-4 py-2">
-          <Link
-            to={`/shop?${new URLSearchParams({
-              childCategory: childCategory.slug, // Dynamically pass the child category
-            }).toString()}`}
-          >
-            {childCategory.name}
-          </Link>
-        </li>
-      ))}
+      {filteredChildCategories
+        .filter((childCategory) => childCategory.isActive)
+        .map((childCategory) => (
+          <li key={childCategory._id} className="px-4 py-2">
+            <Link
+              to={`/shop?${new URLSearchParams({
+                childCategory: childCategory.slug, // Dynamically pass the child category
+              }).toString()}`}
+            >
+              {childCategory.name}
+            </Link>
+          </li>
+        ))}
     </ul>
   );
 });

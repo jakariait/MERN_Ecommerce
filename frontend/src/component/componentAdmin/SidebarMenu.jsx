@@ -112,7 +112,6 @@ export default function SidebarMenu() {
         </h3>
         <ul className="space-y-1">
           <li className="flex items-center space-x-2 p-2 rounded-md cursor-pointer">
-
             <Accordion
               style={{
                 background: "transparent",
@@ -150,7 +149,9 @@ export default function SidebarMenu() {
               <AccordionDetails>
                 <ul className={"space-y-2"}>
                   <li>
-                    <Link to="/admin/add-product-size">Add New Product Size</Link>
+                    <Link to="/admin/add-product-size">
+                      Add New Product Size
+                    </Link>
                   </li>
                   <li>
                     <Link to="/admin/product-sizes">View All Product Size</Link>
@@ -311,11 +312,49 @@ export default function SidebarMenu() {
               </AccordionDetails>
             </Accordion>
           </li>
-          <li className="flex items-center space-x-2 p-2 rounded-md cursor-pointer">
-            <FaTags /> <span>Manage Products</span>
-          </li>
-          <li className="flex items-center space-x-2 p-2 rounded-md cursor-pointer">
-            <FaBell /> <span>Push Notification</span>
+          <li className="space-x-2 px-2 rounded-md cursor-pointer">
+            <Accordion
+              style={{
+                background: "transparent",
+                boxShadow: "none",
+                width: "100%",
+              }}
+              sx={{
+                color: "white", // Ensures text color is white
+                "& .MuiAccordionSummary-root": {
+                  backgroundColor: "transparent",
+                  minHeight: "auto", // Removes unnecessary padding
+                  padding: "0", // Removes default padding
+                },
+                "& .MuiAccordionDetails-root": {
+                  backgroundColor: "transparent",
+                  paddingLeft: "0", // Ensures no extra left padding
+                },
+                "& .MuiSvgIcon-root": {
+                  color: "white", // Ensures the dropdown icon is white
+                },
+              }}
+            >
+              <AccordionSummary
+                expandIcon={<ExpandMoreIcon />}
+                aria-controls="panel1-content"
+                id="panel1-header"
+                className="p-2 flex items-center"
+              >
+                <Typography component="span">
+                  <div className="flex items-center gap-2">
+                    <FaTags /> <span>Manage Products</span>
+                  </div>
+                </Typography>
+              </AccordionSummary>
+              <AccordionDetails>
+                <ul className={"space-y-2"}>
+                  <li>
+                    <Link to="/admin/addnewproduct">Add New Product</Link>
+                  </li>
+                </ul>
+              </AccordionDetails>
+            </Accordion>
           </li>
           <li className="flex items-center space-x-2 p-2 rounded-md cursor-pointer">
             <FaSms /> <span>SMS Service</span>
