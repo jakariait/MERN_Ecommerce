@@ -57,3 +57,7 @@
 .hover\:tertiaryTextColor:hover {
   color: var(--tertiaryColor);
 }
+
+.primaryBorderColor {
+  border-color: var(--primaryColor);
+}

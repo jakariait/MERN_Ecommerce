@@ -48,9 +48,12 @@ const ProductGallery = ({ images, discount }) => {
 
         <div
           className={
-            "absolute bottom-1 right-1 md:bottom-4 flex md:right-4 z-10 gap-1"
+            "absolute bottom-1 right-1 md:bottom-4 flex md:right-4 z-10 gap-1 justify-center items-center"
           }
         >
+          <div className={"bg-white p-2 text-xs"}>
+            {activeIndex + 1} / {imageUrls.length}
+          </div>
           <button
             className={"bg-white p-2 cursor-pointer"}
             onClick={() => changeImage("prev")}
@@ -66,7 +69,6 @@ const ProductGallery = ({ images, discount }) => {
             <IoIosArrowForward />
           </button>
         </div>
-
         <LightGallery speed={500} plugins={[lgThumbnail, lgZoom]}>
           {imageUrls.map((url, index) => (
             <a
@@ -100,7 +102,6 @@ const ProductGallery = ({ images, discount }) => {
         >
           <IoIosArrowBack />
         </button>
-
         {/* Thumbnail Container */}
         <div className=" p-2 flex items-center gap-4 overflow-hidden w-[calc(40rem)]">
           {" "}
@@ -116,7 +117,7 @@ const ProductGallery = ({ images, discount }) => {
                 key={index}
                 className={`cursor-pointer overflow-hidden transition-all duration-200 border-1 shrink-0 md:w-30 md:h-30 w-20 h-20 ${
                   activeIndex === index
-                    ? "border-blue-500 scale-105"
+                    ? "primaryBorderColor scale-105"
                     : "border-transparent opacity-80"
                 }`}
                 onClick={() => setActiveIndex(index)}

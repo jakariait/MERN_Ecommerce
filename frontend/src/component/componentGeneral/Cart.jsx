@@ -16,7 +16,6 @@ const Cart = ({ onCloseCartMenu }) => {
   );
   // Format the totalAmount with commas for better readability
   const formattedTotalAmount = totalAmount.toLocaleString();
-  console.table(cart);
   return (
     <div className="py-3">
       {cart.length === 0 ? (

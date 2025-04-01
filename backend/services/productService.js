@@ -197,7 +197,7 @@ const getAllProducts = async ({
       .skip((page - 1) * limit)
       .limit(limit)
       .select(
-        "name slug finalDiscount finalPrice finalStock thumbnailImage isActive",
+        "name slug finalDiscount finalPrice finalStock thumbnailImage isActive images",
       );
 
     return {
