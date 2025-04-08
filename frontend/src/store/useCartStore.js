@@ -31,7 +31,8 @@ const useCartStore = create((set) => ({
         updatedCart.push({
           id: product.id,
           name: product.name,
-          price: selectedVariant?.discount || product.finalDiscount,
+          originalPrice: selectedVariant?.price || product.finalPrice,
+          discountPrice: selectedVariant?.discount || product.finalDiscount,
           variant: selectedVariant?.size.name || "Default",
           quantity,
           thumbnail: product.thumbnailImage,

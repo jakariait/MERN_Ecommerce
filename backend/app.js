@@ -10,14 +10,19 @@ const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const mongoose = require("mongoose");
 const path = require("path");
+const ProductModel = require("./models/ProductModel"); // or your path
 
 require("dotenv").config(); // ✅ Load environment variables
 
 const URL = process.env.MONGO_URI; // ✅ Use environment variable
 
 mongoose
-  .connect(URL)
-  .then(() => console.log("Database Connected"))
+  .connect(URL, {
+    autoIndex: true, // Optionally keep this if you need auto-indexing
+  })
+  .then(async () => {
+    console.log("Database Connected");
+  })
   .catch((err) => console.log("DB Connection Error:", err));
 
 const corsOptions = {
@@ -27,14 +32,12 @@ const corsOptions = {
   exposedHeaders: ["Content-Length", "X-Favicon"], // Expose required headers
 };
 
-
 // Serve static files from the 'uploads' folder
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 app.use(cookieParser());
 app.use(cors(corsOptions));
 app.use(helmet());
-
 
 app.use(mongoSanitize());
 app.use(xss());

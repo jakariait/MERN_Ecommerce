@@ -1,4 +1,5 @@
 const productService = require("../services/productService");
+const mongoose = require("mongoose");
 
 // Create a product
 const createProduct = async (req, res) => {
@@ -8,13 +9,13 @@ const createProduct = async (req, res) => {
     // Check if thumbnailImage is uploaded
     if (req.files && req.files.thumbnailImage) {
       // Store only the image name (without the full path)
-      productData.thumbnailImage = req.files.thumbnailImage[0].filename;  // Save only the image name
+      productData.thumbnailImage = req.files.thumbnailImage[0].filename; // Save only the image name
     }
 
     // Check if images are uploaded
     if (req.files && req.files.images) {
       // Store only the image names (without the full paths)
-      productData.images = req.files.images.map(file => file.filename);  // Save only the image names
+      productData.images = req.files.images.map((file) => file.filename); // Save only the image names
     }
 
     const product = await productService.createProduct(productData);
@@ -32,7 +33,6 @@ const createProduct = async (req, res) => {
     });
   }
 };
-
 
 /**
  * Controller: Get all products
@@ -61,7 +61,6 @@ const getProducts = async (req, res) => {
     });
   }
 };
-
 
 /**
  * Controller: Get a single product by ID
@@ -119,7 +118,6 @@ const getProductBySlug = async (req, res) => {
   }
 };
 
-
 /**
  * Controller: Delete a product by ID
  */
@@ -170,6 +168,7 @@ const getAllProducts = async (req, res) => {
       childCategory,
       stock,
       flags,
+      isActive: true,
     });
 
     res.status(200).json({
@@ -185,6 +184,7 @@ const getAllProducts = async (req, res) => {
     });
   }
 };
+
 // Update a product by ID
 const updateProduct = async (req, res) => {
   try {
@@ -193,7 +193,11 @@ const updateProduct = async (req, res) => {
     const files = req.files; // Get uploaded files
 
     // Call the service with `files`
-    const updatedProduct = await productService.updateProduct(productId, updatedData, files);
+    const updatedProduct = await productService.updateProduct(
+      productId,
+      updatedData,
+      files,
+    );
 
     return res.status(200).json({
       success: true,
@@ -208,6 +212,82 @@ const updateProduct = async (req, res) => {
   }
 };
 
+const getSimilarProductsController = async (req, res) => {
+  const { category, productId } = req.params;
+
+  try {
+    // Quick check for valid ObjectId format
+    if (
+      !mongoose.Types.ObjectId.isValid(category) ||
+      !mongoose.Types.ObjectId.isValid(productId)
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid category or product ID.",
+      });
+    }
+
+    const products = await productService.getSimilarProducts(
+      category,
+      productId,
+    );
+
+    res.status(200).json({
+      success: true,
+      message: "Similar products fetched successfully",
+      data: products,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch similar products",
+      error: error.message,
+    });
+  }
+};
+
+// Get all products for the Admin Panel (no filter on isActive)
+const getAllProductsAdmin = async (req, res) => {
+  try {
+    const {
+      page = 1,
+      limit = 10,
+      sort,
+      category,
+      subcategory,
+      childCategory,
+      stock,
+      flags,
+    } = req.query;
+
+    // Call the service without the isActive filter (to get all products)
+    const productsData = await productService.getAllProducts({
+      page: parseInt(page),
+      limit: parseInt(limit),
+      sort,
+      category,
+      subcategory,
+      childCategory,
+      stock,
+      flags,
+      // Don't pass isActive filter here, meaning it will return all products
+    });
+
+    res.status(200).json({
+      success: true,
+      message: "All products fetched successfully for Admin Panel",
+      ...productsData, // Contains products, totalPages, totalProducts, currentPage
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch products for Admin Panel",
+      error: error.message,
+    });
+  }
+};
+
+
 module.exports = {
   createProduct,
   getProductBySlug,
@@ -216,4 +296,6 @@ module.exports = {
   updateProduct,
   deleteProduct,
   getAllProducts,
+  getSimilarProductsController,
+  getAllProductsAdmin
 };

@@ -61,3 +61,77 @@
 .primaryBorderColor {
   border-color: var(--primaryColor);
 }
+.rendered-html {
+  @apply text-gray-800 leading-relaxed;
+}
+
+.rendered-html ul {
+  @apply list-disc list-inside pl-4 mb-2;
+}
+
+.rendered-html ol {
+  @apply list-decimal list-inside pl-4 mb-2;
+}
+
+.rendered-html li {
+  @apply mb-1;
+}
+
+.rendered-html h1 {
+  @apply text-2xl font-bold mt-4 mb-2;
+}
+
+.rendered-html h2 {
+  @apply text-xl font-semibold mt-4 mb-2;
+}
+
+.rendered-html p {
+  @apply mb-2;
+}
+
+/* Quill alignment fixes */
+.rendered-html .ql-align-center {
+  text-align: center;
+}
+.rendered-html .ql-align-right {
+  text-align: right;
+}
+.rendered-html .ql-align-justify {
+  text-align: justify;
+}
+.rendered-html .ql-align-left {
+  text-align: left; /* optional, usually default */
+}
+
+.rendered-html strong {
+  @apply font-semibold;
+}
+
+.rendered-html em {
+  @apply italic;
+}
+
+.rendered-html a {
+  color: var(--primaryColor);
+}
+
+.rendered-html .ql-font-serif {
+  @apply font-serif;
+}
+
+.rendered-html .ql-font-monospace {
+  @apply font-mono;
+}
+.rendered-html table tr td {
+  @apply border p-2 border-gray-300 rounded-md;
+}
+
+.rendered-html .ql-code-block-container {
+  background-color: var(--primaryColor);
+  color: var(--accentColor);
+  padding: 10px;
+}
+
+.rendered-html img {
+  @apply py-3;
+}

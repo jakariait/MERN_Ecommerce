@@ -1,4 +1,3 @@
-import { useState } from "react";
 import {
   FaHome,
   FaPalette,
@@ -11,7 +10,6 @@ import {
   FaBoxes,
   FaList,
   FaTags,
-  FaBell,
   FaSms,
   FaCreditCard,
   FaUsers,
@@ -42,13 +40,10 @@ import AccordionSummary from "@mui/material/AccordionSummary";
 import AccordionDetails from "@mui/material/AccordionDetails";
 import Typography from "@mui/material/Typography";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import useProductStore from "../../store/useProductStore.js";
 
 export default function SidebarMenu() {
-  const [openMenus, setOpenMenus] = useState({});
-
-  const toggleMenu = (menu) => {
-    setOpenMenus((prev) => ({ ...prev, [menu]: !prev[menu] }));
-  };
+  const { totalProductsAdmin } = useProductStore();
   const { logout } = useAuthAdminStore();
   const navigate = useNavigate();
   // Logout function to clear the admin state and navigate to login
@@ -351,6 +346,9 @@ export default function SidebarMenu() {
                 <ul className={"space-y-2"}>
                   <li>
                     <Link to="/admin/addnewproduct">Add New Product</Link>
+                  </li>
+                  <li>
+                    <Link to="/admin/viewallproducts">View All Products({totalProductsAdmin})</Link>
                   </li>
                 </ul>
               </AccordionDetails>

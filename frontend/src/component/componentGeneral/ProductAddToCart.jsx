@@ -7,7 +7,6 @@ import { motion } from "framer-motion";
 import useCartStore from "../../store/useCartStore.js";
 
 const ProductAddToCart = ({ product }) => {
-  console.table(product);
 
   const [quantity, setQuantity] = useState(1);
   const MAX_QUANTITY = 5; // Set the limit for Cart Quantity
@@ -54,42 +53,60 @@ const ProductAddToCart = ({ product }) => {
 
           {/* Without Variant Price Display */}
           {!product.variants?.length && (
-            <div className="flex gap-2">
-              <div className="line-through">
-                Tk. {formatPrice(Number(product.finalPrice))}
-              </div>
-              <div className="text-red-800">
-                Tk. {formatPrice(Number(product.finalDiscount))}
-              </div>
-              <div>
-                You Save: Tk{" "}
-                {formatPrice(
-                  Number(product.finalPrice - product.finalDiscount),
-                )}
-              </div>
+            <div className="flex gap-2 items-center">
+              {product.finalDiscount > 0 ? (
+                <>
+                  <div className="line-through">
+                    Tk. {formatPrice(Number(product.finalPrice))}
+                  </div>
+                  <div className="text-red-800">
+                    Tk. {formatPrice(Number(product.finalDiscount))}
+                  </div>
+                  <div>
+                    You Save: Tk{" "}
+                    {formatPrice(
+                      Number(product.finalPrice - product.finalDiscount),
+                    )}
+                  </div>
+                </>
+              ) : (
+                <div className="text-black font-medium">
+                  Tk. {formatPrice(Number(product.finalPrice))}
+                </div>
+              )}
             </div>
           )}
 
-          {/* Price Details */}
+          {/*With Variant Price Display */}
           {selectedVariant && (
             <div className="flex gap-2">
-              <div className="line-through">
-                Tk. {formatPrice(Number(selectedVariant.price))}
-              </div>
-              <div className="text-red-800">
-                Tk. {formatPrice(Number(selectedVariant.discount))}
-              </div>
-              <div>
-                You Save: Tk{" "}
-                {formatPrice(
-                  Number(selectedVariant.price - selectedVariant.discount),
-                )}
-              </div>
+              {selectedVariant.discount > 0 ? (
+                <>
+                  <div className="line-through">
+                    Tk. {formatPrice(Number(selectedVariant.price))}
+                  </div>
+                  <div className="text-red-800">
+                    Tk. {formatPrice(Number(selectedVariant.discount))}
+                  </div>
+                  <div>
+                    You Save: Tk{" "}
+                    {formatPrice(
+                      Number(selectedVariant.price - selectedVariant.discount),
+                    )}
+                  </div>
+                </>
+              ) : (
+                <div className="text-black">
+                  Tk. {formatPrice(Number(selectedVariant.price))}
+                </div>
+              )}
             </div>
           )}
 
           {/* Reward Points */}
-          <div>Purchase & Earn: {product.rewardPoints} points.</div>
+          {product.rewardPoints && (
+            <div>Purchase & Earn: {product.rewardPoints} points.</div>
+          )}
 
           {/* Stock */}
           <div>
@@ -114,7 +131,7 @@ const ProductAddToCart = ({ product }) => {
                   <button
                     key={variant.size.name}
                     onClick={() => handleSizeChange(variant.size.name)}
-                    className={`px-3 py-1 rounded-lg transition-all ${
+                    className={`px-2 py-1 rounded transition-all ${
                       selectedVariant?.size.name === variant.size.name
                         ? "primaryBgColor text-white"
                         : "bg-gray-100 text-gray-700 hover:bg-gray-200"
@@ -130,20 +147,20 @@ const ProductAddToCart = ({ product }) => {
           {/*Cart Quantity, Add to Cart and Wish List Button */}
           <div
             className={
-              "flex gap-6  md:gap-6 xl:gap-15 items-center justify-baseline mt-2"
+              "flex gap-2  md:gap-6 xl:gap-15 items-center justify-baseline mt-2"
             }
           >
             {/*Cart Quantity Button*/}
             <div className={"rounded flex items-center justify-between"}>
               <button
-                className={"primaryBgColor accentTextColor px-3 py-3 rounded-l"}
+                className={"primaryBgColor accentTextColor px-2 py-2 rounded-l"}
                 onClick={() => handleQuantityChange("decrease")}
               >
                 <FiMinus />
               </button>
-              <span className={"px-4 py-2 bg-gray-200"}>{quantity}</span>
+              <span className={"px-3 py-1 bg-gray-200"}>{quantity}</span>
               <button
-                className={"primaryBgColor accentTextColor px-3 py-3 rounded-r"}
+                className={"primaryBgColor accentTextColor px-2 py-2 rounded-r"}
                 onClick={() => handleQuantityChange("increase")}
                 disabled={quantity >= MAX_QUANTITY} // Disable when limit is reached
               >
@@ -157,7 +174,7 @@ const ProductAddToCart = ({ product }) => {
               </button>
             ) : (
               <motion.button
-                className="primaryBgColor accentTextColor px-3 py-2 rounded flex-grow"
+                className="primaryBgColor accentTextColor px-2 py-1 rounded flex-grow"
                 animate={{ scale: [1, 1.1, 1] }} // Scale animation
                 transition={{
                   duration: 2.5,
@@ -172,14 +189,14 @@ const ProductAddToCart = ({ product }) => {
 
             {/*Wish List Button*/}
             <button
-              className={"primaryBgColor accentTextColor px-4 py-3 rounded"}
+              className={"primaryBgColor accentTextColor px-2 py-2 rounded"}
             >
               <FaRegHeart />
             </button>
           </div>
           {/*Cash On Delivery Order Button*/}
           <motion.button
-            className="primaryBgColor accentTextColor py-2 rounded"
+            className="primaryBgColor accentTextColor px-2 py-1 rounded"
             animate={{ scale: [1, 1.05, 1] }} // Scale animation
             transition={{
               duration: 2.5,
@@ -187,7 +204,7 @@ const ProductAddToCart = ({ product }) => {
               ease: "easeInOut",
             }}
           >
-            ক্যাশ অন ডেলিভারিতে অর্ডার করুন
+            Order with Cash on Delivery
           </motion.button>
         </div>
       </div>

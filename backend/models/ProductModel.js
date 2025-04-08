@@ -33,7 +33,6 @@ const productSizeSchema = new mongoose.Schema({
   },
   discount: {
     type: Number,
-    default: 0,
     min: 0,
     validate: {
       validator: function (value) {
@@ -53,10 +52,10 @@ const productSchema = new mongoose.Schema(
     longDesc: { type: String, trim: true },
     sizeChart: { type: String, trim: true },
     shippingReturn: { type: String, trim: true },
-    productCode: { type: String, trim: true, unique: true },
+    productCode: { type: String, trim: true },
+
     rewardPoints: {
       type: Number,
-      default: 0,
       validate: {
         validator: function (value) {
           return value >= 0; // Ensure the value is greater than or equal to 0
@@ -86,14 +85,16 @@ const productSchema = new mongoose.Schema(
     searchTags: [{ type: String, trim: true }],
 
     thumbnailImage: { type: String, trim: true, required: true },
-    images: [{ type: String, trim: true }],
+    images: [{ type: String, trim: true, required: true }],
 
     variants: { type: [productSizeSchema], default: [] },
 
-    // Merged fields
     finalPrice: {
       type: Number,
       min: 0,
+      required: function () {
+        return this.variants.length === 0; // Make finalPrice required if no variants exist
+      },
       validate: {
         validator: function (value) {
           return value >= 0; // Ensure the value is greater than or equal to 0
@@ -101,8 +102,10 @@ const productSchema = new mongoose.Schema(
         message: "Price cannot be negative",
       },
     },
+
     finalDiscount: {
       type: Number,
+
       min: 0,
       validate: {
         validator: function (value) {
@@ -114,6 +117,9 @@ const productSchema = new mongoose.Schema(
     finalStock: {
       type: Number,
       min: 0,
+      required: function () {
+        return this.variants.length === 0; // Make finalPrice required if no variants exist
+      },
       validate: {
         validator: function (value) {
           return value >= 0; // Ensure the value is greater than or equal to 0
@@ -154,7 +160,6 @@ productSchema.pre("validate", async function (next) {
       return next(err);
     }
   }
-
 
   // Generate slug when name changes
   if (this.isModified("name") || this.isNew) {

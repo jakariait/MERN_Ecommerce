@@ -17,6 +17,7 @@ import useSocialMediaLinkStore from "./store/SocialMediaLinkStore.js";
 import useProductSizeStore from "./store/useProductSizeStore.js";
 import useFlagStore from "./store/useFlagStore.js";
 import useChildCategoryStore from "./store/useChildCategoryStore.js";
+import useProductStore from "./store/useProductStore.js";
 import ContactRequestPage from "./pagesAdmin/ContactRequestPage.jsx";
 import AdminLogin from "./component/componentAdmin/AdminLogin.jsx";
 import ProtectedRoute from "./component/componentAdmin/ProtectedRoute.jsx";
@@ -37,6 +38,8 @@ import ProductFlagPage from "./pagesAdmin/ProductFlagPage.jsx";
 import ShopPage from "./pagesUser/ShopPage.jsx";
 import AddNewProductPage from "./pagesAdmin/AddNewProductPage.jsx";
 import ProductDetailsPage from "./pagesUser/ProductDetailsPage.jsx";
+import ViewAllProductPage from "./pagesAdmin/ViewAllProductPage.jsx";
+import EditProductPage from "./pagesAdmin/EditProductPage.jsx";
 
 function App() {
   const { GeneralInfoListRequest } = GeneralInfoStore();
@@ -49,7 +52,7 @@ function App() {
   const { fetchProductSizes } = useProductSizeStore();
   const { fetchFlags } = useFlagStore();
   const { fetchChildCategories } = useChildCategoryStore();
-
+  const { fetchProducts, fetchProductsAdmin } = useProductStore();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -65,6 +68,8 @@ function App() {
           fetchProductSizes(),
           fetchFlags(),
           fetchChildCategories(),
+          fetchProducts(),
+          fetchProductsAdmin(),
         ]);
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -180,10 +185,16 @@ function App() {
 
           {/*Product Routes*/}
           <Route path="/admin/addnewproduct" element={<AddNewProductPage />} />
+          <Route
+            path="/admin/viewallproducts"
+            element={<ViewAllProductPage />}
+          />
+          <Route
+            path="/admin/edit-product/:slug"
+            element={<EditProductPage />}
+          />
           {/* Handle unknown routes */}
           <Route path="*" element={<NotFoundPage />} />
-
-
         </Routes>
       </div>
     </Router>

@@ -24,48 +24,47 @@ const router = express.Router();
 
 // Set Up Multer Storage
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, 'uploads/'), // Ensure files are saved in the 'uploads' folder
+  destination: (req, file, cb) => cb(null, "uploads/"), // Ensure files are saved in the 'uploads' folder
   filename: (req, file, cb) =>
     cb(null, Date.now() + path.extname(file.originalname)), // Naming files uniquely
 });
 
 const upload = multer({ storage }).fields([
   {
-    name: 'PrimaryLogo',
+    name: "PrimaryLogo",
     maxCount: 1,
   },
   {
-    name: 'SecondaryLogo',
+    name: "SecondaryLogo",
     maxCount: 1,
   },
   {
-    name: 'Favicon',
+    name: "Favicon",
     maxCount: 1,
   },
   {
-    name: 'imgSrc',
+    name: "imgSrc",
     maxCount: 1,
   },
   {
-    name: 'categoryIcon',
+    name: "categoryIcon",
     maxCount: 1,
   },
   {
-    name: 'categoryBanner',
+    name: "categoryBanner",
     maxCount: 1,
   },
   {
-    name: 'thumbnailImage',
+    name: "thumbnailImage",
     maxCount: 1,
   },
   {
-    name: 'images',
+    name: "images",
   },
 ]);
 
 // Serve images from the 'uploads' folder as static files
-router.use('/uploads', express.static(path.join(__dirname, 'uploads')));
-
+router.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 //   Routes for General Information
 router.get("/getGeneralInfo", generalInfoController.getGeneralInfo);
@@ -234,15 +233,20 @@ router.delete("/flags/:id", adminProtect, flagController.deleteFlag);
 // Routes for Products
 router.get("/products", productController.getProducts); // All Products Without Sorting
 router.get("/getAllProducts", productController.getAllProducts); // All Products With Sorting
+router.get("/getAllProductsAdmin", productController.getAllProductsAdmin);
 router.get("/products/:id", productController.getProductById);
 router.get("/products/slug/:slug", productController.getProductBySlug);
-router.post("/products",adminProtect,   upload, productController.createProduct);
+router.post("/products", adminProtect, upload, productController.createProduct);
 router.put(
   "/products/:id",
-  // adminProtect,
+  adminProtect,
   upload,
   productController.updateProduct,
 );
 router.delete("/products/:id", adminProtect, productController.deleteProduct);
+router.get(
+  "/similar/:category/:productId",
+  productController.getSimilarProductsController,
+);
 
 module.exports = router;

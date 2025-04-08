@@ -7,6 +7,7 @@ const apiUrl = import.meta.env.VITE_API_URL; // API base URL
 const useProductStore = create((set) => ({
   products: [],
   totalProducts: 0,
+  totalProductsAdmin: 0,
   totalPages: 0,
   currentPage: 1,
   product: null,
@@ -24,6 +25,28 @@ const useProductStore = create((set) => ({
       set({
         products: response.data.products || [],
         totalProducts: response.data.totalProducts || 0,
+        totalPages: response.data.totalPages || 0,
+        currentPage: response.data.currentPage || 1,
+        loading: false,
+      });
+    } catch (error) {
+      set({
+        error: error.response?.data?.message || "Failed to fetch products",
+        loading: false,
+      });
+    }
+  },
+
+  fetchProductsAdmin: async (params) => {
+    set({ loading: true, error: null });
+
+    try {
+      const queryString = new URLSearchParams(params).toString();
+      const response = await axios.get(`${apiUrl}/getAllProductsAdmin?${queryString}`);
+
+      set({
+        products: response.data.products || [],
+        totalProductsAdmin: response.data.totalProducts || 0,
         totalPages: response.data.totalPages || 0,
         currentPage: response.data.currentPage || 1,
         loading: false,
@@ -117,6 +140,8 @@ const useProductStore = create((set) => ({
       });
     }
   },
+
+
 }));
 
 export default useProductStore;

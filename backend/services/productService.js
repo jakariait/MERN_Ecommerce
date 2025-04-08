@@ -3,6 +3,7 @@ const FlagModel = require("../models/FlagModel");
 const CategoryModel = require("../models/CategoryModel");
 const SubCategoryModel = require("../models/SubCategoryModel");
 const ChildCategoryModel = require("../models/ChildCategoryModel");
+const mongoose = require("mongoose");
 
 // Create a new product
 const createProduct = async (data) => {
@@ -92,7 +93,7 @@ const deleteProduct = async (productId) => {
   }
 };
 
-// Get all products with pagination, filters, and sorting where isActive is true
+// Get all products with pagination, filters, and sorting
 const getAllProducts = async ({
   page = 1,
   limit = 10,
@@ -102,6 +103,7 @@ const getAllProducts = async ({
   childCategory,
   stock,
   flags,
+  isActive,
 }) => {
   try {
     // Fetch category, subcategory, and childCategory independently
@@ -146,6 +148,11 @@ const getAllProducts = async ({
     }
 
     let query = {};
+
+    if (typeof isActive === "boolean") {
+      query.isActive = isActive;
+    }
+
 
     // Apply filters for valid active categories, subcategories, and child categories
     if (categoryDoc) query.category = categoryDoc._id;
@@ -197,8 +204,13 @@ const getAllProducts = async ({
       .skip((page - 1) * limit)
       .limit(limit)
       .select(
-        "name slug finalDiscount finalPrice finalStock thumbnailImage isActive images",
-      );
+        "name slug finalDiscount finalPrice finalStock thumbnailImage isActive images productId category variants flags productId",
+      )
+      .populate([
+        { path: "category", select: "-createdAt -updatedAt" },
+        { path: "flags", select: "-createdAt -updatedAt" },
+        { path: "variants.size", select: "-createdAt -updatedAt" },
+      ]);
 
     return {
       products,
@@ -246,6 +258,48 @@ const updateProduct = async (productId, updatedData, files) => {
   }
 };
 
+const getSimilarProducts = async (category, excludeId) => {
+  try {
+    const categoryObjectId = new mongoose.Types.ObjectId(category);
+    const excludeObjectId = new mongoose.Types.ObjectId(excludeId);
+
+    // Fetch products without specific sorting
+    const similarProducts = await ProductModel.find({
+      category: categoryObjectId,
+      _id: { $ne: excludeObjectId },
+      isActive: true,
+    })
+      .limit(12) // Limiting to 12 products
+      .select(
+        "name slug finalDiscount finalPrice finalStock thumbnailImage isActive images productId category variants flags productId",
+      )
+      .populate([
+        { path: "category", select: "-createdAt -updatedAt" },
+        { path: "flags", select: "-createdAt -updatedAt" },
+        { path: "variants.size", select: "-createdAt -updatedAt" },
+      ]);
+
+    // Randomize the order using a Fisher-Yates shuffle
+    const shuffledProducts = shuffleArray(similarProducts);
+
+    return shuffledProducts;
+  } catch (error) {
+    throw new Error("Failed to fetch similar products: " + error.message);
+  }
+};
+
+// Fisher-Yates shuffle function to randomize the array
+const shuffleArray = (array) => {
+  let shuffledArray = [...array];
+  for (let i = shuffledArray.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1)); // Random index
+    [shuffledArray[i], shuffledArray[j]] = [shuffledArray[j], shuffledArray[i]]; // Swap elements
+  }
+  return shuffledArray;
+};
+
+
+
 module.exports = {
   createProduct,
   getProducts,
@@ -254,4 +308,5 @@ module.exports = {
   updateProduct,
   deleteProduct,
   getAllProducts,
+  getSimilarProducts,
 };

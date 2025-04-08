@@ -1,9 +1,8 @@
 import React, { useEffect, useState, useCallback, useMemo } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import useProductStore from "../../store/useProductStore.js";
 import useCategoryStore from "../../store/useCategoryStore.js";
 import useFlagStore from "../../store/useFlagStore.js";
-import ImageComponent from "./ImageComponent.jsx";
 import {
   Button,
   FormControl,
@@ -12,18 +11,13 @@ import {
   Select,
   Grid,
   Typography,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
 } from "@mui/material";
 import Skeleton from "react-loading-skeleton";
-import { FaEye } from "react-icons/fa";
-import ProductGallery from "./ProductGallery.jsx";
-import ProductAddToCart from "./ProductAddToCart.jsx";
+
+import ProductList from "./ProductList.jsx";
 
 const Product = () => {
-  const { products, totalPages, currentPage, loading, error, fetchProducts } =
+  const { products, totalPages, currentPage, loading, error, fetchProducts, totalProducts } =
     useProductStore();
   const { categories } = useCategoryStore();
   const { flags } = useFlagStore();
@@ -39,19 +33,7 @@ const Product = () => {
     stock: searchParams.get("stock") || "",
     flags: searchParams.get("flags") || "",
   });
-  const [open, setOpen] = useState(false);
 
-  // const handleOpen = () => setOpen(true);
-  // const handleClose = () => setOpen(false);
-  const [selectedProduct, setSelectedProduct] = useState(null);
-
-  const handleOpen = (product) => {
-    setSelectedProduct(product);
-  };
-
-  const handleClose = () => {
-    setSelectedProduct(null);
-  };
   // Memoize filter handling functions
   const handlePageChange = useCallback((newPage) => {
     setFilters((prev) => ({ ...prev, page: newPage }));
@@ -65,12 +47,6 @@ const Product = () => {
   const handleItemsPerPageChange = useCallback((e) => {
     const newLimit = parseInt(e.target.value);
     setFilters((prev) => ({ ...prev, limit: newLimit, page: 1 }));
-  }, []);
-
-  // Memoize the formatted price function
-  const formatPrice = useCallback((price) => {
-    if (isNaN(price)) return price;
-    return price.toLocaleString();
   }, []);
 
   // Effect to update filters from searchParams
@@ -128,7 +104,6 @@ const Product = () => {
     const discountAmount = priceBeforeDiscount - priceAfterDiscount;
     return Math.ceil((discountAmount / priceBeforeDiscount) * 100);
   };
-
   return (
     <div className="xl:container xl:mx-auto px-6 py-5 justify-center md:justify-start">
       {loading ? (
@@ -270,7 +245,7 @@ const Product = () => {
             </Grid>
           </Grid>
 
-          {products.filter((product) => product.isActive).length === 0 ? (
+          {products.length === 0 ? (
             <Typography
               variant="body1"
               className="text-center text-gray-500 p-20 md:p-70 shadow rounded-lg"
@@ -278,79 +253,9 @@ const Product = () => {
               No products found. Please check back later!
             </Typography>
           ) : (
-            <div
-              className={
-                "grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 mt-4"
-              }
-            >
+            <div>
               {/*Product Display Section*/}
-
-              {products
-                .filter((product) => product.isActive)
-                .map((product) => (
-                  <div key={product.slug} className="relative">
-                    <Link to={`/product/${product.slug}`}>
-                      <ImageComponent
-                        imageName={product.thumbnailImage}
-                        altName={product.name}
-                        skeletonHeight={350}
-                      />
-                    </Link>
-                    <Link to={`/product/${product.slug}`}>
-                      <div className="text-center mt-2 mb-1 hover:underline">
-                        {product.name}
-                      </div>
-                    </Link>
-                    <div className="flex gap-2 justify-center">
-                      <div className="line-through">
-                        Tk. {formatPrice(Number(product.finalPrice))}
-                      </div>
-                      <div className="text-red-800">
-                        Tk. {formatPrice(Number(product.finalDiscount))}
-                      </div>
-                    </div>
-                    {/* Discount Percentage */}
-                    <div className="absolute top-1 z-10">
-            <span className="bg-red-400 px-2 py-1 text-white">
-              -{calculateDiscountPercentage(product.finalPrice, product.finalDiscount)}%
-            </span>
-                    </div>
-                    {/* Quick View Button */}
-                    <div className="absolute top-1 right-0 z-10 bg-white rounded-full flex justify-center items-center">
-                      <button
-                        onClick={() => handleOpen(product)} // Pass the product to set the state
-                        className="p-2 cursor-pointer"
-                      >
-                        <FaEye />
-                      </button>
-                    </div>
-                  </div>
-                ))}
-
-              {/* Quick View Modal */}
-              {selectedProduct && (
-                <Dialog open={Boolean(selectedProduct)} onClose={handleClose} maxWidth="md" fullWidth>
-                  <DialogActions>
-                    <Button onClick={handleClose} color="primary">
-                      Close
-                    </Button>
-                  </DialogActions>
-                  <DialogContent>
-                    <div className="flex flex-col md:grid md:grid-cols-2 gap-4">
-                      <ProductGallery
-                        images={selectedProduct.images}
-                        discount={calculateDiscountPercentage(
-                          selectedProduct.finalPrice,
-                          selectedProduct.finalDiscount
-                        )}
-                      />
-                      <div>
-                        <ProductAddToCart product={selectedProduct} />
-                      </div>
-                    </div>
-                  </DialogContent>
-                </Dialog>
-              )}
+              <ProductList products={products} />
             </div>
           )}
 
@@ -369,8 +274,7 @@ const Product = () => {
               component="span"
               style={{ margin: "0 10px" }}
             >
-              Page {currentPage} of {totalPages} || Products:{" "}
-              {products.filter((product) => product.isActive).length}
+              Page {currentPage} of {totalPages} || Total Products: {totalProducts}
             </Typography>
             <Button
               onClick={() => handlePageChange(currentPage + 1)}

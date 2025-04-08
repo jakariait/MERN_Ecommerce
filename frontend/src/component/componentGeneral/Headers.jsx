@@ -57,10 +57,15 @@ const Headers = () => {
     };
   }, [isMenuOpen, isCartMenuOpen]);
 
-  const prevCartCount = useRef(cart.reduce((total, item) => total + item.quantity, 0));
+  const prevCartCount = useRef(
+    cart.reduce((total, item) => total + item.quantity, 0),
+  );
 
   useEffect(() => {
-    const currentCartCount = cart.reduce((total, item) => total + item.quantity, 0);
+    const currentCartCount = cart.reduce(
+      (total, item) => total + item.quantity,
+      0,
+    );
 
     if (currentCartCount > prevCartCount.current) {
       setIsCartMenuOpen(true); // Open cart only when quantity increases
@@ -68,6 +73,8 @@ const Headers = () => {
 
     prevCartCount.current = currentCartCount; // Update previous cart count
   }, [cart]);
+
+  const totalQuantity = cart.reduce((total, item) => total + item.quantity, 0);
 
 
   if (GeneralInfoListError) {
@@ -251,13 +258,7 @@ const Headers = () => {
                   <div className="flex items-center justify-between gap-5 text-lg">
                     <h1>Your Cart</h1>
                     <h1>
-                      {cart.reduce((total, item) => total + item.quantity, 0)}{" "}
-                      {cart.reduce(
-                        (total, item) => total + item.quantity,
-                        0,
-                      ) === 1
-                        ? "item"
-                        : "items"}
+                      {totalQuantity} {totalQuantity <= 1 ? "item" : "items"}
                     </h1>
                   </div>
 

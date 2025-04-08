@@ -1,11 +1,12 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import useCategoryStore from "../../store/useCategoryStore.js";
 import useSubCategoryStore from "../../store/useSubCategoryStore.js";
 import useChildCategoryStore from "../../store/useChildCategoryStore.js";
 import useFlagStore from "../../store/useFlagStore.js";
 import useProductSizeStore from "../../store/useProductSizeStore.js";
-import useProductStore from "../../store/useProductStore.js";
 import AuthAdminStore from "../../store/AuthAdminStore.js";
+import { Editor } from "primereact/editor";
+
 
 import {
   Box,
@@ -82,6 +83,9 @@ const AddProduct = () => {
   const [snackbarOpen, setSnackbarOpen] = useState(false); // Snackbar open state
   const [snackbarMessage, setSnackbarMessage] = useState(""); // Snackbar message
   const [snackbarSeverity, setSnackbarSeverity] = useState("success"); // Snackbar severity (success/error)
+
+  const fileInputRef = useRef(null);
+  const imagesInputRef = useRef(null);
 
   const handleToggle = () => {
     setHasVariant(!hasVariant);
@@ -283,6 +287,9 @@ const AddProduct = () => {
     if (!(thumbnailImage instanceof File)) {
       validationErrors.thumbnailImage = "Thumbnail image is required.";
     }
+    if (selectedImages.length === 0) {
+      validationErrors.images = "At least one image is required.";
+    }
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
       return;
@@ -358,15 +365,11 @@ const AddProduct = () => {
 
     try {
       // Send request to the server
-      const response = await axios.post(
-        `${apiUrl}/products`,
-        formData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+      const response = await axios.post(`${apiUrl}/products`, formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
         },
-      );
+      });
 
       // Success: show success Snackbar
       setSnackbarMessage("Product created successfully!");
@@ -399,6 +402,14 @@ const AddProduct = () => {
       setSelectedImages([]);
       setVariants([]);
 
+      if (fileInputRef.current) {
+        fileInputRef.current.value = ""; // Reset the file input
+      }
+
+      if (imagesInputRef.current) {
+        imagesInputRef.current.value = "";
+      }
+
       // Clear any validation errors
       setErrors({});
     } catch (error) {
@@ -406,7 +417,6 @@ const AddProduct = () => {
       setSnackbarMessage("Failed to create product. Please try again.");
       setSnackbarSeverity("error");
       setSnackbarOpen(true);
-      console.log(error);
 
       // Display server-side validation errors
       if (error.response && error.response.data) {
@@ -416,6 +426,7 @@ const AddProduct = () => {
       }
     }
   };
+  console.log(errors);
   return (
     <div className={"shadow rounded-lg p-3"}>
       <h2 className={"text-xl font-semibold p-3"}>Add New Product</h2>
@@ -444,44 +455,31 @@ const AddProduct = () => {
             />
 
             {/* Long Description */}
-            <TextField
-              label="Full Description"
-              fullWidth
-              multiline
-              rows={4}
+            <Editor
               value={longDesc}
-              onChange={(e) => setLongDesc(e.target.value)}
-              margin="normal"
-              InputProps={{
-                style: { resize: "vertical", overflow: "auto" }, // This makes it resizable
-              }}
+              onTextChange={(e) => setLongDesc(e.htmlValue)}
+              style={{ height: "260px" }}
             />
             {/* Size Chart */}
-            <TextField
-              label="Size Chart"
-              fullWidth
-              multiline
-              rows={4}
-              value={sizeChart}
-              onChange={(e) => setSizeChart(e.target.value)}
-              margin="normal"
-              InputProps={{
-                style: { resize: "vertical", overflow: "auto" }, // This makes it resizable
-              }}
-            />
+            <div>
+              <h1 className={"py-3 pl-1"}>Size Chart</h1>
+
+              <Editor
+                value={sizeChart}
+                onTextChange={(e) => setSizeChart(e.htmlValue)}
+                style={{ height: "260px" }}
+              />
+            </div>
             {/* Shipping and Return */}
-            <TextField
-              label="Shipping and Return"
-              fullWidth
-              multiline
-              rows={3.5}
-              value={shippingReturn}
-              onChange={(e) => setShippingReturn(e.target.value)}
-              margin="normal"
-              InputProps={{
-                style: { resize: "vertical", overflow: "auto" }, // This makes it resizable
-              }}
-            />
+            <div>
+              <h1 className={"py-3 pl-1"}>Shipping and Return</h1>
+
+              <Editor
+                value={shippingReturn}
+                onTextChange={(e) => setShippingReturn(e.htmlValue)}
+                style={{ height: "260px" }}
+              />
+            </div>
             {/* Search Tag Input */}
             <Box mb={2}>
               <Box
@@ -545,9 +543,11 @@ const AddProduct = () => {
                 accept="image/*"
                 onChange={handleImageChange}
                 style={{
-                  display: "none", // Hide the default file input
+                  display: "inline-block", // Hide the default file input
                 }}
                 id="thumbnail-upload"
+                name="thumbnailImage"
+                ref={fileInputRef} // Attach the ref here
                 required={true}
               />
               <label
@@ -615,6 +615,7 @@ const AddProduct = () => {
                 )}
               </label>
             </Box>
+
             {!hasVariant && (
               <>
                 {/* Final Price */}
@@ -625,6 +626,7 @@ const AddProduct = () => {
                   value={finalPrice}
                   onChange={handleFinalPriceChange}
                   margin="normal"
+                  required
                 />
                 {/* Final Discount Price */}
                 <TextField
@@ -635,13 +637,14 @@ const AddProduct = () => {
                   onChange={handleDiscountChange}
                   margin="normal"
                 />
-                {/* Final Stock Price */}
+                {/* Final Stock  */}
                 <TextField
                   label="Stock"
                   type="number" // Make it a number input
                   fullWidth
                   value={finalStock}
                   onChange={handleFinalStockChange}
+                  required
                   margin="normal"
                 />
               </>
@@ -682,6 +685,7 @@ const AddProduct = () => {
                   sx={{
                     color: "grey", // Change label color
                   }}
+                  required
                 >
                   Select Category
                 </InputLabel>
@@ -833,8 +837,11 @@ const AddProduct = () => {
               accept="image/*"
               multiple
               onChange={handleMultipleImagesChange}
-              style={{ display: "none" }} // Hide the default file input
+              style={{ display: "block" }} // Hide the default file input
               id="multi-image-upload"
+              name="images"
+              ref={imagesInputRef}
+              required={true}
             />
 
             <label
@@ -1171,7 +1178,6 @@ const AddProduct = () => {
             Add Product
           </Button>
         </div>
-
         {/* Snackbar for success/error messages */}
         <Snackbar
           open={snackbarOpen}

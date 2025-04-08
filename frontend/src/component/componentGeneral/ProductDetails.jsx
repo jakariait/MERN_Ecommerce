@@ -3,8 +3,7 @@ import { Link as RouterLink, useLocation, useParams } from "react-router-dom";
 import useProductStore from "../../store/useProductStore.js";
 import GeneralInfoStore from "../../store/GeneralInfoStore.js";
 import Skeleton from "react-loading-skeleton";
-import { FaPlus } from "react-icons/fa6";
-import { FiMinus } from "react-icons/fi";
+
 import {
   FacebookShareButton,
   FacebookIcon,
@@ -17,14 +16,15 @@ import {
 } from "react-share";
 import { Helmet } from "react-helmet";
 import { Breadcrumbs, Link, Typography } from "@mui/material";
-import { motion } from "framer-motion";
-import useCartStore from "../../store/useCartStore.js";
+
 import Accordion from "@mui/material/Accordion";
 import AccordionSummary from "@mui/material/AccordionSummary";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import AccordionDetails from "@mui/material/AccordionDetails";
 import ProductGallery from "./ProductGallery.jsx";
 import ProductAddToCart from "./ProductAddToCart.jsx";
+import axios from "axios";
+import SimilarProducts from "./SimilarProducts.jsx";
 
 const ProductDetails = () => {
   const { fetchProductBySlug, product, loading, error, resetProduct } =
@@ -66,6 +66,17 @@ const ProductDetails = () => {
     product?.finalPrice && product?.finalDiscount
       ? calculateDiscountPercentage(product.finalPrice, product.finalDiscount)
       : 0;
+
+  // Function to sanitize/remove editor-specific tags like ql-ui
+  const cleanHtml = (html) => {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, "text/html");
+
+    // Remove Quill editor-only UI elements
+    doc.querySelectorAll(".ql-ui").forEach((el) => el.remove());
+
+    return doc.body.innerHTML;
+  };
 
   // If product is loading, show a loading screen
   if (loading || product?.slug !== slug) {
@@ -220,6 +231,7 @@ const ProductDetails = () => {
                   <strong>Product Code:</strong> {product.productCode}
                 </div>
               )}
+
               {/*Short Description*/}
               {product.shortDesc && <div>{product.shortDesc}</div>}
             </div>
@@ -227,83 +239,109 @@ const ProductDetails = () => {
 
           <div className={"md:w-3/4 mx-auto shadow mt-4"}>
             {/*product Description*/}
-            <Accordion
-              defaultExpanded
-              style={{
-                background: "transparent",
-                boxShadow: "none",
-                width: "100%",
-              }}
-            >
-              <AccordionSummary
-                expandIcon={<ExpandMoreIcon />}
-                aria-controls="panel1-content"
-                id="panel1-header"
-                className="p-2 flex items-center"
+            {product.longDesc && (
+              <Accordion
+                defaultExpanded
+                style={{
+                  background: "transparent",
+                  boxShadow: "none",
+                  width: "100%",
+                }}
               >
-                <Typography component="span">
-                  <div className="flex items-center gap-2">
-                    <span>Description</span>
-                  </div>
-                </Typography>
-              </AccordionSummary>
-              <AccordionDetails>
-                <div dangerouslySetInnerHTML={{ __html: product.longDesc }} />
-              </AccordionDetails>
-            </Accordion>
+                <AccordionSummary
+                  expandIcon={<ExpandMoreIcon />}
+                  aria-controls="panel1-content"
+                  id="panel1-header"
+                  className="p-2 flex items-center"
+                >
+                  <Typography component="span">
+                    <div className="flex items-center gap-2">
+                      <span>Description</span>
+                    </div>
+                  </Typography>
+                </AccordionSummary>
+                <AccordionDetails>
+                  <div
+                    className="rendered-html"
+                    dangerouslySetInnerHTML={{
+                      __html: cleanHtml(product.longDesc),
+                    }}
+                  />
+                </AccordionDetails>
+              </Accordion>
+            )}
             {/*Product Size Chart*/}
-            <Accordion
-              style={{
-                background: "transparent",
-                boxShadow: "none",
-                width: "100%",
-              }}
-            >
-              <AccordionSummary
-                expandIcon={<ExpandMoreIcon />}
-                aria-controls="panel1-content"
-                id="panel1-header"
-                className="p-2 flex items-center"
+            {product.sizeChart && (
+              <Accordion
+                style={{
+                  background: "transparent",
+                  boxShadow: "none",
+                  width: "100%",
+                }}
               >
-                <Typography component="span">
-                  <div className="flex items-center gap-2">
-                    <span>Size Chart</span>
-                  </div>
-                </Typography>
-              </AccordionSummary>
-              <AccordionDetails>
-                <div dangerouslySetInnerHTML={{ __html: product.sizeChart }} />
-              </AccordionDetails>
-            </Accordion>
+                <AccordionSummary
+                  expandIcon={<ExpandMoreIcon />}
+                  aria-controls="panel1-content"
+                  id="panel1-header"
+                  className="p-2 flex items-center"
+                >
+                  <Typography component="span">
+                    <div className="flex items-center gap-2">
+                      <span>Size Chart</span>
+                    </div>
+                  </Typography>
+                </AccordionSummary>
+                <AccordionDetails>
+                  <div
+                    className="rendered-html"
+                    dangerouslySetInnerHTML={{
+                      __html: cleanHtml(product.sizeChart),
+                    }}
+                  />
+                </AccordionDetails>
+              </Accordion>
+            )}
+
             {/*Shipping and Return*/}
-            <Accordion
-              style={{
-                background: "transparent",
-                boxShadow: "none",
-                width: "100%",
-              }}
-            >
-              <AccordionSummary
-                expandIcon={<ExpandMoreIcon />}
-                aria-controls="panel1-content"
-                id="panel1-header"
-                className="p-2 flex items-center"
+            {product.shippingReturn && (
+              <Accordion
+                style={{
+                  background: "transparent",
+                  boxShadow: "none",
+                  width: "100%",
+                }}
               >
-                <Typography component="span">
-                  <div className="flex items-center gap-2">
-                    <span>Shipping and Return</span>
-                  </div>
-                </Typography>
-              </AccordionSummary>
-              <AccordionDetails>
-                <div
-                  dangerouslySetInnerHTML={{ __html: product.shippingReturn }}
-                />
-              </AccordionDetails>
-            </Accordion>
+                <AccordionSummary
+                  expandIcon={<ExpandMoreIcon />}
+                  aria-controls="panel1-content"
+                  id="panel1-header"
+                  className="p-2 flex items-center"
+                >
+                  <Typography component="span">
+                    <div className="flex items-center gap-2">
+                      <span>Shipping and Return</span>
+                    </div>
+                  </Typography>
+                </AccordionSummary>
+                <AccordionDetails>
+                  <div
+                    className="rendered-html"
+                    dangerouslySetInnerHTML={{
+                      __html: cleanHtml(product.shippingReturn),
+                    }}
+                  />
+                </AccordionDetails>
+              </Accordion>
+            )}
           </div>
         </div>
       )}
+      <div>
+        <SimilarProducts
+          categoryId={product.category._id}
+          productId={product._id}
+        />
+      </div>
     </div>
   );
 };

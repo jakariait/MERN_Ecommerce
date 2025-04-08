@@ -9,13 +9,19 @@ import emptyCart from "../../assets/empty_cart.png";
 
 const Cart = ({ onCloseCartMenu }) => {
   const { cart, removeFromCart, updateQuantity, clearCart } = useCartStore();
+
   // Calculate the total price of all items in the cart
-  const totalAmount = cart.reduce(
-    (total, item) => total + item.price * item.quantity,
-    0,
-  );
+  const totalAmount = cart.reduce((total, item) => {
+    const price =
+      item.discountPrice > 0 ? item.discountPrice : item.originalPrice;
+    return total + price * item.quantity;
+  }, 0);
+
   // Format the totalAmount with commas for better readability
   const formattedTotalAmount = totalAmount.toLocaleString();
+
+  // console.table(cart);
+
   return (
     <div className="py-3">
       {cart.length === 0 ? (
@@ -50,7 +56,20 @@ const Cart = ({ onCloseCartMenu }) => {
                   <h3 className="line-clamp-2 overflow-hidden text-ellipsis">
                     {item.name}
                   </h3>
-                  <p>Price: Tk. {item.price}</p>
+                  {/*Original Price*/}
+                  <p>Price: Tk. {item.originalPrice}</p>
+                  {/*Discount Price*/}
+                  {item.discountPrice > 0 && (
+                    <p className={"text-red-800"}>
+                      Offer Price: Tk. {item.discountPrice}
+                    </p>
+                  )}
+                  {/*Discount Amount*/}
+                  {item.discountPrice > 0 && (
+                    <p>
+                      You Save: Tk. {item.originalPrice - item.discountPrice}
+                    </p>
+                  )}
                   {item.variant !== "Default" && <p>Size: {item.variant}</p>}
                   <div className="flex items-center gap-2 justify-between">
                     <div className="flex items-center">
