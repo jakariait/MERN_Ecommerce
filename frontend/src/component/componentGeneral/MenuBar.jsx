@@ -40,16 +40,28 @@ const MenuBar = () => {
                         }
                       >
                         {category.name}
-                        <FaAngleDown />
+                        {Array.isArray(subCategories) &&
+                          subCategories.some(
+                            (subCat) =>
+                              subCat?.category?._id === category._id &&
+                              subCat.isActive,
+                          ) && <FaAngleDown />}
                       </span>
                     </Link>
                   }
                 >
-                  <SubMenu
-                    subCategories={subCategories}
-                    categoryId={category._id}
-                    childCategories={childCategories}
-                  />
+                  {Array.isArray(subCategories) &&
+                    subCategories.some(
+                      (subCat) =>
+                        subCat?.category?._id === category._id &&
+                        subCat.isActive,
+                    ) && (
+                      <SubMenu
+                        subCategories={subCategories}
+                        categoryId={category._id}
+                        childCategories={childCategories}
+                      />
+                    )}
                 </MenuItem>
               ))
           ) : (

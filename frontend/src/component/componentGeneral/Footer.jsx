@@ -14,10 +14,17 @@ import NewsletterForm from "./NewsletterForm.jsx";
 
 import SocialMedia from "./SocialMedia.jsx";
 import Skeleton from "react-loading-skeleton";
+import useAuthUserStore from "../../store/AuthUserStore.js";
 
 const Footer = () => {
   const { GeneralInfoList, GeneralInfoListLoading, GeneralInfoListError } =
     GeneralInfoStore();
+  const { user, logout } = useAuthUserStore();
+
+  const handleLogout = () => {
+    logout();
+    navigate("/login"); // redirect to login page after logout
+  };
 
   if (GeneralInfoListError) {
     return (
@@ -85,7 +92,16 @@ const Footer = () => {
                       <li className={"hover:primaryTextColor"}>
                         Promo/Coupons
                       </li>
-                      <li className={"hover:primaryTextColor"}>Login</li>
+                      {user ? (
+                        <li
+                          className={"cursor-pointer hover:primaryTextColor"}
+                          onClick={handleLogout}
+                        >
+                          Logout
+                        </li>
+                      ) : (
+                        <li className={"hover:primaryTextColor"}>Login</li>
+                      )}
                     </ul>
                   </AccordionContent>
                 </AccordionItem>
@@ -188,7 +204,16 @@ const Footer = () => {
                     <li>Promo/Coupons</li>
                   </Link>
                   <Link className={"hover:primaryTextColor"}>
-                    <li>Login</li>
+                    {user ? (
+                      <li
+                        className={"cursor-pointer hover:primaryTextColor"}
+                        onClick={handleLogout}
+                      >
+                        Logout
+                      </li>
+                    ) : (
+                      <li className={"hover:primaryTextColor"}>Login</li>
+                    )}
                   </Link>
                 </ul>
               </div>

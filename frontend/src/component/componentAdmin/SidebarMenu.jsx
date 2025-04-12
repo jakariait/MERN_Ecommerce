@@ -348,7 +348,9 @@ export default function SidebarMenu() {
                     <Link to="/admin/addnewproduct">Add New Product</Link>
                   </li>
                   <li>
-                    <Link to="/admin/viewallproducts">View All Products({totalProductsAdmin})</Link>
+                    <Link to="/admin/viewallproducts">
+                      View All Products({totalProductsAdmin})
+                    </Link>
                   </li>
                 </ul>
               </AccordionDetails>
@@ -360,8 +362,13 @@ export default function SidebarMenu() {
           <li className="flex items-center space-x-2 p-2 rounded-md cursor-pointer">
             <FaCreditCard /> <span>Gateway & API</span>
           </li>
-          <li className="flex items-center space-x-2 p-2 rounded-md cursor-pointer">
-            <FaUsers /> <span>Customers</span>
+          <li>
+            <Link
+              to="/admin/customers"
+              className="flex items-center space-x-2 p-2 rounded-md cursor-pointer"
+            >
+              <FaUsers /> <span>Customers</span>
+            </Link>
           </li>
           <li className="flex items-center space-x-2 p-2 rounded-md cursor-pointer">
             <FaHeart /> <span>Customer's Wishlist</span>

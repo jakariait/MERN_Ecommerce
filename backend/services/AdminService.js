@@ -1,4 +1,3 @@
-// src/services/adminService.js
 const AdminModel = require("../models/adminModel");
 
 const adminService = {

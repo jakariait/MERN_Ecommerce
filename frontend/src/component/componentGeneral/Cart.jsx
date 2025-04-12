@@ -42,7 +42,7 @@ const Cart = ({ onCloseCartMenu }) => {
         <div className="grid gap-4">
           {cart.map((item) => (
             <div
-              key={item.id + item.variant}
+              key={`${item.id || item.productId || index}-${item.variant}`}
               className="grid grid-cols-2 gap-3 border-t border-dashed py-2"
             >
               {/*Product Thumbnail*/}

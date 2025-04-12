@@ -1,4 +1,3 @@
-// src/component/componentAdmin/ProtectedRoute.jsx
 import { Navigate, Outlet } from "react-router-dom";
 import useAuthAdminStore from "../../store/AuthAdminStore.js";
 

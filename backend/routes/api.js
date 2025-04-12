@@ -15,9 +15,19 @@ const childCategoryController = require("../controllers/childCategoryController"
 const productSizeController = require("../controllers/productSizeController");
 const flagController = require("../controllers/flagController");
 const productController = require("../controllers/productController");
+const userController = require("../controllers/userController");
+const cartController = require("../controllers/cartController");
 
+// Admin
 const { adminProtect } = require("../middlewares/authAdminMiddleware");
 const { authenticateToken } = require("../middlewares/authenticateToken");
+
+// User
+const { userProtect } = require("../middlewares/authUserMiddleware");
+const {
+  authenticateUserToken,
+} = require("../middlewares/authinticateUserToken");
+
 require("dotenv").config();
 
 const router = express.Router();
@@ -60,6 +70,10 @@ const upload = multer({ storage }).fields([
   },
   {
     name: "images",
+  },
+  {
+    name: "userImage",
+    maxCount: 1,
   },
 ]);
 
@@ -147,11 +161,29 @@ router.get("/contacts/:id", adminProtect, contactController.getContactById);
 router.put("/contacts/:id", adminProtect, contactController.updateContact);
 router.delete("/contacts/:id", adminProtect, contactController.deleteContact);
 
-// Routes for Admin User
-
-// Login route
+// Admin Login route
 router.post("/admin/login", AdminController.loginAdmin);
 router.get("/admin/me", authenticateToken, AdminController.getLoggedInAdmin);
+
+// User Login Route
+
+// 🚀 Public Routes
+router.post("/login", userController.loginUser); // User login (email/phone and password)
+router.post("/register", upload, userController.createUser); // Create a new user
+
+// 🚀 Protected Routes (Requires Authentication)
+router.get("/profile", userProtect, userController.getLoggedInUser); // Get logged-in user's profile
+router.put("/updateUser/:id", upload, userController.updateUser);
+router.put(
+  "/request-deletion",
+  userProtect,
+  userController.requestAccountDeletion,
+);
+
+// Admin Protected Routes
+router.get("/getAllUsers", adminProtect, userController.getAllUsers);
+router.get("/getUserById/:id", adminProtect, userController.getUserById);
+router.delete("/deleteUser/:id", adminProtect, userController.deleteUser);
 
 // CRUD routes for Admin User
 router.get("/admin/", adminProtect, AdminController.getAllAdmins);
@@ -248,5 +280,12 @@ router.get(
   "/similar/:category/:productId",
   productController.getSimilarProductsController,
 );
+
+// Cart Routes
+router.get("/getCart", userProtect, cartController.getCart);
+router.post("/addToCart", userProtect, cartController.addToCart);
+router.patch("/updateCartItem", userProtect, cartController.updateCartItem);
+router.delete("/removeCartItem", userProtect, cartController.removeCartItem);
+router.delete("/clearCart", userProtect, cartController.clearCart);
 
 module.exports = router;

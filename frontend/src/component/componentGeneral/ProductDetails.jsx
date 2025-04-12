@@ -237,7 +237,7 @@ const ProductDetails = () => {
             </div>
           </div>
 
-          <div className={"md:w-3/4 mx-auto shadow mt-4"}>
+          <div className={"xl:w-3/4 mx-auto shadow mt-4"}>
             {/*product Description*/}
             {product.longDesc && (
               <Accordion

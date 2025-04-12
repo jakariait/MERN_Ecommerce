@@ -1,4 +1,3 @@
-// src/controllers/adminController.js
 const asyncHandler = require("express-async-handler");
 const adminService = require("../services/adminService");
 const AdminModel = require("../models/AdminModel");

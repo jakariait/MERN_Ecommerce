@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const Admin = require('../models/AdminModel'); // Assuming you have an Admin model
+const Admin = require('../models/AdminModel');
 
 // Middleware to authenticate the JWT token
 function authenticateToken(req, res, next) {

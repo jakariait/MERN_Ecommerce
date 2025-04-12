@@ -14,17 +14,26 @@ import { Link } from "react-router-dom";
 import Skeleton from "react-loading-skeleton";
 import MobileMenu from "./MobileMenu.jsx";
 import useCartStore from "../../store/useCartStore.js";
+import useAuthUserStore from "../../store/AuthUserStore.js";
 import Cart from "./Cart.jsx";
 
 const Headers = () => {
   const { GeneralInfoList, GeneralInfoListLoading, GeneralInfoListError } =
     GeneralInfoStore();
+
+  const { user, logout } = useAuthUserStore();
+
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isCartMenuOpen, setIsCartMenuOpen] = useState(false);
   const menuRef = useRef(null);
   const hamburgerRef = useRef(null);
   const cartButtonRef = useRef(null);
   const { cart } = useCartStore();
+
+  const handleLogout = () => {
+    logout();
+    navigate("/login"); // redirect to login page after logout
+  };
 
   const handleCloseCartMenu = () => {
     setIsCartMenuOpen(false);
@@ -76,7 +85,6 @@ const Headers = () => {
 
   const totalQuantity = cart.reduce((total, item) => total + item.quantity, 0);
 
-
   if (GeneralInfoListError) {
     return (
       <div className="primaryTextColor container md:mx-auto text-center p-3">
@@ -124,11 +132,10 @@ const Headers = () => {
               }
             >
               {/* Hamburger Menu on the left */}
-              <GiHamburgerMenu
-                ref={hamburgerRef}
-                className="text-2xl cursor-pointer lg:hidden"
-                onClick={() => setIsMenuOpen(!isMenuOpen)}
-              />
+              <div ref={hamburgerRef} onClick={() => setIsMenuOpen(!isMenuOpen)}>
+                <GiHamburgerMenu className="text-2xl cursor-pointer lg:hidden" />
+              </div>
+
 
               {/* Logo in the center */}
               <Link to="/">
@@ -150,23 +157,38 @@ const Headers = () => {
 
               {/* Cart Menu on the right */}
               <div className="flex items-center justify-center gap-2 relative">
-                <div className="flex items-center gap-2 flex-col">
-                  <IoPersonOutline className="w-6 h-6" />
-                  <span className="text-sm hidden lg:block">
-                    Login / Register
-                  </span>
+                <div className="transition-opacity duration-500 ease-in-out">
+                  {user ? (
+                    <Link to="/user/home">
+                      <div className="flex items-center gap-2 flex-col opacity-100">
+                        <IoPersonOutline className="w-6 h-6" />
+                        <span className="text-sm hidden lg:block">
+                          My Account
+                        </span>
+                      </div>
+                    </Link>
+                  ) : (
+                    <Link to="/login">
+                      <div className="flex items-center gap-2 flex-col opacity-100">
+                        <IoPersonOutline className="w-6 h-6" />
+                        <span className="text-sm hidden lg:block">
+                          Login / Register
+                        </span>
+                      </div>
+                    </Link>
+                  )}
                 </div>
+
                 <div className="hidden lg:flex items-center gap-2 flex-col">
                   <AiOutlineHeart className="w-6 h-6" />
                   <span className="text-sm ">Wish List</span>
                 </div>
                 <div>
                   <div>
-                    <CiShoppingCart
-                      ref={cartButtonRef}
-                      className="w-7 h-7 cursor-pointer"
-                      onClick={() => setIsCartMenuOpen(!isCartMenuOpen)} // Toggle cart menu
-                    />
+                    <div ref={cartButtonRef} onClick={() => setIsCartMenuOpen(!isCartMenuOpen)}>
+                      <CiShoppingCart className="w-7 h-7 cursor-pointer" />
+                    </div>
+
                     {/*Showing Cart Quantity*/}
                     <span className="absolute -top-2 -right-3 lg:right-1 primaryBgColor rounded-full h-6 w-6 p-2 flex items-center justify-center text-xs text-white">
                       {cart.reduce((total, item) => total + item.quantity, 0)}
@@ -218,9 +240,24 @@ const Headers = () => {
                 <div className="space-y-2">
                   <MobileMenu />
                 </div>
-                <div className="gap-3 inline-flex items-center justify-between mt-4">
-                  <IoPersonOutline className="w-10 h-10 primaryBgColor rounded-full flex items-center justify-center text-xs text-white p-2" />
-                  <span className="text-sm">Login / Register</span>
+                <div className="transition-opacity duration-500 ease-in-out">
+                  {user ? (
+                    <button
+                      onClick={handleLogout}
+                      className={
+                        "primaryBgColor accentTextColor px-4 py-2 rounded-lg w-full cursor-pointer"
+                      }
+                    >
+                      Log Out
+                    </button>
+                  ) : (
+                    <Link to="/login">
+                      <div className="gap-3 inline-flex items-center justify-between mt-4">
+                        <IoPersonOutline className="w-10 h-10 primaryBgColor rounded-full flex items-center justify-center text-xs text-white p-2" />
+                        <span className="text-sm">Login / Register</span>
+                      </div>
+                    </Link>
+                  )}
                 </div>
               </div>
             </div>
@@ -248,7 +285,7 @@ const Headers = () => {
                 position: "fixed",
                 top: 0,
                 right: 0,
-                width: "400px", // Adjust the width of the menu
+                width: "350px", // Adjust the width of the menu
                 height: "100vh", // Ensure the menu takes the full height of the viewport
                 transition: "transform 0.3s ease-in-out", // Smooth transition for sliding in/out
               }}

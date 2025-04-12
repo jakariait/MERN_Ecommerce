@@ -18,6 +18,7 @@ import useProductSizeStore from "./store/useProductSizeStore.js";
 import useFlagStore from "./store/useFlagStore.js";
 import useChildCategoryStore from "./store/useChildCategoryStore.js";
 import useProductStore from "./store/useProductStore.js";
+import useAuthUserStore from "./store/AuthUserStore.js";
 import ContactRequestPage from "./pagesAdmin/ContactRequestPage.jsx";
 import AdminLogin from "./component/componentAdmin/AdminLogin.jsx";
 import ProtectedRoute from "./component/componentAdmin/ProtectedRoute.jsx";
@@ -40,6 +41,12 @@ import AddNewProductPage from "./pagesAdmin/AddNewProductPage.jsx";
 import ProductDetailsPage from "./pagesUser/ProductDetailsPage.jsx";
 import ViewAllProductPage from "./pagesAdmin/ViewAllProductPage.jsx";
 import EditProductPage from "./pagesAdmin/EditProductPage.jsx";
+import LoginPage from "./pagesUser/LoginPage.jsx";
+import RegisterPage from "./pagesUser/RegisterPage.jsx";
+import CustomerListPage from "./pagesAdmin/CustomerListPage.jsx";
+import UserLayout from "./component/componentGeneral/UserLayout.jsx";
+import UserProtectedRoute from "./component/componentGeneral/UserProtectedRoute.jsx";
+import UserHomePage from "./pagesUser/UserHomePage.jsx";
 
 function App() {
   const { GeneralInfoListRequest } = GeneralInfoStore();
@@ -53,6 +60,7 @@ function App() {
   const { fetchFlags } = useFlagStore();
   const { fetchChildCategories } = useChildCategoryStore();
   const { fetchProducts, fetchProductsAdmin } = useProductStore();
+  const { initialize } = useAuthUserStore();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -70,6 +78,7 @@ function App() {
           fetchChildCategories(),
           fetchProducts(),
           fetchProductsAdmin(),
+          initialize(),
         ]);
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -102,36 +111,40 @@ function App() {
 
   return (
     <Router>
-      <div>
-        <Routes>
-          {/* General User Routes */}
-          <Route path="/" element={<HomePage />} />
-          <Route path="/shop" element={<ShopPage />} />
-          <Route path="/product/:slug" element={<ProductDetailsPage />} />
-          <Route path="/contact-us" element={<ContactUsPage />} />
-          <Route path="/admin/login" element={<AdminLogin />} />
-          {/* Protected Admin Routes */}
-          <Route element={<ProtectedRoute />}>
-            <Route path="/admin/general-info" element={<GeneralInfoPage />} />
-            <Route
-              path="/admin/subscribed-users"
-              element={<SubscribedUsersPage />}
-            />
-            <Route path="/admin/color-updater" element={<ColorUpdaterPage />} />
-            <Route
-              path="/admin/social-link-updater"
-              element={<SocialLinkUpdaterPage />}
-            />
-            <Route
-              path="/admin/sliders-banners"
-              element={<SliderBannerPage />}
-            />
-            <Route
-              path="/admin/contact-request"
-              element={<ContactRequestPage />}
-            />
-          </Route>
-          {/*Category Routes*/}
+      <Routes>
+        {/* General User Routes */}
+        <Route path="/" element={<HomePage />} />
+        <Route path="/shop" element={<ShopPage />} />
+        <Route path="/product/:slug" element={<ProductDetailsPage />} />
+        <Route path="/contact-us" element={<ContactUsPage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
+        <Route path="/admin/login" element={<AdminLogin />} />
+
+        {/* Protected User Routes */}
+        <Route element={<UserProtectedRoute />}>
+          <Route path="/user/home" element={<UserHomePage />} />
+        </Route>
+
+        {/* Protected Admin Routes */}
+        <Route element={<ProtectedRoute />}>
+          <Route path="/admin/general-info" element={<GeneralInfoPage />} />
+          <Route
+            path="/admin/subscribed-users"
+            element={<SubscribedUsersPage />}
+          />
+          <Route path="/admin/color-updater" element={<ColorUpdaterPage />} />
+          <Route
+            path="/admin/social-link-updater"
+            element={<SocialLinkUpdaterPage />}
+          />
+          <Route path="/admin/sliders-banners" element={<SliderBannerPage />} />
+          <Route
+            path="/admin/contact-request"
+            element={<ContactRequestPage />}
+          />
+
+          {/* Category Routes */}
           <Route
             path="/admin/addnewcategory"
             element={<AddNewCategoryPage />}
@@ -141,20 +154,22 @@ function App() {
             path="/admin/edit-category/:id"
             element={<EditCategoryPage />}
           />
-          {/*SubCategory Routes*/}
+
+          {/* SubCategory Routes */}
           <Route
             path="/admin/addnewsubcategory"
             element={<AddNewSubCategoryPage />}
           />
           <Route
-            path="admin/edit-subcategory/:id"
+            path="/admin/edit-subcategory/:id"
             element={<EditSubCategoryPage />}
           />
           <Route
             path="/admin/subcategorylist"
             element={<SubCategoryListPage />}
           />
-          {/*Child Category Routes*/}
+
+          {/* Child Category Routes */}
           <Route
             path="/admin/childcategorylist"
             element={<ChildCategoryListPage />}
@@ -167,7 +182,8 @@ function App() {
             path="/admin/edit-child-category/:id"
             element={<EditChildCategoryPage />}
           />
-          {/*Product Size Routes*/}
+
+          {/* Product Size Routes */}
           <Route
             path="/admin/add-product-size"
             element={<AddNewProductSizePage />}
@@ -177,13 +193,14 @@ function App() {
             element={<ProductSizeListPage />}
           />
           <Route
-            path="admin/edit-product-size/:id"
+            path="/admin/edit-product-size/:id"
             element={<EditProductSizePage />}
           />
-          {/*Product Flag Routes*/}
-          <Route path="admin/product-flags" element={<ProductFlagPage />} />
 
-          {/*Product Routes*/}
+          {/* Product Flag Routes */}
+          <Route path="/admin/product-flags" element={<ProductFlagPage />} />
+
+          {/* Product Routes */}
           <Route path="/admin/addnewproduct" element={<AddNewProductPage />} />
           <Route
             path="/admin/viewallproducts"
@@ -193,10 +210,12 @@ function App() {
             path="/admin/edit-product/:slug"
             element={<EditProductPage />}
           />
-          {/* Handle unknown routes */}
-          <Route path="*" element={<NotFoundPage />} />
-        </Routes>
-      </div>
+          <Route path="/admin/customers" element={<CustomerListPage />} />
+        </Route>
+
+        {/* Not Found */}
+        <Route path="*" element={<NotFoundPage />} />
+      </Routes>
     </Router>
   );
 }

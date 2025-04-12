@@ -162,6 +162,7 @@ const ProductList = ( {products}) => {
                       selectedProduct.finalPrice,
                       selectedProduct.finalDiscount,
                     )}
+                    zoom={false}
                   />
                   <div>
                     <ProductAddToCart product={selectedProduct} />
