@@ -73,11 +73,12 @@ const Cart = ({ onCloseCartMenu }) => {
                   {item.variant !== "Default" && <p>Size: {item.variant}</p>}
                   <div className="flex items-center gap-2 justify-between">
                     <div className="flex items-center">
+                      {/*Decrease Button*/}
                       <button
                         className="primaryBgColor accentTextColor px-2 py-2 rounded-l cursor-pointer"
                         onClick={() =>
                           updateQuantity(
-                            item.id,
+                            item.productId, // <-- FIXED
                             item.variant,
                             item.quantity - 1,
                           )
@@ -89,11 +90,12 @@ const Cart = ({ onCloseCartMenu }) => {
                       <span className={"px-3 py-1 bg-gray-200"}>
                         {item.quantity}
                       </span>
+                      {/*Increase Button*/}
                       <button
                         className="primaryBgColor accentTextColor px-2 py-2 rounded-r cursor-pointer"
                         onClick={() =>
                           updateQuantity(
-                            item.id,
+                            item.productId, // <-- FIXED
                             item.variant,
                             item.quantity + 1,
                           )
@@ -103,9 +105,10 @@ const Cart = ({ onCloseCartMenu }) => {
                         <FaPlus />
                       </button>
                     </div>
+                    {/*Delete Button*/}
                     <div>
                       <button
-                        onClick={() => removeFromCart(item.id, item.variant)}
+                        onClick={() => removeFromCart(item.productId, item.variant)} // <-- FIXED
                         className="text-red-500 text-lg cursor-pointer"
                       >
                         <FaTrash />

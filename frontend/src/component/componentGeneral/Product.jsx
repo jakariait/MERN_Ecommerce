@@ -25,7 +25,7 @@ const Product = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [filters, setFilters] = useState({
     page: parseInt(searchParams.get("page")) || 1,
-    limit: parseInt(searchParams.get("limit")) || 12,
+    limit: parseInt(searchParams.get("limit")) || 20,
     sort: searchParams.get("sort") || "",
     category: searchParams.get("category") || "",
     subcategory: searchParams.get("subcategory") || "",
@@ -53,7 +53,7 @@ const Product = () => {
   useEffect(() => {
     const updatedFilters = {
       page: parseInt(searchParams.get("page")) || 1,
-      limit: parseInt(searchParams.get("limit")) || 12,
+      limit: parseInt(searchParams.get("limit")) || 20,
       sort: searchParams.get("sort") || "",
       category: searchParams.get("category") || "",
       subcategory: searchParams.get("subcategory") || "",
@@ -94,6 +94,8 @@ const Product = () => {
   const calculateDiscountPercentage = (
     priceBeforeDiscount,
     priceAfterDiscount,
+
+
   ) => {
     if (
       !priceBeforeDiscount ||

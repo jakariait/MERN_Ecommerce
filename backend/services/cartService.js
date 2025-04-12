@@ -6,13 +6,19 @@ const getCart = async (userId) => {
 };
 
 const addToCart = async (userId, item) => {
+  if (!item.productId || !item.variant || !item.quantity) {
+    throw new Error("Missing productId, variant, or quantity");
+  }
+
   let cart = await CartModel.findOne({ user: userId });
 
   if (!cart) {
     cart = new CartModel({ user: userId, items: [item] });
   } else {
     const index = cart.items.findIndex(
-      (i) => i.product.toString() === item.product && i.variant === item.variant
+      (i) =>
+        i.productId?.toString() === item.productId?.toString() &&
+        i.variant === item.variant
     );
 
     if (index > -1) {
@@ -34,7 +40,9 @@ const updateCartItem = async (userId, productId, variant, quantity) => {
   if (!cart) throw new Error("Cart not found");
 
   const index = cart.items.findIndex(
-    (item) => item.product.toString() === productId && item.variant === variant
+    (item) =>
+      item.productId.toString() === productId &&
+      item.variant === variant
   );
 
   if (index > -1) {
@@ -51,7 +59,8 @@ const removeCartItem = async (userId, productId, variant) => {
   if (!cart) throw new Error("Cart not found");
 
   cart.items = cart.items.filter(
-    (item) => !(item.product.toString() === productId && item.variant === variant)
+    (item) =>
+      !(item.productId.toString() === productId && item.variant === variant)
   );
   await cart.save();
   return cart;

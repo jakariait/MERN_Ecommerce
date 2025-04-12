@@ -153,14 +153,14 @@ const ProductAddToCart = ({ product }) => {
             {/*Cart Quantity Button*/}
             <div className={"rounded flex items-center justify-between"}>
               <button
-                className={"primaryBgColor accentTextColor px-2 py-2 md:py-4 rounded-l cursor-pointer"}
+                className={"primaryBgColor accentTextColor px-2 py-2 md:py-3 rounded-l cursor-pointer"}
                 onClick={() => handleQuantityChange("decrease")}
               >
                 <FiMinus />
               </button>
-              <span className={"px-3 py-1 md:py-3 bg-gray-200"}>{quantity}</span>
+              <span className={"px-3 py-1 md:py-2 bg-gray-200"}>{quantity}</span>
               <button
-                className={"primaryBgColor accentTextColor px-2 py-2 md:py-4 rounded-r cursor-pointer"}
+                className={"primaryBgColor accentTextColor px-2 py-2 md:py-3 rounded-r cursor-pointer"}
                 onClick={() => handleQuantityChange("increase")}
                 disabled={quantity >= MAX_QUANTITY} // Disable when limit is reached
               >
@@ -174,7 +174,7 @@ const ProductAddToCart = ({ product }) => {
               </button>
             ) : (
               <motion.button
-                className="primaryBgColor accentTextColor px-2 py-1 md:py-3 rounded flex-grow cursor-pointer"
+                className="primaryBgColor accentTextColor px-2 py-1 md:py-2 rounded flex-grow cursor-pointer"
                 animate={{ scale: [1, 1.1, 1] }} // Scale animation
                 transition={{
                   duration: 2.5,
@@ -189,14 +189,14 @@ const ProductAddToCart = ({ product }) => {
 
             {/*Wish List Button*/}
             <button
-              className={"primaryBgColor accentTextColor px-3 py-2  md:py-4 rounded cursor-pointer"}
+              className={"primaryBgColor accentTextColor px-3 py-2  md:py-3 rounded cursor-pointer"}
             >
               <FaRegHeart />
             </button>
           </div>
           {/*Cash On Delivery Order Button*/}
           <motion.button
-            className="primaryBgColor accentTextColor px-2 py-1 md:py-3 rounded cursor-pointer"
+            className="primaryBgColor accentTextColor px-2 py-1 md:py-2 rounded cursor-pointer"
             animate={{ scale: [1, 1.05, 1] }} // Scale animation
             transition={{
               duration: 2.5,

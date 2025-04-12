@@ -20,8 +20,8 @@ const addToCart = async (req, res) => {
 
 const updateCartItem = async (req, res) => {
   try {
-    const { product, variant, quantity } = req.body;
-    const cart = await cartService.updateCartItem(req.user._id, product, variant, quantity);
+    const { productId, variant, quantity } = req.body;
+    const cart = await cartService.updateCartItem(req.user._id, productId, variant, quantity);
     res.status(200).json({ message: "Item updated", cart });
   } catch (error) {
     res.status(500).json({ message: "Failed to update item", error: error.message });
@@ -30,8 +30,8 @@ const updateCartItem = async (req, res) => {
 
 const removeCartItem = async (req, res) => {
   try {
-    const { product, variant } = req.body;
-    const cart = await cartService.removeCartItem(req.user._id, product, variant);
+    const { productId, variant } = req.body;
+    const cart = await cartService.removeCartItem(req.user._id, productId, variant);
     res.status(200).json({ message: "Item removed", cart });
   } catch (error) {
     res.status(500).json({ message: "Failed to remove item", error: error.message });

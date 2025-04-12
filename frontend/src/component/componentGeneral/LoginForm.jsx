@@ -1,38 +1,43 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { FaUser, FaLock } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
+import Snackbar from "@mui/material/Snackbar";
+import Alert from "@mui/material/Alert";
 import useAuthUserStore from "../../store/AuthUserStore.js";
 import useCartStore from "../../store/useCartStore.js";
 
 const LoginForm = () => {
   const navigate = useNavigate();
   const { login, loading, error } = useAuthUserStore();
-  const { syncCartToDB } = useCartStore();
+  const { syncCartToDB, loadCartFromBackend } = useCartStore();
 
   const [emailOrPhone, setEmailOrPhone] = useState("");
   const [password, setPassword] = useState("");
+
+  // Snackbar state
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     await login(emailOrPhone, password);
-  };
-  // After login, check if token is set and navigate
-  const token = localStorage.getItem("user_token");
 
-  useEffect(() => {
-    const trySync = async () => {
-      if (!loading) {
-        const token = localStorage.getItem("user_token");
-        if (token) {
-          await syncCartToDB(token); // Sync local cart to DB
-          navigate("/user/home"); // Then navigate
-        }
+    const token = localStorage.getItem("user_token");
+
+    if (token) {
+      try {
+        await syncCartToDB(token);
+        await loadCartFromBackend(token);
+        navigate("/user/home");
+      } catch (err) {
+        setSnackbarMessage(
+          "There was a problem loading your cart. Please try again.",
+        );
+        setSnackbarOpen(true);
       }
-    };
-
-    trySync();
-  }, [loading, syncCartToDB, navigate]);
+    }
+  };
 
   return (
     <div className="flex items-center justify-center bg-white px-4 mt-20 mb-20 md:m-20">
@@ -47,7 +52,7 @@ const LoginForm = () => {
         {/* Heading */}
         <h2 className="text-2xl font-semibold m-7">Sign in</h2>
 
-        {/* Error Message */}
+        {/* Error Message from Auth */}
         {error && (
           <div className="bg-red-100 text-red-600 px-4 py-2 mb-4 rounded">
             {error}
@@ -116,6 +121,22 @@ const LoginForm = () => {
           </Link>
         </p>
       </div>
+
+      {/* Snackbar for cart sync/load error */}
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={4000}
+        onClose={() => setSnackbarOpen(false)}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      >
+        <Alert
+          onClose={() => setSnackbarOpen(false)}
+          severity="error"
+          sx={{ width: "100%" }}
+        >
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
     </div>
   );
 };
