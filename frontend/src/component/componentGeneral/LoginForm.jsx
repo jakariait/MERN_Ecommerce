@@ -89,10 +89,6 @@ const LoginForm = () => {
 
           {/* Remember Me & Forgot */}
           <div className="flex justify-between items-center text-sm text-gray-600">
-            <label className="flex items-center space-x-2">
-              <input type="checkbox" className="accent-blue-600" />
-              <span>Remember me</span>
-            </label>
             <a
               href="#"
               className="primaryTextColor font-medium hover:underline"

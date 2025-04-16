@@ -31,6 +31,7 @@ const useCartStore = create((set, get) => ({
         variant: item.variant,
         quantity: item.quantity,
         thumbnail: item.thumbnail,
+        slug: item.slug,
       }));
 
       saveCart(serverCartItems);
@@ -42,6 +43,7 @@ const useCartStore = create((set, get) => ({
 
   addToCart: async (product, quantity, selectedVariant) => {
     const variant = selectedVariant?.size.name || "Default";
+    const variantId = selectedVariant?._id || "Default";
     const token = localStorage.getItem("user_token");
 
     set((state) => {
@@ -66,6 +68,8 @@ const useCartStore = create((set, get) => ({
           variant,
           quantity,
           thumbnail: product.thumbnailImage,
+          variantId,
+          slug: product.slug,
         });
       }
 
@@ -86,6 +90,7 @@ const useCartStore = create((set, get) => ({
             variant,
             quantity,
             thumbnail: product.thumbnailImage,
+            slug: product.slug,
           },
           { headers: { Authorization: `Bearer ${token}` } },
         );
@@ -187,6 +192,7 @@ const useCartStore = create((set, get) => ({
             variant: item.variant,
             quantity: item.quantity,
             thumbnail: item.thumbnail,
+            slug: item.slug,
           },
           {
             headers: {
@@ -211,6 +217,8 @@ const useCartStore = create((set, get) => ({
         variant: item.variant,
         quantity: item.quantity,
         thumbnail: item.thumbnail,
+        slug: item.product?.slug,
+
       }));
 
       saveCart(serverCartItems);

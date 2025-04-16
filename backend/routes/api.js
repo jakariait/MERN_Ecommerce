@@ -17,6 +17,7 @@ const flagController = require("../controllers/flagController");
 const productController = require("../controllers/productController");
 const userController = require("../controllers/userController");
 const cartController = require("../controllers/cartController");
+const shippingController = require("../controllers/ShippingController");
 
 // Admin
 const { adminProtect } = require("../middlewares/authAdminMiddleware");
@@ -169,7 +170,7 @@ router.get("/admin/me", authenticateToken, AdminController.getLoggedInAdmin);
 
 // 🚀 Public Routes
 router.post("/login", userController.loginUser); // User login (email/phone and password)
-router.post("/register", upload, userController.createUser); // Create a new user
+router.post("/register", userController.createUser); // Create a new user
 
 // 🚀 Protected Routes (Requires Authentication)
 router.get("/profile", userProtect, userController.getLoggedInUser); // Get logged-in user's profile
@@ -280,6 +281,7 @@ router.get(
   "/similar/:category/:productId",
   productController.getSimilarProductsController,
 );
+router.get("/getProductDetails", productController.getProductDetails);
 
 // Cart Routes
 router.get("/getCart", userProtect, cartController.getCart);
@@ -287,5 +289,12 @@ router.post("/addToCart", userProtect, cartController.addToCart);
 router.patch("/updateCartItem", userProtect, cartController.updateCartItem);
 router.delete("/removeCartItem", userProtect, cartController.removeCartItem);
 router.delete("/clearCart", userProtect, cartController.clearCart);
+
+// Shipping Option Routes
+router.post("/createShipping", shippingController.createShipping);
+router.get("/getAllShipping", shippingController.getAllShipping);
+router.get("/getShippingById/:id", shippingController.getShippingById);
+router.patch("/updateShipping/:id", shippingController.updateShipping);
+router.delete("/deleteShipping/:id", shippingController.deleteShipping);
 
 module.exports = router;

@@ -5,7 +5,8 @@ import LoginForm from "../component/componentGeneral/LoginForm.jsx";
 const LoginPage = () => {
   return (
     <Layout>
-      <LoginForm />
+        <LoginForm />
+
     </Layout>
   );
 };

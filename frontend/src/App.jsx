@@ -47,6 +47,7 @@ import RegisterPage from "./pagesUser/RegisterPage.jsx";
 import CustomerListPage from "./pagesAdmin/CustomerListPage.jsx";
 import UserProtectedRoute from "./component/componentGeneral/UserProtectedRoute.jsx";
 import UserHomePage from "./pagesUser/UserHomePage.jsx";
+import CheckoutPage from "./pagesUser/CheckoutPage.jsx";
 
 function App() {
   const { GeneralInfoListRequest } = GeneralInfoStore();
@@ -119,6 +120,9 @@ function App() {
         <Route path="/contact-us" element={<ContactUsPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
+        <Route path="/checkout" element={<CheckoutPage />} />
+
+        {/*Admin Login Page*/}
         <Route path="/admin/login" element={<AdminLogin />} />
 
         {/* Protected User Routes */}

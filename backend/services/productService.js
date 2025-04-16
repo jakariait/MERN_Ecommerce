@@ -298,6 +298,75 @@ const shuffleArray = (array) => {
   return shuffledArray;
 };
 
+// Get Products Details For Order
+const getProductDetailsService = async ({ productId, variantId }) => {
+  if (!productId) {
+    throw { status: 400, message: "⚠️ productId is required!" };
+  }
+
+  const product = await ProductModel.findById(productId).lean();
+
+  if (!product) {
+    throw { status: 404, message: "❌ Product not found!" };
+  }
+
+  // Check if the product has variants
+  const hasVariants = Array.isArray(product.variants) && product.variants.length > 0;
+
+  // 🔒 If product has variants but no variantId provided
+  if (hasVariants && !variantId) {
+    throw { status: 400, message: "⚠️ variantId is required for products with variants!" };
+  }
+
+  // 👉 If variantId is provided
+  if (variantId) {
+    const selectedVariant = product.variants.find(
+      (variant) => variant._id.toString() === variantId
+    );
+
+    if (!selectedVariant) {
+      throw { status: 404, message: "❌ Variant not found!" };
+    }
+
+    return {
+      message: "✅ Product variant retrieved successfully!",
+      variant: true,
+      data: {
+        productId: product._id,
+        name: product.name,
+        thumbnailImage: product.thumbnailImage,
+        images: product.images,
+        category: product.category,
+        selectedVariant: {
+          _id: selectedVariant._id,
+          size: selectedVariant.size,
+          price: selectedVariant.price,
+          stock: selectedVariant.stock,
+          discount: selectedVariant.discount ?? 0
+        }
+      }
+    };
+  }
+
+  // ✅ If product has no variants and no variantId is required
+  return {
+    message: "✅ Product (no variant) retrieved successfully!",
+    variant: false,
+    data: {
+      productId: product._id,
+      name: product.name,
+      shortDesc: product.shortDesc,
+      longDesc: product.longDesc,
+      thumbnailImage: product.thumbnailImage,
+      images: product.images,
+      category: product.category,
+      finalPrice: product.finalPrice,
+      finalDiscount: product.finalDiscount,
+      finalStock: product.finalStock
+    }
+  };
+};
+
 
 
 module.exports = {
@@ -309,4 +378,5 @@ module.exports = {
   deleteProduct,
   getAllProducts,
   getSimilarProducts,
+  getProductDetailsService,
 };

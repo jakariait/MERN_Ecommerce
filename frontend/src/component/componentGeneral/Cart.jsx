@@ -18,9 +18,11 @@ const Cart = ({ onCloseCartMenu }) => {
   }, 0);
 
   // Format the totalAmount with commas for better readability
-  const formattedTotalAmount = totalAmount.toLocaleString();
+  const formattedTotalAmount = (amount) => {
+    return Number(amount).toLocaleString();
+  };
 
-  // console.table(cart);
+  console.table(cart);
 
   return (
     <div className="py-3">
@@ -46,28 +48,42 @@ const Cart = ({ onCloseCartMenu }) => {
               className="grid grid-cols-2 gap-3 border-t border-dashed py-2"
             >
               {/*Product Thumbnail*/}
-              <ImageComponent
-                imageName={item.thumbnail}
-                altName={item.name}
-                className="object-cover"
-              />
+
+              <Link to={`/product/${item.slug}`}>
+                <ImageComponent
+                  imageName={item.thumbnail}
+                  altName={item.name}
+                  className="object-cover"
+                />
+              </Link>
+
               <div className="flex-1">
                 <div className="flex flex-col gap-2">
-                  <h3 className="line-clamp-2 overflow-hidden text-ellipsis">
-                    {item.name}
-                  </h3>
+                  <Link to={`/product/${item.slug}`}>
+                    <h3 className="line-clamp-2 overflow-hidden text-ellipsis hover:underline">
+                      {item.name}
+                    </h3>
+                  </Link>
+
                   {/*Original Price*/}
-                  <p>Price: Tk. {item.originalPrice}</p>
+                  <p>
+                    Price: Tk.{" "}
+                    {formattedTotalAmount(item.originalPrice * item.quantity)}
+                  </p>
                   {/*Discount Price*/}
                   {item.discountPrice > 0 && (
                     <p className={"text-red-800"}>
-                      Offer Price: Tk. {item.discountPrice}
+                      Offer Price: Tk.{" "}
+                      {formattedTotalAmount(item.discountPrice * item.quantity)}
                     </p>
                   )}
                   {/*Discount Amount*/}
                   {item.discountPrice > 0 && (
                     <p>
-                      You Save: Tk. {item.originalPrice - item.discountPrice}
+                      You Save: Tk.{" "}
+                      {formattedTotalAmount(
+                        item.originalPrice - item.discountPrice,
+                      )}
                     </p>
                   )}
                   {item.variant !== "Default" && <p>Size: {item.variant}</p>}
@@ -108,7 +124,9 @@ const Cart = ({ onCloseCartMenu }) => {
                     {/*Delete Button*/}
                     <div>
                       <button
-                        onClick={() => removeFromCart(item.productId, item.variant)} // <-- FIXED
+                        onClick={() =>
+                          removeFromCart(item.productId, item.variant)
+                        } // <-- FIXED
                         className="text-red-500 text-lg cursor-pointer"
                       >
                         <FaTrash />
@@ -121,7 +139,9 @@ const Cart = ({ onCloseCartMenu }) => {
           ))}
           <div className="flex justify-between py-4 items-center gap-2 border-b border-t border-dashed">
             <h1 className="text-center">Totals</h1>
-            <span className="text-center">Tk {formattedTotalAmount}</span>
+            <span className="text-center">
+              Tk {formattedTotalAmount(totalAmount)}
+            </span>
           </div>
 
           <button

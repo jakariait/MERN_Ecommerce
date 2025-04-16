@@ -287,6 +287,27 @@ const getAllProductsAdmin = async (req, res) => {
   }
 };
 
+const getProductDetails = async (req, res) => {
+  try {
+    const { productId, variantId } = req.body;
+    const result = await productService.getProductDetailsService({
+      productId,
+      variantId,
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: result.message,
+      data: result.data,
+    });
+  } catch (error) {
+    console.error("❌ Error in getProductDetails:", error.message);
+    return res.status(error.status || 500).json({
+      success: false,
+      message: error.message || "🚨 Server error!",
+    });
+  }
+};
 
 module.exports = {
   createProduct,
@@ -297,5 +318,6 @@ module.exports = {
   deleteProduct,
   getAllProducts,
   getSimilarProductsController,
-  getAllProductsAdmin
+  getAllProductsAdmin,
+  getProductDetails,
 };

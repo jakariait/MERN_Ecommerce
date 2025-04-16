@@ -40,6 +40,14 @@ const Headers = () => {
     cart.reduce((total, item) => total + item.quantity, 0),
   );
 
+  const avatarClass = `
+  w-10 h-10 md:w-14 md:h-14 
+  rounded-full object-cover border-white border-4 
+  flex items-center justify-center 
+  primaryBgColor accentTextColor 
+  transition-all duration-300 ease-in-out
+`;
+
   useEffect(() => {
     const handleClickOutside = (event) => {
       // Close mobile menu
@@ -208,10 +216,10 @@ const Headers = () => {
                   {user.userImage ? (
                     <ImageComponent
                       imageName={user.userImage}
-                      className="w-14 h-14 rounded-full object-cover border-white border-4"
+                      className={avatarClass}
                     />
                   ) : (
-                    <span className="accentTextColor text-xl font-semibold w-14 h-14 rounded-full border-4 border-white flex items-center justify-center">
+                    <span className={avatarClass}>
                       {user.fullName?.charAt(0) || "U"}
                     </span>
                   )}
@@ -229,9 +237,7 @@ const Headers = () => {
                           className={"flex items-center gap-2 "}
                         >
                           <IoPersonOutline className="w-6 h-6" />
-                          <span className="text-sm ">
-                            My Account
-                          </span>
+                          <span className="text-sm ">My Account</span>
                         </Link>
                       </button>
                       <button
@@ -314,9 +320,9 @@ const Headers = () => {
         </div>
       </div>
 
-      {/* Cart Menu (Desktop) */}
+      {/* Cart Menu */}
       <div
-        className={`fixed inset-0 z-50 hidden lg:block transition-opacity duration-300 ${
+        className={`fixed inset-0 z-50 ß transition-opacity duration-300 ${
           isCartMenuOpen
             ? "opacity-100 pointer-events-auto"
             : "opacity-0 pointer-events-none"
@@ -342,7 +348,10 @@ const Headers = () => {
               <h1>
                 {totalQuantity} {totalQuantity <= 1 ? "item" : "items"}
               </h1>
-              <button onClick={() => setIsCartMenuOpen(false)}>
+              <button
+                onClick={() => setIsCartMenuOpen(false)}
+                className={"cursor-pointer"}
+              >
                 <MdClose className="text-2xl" />
               </button>
             </div>

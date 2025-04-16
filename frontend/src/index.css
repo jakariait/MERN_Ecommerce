@@ -61,6 +61,15 @@
 .primaryBorderColor {
   border-color: var(--primaryColor);
 }
+.primaryRingColor {
+  outline: none;
+  box-shadow: var(--primaryColor);
+}
+
+.primaryAccentColor {
+  accent-color: var(--primaryColor);
+}
+
 .rendered-html {
   @apply text-gray-800 leading-relaxed;
 }

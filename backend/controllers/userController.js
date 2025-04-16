@@ -34,16 +34,14 @@ const loginUser = asyncHandler(async (req, res) => {
 // 👤 Create user
 const createUser = asyncHandler(async (req, res) => {
   try {
-    if (req.files && req.files.userImage && req.files.userImage.length > 0) {
-      // Store only the filename like in createCarousel
-      req.body.userImage = req.files.userImage[0].filename;
-    }
-
     const user = await userService.createUser(req.body);
+
+    const token = generateToken(user._id); // ✅ use the helper
 
     res.status(201).json({
       message: "User created successfully",
       user,
+      token,
     });
   } catch (error) {
     if (error.code === 11000) {
@@ -56,6 +54,12 @@ const createUser = asyncHandler(async (req, res) => {
     }
   }
 });
+
+
+
+
+
+
 
 // 📤 Get all users
 const getAllUsers = asyncHandler(async (req, res) => {
