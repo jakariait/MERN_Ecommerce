@@ -19,20 +19,31 @@ const useCartStore = create((set, get) => ({
   // Fetch cart from backend after login
   loadCartFromBackend: async (token) => {
     try {
-      const res = await axios.get(`api/getCart`, {
+      const res = await axios.get(`${apiUrl}/getCart`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      const serverCartItems = res.data.cart.items.map((item) => ({
-        productId: item.productId,
-        name: item.name,
-        originalPrice: item.originalPrice,
-        discountPrice: item.discountPrice,
-        variant: item.variant,
-        quantity: item.quantity,
-        thumbnail: item.thumbnail,
-        slug: item.slug,
-      }));
+      const serverCartItems = res.data.cart.items.map((item) => {
+        // Calculate finalDiscount
+        // const finalDiscount =
+        //   item?.variant?.discount > 0
+        //     ? item.variant.discount
+        //     : item?.finalDiscount > 0
+        //       ? item.finalDiscount
+        //       : 0;
+
+        return {
+          productId: item.productId,
+          name: item.name,
+          originalPrice: item.originalPrice,
+          discountPrice: item.discountPrice, // Set discountPrice to finalDiscount
+          variant: item.variant || "Default", // Fallback to "Default" if no variant
+          quantity: item.quantity,
+          thumbnail: item.thumbnail,
+          slug: item.slug,
+          variantId: item.variantId || "Default", // Fallback to "Default" if no variantId
+        };
+      });
 
       saveCart(serverCartItems);
       set({ cart: serverCartItems });
@@ -42,7 +53,7 @@ const useCartStore = create((set, get) => ({
   },
 
   addToCart: async (product, quantity, selectedVariant) => {
-    const variant = selectedVariant?.size.name || "Default";
+    const variant = selectedVariant?.size?.name || "Default";
     const variantId = selectedVariant?._id || "Default";
     const token = localStorage.getItem("user_token");
 
@@ -52,6 +63,13 @@ const useCartStore = create((set, get) => ({
       );
 
       let updatedCart = [...state.cart];
+
+      const finalDiscount =
+        selectedVariant?.discount > 0
+          ? selectedVariant.discount
+          : product?.finalDiscount > 0
+            ? product.finalDiscount
+            : 0;
 
       if (existingIndex !== -1) {
         updatedCart[existingIndex].quantity += quantity;
@@ -63,8 +81,7 @@ const useCartStore = create((set, get) => ({
           productId: product.id,
           name: product.name,
           originalPrice: selectedVariant?.price ?? product.finalPrice,
-          discountPrice:
-            selectedVariant?.discount > 0 ? selectedVariant.discount : 0,
+          discountPrice: finalDiscount,
           variant,
           quantity,
           thumbnail: product.thumbnailImage,
@@ -77,20 +94,28 @@ const useCartStore = create((set, get) => ({
       return { cart: updatedCart };
     });
 
+    // Send to DB if logged in
     if (token) {
       try {
+        const finalDiscount =
+          selectedVariant?.discount > 0
+            ? selectedVariant.discount
+            : product?.finalDiscount > 0
+              ? product.finalDiscount
+              : 0;
+
         await axios.post(
           `${apiUrl}/addToCart`,
           {
             productId: product.id,
             name: product.name,
             originalPrice: selectedVariant?.price ?? product.finalPrice,
-            discountPrice:
-              selectedVariant?.discount > 0 ? selectedVariant.discount : 0,
+            discountPrice: finalDiscount,
             variant,
             quantity,
             thumbnail: product.thumbnailImage,
             slug: product.slug,
+            variantId,
           },
           { headers: { Authorization: `Bearer ${token}` } },
         );
@@ -122,7 +147,7 @@ const useCartStore = create((set, get) => ({
 
     try {
       const response = await axios.patch(
-        `/api/updateCartItem`, // ✅ relative path
+        `${apiUrl}/updateCartItem`, // ✅ relative path
         { productId, variant, quantity: newQuantity },
         { headers: { Authorization: `Bearer ${token}` } },
       );
@@ -147,7 +172,7 @@ const useCartStore = create((set, get) => ({
     const token = localStorage.getItem("user_token");
     if (token) {
       try {
-        await axios.delete(`api/removeCartItem`, {
+        await axios.delete(`${apiUrl}/removeCartItem`, {
           headers: { Authorization: `Bearer ${token}` },
           data: { productId, variant },
         });
@@ -193,6 +218,7 @@ const useCartStore = create((set, get) => ({
             quantity: item.quantity,
             thumbnail: item.thumbnail,
             slug: item.slug,
+            variantId: item.variantId,
           },
           {
             headers: {
@@ -202,7 +228,7 @@ const useCartStore = create((set, get) => ({
         );
       }
 
-      // Optionally, after adding all items, fetch the updated cart from the backend
+      // // Optionally, after adding all items, fetch the updated cart from the backend
       const res = await axios.get(`/api/getCart`, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -218,7 +244,7 @@ const useCartStore = create((set, get) => ({
         quantity: item.quantity,
         thumbnail: item.thumbnail,
         slug: item.product?.slug,
-
+        variantId: item.variantId,
       }));
 
       saveCart(serverCartItems);

@@ -36,27 +36,21 @@ const RewardPoints = ({ availablePoints, points, onPointsChange }) => {
 
   const handleApply = () => {
     onPointsChange(inputPoints); // only update parent on Apply
-    console.log("Apply", inputPoints);
   };
 
   return (
-    <div className="w-full rounded-md shadow-md overflow-hidden">
+    <div className="w-full rounded-md shadow overflow-hidden">
       <Accordion expanded={expanded} onChange={() => setExpanded(!expanded)}>
         <AccordionSummary
-          expandIcon={
-            expanded ? (
-              <Remove className="text-white" />
-            ) : (
-              <Add className="text-white" />
-            )
-          }
+          expandIcon={expanded ? <Remove /> : <Add />}
           sx={{
-            backgroundColor: "black",
-            color: "white",
+            backgroundColor: "transparent",
             fontWeight: "bold",
           }}
         >
-          Use Reward Points
+          <h1 className="border-l-4 primaryBorderColor primaryTextColor pl-2  font-semibold">
+            Use Reward Points
+          </h1>
         </AccordionSummary>
         <AccordionDetails className="bg-white px-4 py-4 space-y-4">
           <p className="text-gray-800">

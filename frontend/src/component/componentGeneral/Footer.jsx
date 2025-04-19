@@ -1,14 +1,14 @@
-import React from "react";
+import React, { useState } from "react";
 import GeneralInfoStore from "../../store/GeneralInfoStore.js";
 import { Link } from "react-router-dom";
+
 import {
   Accordion,
-  AccordionAction,
-  AccordionContent,
-  AccordionIcon,
-  AccordionItem,
-  AccordionTitle,
-} from "keep-react";
+  AccordionSummary,
+  AccordionDetails,
+  Typography,
+} from "@mui/material";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
 import NewsletterForm from "./NewsletterForm.jsx";
 
@@ -20,6 +20,7 @@ const Footer = () => {
   const { GeneralInfoList, GeneralInfoListLoading, GeneralInfoListError } =
     GeneralInfoStore();
   const { user, logout } = useAuthUserStore();
+  const [expanded, setExpanded] = useState(false);
 
   const handleLogout = () => {
     logout();
@@ -56,111 +57,154 @@ const Footer = () => {
           <div className={"secondaryBgColor  text-white"}>
             {" "}
             {/*Mobile Footer*/}
-            <div className={"lg:hidden px-0 py-3"}>
-              <Accordion flush={true} type="single" collapsible>
-                {/*About Us Section*/}
-                <AccordionItem value="value-1" style={{ borderBottom: "none" }}>
-                  <AccordionAction style={{ paddingBottom: "10px" }}>
-                    <AccordionTitle>About Us</AccordionTitle>
-                    <AccordionIcon className="!text-green-500 !fill-green-500 !stroke-green-500" />
-                  </AccordionAction>
-                  <AccordionContent>
-                    <div>
-                      <p>{GeneralInfoList?.ShortDescription}</p>
-                      <h1 className={"mb-3 mt-3"}>Follow Us</h1>
-                      <SocialMedia />
-                    </div>
-                  </AccordionContent>
-                </AccordionItem>
-                {/*My Account Section*/}
-                <AccordionItem value="value-2" style={{ borderBottom: "none" }}>
-                  <AccordionAction style={{ paddingBottom: "10px" }}>
-                    <AccordionTitle>My Account</AccordionTitle>
-                    <AccordionIcon className="!text-green-500 !fill-green-500 !stroke-green-500" />
-                  </AccordionAction>
-                  <AccordionContent>
-                    <ul>
-                      <li className={"hover:primaryTextColor"}>My Account</li>
-                      <li className={"hover:primaryTextColor"}>My Orders</li>
-                      <li className={"hover:primaryTextColor"}>My Wishlist</li>
-                      <li className={"hover:primaryTextColor"}>
-                        Payment History
-                      </li>
-                      <li className={"hover:primaryTextColor"}>
-                        Support Tickets
-                      </li>{" "}
-                      <li className={"hover:primaryTextColor"}>
-                        Promo/Coupons
-                      </li>
-                      {user ? (
-                        <li
-                          className={"cursor-pointer hover:primaryTextColor"}
-                          onClick={handleLogout}
-                        >
-                          Logout
-                        </li>
-                      ) : (
-                        <li className={"hover:primaryTextColor"}>Login</li>
-                      )}
-                    </ul>
-                  </AccordionContent>
-                </AccordionItem>
-                <AccordionItem value="value-3" style={{ borderBottom: "none" }}>
-                  <AccordionAction style={{ paddingBottom: "10px" }}>
-                    <AccordionTitle>Quick Links</AccordionTitle>
-                    <AccordionIcon className="!text-green-500 !fill-green-500 !stroke-green-500" />
-                  </AccordionAction>
-                  <AccordionContent>
-                    <ul>
-                      <li className={"hover:primaryTextColor"}>About</li>
-                      <li className={"hover:primaryTextColor"}>Blog</li>
-                      <li className={"hover:primaryTextColor"}>
-                        <Link
-                          to="/contact-us"
-                          className={"hover:primaryTextColor"}
-                        >
-                          Contact
-                        </Link>
-                      </li>
+            <div className={" lg:hidden px-0 py-3"}>
+              {/* About Us */}
+              <Accordion
+                style={{
+                  background: "transparent",
+                  boxShadow: "none",
+                  width: "100%",
+                  color: "white",
+                }}
+              >
+                <AccordionSummary
+                  expandIcon={<ExpandMoreIcon className={"text-white"} />}
+                  aria-controls="panel1a-content"
+                >
+                  <Typography>About Us</Typography>
+                </AccordionSummary>
+                <AccordionDetails>
+                  <div>
+                    <p>{GeneralInfoList?.ShortDescription}</p>
+                    <h1 className={"mb-3 mt-3"}>Follow Us</h1>
+                    <SocialMedia />
+                  </div>
+                </AccordionDetails>
+              </Accordion>
 
-                      <li className={"hover:primaryTextColor"}>
-                        Terms of Services
+              {/* My Account */}
+              <Accordion
+                style={{
+                  background: "transparent",
+                  boxShadow: "none",
+                  width: "100%",
+                  color: "white",
+                }}
+              >
+                <AccordionSummary
+                  expandIcon={<ExpandMoreIcon className={"text-white"} />}
+                  aria-controls="panel2a-content"
+                >
+                  <Typography>My Account</Typography>
+                </AccordionSummary>
+                <AccordionDetails>
+                  <ul>
+                    <li className={"hover:primaryTextColor"}>My Account</li>
+                    <li className={"hover:primaryTextColor"}>My Orders</li>
+                    <li className={"hover:primaryTextColor"}>My Wishlist</li>
+                    <li className={"hover:primaryTextColor"}>
+                      Payment History
+                    </li>
+                    <li className={"hover:primaryTextColor"}>
+                      Support Tickets
+                    </li>
+                    <li className={"hover:primaryTextColor"}>Promo/Coupons</li>
+                    {user ? (
+                      <li
+                        className={"cursor-pointer hover:primaryTextColor"}
+                        onClick={handleLogout}
+                      >
+                        Logout
                       </li>
-                      <li className={"hover:primaryTextColor"}>
-                        Privacy Policy
-                      </li>
-                      <li className={"hover:primaryTextColor"}>
-                        Refund Policy
-                      </li>
-                      <li className={"hover:primaryTextColor"}>
-                        Shipping Policy
-                      </li>
-                      <li className={"hover:primaryTextColor"}>FAQ</li>
-                    </ul>
-                  </AccordionContent>
-                </AccordionItem>
-                <AccordionItem value="value-4" style={{ borderBottom: "none" }}>
-                  <AccordionAction style={{ paddingBottom: "10px" }}>
-                    <AccordionTitle>Track Your Order</AccordionTitle>
-                    <AccordionIcon className="!text-green-500 !fill-green-500 !stroke-green-500" />
-                  </AccordionAction>
-                  <AccordionContent>
-                    <h1>Will work on it later</h1>
-                  </AccordionContent>
-                </AccordionItem>
-                <AccordionItem value="value-5" style={{ borderBottom: "none" }}>
-                  <AccordionAction style={{ paddingBottom: "10px" }}>
-                    <AccordionTitle>Newsletter</AccordionTitle>
-                    <AccordionIcon className="!text-green-500 !fill-green-500 !stroke-green-500" />
-                  </AccordionAction>
-                  <AccordionContent>
-                    <h1>
-                      Take advantage of our special offer. Do not worry, we
-                      would not spam you.
-                    </h1>
-                    <NewsletterForm />
-                  </AccordionContent>
-                </AccordionItem>
+                    ) : (
+                      <li className={"hover:primaryTextColor"}>Login</li>
+                    )}
+                  </ul>
+                </AccordionDetails>
+              </Accordion>
+
+              {/* Quick Links */}
+              <Accordion
+                style={{
+                  background: "transparent",
+                  boxShadow: "none",
+                  width: "100%",
+                  color: "white",
+                }}
+              >
+                <AccordionSummary
+                  expandIcon={<ExpandMoreIcon className={"text-white"} />}
+                  aria-controls="panel3a-content"
+                >
+                  <Typography>Quick Links</Typography>
+                </AccordionSummary>
+                <AccordionDetails>
+                  <ul>
+                    <li className={"hover:primaryTextColor"}>About</li>
+                    <li className={"hover:primaryTextColor"}>Blog</li>
+                    <li className={"hover:primaryTextColor"}>
+                      <Link
+                        to="/contact-us"
+                        className={"hover:primaryTextColor"}
+                      >
+                        Contact
+                      </Link>
+                    </li>
+                    <li className={"hover:primaryTextColor"}>
+                      Terms of Services
+                    </li>
+                    <li className={"hover:primaryTextColor"}>Privacy Policy</li>
+                    <li className={"hover:primaryTextColor"}>Refund Policy</li>
+                    <li className={"hover:primaryTextColor"}>
+                      Shipping Policy
+                    </li>
+                    <li className={"hover:primaryTextColor"}>FAQ</li>
+                  </ul>
+                </AccordionDetails>
+              </Accordion>
+
+              {/* Track Order */}
+              <Accordion
+                style={{
+                  background: "transparent",
+                  boxShadow: "none",
+                  width: "100%",
+                  color: "white",
+                }}
+              >
+                <AccordionSummary
+                  expandIcon={<ExpandMoreIcon className={"text-white"} />}
+                  aria-controls="panel4a-content"
+                >
+                  <Typography>Track Your Order</Typography>
+                </AccordionSummary>
+                <AccordionDetails>
+                  <h1>Will work on it later</h1>
+                </AccordionDetails>
+              </Accordion>
+
+              {/* Newsletter */}
+              <Accordion
+                style={{
+                  background: "transparent",
+                  boxShadow: "none",
+                  width: "100%",
+                  color: "white",
+                }}
+              >
+                <AccordionSummary
+                  expandIcon={<ExpandMoreIcon className={"text-white"} />}
+                  aria-controls="panel5a-content"
+                >
+                  <Typography>Newsletter</Typography>
+                </AccordionSummary>
+                <AccordionDetails>
+                  <h1>
+                    Take advantage of our special offer. Do not worry, we would
+                    not spam you.
+                  </h1>
+                  <NewsletterForm />
+                </AccordionDetails>
               </Accordion>
             </div>
             {/*Desktop Footer*/}

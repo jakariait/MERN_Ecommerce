@@ -10,6 +10,7 @@ const cartItemSchema = new mongoose.Schema({
   originalPrice: Number,
   discountPrice: Number,
   variant: String,
+  variantId: String,
   quantity: {
     type: Number,
     min: 1,

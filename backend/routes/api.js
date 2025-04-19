@@ -18,6 +18,11 @@ const productController = require("../controllers/productController");
 const userController = require("../controllers/userController");
 const cartController = require("../controllers/cartController");
 const shippingController = require("../controllers/ShippingController");
+const freeDeliveryController = require("../controllers/FreeDeliveryController");
+const couponController = require("../controllers/CouponController");
+const VatPercentageController = require("../controllers/VatPercentageController");
+const orderController = require("../controllers/orderController");
+
 
 // Admin
 const { adminProtect } = require("../middlewares/authAdminMiddleware");
@@ -281,7 +286,8 @@ router.get(
   "/similar/:category/:productId",
   productController.getSimilarProductsController,
 );
-router.get("/getProductDetails", productController.getProductDetails);
+
+router.get("/getProductDetails", productController.getProductDetails); // With Product ID and variants ID
 
 // Cart Routes
 router.get("/getCart", userProtect, cartController.getCart);
@@ -291,10 +297,57 @@ router.delete("/removeCartItem", userProtect, cartController.removeCartItem);
 router.delete("/clearCart", userProtect, cartController.clearCart);
 
 // Shipping Option Routes
-router.post("/createShipping", shippingController.createShipping);
+router.post("/createShipping", adminProtect, shippingController.createShipping);
 router.get("/getAllShipping", shippingController.getAllShipping);
-router.get("/getShippingById/:id", shippingController.getShippingById);
-router.patch("/updateShipping/:id", shippingController.updateShipping);
-router.delete("/deleteShipping/:id", shippingController.deleteShipping);
+router.get(
+  "/getShippingById/:id",
+  adminProtect,
+  shippingController.getShippingById,
+);
+router.patch(
+  "/updateShipping/:id",
+  adminProtect,
+  shippingController.updateShipping,
+);
+router.delete(
+  "/deleteShipping/:id",
+  adminProtect,
+  shippingController.deleteShipping,
+);
+
+// Free Delivery Routes
+router.get(
+  "/getFreeDeliveryAmount",
+  freeDeliveryController.getFreeDeliveryAmount,
+);
+router.patch(
+  "/updateFreeDeliveryAmount",
+  adminProtect,
+  freeDeliveryController.updateFreeDeliveryAmount,
+);
+
+// Coupon Routes
+router.post("/createCoupon", couponController.createCoupon);
+router.post("/applyCoupon", couponController.applyCoupon);
+router.get("/getAllCoupons", couponController.getAllCoupons);
+router.patch("/updateCoupon/:id", couponController.updateCoupon);
+router.delete("/deleteCoupon/:id", couponController.deleteCoupon);
+
+// VAT Percentage Routes
+router.get("/getVatPercentage", VatPercentageController.getVatPercentage);
+router.patch(
+  "/updateVatPercentage",
+  VatPercentageController.updateVatPercentage,
+);
+
+// Order routes
+router.post('/orders', orderController.createOrder);
+router.get('/orders', orderController.getAllOrders);
+router.get('/orders/:orderId', orderController.getOrderById);
+router.put('/orders/:orderId', orderController.updateOrder);
+router.delete('/orders/:orderId', orderController.deleteOrder);
+
+
+
 
 module.exports = router;
