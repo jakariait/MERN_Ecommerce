@@ -37,14 +37,20 @@ const ShippingOptions = ({ onShippingChange }) => {
     if (shipping.length > 0) {
       const defaultOption = shipping[0];
       setSelectedShipping(defaultOption.value);
-      onShippingChange({ name: defaultOption.name, value: defaultOption.value });
+      onShippingChange({
+        name: defaultOption.name,
+        value: defaultOption.value,
+        id: defaultOption._id,
+      });
     }
   }, [shipping]);
 
+
   const handleChange = (option) => {
     setSelectedShipping(option.value);
-    onShippingChange({ name: option.name, value: option.value }); // Send both
+    onShippingChange({ name: option.name, value: option.value, id: option._id }); // Send both
   };
+
 
   return (
     <div className={"flex flex-col gap-4"}>

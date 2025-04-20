@@ -48,6 +48,10 @@ import CustomerListPage from "./pagesAdmin/CustomerListPage.jsx";
 import UserProtectedRoute from "./component/componentGeneral/UserProtectedRoute.jsx";
 import UserHomePage from "./pagesUser/UserHomePage.jsx";
 import CheckoutPage from "./pagesUser/CheckoutPage.jsx";
+import DeliveryChargePage from "./pagesAdmin/DeliveryChargePage.jsx";
+import ConfigSetupPage from "./pagesAdmin/ConfigSetupPage.jsx";
+import ThankYou from "./component/componentGeneral/ThankYou.jsx";
+import ThaankYouPage from "./pagesUser/ThaankYouPage.jsx";
 
 function App() {
   const { GeneralInfoListRequest } = GeneralInfoStore();
@@ -121,6 +125,8 @@ function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/checkout" element={<CheckoutPage />} />
+        <Route path="/thank-you/:orderId" element={<ThaankYouPage />} />
+
 
         {/*Admin Login Page*/}
         <Route path="/admin/login" element={<AdminLogin />} />
@@ -215,6 +221,10 @@ function App() {
             element={<EditProductPage />}
           />
           <Route path="/admin/customers" element={<CustomerListPage />} />
+          {/*Delivery Charges Routes*/}
+          <Route path="/admin/deliverycharge" element={<DeliveryChargePage />} />
+
+          <Route path="/admin/configsetup" element={<ConfigSetupPage/>} />
         </Route>
 
         {/* Not Found */}

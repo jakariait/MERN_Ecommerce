@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import ImageComponent from "../componentGeneral/ImageComponent.jsx";
 import useAuthAdminStore from "../../store/AuthAdminStore.js";
 import useGeneralInfoStore from "../../store/GeneralInfoStore.js";
@@ -112,8 +112,10 @@ export default function GeneralInfoForm() {
   };
 
   return (
-    <div className="bg-white shadow p-6 rounded-xl">
-      <h2 className={"mb-6 text-xl font-semibold"}>General Information Form</h2>
+    <div className="bg-white shadow p-4 rounded-xl">
+      <h1 className="border-l-4 primaryBorderColor primaryTextColor mb-6 pl-2 text-lg font-semibold ">
+        General Information Form
+      </h1>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4  mt-8">

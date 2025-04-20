@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import useProductSizeStore from "../../store/useProductSizeStore";
 import {
@@ -39,7 +39,9 @@ const AddProductSize = () => {
 
   return (
     <div className="p-4 shadow rounded-lg">
-      <h1 className="mb-6 mt-4 text-xl font-semibold">Add Product Size</h1>
+      <h1 className="border-l-4 primaryBorderColor primaryTextColor mb-6 pl-2 text-lg font-semibold">
+        Add Product Size
+      </h1>
       <form onSubmit={handleSubmit} className="space-y-6">
         <TextField
           label="Product Size Name"

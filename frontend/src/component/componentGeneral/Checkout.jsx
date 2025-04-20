@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import { Snackbar, Alert } from "@mui/material";
 
 // Stores
 import useCartStore from "../../store/useCartStore.js";
@@ -18,9 +20,10 @@ import PaymentMethod from "./PaymentMethod.jsx";
 
 const Checkout = () => {
   const apiUrl = import.meta.env.VITE_API_URL;
+  const navigate = useNavigate();
 
   // Store values
-  const { cart, removeFromCart, updateQuantity } = useCartStore();
+  const { cart, removeFromCart, updateQuantity, clearCart } = useCartStore();
   const { user } = useAuthUserStore();
 
   // Coupon & Reward
@@ -36,6 +39,7 @@ const Checkout = () => {
   // Free Delivery
   const [freeDelivery, setFreeDelivery] = useState(null);
 
+ // Vat Percentage
   const [vatPercentage, setVatPercentage] = useState(null);
 
   // Shipping Details Handler
@@ -48,6 +52,20 @@ const Checkout = () => {
 
   const handleRewardPointsChange = (value) => {
     setRewardPointsUsed(value);
+  };
+
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: "",
+    severity: "success", // "success" | "error"
+  });
+
+  const showSnackbar = (message, severity = "success") => {
+    setSnackbar({ open: true, message, severity });
+  };
+
+  const handleCloseSnackbar = () => {
+    setSnackbar({ ...snackbar, open: false });
   };
 
   // Fetch free delivery threshold
@@ -108,71 +126,134 @@ const Checkout = () => {
   if (vatPercentage === null || freeDelivery === null) return null;
 
   // --- Grand Total ---
-  const grandTotal =
-    amountAfterDiscounts + vatAmount + actualShippingCost;
+  const grandTotal = amountAfterDiscounts + vatAmount + actualShippingCost;
+
+  const handleOrderSubmit = async (e) => {
+    e.preventDefault();
+
+    const orderPayload = {
+      userId: user._id,
+      shippingInfo: {
+        fullName: addressData.fullName,
+        mobileNo: addressData.phone,
+        email: addressData.email,
+        address: addressData.address,
+      },
+      shippingId: selectedShipping.id,
+      items: cart.map((item) => {
+        const baseItem = {
+          productId: item.productId,
+          quantity: item.quantity,
+        };
+        if (item.variantId && item.variantId !== "Default") {
+          baseItem.variantId = item.variantId;
+        }
+        return baseItem;
+      }),
+      promoCode: appliedCoupon?.code || null,
+    };
+
+    try {
+      const res = await axios.post(`${apiUrl}/orders`, orderPayload);
+
+      if (res.data.success) {
+        const orderId = res.data.order.orderNo;
+        clearCart();
+        showSnackbar("Order placed successfully!", "success");
+        navigate(`/thank-you/${orderId}`);
+      } else {
+        showSnackbar(res.data.message || "Failed to place order.", "error");
+      }
+    } catch {
+      showSnackbar("Something went wrong. Please try again later.", "error");
+    }
+  };
 
   return (
     <div className="xl:container xl:mx-auto p-4">
       <CheckoutHeader user={user} />
+      <form onSubmit={handleOrderSubmit}>
+        <div className="grid gap-12 md:grid-cols-2">
+          {/* Left Column - Address & Shipping */}
+          <div className="space-y-8">
+            {/* Address Option */}
+            <AddressForm user={user} onAddressChange={handleAddressChange} />
 
-      <div className="grid gap-12 md:grid-cols-2">
-        {/* Left Column - Address & Shipping */}
-        <div className="space-y-8">
-          {/* Address Option */}
-          <AddressForm user={user} onAddressChange={handleAddressChange} />
+            {/* Shipping Options */}
+            <ShippingOptions onShippingChange={setSelectedShipping} />
 
-          {/* Shipping Options */}
-          <ShippingOptions onShippingChange={setSelectedShipping} />
-
-          {/* Delivery Method */}
-          <DeliveryMethod
-            freeDelivery={freeDelivery}
-            formattedTotalAmount={formattedTotalAmount}
-          />
-          {/* Payment Method */}
-          <PaymentMethod />
-        </div>
-
-        {/* Right Column - Order Review */}
-        <div className="space-y-8">
-          <OrderReview
-            cart={cart}
-            removeFromCart={removeFromCart}
-            updateQuantity={updateQuantity}
-            formattedTotalAmount={formattedTotalAmount}
-          />
-
-          {/* Coupon Section */}
-          <CouponSection
-            orderAmount={totalAmount}
-            setAppliedCouponGlobal={setAppliedCoupon}
-          />
-
-          {/* Reward Points */}
-          {user && (
-            <RewardPoints
-              availablePoints={user.rewardPoints}
-              points={rewardPointsUsed}
-              onPointsChange={handleRewardPointsChange}
+            {/* Delivery Method */}
+            <DeliveryMethod
+              freeDelivery={freeDelivery}
+              formattedTotalAmount={formattedTotalAmount}
             />
-          )}
+            {/* Payment Method */}
+            <PaymentMethod />
+          </div>
 
-          {/* Final Order Summary */}
-          <OrderSummary
-            totalItems={totalItems}
-            totalAmount={totalAmount}
-            rewardPointsUsed={rewardPointsUsed}
-            actualShippingCost={actualShippingCost}
-            grandTotal={grandTotal}
-            discount={discount}
-            appliedCoupon={appliedCoupon}
-            formattedTotalAmount={formattedTotalAmount}
-            showRewardPoints={!!user}
-            vatAmount={vatAmount}
-            vatPercentage={vatPercentage}
-          />
+          {/* Right Column - Order Review */}
+          <div className="space-y-8">
+            <OrderReview
+              cart={cart}
+              removeFromCart={removeFromCart}
+              updateQuantity={updateQuantity}
+              formattedTotalAmount={formattedTotalAmount}
+            />
+
+            {/* Coupon Section */}
+            <CouponSection
+              orderAmount={totalAmount}
+              setAppliedCouponGlobal={setAppliedCoupon}
+            />
+
+            {/* Reward Points */}
+            {user && (
+              <RewardPoints
+                availablePoints={user.rewardPoints}
+                points={rewardPointsUsed}
+                onPointsChange={handleRewardPointsChange}
+              />
+            )}
+
+            {/* Final Order Summary */}
+            <OrderSummary
+              totalItems={totalItems}
+              totalAmount={totalAmount}
+              rewardPointsUsed={rewardPointsUsed}
+              actualShippingCost={actualShippingCost}
+              grandTotal={grandTotal}
+              discount={discount}
+              appliedCoupon={appliedCoupon}
+              formattedTotalAmount={formattedTotalAmount}
+              showRewardPoints={!!user}
+              vatAmount={vatAmount}
+              vatPercentage={vatPercentage}
+            />
+            <button
+              className={
+                "primaryBgColor accentTextColor px-4 py-2 w-full rounded-lg cursor-pointer"
+              }
+              type="submit"
+            >
+              Place Order
+            </button>
+          </div>
         </div>
-      </div>
+      </form>
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={4000}
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      >
+        <Alert
+          onClose={handleCloseSnackbar}
+          severity={snackbar.severity}
+          sx={{ width: "100%" }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </div>
   );
 };

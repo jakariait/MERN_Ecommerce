@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Snackbar, Alert } from "@mui/material"; // Import MUI Snackbar and Alert components
 import useNewsletterStore from "../../store/useNewsletterStore.js"; // Import your Zustand store
 import DataTable from "react-data-table-component";
@@ -97,7 +97,9 @@ export default function SubscribersList() {
 
   return (
     <div className="p-4">
-      <h2 className="text-lg font-semibold">Subscribed Users List</h2>
+      <h1 className="border-l-4 primaryBorderColor primaryTextColor mb-6 pl-2 text-lg font-semibold ">
+        Subscribed Users List
+      </h1>
 
       {/* Search & CSV Download */}
       <div className="flex justify-between items-center mt-3">

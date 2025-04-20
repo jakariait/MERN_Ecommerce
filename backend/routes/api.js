@@ -23,7 +23,6 @@ const couponController = require("../controllers/CouponController");
 const VatPercentageController = require("../controllers/VatPercentageController");
 const orderController = require("../controllers/orderController");
 
-
 // Admin
 const { adminProtect } = require("../middlewares/authAdminMiddleware");
 const { authenticateToken } = require("../middlewares/authenticateToken");
@@ -337,17 +336,15 @@ router.delete("/deleteCoupon/:id", couponController.deleteCoupon);
 router.get("/getVatPercentage", VatPercentageController.getVatPercentage);
 router.patch(
   "/updateVatPercentage",
+  adminProtect,
   VatPercentageController.updateVatPercentage,
 );
 
 // Order routes
-router.post('/orders', orderController.createOrder);
-router.get('/orders', orderController.getAllOrders);
-router.get('/orders/:orderId', orderController.getOrderById);
-router.put('/orders/:orderId', orderController.updateOrder);
-router.delete('/orders/:orderId', orderController.deleteOrder);
-
-
-
+router.post("/orders", orderController.createOrder);
+router.get("/orders", orderController.getAllOrders);
+router.get("/orders/:orderId", orderController.getOrderById);
+router.put("/orders/:orderId", orderController.updateOrder);
+router.delete("/orders/:orderId", orderController.deleteOrder);
 
 module.exports = router;

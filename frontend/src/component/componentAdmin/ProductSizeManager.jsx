@@ -44,9 +44,11 @@ const ProductSizeManager = () => {
   );
 
   return (
-    <div className="shadow rounded-xl p-3">
+    <div className="shadow rounded-xl p-4">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="p-3 mb-4 text-xl">Product Size List</h1>
+        <h1 className="border-l-4 primaryBorderColor primaryTextColor mb-6 pl-2 text-lg font-semibold ">
+          Product Size List
+        </h1>
         <TextField
           label="Search Size"
           variant="outlined"

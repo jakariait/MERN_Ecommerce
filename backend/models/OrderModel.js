@@ -51,6 +51,13 @@ const orderSchema = new mongoose.Schema(
       default: "cash_on_delivery",
     },
 
+    paymentStatus: {
+      type: String,
+      enum: ["unpaid", "paid"],
+      default: "unpaid",
+    },
+
+
     shippingInfo: {
       fullName: { type: String, required: true },
       mobileNo: { type: String, required: true },

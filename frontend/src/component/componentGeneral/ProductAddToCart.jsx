@@ -2,15 +2,15 @@ import React, { useEffect, useState } from "react";
 import { FaRegHeart } from "react-icons/fa";
 import { FaPlus } from "react-icons/fa6";
 import { FiMinus } from "react-icons/fi";
-
+import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import useCartStore from "../../store/useCartStore.js";
 
 const ProductAddToCart = ({ product }) => {
-
   const [quantity, setQuantity] = useState(1);
   const MAX_QUANTITY = 5; // Set the limit for Cart Quantity
   const { addToCart } = useCartStore();
+  const navigate = useNavigate();
 
   const [selectedVariant, setSelectedVariant] = useState(null);
 
@@ -153,14 +153,20 @@ const ProductAddToCart = ({ product }) => {
             {/*Cart Quantity Button*/}
             <div className={"rounded flex items-center justify-between"}>
               <button
-                className={"primaryBgColor accentTextColor px-2 py-2 md:py-3 rounded-l cursor-pointer"}
+                className={
+                  "primaryBgColor accentTextColor px-2 py-2 md:py-3 rounded-l cursor-pointer"
+                }
                 onClick={() => handleQuantityChange("decrease")}
               >
                 <FiMinus />
               </button>
-              <span className={"px-3 py-1 md:py-2 bg-gray-200"}>{quantity}</span>
+              <span className={"px-3 py-1 md:py-2 bg-gray-200"}>
+                {quantity}
+              </span>
               <button
-                className={"primaryBgColor accentTextColor px-2 py-2 md:py-3 rounded-r cursor-pointer"}
+                className={
+                  "primaryBgColor accentTextColor px-2 py-2 md:py-3 rounded-r cursor-pointer"
+                }
                 onClick={() => handleQuantityChange("increase")}
                 disabled={quantity >= MAX_QUANTITY} // Disable when limit is reached
               >
@@ -189,7 +195,9 @@ const ProductAddToCart = ({ product }) => {
 
             {/*Wish List Button*/}
             <button
-              className={"primaryBgColor accentTextColor px-3 py-2  md:py-3 rounded cursor-pointer"}
+              className={
+                "primaryBgColor accentTextColor px-3 py-2  md:py-3 rounded cursor-pointer"
+              }
             >
               <FaRegHeart />
             </button>
@@ -202,6 +210,10 @@ const ProductAddToCart = ({ product }) => {
               duration: 2.5,
               repeat: Infinity,
               ease: "easeInOut",
+            }}
+            onClick={() => {
+              addToCart(product, quantity, selectedVariant);
+              navigate("/checkout");
             }}
           >
             Order with Cash on Delivery

@@ -27,7 +27,7 @@ mongoose
 
 const corsOptions = {
   origin: "*",
-  methods: ["GET", "POST", "PUT", "DELETE"],
+  methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
   allowedHeaders: ["Content-Type", "Authorization"],
   exposedHeaders: ["Content-Length", "X-Favicon"], // Expose required headers
 };

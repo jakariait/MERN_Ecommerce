@@ -141,8 +141,10 @@ const ViewAllProducts = () => {
   if (error) return <Typography color="error">{error}</Typography>;
 
   return (
-    <div className="p-5 shadow rounded-lg">
-      <Typography variant="h4">Product List</Typography>
+    <div className="p-4 shadow rounded-lg">
+      <h1 className="border-l-4 primaryBorderColor primaryTextColor mb-6 pl-2 text-lg font-semibold ">
+        Product List
+      </h1>
       <div className="flex items-center justify-between">
         <TextField
           label="Search"

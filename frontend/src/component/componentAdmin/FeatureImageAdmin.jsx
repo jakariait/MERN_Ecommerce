@@ -105,9 +105,10 @@ const FeatureImageAdmin = () => {
   };
 
   return (
-    <div className="container mx-auto p-6 shadow rouded-lg mt-4">
-      <h1 className="text-2xl font-bold  mb-6">Feature Images</h1>
-
+    <div className="container mx-auto p-4 shadow rouded-lg mt-4">
+      <h1 className="border-l-4 primaryBorderColor primaryTextColor mb-6 pl-2 text-lg font-semibold ">
+        Feature Images
+      </h1>
       {successMessage && (
         <p className="text-green-600 text-center font-semibold mb-4">
           {successMessage}

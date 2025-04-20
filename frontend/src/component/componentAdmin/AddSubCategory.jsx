@@ -92,9 +92,9 @@ const AddSubCategory = () => {
               mt: 4,
             }}
           >
-            <Typography variant="h5" fontWeight="bold" gutterBottom>
+            <h1 className="border-l-4 primaryBorderColor primaryTextColor mb-6 pl-2 text-lg font-semibold">
               Add Sub Category
-            </Typography>
+            </h1>
             <form onSubmit={handleSubmit}>
               <Box mb={2}>
                 <Typography>Select Category</Typography>

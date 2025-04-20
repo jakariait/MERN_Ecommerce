@@ -108,8 +108,10 @@ const ContactTable = () => {
   };
 
   return (
-    <Paper sx={{ width: "100%", overflow: "hidden", p: 2 }}>
-      <h2 className="text-xl font-semibold mb-4">Contact Messages</h2>
+    <Paper sx={{ width: "100%", overflow: "hidden", p: 4 }}>
+      <h1 className="border-l-4 primaryBorderColor primaryTextColor mb-6 pl-2 text-lg font-semibold ">
+        Contact Request
+      </h1>
       {loading ? (
         <div className="flex justify-center p-4">
           <CircularProgress />

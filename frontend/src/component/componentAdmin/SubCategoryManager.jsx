@@ -41,7 +41,7 @@ const SubCategoryManager = () => {
   // Handle Delete
   const handleDelete = async (id) => {
     const confirmation = window.confirm(
-      "Are you sure you want to delete this subcategory? This action cannot be undone."
+      "Are you sure you want to delete this subcategory? This action cannot be undone.",
     );
 
     if (confirmation) {
@@ -54,12 +54,13 @@ const SubCategoryManager = () => {
   // Handle Search with useMemo
   const filteredSubCategories = useMemo(() => {
     return subCategories
-      .filter((subCategory) =>
-        subCategory.name && subCategory.name.toLowerCase().includes(searchTerm.toLowerCase())
+      .filter(
+        (subCategory) =>
+          subCategory.name &&
+          subCategory.name.toLowerCase().includes(searchTerm.toLowerCase()),
       )
       .reverse();
   }, [subCategories, searchTerm]);
-
 
   // Handle Pagination
   const handleChangePage = (event, newPage) => {
@@ -72,9 +73,11 @@ const SubCategoryManager = () => {
   };
 
   return (
-    <div className={"shadow rounded-xl p-3"}>
+    <div className={"shadow rounded-lg p-4"}>
       <div className={"flex justify-between items-center mb-6"}>
-        <h1 className={"p-3 mb-4 text-xl"}>Subcategory List</h1>
+        <h1 className="border-l-4 primaryBorderColor primaryTextColor mb-6 pl-2 text-lg font-semibold ">
+          Subcategory List
+        </h1>
 
         {/* Search Field */}
         <TextField
@@ -129,12 +132,18 @@ const SubCategoryManager = () => {
                     .map((subCategory) => (
                       <TableRow key={subCategory._id}>
                         <TableCell>{subCategory.name || "N/A"}</TableCell>
-                        <TableCell>{subCategory.category?.name || "N/A"}</TableCell>
-                        <TableCell>{subCategory.isActive ? "Yes" : "No"}</TableCell>
+                        <TableCell>
+                          {subCategory.category?.name || "N/A"}
+                        </TableCell>
+                        <TableCell>
+                          {subCategory.isActive ? "Yes" : "No"}
+                        </TableCell>
                         <TableCell>
                           <IconButton
                             onClick={() =>
-                              navigate(`/admin/edit-subcategory/${subCategory._id}`)
+                              navigate(
+                                `/admin/edit-subcategory/${subCategory._id}`,
+                              )
                             }
                             color="primary"
                           >

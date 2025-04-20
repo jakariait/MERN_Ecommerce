@@ -6,27 +6,33 @@ const VatPercentage = require("../models/VatPercentage"); // adjust path as need
 const Shipping = require("../models/ShippingModel");
 const FreeDeliveryAmount = require("../models/FreeDeliveryAmount");
 const User = require("../models/UserModel");
+const Coupon = require("../models/CouponModel");
 
-
-
-// const createOrder = async (orderData) => {
+// const createOrder = async (orderData, userId) => {
 //   const session = await mongoose.startSession();
 //   session.startTransaction();
 //
 //   try {
-//     // Step 1: Generate sequential order number
+//     // Fetch user if available (optional now)
+//     let user = null;
+//     if (userId) {
+//       user = await User.findById(userId);
+//       if (!user) throw new Error("User not found");
+//     }
+//
+//     // Generate order number
 //     let counter = await OrderCounter.findOneAndUpdate(
 //       { id: "order" },
 //       { $inc: { seq: 1 } },
-//       { new: true, upsert: true, session }
+//       { new: true, upsert: true, session },
 //     );
 //     const orderNo = String(counter.seq).padStart(6, "0");
 //
-//     // Step 2: Get latest VAT percentage
+//     // Get VAT percentage
 //     const vatEntry = await VatPercentage.findOne().sort({ createdAt: -1 });
 //     const vatPercent = vatEntry ? vatEntry.value : 0;
 //
-//     // Step 3: Calculate subtotal from items
+//     // Calculate subtotal
 //     let subtotal = 0;
 //     const updatedItems = [];
 //
@@ -39,89 +45,79 @@ const User = require("../models/UserModel");
 //       let price, stock;
 //
 //       if (product.variants.length === 0) {
-//         price = product.finalDiscount > 0 ? product.finalDiscount : product.finalPrice;
+//         price =
+//           product.finalDiscount > 0
+//             ? product.finalDiscount
+//             : product.finalPrice;
 //         stock = product.finalStock;
+//         if (stock < quantity)
+//           throw new Error(`Not enough stock for product ${productId}`);
+//         await Product.updateOne(
+//           { _id: productId },
+//           { $inc: { finalStock: -quantity } },
+//           { session },
+//         );
 //       } else {
-//         const variant = product.variants.find((v) => v._id.toString() === variantId);
+//         const variant = product.variants.find(
+//           (v) => v._id.toString() === variantId,
+//         );
 //         if (!variant) throw new Error("Variant not found");
-//
-//         if (variant.stock < quantity) {
+//         if (variant.stock < quantity)
 //           throw new Error(`Not enough stock for variant ${variantId}`);
-//         }
+//
+//         price = variant.discount || variant.price;
 //
 //         await Product.updateOne(
 //           { _id: productId, "variants._id": variantId },
 //           { $inc: { "variants.$.stock": -quantity } },
-//           { session }
-//         );
-//
-//         price = variant.discount || variant.price;
-//         stock = variant.stock;
-//       }
-//
-//       if (stock < quantity) {
-//         throw new Error(`Not enough stock for product ${productId}`);
-//       }
-//
-//       if (product.variants.length === 0) {
-//         await Product.updateOne(
-//           { _id: productId },
-//           { $inc: { finalStock: -quantity } },
-//           { session }
+//           { session },
 //         );
 //       }
 //
 //       subtotal += price * quantity;
-//
 //       updatedItems.push({ productId, variantId, quantity });
 //     }
 //
-//     // Step 4: Fetch Shipping Charge if applicable
+//     // Shipping cost
 //     const shippingMethod = await Shipping.findById(orderData.shippingId);
 //     if (!shippingMethod) throw new Error("Invalid shipping method");
 //
-//     const freeDeliveryAmount = await FreeDeliveryAmount.findOne().sort({ createdAt: -1 });
-//     const freeDeliveryThreshold = freeDeliveryAmount ? freeDeliveryAmount.value : 0;
+//     const freeDelivery = await FreeDeliveryAmount.findOne().sort({
+//       createdAt: -1,
+//     });
+//     const freeDeliveryThreshold = freeDelivery ? freeDelivery.value : 0;
 //
-//     // Apply free delivery only if the freeDeliveryThreshold is > 0 and subtotal meets or exceeds it
-//     let deliveryCharge = 0;
-//     if (freeDeliveryThreshold > 0 && subtotal >= freeDeliveryThreshold) {
-//       deliveryCharge = 0; // Free delivery
-//     } else {
-//       deliveryCharge = shippingMethod.value; // Standard shipping charge
-//     }
+//     let deliveryCharge =
+//       subtotal >= freeDeliveryThreshold ? 0 : shippingMethod.value;
 //
-//     // Step 5: Apply discounts (we're ignoring rewardPointsEarned here as per your requirement)
+//     // Discounts and totals
 //     const {
 //       promoDiscount = 0,
 //       finalDiscount = 0,
-//       // 🚫 Ignore rewardPointsEarned during creation
+//       rewardPointsUsed = 0,
 //     } = orderData;
 //
-//     let discountedSubtotal = subtotal;
-//     if (finalDiscount > 0) {
-//       discountedSubtotal -= finalDiscount;
-//     }
-//
-//     // Step 6: Calculate VAT
+//     let discountedSubtotal = subtotal - finalDiscount - rewardPointsUsed;
 //     const vat = (discountedSubtotal * vatPercent) / 100;
-//
-//     // Step 7: Final amount calculation
 //     const totalAmount =
 //       discountedSubtotal - promoDiscount + deliveryCharge + vat;
 //
-//     // Step 8: Save order with advanceAmount set to 0 during creation
+//     // Create and save order
 //     const newOrder = new Order({
 //       ...orderData,
 //       orderNo,
+//       userId,
 //       items: updatedItems,
 //       subtotalAmount: discountedSubtotal,
 //       deliveryCharge,
 //       vat,
 //       totalAmount,
-//       specialDiscount: 0, // 🚫 force 0 during creation
-//       advanceAmount: 0,  // 🚫 force 0 during creation
+//       rewardDiscount: rewardPointsUsed,
+//       specialDiscount: 0,
+//       advanceAmount: 0,
+//       promoDiscount: 0,
 //       rewardPointsEarned: 0,
+//       adminNote: "",
 //     });
 //
 //     const savedOrder = await newOrder.save({ session });
@@ -133,7 +129,7 @@ const User = require("../models/UserModel");
 //   } catch (error) {
 //     await session.abortTransaction();
 //     session.endSession();
-//     throw new Error("Error creating order: " + error.message);
+//     throw new Error(error.message);
 //   }
 // };
 const createOrder = async (orderData, userId) => {
@@ -141,7 +137,7 @@ const createOrder = async (orderData, userId) => {
   session.startTransaction();
 
   try {
-    // Fetch user if available (optional now)
+    // Get user (optional for guests)
     let user = null;
     if (userId) {
       user = await User.findById(userId);
@@ -149,18 +145,18 @@ const createOrder = async (orderData, userId) => {
     }
 
     // Generate order number
-    let counter = await OrderCounter.findOneAndUpdate(
+    const counter = await OrderCounter.findOneAndUpdate(
       { id: "order" },
       { $inc: { seq: 1 } },
       { new: true, upsert: true, session }
     );
     const orderNo = String(counter.seq).padStart(6, "0");
 
-    // Get VAT percentage
+    // Get VAT
     const vatEntry = await VatPercentage.findOne().sort({ createdAt: -1 });
     const vatPercent = vatEntry ? vatEntry.value : 0;
 
-    // Calculate subtotal
+    // Calculate subtotal and update stock
     let subtotal = 0;
     const updatedItems = [];
 
@@ -175,16 +171,21 @@ const createOrder = async (orderData, userId) => {
       if (product.variants.length === 0) {
         price = product.finalDiscount > 0 ? product.finalDiscount : product.finalPrice;
         stock = product.finalStock;
-        if (stock < quantity) throw new Error(`Not enough stock for product ${productId}`);
+
+        if (stock < quantity)
+          throw new Error(`Not enough stock for product ${productId}`);
+
         await Product.updateOne(
           { _id: productId },
           { $inc: { finalStock: -quantity } },
           { session }
         );
       } else {
-        const variant = product.variants.find((v) => v._id.toString() === variantId);
+        const variant = product.variants.find(v => v._id.toString() === variantId);
         if (!variant) throw new Error("Variant not found");
-        if (variant.stock < quantity) throw new Error(`Not enough stock for variant ${variantId}`);
+
+        if (variant.stock < quantity)
+          throw new Error(`Not enough stock for variant ${variantId}`);
 
         price = variant.discount || variant.price;
 
@@ -199,39 +200,66 @@ const createOrder = async (orderData, userId) => {
       updatedItems.push({ productId, variantId, quantity });
     }
 
-    // Shipping cost
+    // Handle shipping
     const shippingMethod = await Shipping.findById(orderData.shippingId);
     if (!shippingMethod) throw new Error("Invalid shipping method");
 
     const freeDelivery = await FreeDeliveryAmount.findOne().sort({ createdAt: -1 });
     const freeDeliveryThreshold = freeDelivery ? freeDelivery.value : 0;
 
-    let deliveryCharge = subtotal >= freeDeliveryThreshold ? 0 : shippingMethod.value;
+    const deliveryCharge = subtotal >= freeDeliveryThreshold ? 0 : shippingMethod.value;
 
-    // Discounts and totals
-    const {
-      promoDiscount = 0,
-      finalDiscount = 0,
-      rewardPointsUsed = 0,
-    } = orderData;
+    // ✅ Backend Coupon Validation
+    let promoDiscount = 0;
+    let appliedCouponCode = orderData.promoCode || null;
 
-    let discountedSubtotal = subtotal - finalDiscount - rewardPointsUsed;
-    const vat = (discountedSubtotal * vatPercent) / 100;
-    const totalAmount = discountedSubtotal - promoDiscount + deliveryCharge + vat;
+    if (appliedCouponCode) {
+      const coupon = await Coupon.findOne({
+        code: appliedCouponCode.toUpperCase(),
+        status: "active",
+        startDate: { $lte: new Date() },
+        endDate: { $gte: new Date() },
+      });
 
-    // Create and save order
+      if (!coupon) throw new Error("Invalid or expired promo code");
+
+      if (subtotal < coupon.minimumOrder)
+        throw new Error(`Minimum order amount for this coupon is ৳${coupon.minimumOrder}`);
+
+      if (coupon.type === "percentage") {
+        promoDiscount = Math.floor((coupon.value / 100) * subtotal);
+      } else if (coupon.type === "amount") {
+        promoDiscount = coupon.value;
+      }
+
+      // Cap promo discount if it exceeds subtotal
+      promoDiscount = Math.min(promoDiscount, subtotal);
+    }
+
+    // Reward points
+    const rewardPointsUsed = orderData.rewardPointsUsed || 0;
+    const finalSubtotal = subtotal - promoDiscount - rewardPointsUsed;
+
+    const vat = (finalSubtotal * vatPercent) / 100;
+    const totalAmount = finalSubtotal + vat + deliveryCharge;
+
+    // Save order
     const newOrder = new Order({
       ...orderData,
       orderNo,
       userId,
       items: updatedItems,
-      subtotalAmount: discountedSubtotal,
+      subtotalAmount: subtotal,
       deliveryCharge,
       vat,
       totalAmount,
-      rewardDiscount: rewardPointsUsed,
+      promoCode: appliedCouponCode,
+      promoDiscount,
+      rewardPointsUsed,
       specialDiscount: 0,
       advanceAmount: 0,
+      rewardPointsEarned: 0,
+      adminNote: "",
     });
 
     const savedOrder = await newOrder.save({ session });
@@ -246,13 +274,6 @@ const createOrder = async (orderData, userId) => {
     throw new Error(error.message);
   }
 };
-
-
-
-
-
-
-
 // Get all orders
 const getAllOrders = async () => {
   try {

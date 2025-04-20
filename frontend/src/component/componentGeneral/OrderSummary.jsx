@@ -54,7 +54,7 @@ const OrderSummary = ({
 
         {vatPercentage > 0 && (
           <div className="flex justify-between">
-            <span>VAT ({vatPercentage}%)</span>
+            <span>Tax/VAT ({vatPercentage}%)</span>
             <span>Tk. {formattedTotalAmount(vatAmount)}</span>
           </div>
         )}

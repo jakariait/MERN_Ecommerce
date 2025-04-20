@@ -144,6 +144,11 @@ export default function SidebarMenu() {
               <AccordionDetails>
                 <ul className={"space-y-2"}>
                   <li>
+                    <Link to="/admin/configsetup">
+                      Setup Your Config
+                    </Link>
+                  </li>
+                  <li>
                     <Link to="/admin/add-product-size">
                       Add New Product Size
                     </Link>
@@ -373,12 +378,15 @@ export default function SidebarMenu() {
           <li className="flex items-center space-x-2 p-2 rounded-md cursor-pointer">
             <FaHeart /> <span>Customer's Wishlist</span>
           </li>
-          <li className="flex items-center space-x-2 p-2 rounded-md cursor-pointer">
-            <FaTruck /> <span>Delivery Charges</span>
+          <li className=" p-2 rounded-md cursor-pointer">
+            <Link
+              to="/admin/deliverycharge"
+              className={"flex items-center space-x-2"}
+            >
+              <FaTruck /> <span>Delivery Charges</span>
+            </Link>
           </li>
-          <li className="flex items-center space-x-2 p-2 rounded-md cursor-pointer">
-            <FaMapMarkerAlt /> <span>Upazila & Thana</span>
-          </li>
+
           <li className="flex items-center space-x-2 p-2 rounded-md cursor-pointer">
             <FaMoneyBill /> <span>Payment History</span>
           </li>

@@ -79,7 +79,9 @@ const EditProductSize = () => {
 
   return (
     <div className="p-4 shadow rounded-lg">
-      <h1 className="mb-6 mt-4 text-xl font-semibold">Edit Product Size</h1>
+      <h1 className="border-l-4 primaryBorderColor primaryTextColor mb-6 pl-2 text-lg font-semibold ">
+        Edit Product Size
+      </h1>
       <form onSubmit={handleSubmit} className="space-y-6 flex flex-col gap-5">
         {/* Product Size Name */}
         <TextField

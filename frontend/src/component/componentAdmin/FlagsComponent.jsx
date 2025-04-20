@@ -117,15 +117,10 @@ const FlagsComponent = () => {
   };
 
   return (
-    <Box className="p-8 shadow rounded-lg">
-      <Typography
-        variant="h5"
-        gutterBottom
-        className="mb-4 text-xl font-semibold"
-      >
+    <Box className="p-4 shadow rounded-lg">
+      <h1 className="border-l-4 primaryBorderColor primaryTextColor mb-6 pl-2 text-lg font-semibold ">
         Flags Management
-      </Typography>
-
+      </h1>
       {/* Loading Skeleton */}
       {loading ? (
         <>
@@ -204,7 +199,10 @@ const FlagsComponent = () => {
           <Box className="space-y-4">
             {Array.isArray(flags) && flags.length > 0 ? (
               flags.map((flag) => (
-                <Box key={flag._id} className="flex justify-between bg-gray-100 items-center p-4 rounded-md">
+                <Box
+                  key={flag._id}
+                  className="flex justify-between bg-gray-100 items-center p-4 rounded-md"
+                >
                   <Box>
                     <Typography variant="body1" className="font-medium">
                       {flag.name} ({flag.isActive ? "Active" : "Inactive"})
@@ -215,7 +213,11 @@ const FlagsComponent = () => {
                       variant="outlined"
                       color="primary"
                       onClick={() =>
-                        handleSelectFlagForUpdate(flag._id, flag.name, flag.isActive)
+                        handleSelectFlagForUpdate(
+                          flag._id,
+                          flag.name,
+                          flag.isActive,
+                        )
                       }
                       className="mr-2"
                     >
@@ -235,8 +237,6 @@ const FlagsComponent = () => {
               <Typography>No flags available</Typography>
             )}
           </Box>
-
-
 
           {/* Delete Confirmation Dialog */}
           <Dialog open={openDeleteDialog} onClose={closeDeleteConfirmation}>

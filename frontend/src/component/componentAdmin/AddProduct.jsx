@@ -429,7 +429,9 @@ const AddProduct = () => {
   console.log(errors);
   return (
     <div className={"shadow rounded-lg p-3"}>
-      <h2 className={"text-xl font-semibold p-3"}>Add New Product</h2>
+      <h1 className="border-l-4 primaryBorderColor primaryTextColor mb-6 pl-2 text-lg font-semibold">
+        Add New Product
+      </h1>
       <form onSubmit={handleSubmit}>
         <div className={"md:grid grid-cols-12 gap-8 p-3"}>
           <div className={"col-span-8"}>

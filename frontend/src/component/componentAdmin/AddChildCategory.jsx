@@ -112,9 +112,9 @@ const AddChildCategory = () => {
           mt: 4,
         }}
       >
-        <Typography variant="h5" fontWeight="bold" gutterBottom>
+        <h1 className="border-l-4 primaryBorderColor primaryTextColor mb-6 pl-2 text-lg font-semibold">
           Add Child Category
-        </Typography>
+        </h1>
         <form onSubmit={handleSubmit}>
           {/* Category Selection */}
           <Box mb={2}>

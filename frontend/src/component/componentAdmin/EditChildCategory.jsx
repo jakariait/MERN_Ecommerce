@@ -106,7 +106,9 @@ const EditChildCategory = () => {
 
   return (
     <div className="p-4 shadow rounded-lg">
-      <h1 className="mb-6 mt-4 text-xl font-semibold">Edit Child Category</h1>
+      <h1 className="border-l-4 primaryBorderColor primaryTextColor mb-6 pl-2 text-lg font-semibold ">
+        Edit Child Category
+      </h1>
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="grid grid-cols-1 gap-6">
           <div className="space-y-2">

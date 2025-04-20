@@ -57,8 +57,10 @@ const ColorUpdater = () => {
   };
 
   return (
-    <div className="p-6 shadow-lg rounded-lg  mx-auto">
-      <h1 className="text-2xl font-semibold mb-6">Update Website Theme Color</h1>
+    <div className="p-4 shadow-lg rounded-lg  mx-auto">
+      <h1 className="border-l-4 primaryBorderColor primaryTextColor mb-6 pl-2 text-lg font-semibold ">
+        Update Website Theme Color
+      </h1>
 
       {/* Snackbar for Success/Error Messages */}
       <Snackbar

@@ -162,9 +162,9 @@ const CustomerList = () => {
   return (
     <div className="p-4 shadow rounded-lg">
       <div className={"flex  items-center justify-between"}>
-        <Typography variant="h5" className="mb-6 mt-4 font-semibold">
+        <h1 className="border-l-4 primaryBorderColor primaryTextColor mb-6 pl-2 text-lg font-semibold ">
           Customer List
-        </Typography>
+        </h1>
         <button
           className={
             "primaryBgColor accentTextColor cursor-pointer px-4 py-2 rounded-lg"
