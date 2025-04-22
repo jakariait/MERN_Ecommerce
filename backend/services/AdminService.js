@@ -1,4 +1,4 @@
-const AdminModel = require("../models/adminModel");
+const AdminModel = require("../models/AdminModel");
 
 const adminService = {
   getAllAdmins: async () => await AdminModel.find(),
