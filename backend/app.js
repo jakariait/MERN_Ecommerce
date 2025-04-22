@@ -1,3 +1,4 @@
+require("dotenv").config(); // ✅ Load environment variables
 const express = require("express");
 const router = require("./routes/api");
 const app = express();
@@ -10,9 +11,6 @@ const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const mongoose = require("mongoose");
 const path = require("path");
-const ProductModel = require("./models/ProductModel"); // or your path
-
-require("dotenv").config(); // ✅ Load environment variables
 
 const URL = process.env.MONGO_URI; // ✅ Use environment variable
 
@@ -25,11 +23,16 @@ mongoose
   })
   .catch((err) => console.log("DB Connection Error:", err));
 
+const clientUrl = process.env.CLIENT_URL
+  ? process.env.CLIENT_URL.replace(/\/$/, "")
+  : "http://localhost:5173";
+
 const corsOptions = {
-  origin: "*",
+  origin: clientUrl,
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
+  credentials: true,
   allowedHeaders: ["Content-Type", "Authorization"],
-  exposedHeaders: ["Content-Length", "X-Favicon"], // Expose required headers
+  exposedHeaders: ["Content-Length", "X-Favicon"],
 };
 
 // Serve static files from the 'uploads' folder

@@ -1,4 +1,4 @@
-const generalInfoService = require("../services/generalInfoService");
+const generalInfoService = require("../services/GeneralInfoService");
 
 // Get General Info
 const getGeneralInfo = async (req, res) => {
