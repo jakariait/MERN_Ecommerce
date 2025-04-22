@@ -30,7 +30,7 @@ const ImageComponent = ({
           onLoad={() => setIsLoading(false)}
           onError={() => {
             setIsLoading(false);
-            setImageSrc("/fallback-image.png"); // or keep blank
+            setImageSrc(); // or keep blank
           }}
         />
       )}

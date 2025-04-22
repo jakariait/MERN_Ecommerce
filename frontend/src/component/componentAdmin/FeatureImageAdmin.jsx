@@ -5,7 +5,9 @@ import { Pencil, Trash2 } from "lucide-react";
 import ImageComponent from "../componentGeneral/ImageComponent.jsx";
 import useAuthAdminStore from "../../store/AuthAdminStore.js"; // Import your store
 
-const API_URL = "http://localhost:5050/api/feature-images";
+
+const apiUrl = import.meta.env.VITE_API_URL;
+
 
 const FeatureImageAdmin = () => {
   const [featureImages, setFeatureImages] = useState([]);
@@ -19,7 +21,7 @@ const FeatureImageAdmin = () => {
   useEffect(() => {
     const fetchFeatureImages = async () => {
       try {
-        const { data } = await axios.get(API_URL);
+        const { data } = await axios.get(`${apiUrl}/feature-images`);
         setFeatureImages(data.data);
       } catch (error) {
         console.error("Error fetching images:", error);
@@ -41,7 +43,7 @@ const FeatureImageAdmin = () => {
 
     try {
       if (editingFeature) {
-        await axios.put(`${API_URL}/${editingFeature._id}`, formData, {
+        await axios.put(`${apiUrl}/feature-images/${editingFeature._id}`, formData, {
           headers: {
             "Content-Type": "multipart/form-data",
             Authorization: `Bearer ${token}`, // Add authorization header
@@ -49,7 +51,7 @@ const FeatureImageAdmin = () => {
         });
         setSuccessMessage("Update successful!");
       } else {
-        await axios.post(`${API_URL}/create`, formData, {
+        await axios.post(`${apiUrl}/feature-images/create`, formData, {
           headers: {
             "Content-Type": "multipart/form-data",
             Authorization: `Bearer ${token}`, // Add authorization header
@@ -58,7 +60,7 @@ const FeatureImageAdmin = () => {
         setSuccessMessage("Image added successfully!");
       }
 
-      const { data } = await axios.get(API_URL);
+      const { data } = await axios.get(`${apiUrl}/feature-images`);
       setFeatureImages(data.data);
 
       setEditingFeature(null);
@@ -88,7 +90,7 @@ const FeatureImageAdmin = () => {
     }
 
     try {
-      await axios.delete(`${API_URL}/${id}`, {
+      await axios.delete(`${apiUrl}/feature-images/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`, // Add authorization header
         },

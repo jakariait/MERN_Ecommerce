@@ -5,10 +5,12 @@ import { HiOutlineBuildingOffice2 } from "react-icons/hi2";
 import { MdEmail, MdOutlinePhoneInTalk } from "react-icons/md";
 import axios from "axios";
 import Skeleton from "react-loading-skeleton";
-import { Breadcrumbs, Link, Typography } from '@mui/material';
-import { Link as RouterLink } from 'react-router-dom';
+import { Breadcrumbs, Link, Typography } from "@mui/material";
+import { Link as RouterLink } from "react-router-dom";
 
 const ContactForm = () => {
+  const apiUrl = import.meta.env.VITE_API_URL;
+
   const { GeneralInfoList, GeneralInfoListLoading, GeneralInfoListError } =
     GeneralInfoStore();
   // State to manage form data
@@ -37,10 +39,7 @@ const ContactForm = () => {
     setIsStatusVisible(true); // Reset visibility on new submission
     setStatus("Submitting...");
     try {
-      const response = await axios.post(
-        "http://localhost:5050/api/contacts",
-        formData,
-      );
+      const response = await axios.post(`${apiUrl}/contacts`, formData);
       if (response.status >= 200 && response.status < 300) {
         setStatus(
           "Thank you for reaching out! Your message has been received.",
@@ -72,7 +71,9 @@ const ContactForm = () => {
   if (GeneralInfoListError) {
     return (
       <div className="primaryTextColor  container md:mx-auto text-center p-3">
-        <h1 className={"p-40"}>Something went wrong! Please try again later.</h1>
+        <h1 className={"p-40"}>
+          Something went wrong! Please try again later.
+        </h1>
       </div>
     ); // Display error message
   }

@@ -181,7 +181,7 @@ const ProductAddToCart = ({ product }) => {
             ) : (
               <motion.button
                 className="primaryBgColor accentTextColor px-2 py-1 md:py-2 rounded flex-grow cursor-pointer"
-                animate={{ scale: [1, 1.1, 1] }} // Scale animation
+                animate={{ scale: [1, 1.08, 1] }} // Scale animation
                 transition={{
                   duration: 2.5,
                   repeat: Infinity,
@@ -192,15 +192,6 @@ const ProductAddToCart = ({ product }) => {
                 ADD TO CART
               </motion.button>
             )}
-
-            {/*Wish List Button*/}
-            <button
-              className={
-                "primaryBgColor accentTextColor px-3 py-2  md:py-3 rounded cursor-pointer"
-              }
-            >
-              <FaRegHeart />
-            </button>
           </div>
           {/*Cash On Delivery Order Button*/}
           <motion.button

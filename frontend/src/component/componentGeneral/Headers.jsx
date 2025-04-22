@@ -180,22 +180,20 @@ const Headers = () => {
 
           {/* Right Icons */}
           <div className="flex items-center justify-center gap-2 relative">
-            <div className="hidden lg:flex items-center gap-2 flex-col">
-              <AiOutlineHeart className="w-6 h-6" />
-              <span className="text-sm">Wish List</span>
-            </div>
 
             {/* Cart */}
             <div
               ref={cartButtonRef}
               onClick={() => setIsCartMenuOpen(!isCartMenuOpen)}
-              className="relative"
+              className="relative  "
             >
-              {/* Shopping Cart Icon */}
-              <CiShoppingCart className="w-7 h-7 cursor-pointer" />
+              <div className={"flex flex-col justify-center items-center"}>
+                {/* Shopping Cart Icon */}
+                <CiShoppingCart className="w-7 h-7 cursor-pointer" />
 
-              {/* Text for My Cart */}
-              <span className="text-sm hidden lg:block pt-1">My Cart</span>
+                {/* Text for My Cart */}
+                <span className="text-sm hidden lg:block pt-1">My Cart</span>
+              </div>
 
               {/* Cart Quantity Badge */}
               {totalQuantity > 0 && (
