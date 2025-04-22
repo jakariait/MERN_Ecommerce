@@ -276,7 +276,7 @@ const Product = () => {
               component="span"
               style={{ margin: "0 10px" }}
             >
-              Page {currentPage} of {totalPages} || Total Products: {totalProducts}
+              Page {currentPage} of {totalPages} || Products: {totalProducts}
             </Typography>
             <Button
               onClick={() => handlePageChange(currentPage + 1)}

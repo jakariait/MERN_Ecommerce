@@ -13,18 +13,26 @@ const ImageComponent = ({
   useEffect(() => {
     if (imageName) {
       const apiUrl = import.meta.env.VITE_API_URL;
-      const imageUrl = `${apiUrl.replace('/api', '')}/uploads/${imageName}`;
+      const imageUrl = `${apiUrl.replace("/api", "")}/uploads/${imageName}`;
       setImageSrc(imageUrl);
-      setIsLoading(false);
     }
   }, [imageName]);
 
   return (
     <div>
-      {isLoading ? (
-        <Skeleton height={skeletonHeight} width={"100%"} />
-      ) : (
-        <img src={imageSrc} alt={altName} className={className} />
+      {isLoading && <Skeleton height={skeletonHeight} width={"100%"} />}
+      {imageSrc && (
+        <img
+          src={imageSrc}
+          alt={altName}
+          className={className}
+          style={{ display: isLoading ? "none" : "block" }}
+          onLoad={() => setIsLoading(false)}
+          onError={() => {
+            setIsLoading(false);
+            setImageSrc("/fallback-image.png"); // or keep blank
+          }}
+        />
       )}
     </div>
   );
