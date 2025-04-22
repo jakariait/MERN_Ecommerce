@@ -1,5 +1,5 @@
 const asyncHandler = require("express-async-handler");
-const adminService = require("../services/adminService");
+const adminService = require("../services/AdminService");
 const AdminModel = require("../models/AdminModel");
 const generateToken = require("../utility/generateToken");
 

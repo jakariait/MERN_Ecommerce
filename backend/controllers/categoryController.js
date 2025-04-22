@@ -1,6 +1,5 @@
 const categoryService = require("../services/categoryService");
 const CategoryModel = require("../models/CategoryModel");
-const path = require("path");
 
 const createCategory = async (req, res) => {
   try {
