@@ -4,10 +4,9 @@ import { Accordion, AccordionSummary, AccordionDetails } from "@mui/material";
 import { Add, Remove, CheckCircle, ErrorOutline } from "@mui/icons-material";
 
 const CouponSection = ({
-
-                         orderAmount,
-                         setAppliedCouponGlobal, // To send coupon back to parent
-                       }) => {
+  orderAmount,
+  setAppliedCouponGlobal, // To send coupon back to parent
+}) => {
   const apiUrl = import.meta.env.VITE_API_URL;
 
   const [coupon, setCoupon] = useState("");
@@ -15,8 +14,9 @@ const CouponSection = ({
   const [appliedCoupon, setAppliedCoupon] = useState(null);
   const [expanded, setExpanded] = useState(false);
 
+  const handleApplyCoupon = async (e) => {
+    e.preventDefault();
 
-  const handleApplyCoupon = async () => {
     if (!coupon.trim()) {
       setCouponError("Please enter a coupon code.");
       return;
@@ -31,15 +31,17 @@ const CouponSection = ({
       if (res.data.success) {
         const couponData = res.data.data;
 
+        // Check if the orderAmount is below the minimumOrder
         if (orderAmount < couponData.minimumOrder) {
           setCouponError(
-            `Minimum order amount should be ৳${couponData.minimumOrder}`
+            `Minimum order amount should be ৳${couponData.minimumOrder}.`
           );
           setAppliedCoupon(null);
           setAppliedCouponGlobal(null);
           return;
         }
 
+        // Date validation for coupon usage
         const now = new Date();
         const startDate = new Date(couponData.startDate);
         const endDate = new Date(couponData.endDate);
@@ -56,27 +58,29 @@ const CouponSection = ({
             ? (orderAmount * couponData.value) / 100
             : couponData.value;
 
-
         const finalCoupon = { ...couponData, discountAmount };
 
         setAppliedCoupon(finalCoupon);
         setAppliedCouponGlobal(finalCoupon);
         setCouponError("");
       } else {
+        // If the API returns a failure (e.g., minimum order error)
         setCouponError(res.data.message || "Invalid coupon.");
         setAppliedCoupon(null);
         setAppliedCouponGlobal(null);
       }
     } catch (err) {
-      setCouponError("Failed to apply coupon. Please try again.");
+      // Capture any unexpected errors
+      setCouponError(err.response?.data?.message || "Failed to apply coupon. Please try again.");
       setAppliedCoupon(null);
       setAppliedCouponGlobal(null);
       console.error(err);
     }
   };
 
+
   return (
-    <div className="w-full rounded-md shadow overflow-hidden bg-white">
+    <div className="rounded-md shadow overflow-hidden bg-white">
       <Accordion expanded={expanded} onChange={() => setExpanded(!expanded)}>
         <AccordionSummary expandIcon={expanded ? <Remove /> : <Add />}>
           <h1 className="border-l-4 primaryBorderColor primaryTextColor pl-2">
@@ -92,11 +96,11 @@ const CouponSection = ({
                 placeholder="Enter your coupon code"
                 value={coupon}
                 onChange={(e) => setCoupon(e.target.value)}
-                className="flex-grow outline-none px-4 py-2 rounded-md bg-white"
+                className="flex-grow outline-none px-2 py-2 md:px-4 md:py-2 rounded-md bg-white"
               />
               <button
                 onClick={handleApplyCoupon}
-                className="primaryBgColor accentTextColor px-6 py-2 rounded-md cursor-pointer shadow-md"
+                className="primaryBgColor accentTextColor px-2 py-2 md:px-6 md:py-2 rounded-md cursor-pointer shadow-md"
               >
                 Apply Coupon
               </button>

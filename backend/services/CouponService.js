@@ -7,7 +7,10 @@ const createCoupon = async (data) => {
 };
 
 const applyCoupon = async (code, orderAmount) => {
-  const coupon = await Coupon.findOne({ code: code.toUpperCase(), status: "active" });
+  const coupon = await Coupon.findOne({
+    code: code.toUpperCase(),
+    status: "active",
+  });
 
   if (!coupon) throw new Error("Invalid or expired coupon code.");
 
@@ -17,7 +20,9 @@ const applyCoupon = async (code, orderAmount) => {
   }
 
   if (orderAmount < coupon.minimumOrder) {
-    throw new Error(`Minimum order amount of ৳${coupon.minimumOrder} is required.`);
+    throw new Error(
+      `Minimum order amount of Tk. ${coupon.minimumOrder} is required.`,
+    );
   }
 
   return {
@@ -29,7 +34,10 @@ const applyCoupon = async (code, orderAmount) => {
 const getAllCoupons = async () => {
   const coupons = await Coupon.find().sort({ createdAt: -1 });
   return {
-    message: coupons.length > 0 ? "Coupons retrieved successfully." : "No coupons found.",
+    message:
+      coupons.length > 0
+        ? "Coupons retrieved successfully."
+        : "No coupons found.",
     data: coupons,
   };
 };

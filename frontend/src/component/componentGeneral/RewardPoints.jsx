@@ -34,12 +34,13 @@ const RewardPoints = ({ availablePoints, points, onPointsChange }) => {
     }
   };
 
-  const handleApply = () => {
+  const handleApply = (e) => {
+    e.preventDefault();
     onPointsChange(inputPoints); // only update parent on Apply
   };
 
   return (
-    <div className="w-full rounded-md shadow overflow-hidden">
+    <div className="rounded-md shadow ">
       <Accordion expanded={expanded} onChange={() => setExpanded(!expanded)}>
         <AccordionSummary
           expandIcon={expanded ? <Remove /> : <Add />}

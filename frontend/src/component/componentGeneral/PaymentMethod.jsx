@@ -8,7 +8,7 @@ const PaymentMethod = () => {
       </h1>
 
       <div className="flex flex-col gap-2">
-        <label className="w-full border border-gray-300 rounded-lg px-4 py-2 cursor-pointer transition duration-200">
+        <label className="border border-gray-300 rounded-lg px-4 py-2 cursor-pointer transition duration-200">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <input

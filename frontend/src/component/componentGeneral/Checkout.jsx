@@ -39,7 +39,7 @@ const Checkout = () => {
   // Free Delivery
   const [freeDelivery, setFreeDelivery] = useState(null);
 
- // Vat Percentage
+  // Vat Percentage
   const [vatPercentage, setVatPercentage] = useState(null);
 
   // Shipping Details Handler
@@ -172,7 +172,6 @@ const Checkout = () => {
     }
   };
 
-
   return (
     <div className="xl:container xl:mx-auto p-4">
       <CheckoutHeader user={user} />
@@ -237,7 +236,6 @@ const Checkout = () => {
               className={
                 "primaryBgColor accentTextColor px-4 py-2 w-full rounded-lg cursor-pointer"
               }
-              type="submit"
             >
               Place Order
             </button>
