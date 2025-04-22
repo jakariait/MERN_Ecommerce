@@ -8,130 +8,6 @@ const FreeDeliveryAmount = require("../models/FreeDeliveryAmount");
 const User = require("../models/UserModel");
 const Coupon = require("../models/CouponModel");
 
-// const createOrder = async (orderData, userId) => {
-//   const session = await mongoose.startSession();
-//   session.startTransaction();
-//
-//   try {
-//     // Fetch user if available (optional now)
-//     let user = null;
-//     if (userId) {
-//       user = await User.findById(userId);
-//       if (!user) throw new Error("User not found");
-//     }
-//
-//     // Generate order number
-//     let counter = await OrderCounter.findOneAndUpdate(
-//       { id: "order" },
-//       { $inc: { seq: 1 } },
-//       { new: true, upsert: true, session },
-//     );
-//     const orderNo = String(counter.seq).padStart(6, "0");
-//
-//     // Get VAT percentage
-//     const vatEntry = await VatPercentage.findOne().sort({ createdAt: -1 });
-//     const vatPercent = vatEntry ? vatEntry.value : 0;
-//
-//     // Calculate subtotal
-//     let subtotal = 0;
-//     const updatedItems = [];
-//
-//     for (const item of orderData.items) {
-//       const { productId, variantId, quantity } = item;
-//
-//       const product = await Product.findById(productId);
-//       if (!product) throw new Error("Product not found");
-//
-//       let price, stock;
-//
-//       if (product.variants.length === 0) {
-//         price =
-//           product.finalDiscount > 0
-//             ? product.finalDiscount
-//             : product.finalPrice;
-//         stock = product.finalStock;
-//         if (stock < quantity)
-//           throw new Error(`Not enough stock for product ${productId}`);
-//         await Product.updateOne(
-//           { _id: productId },
-//           { $inc: { finalStock: -quantity } },
-//           { session },
-//         );
-//       } else {
-//         const variant = product.variants.find(
-//           (v) => v._id.toString() === variantId,
-//         );
-//         if (!variant) throw new Error("Variant not found");
-//         if (variant.stock < quantity)
-//           throw new Error(`Not enough stock for variant ${variantId}`);
-//
-//         price = variant.discount || variant.price;
-//
-//         await Product.updateOne(
-//           { _id: productId, "variants._id": variantId },
-//           { $inc: { "variants.$.stock": -quantity } },
-//           { session },
-//         );
-//       }
-//
-//       subtotal += price * quantity;
-//       updatedItems.push({ productId, variantId, quantity });
-//     }
-//
-//     // Shipping cost
-//     const shippingMethod = await Shipping.findById(orderData.shippingId);
-//     if (!shippingMethod) throw new Error("Invalid shipping method");
-//
-//     const freeDelivery = await FreeDeliveryAmount.findOne().sort({
-//       createdAt: -1,
-//     });
-//     const freeDeliveryThreshold = freeDelivery ? freeDelivery.value : 0;
-//
-//     let deliveryCharge =
-//       subtotal >= freeDeliveryThreshold ? 0 : shippingMethod.value;
-//
-//     // Discounts and totals
-//     const {
-//       promoDiscount = 0,
-//       finalDiscount = 0,
-//       rewardPointsUsed = 0,
-//     } = orderData;
-//
-//     let discountedSubtotal = subtotal - finalDiscount - rewardPointsUsed;
-//     const vat = (discountedSubtotal * vatPercent) / 100;
-//     const totalAmount =
-//       discountedSubtotal - promoDiscount + deliveryCharge + vat;
-//
-//     // Create and save order
-//     const newOrder = new Order({
-//       ...orderData,
-//       orderNo,
-//       userId,
-//       items: updatedItems,
-//       subtotalAmount: discountedSubtotal,
-//       deliveryCharge,
-//       vat,
-//       totalAmount,
-//       rewardDiscount: rewardPointsUsed,
-//       specialDiscount: 0,
-//       advanceAmount: 0,
-//       promoDiscount: 0,
-//       rewardPointsEarned: 0,
-//       adminNote: "",
-//     });
-//
-//     const savedOrder = await newOrder.save({ session });
-//
-//     await session.commitTransaction();
-//     session.endSession();
-//
-//     return savedOrder;
-//   } catch (error) {
-//     await session.abortTransaction();
-//     session.endSession();
-//     throw new Error(error.message);
-//   }
-// };
 const createOrder = async (orderData, userId) => {
   const session = await mongoose.startSession();
   session.startTransaction();
@@ -148,7 +24,7 @@ const createOrder = async (orderData, userId) => {
     const counter = await OrderCounter.findOneAndUpdate(
       { id: "order" },
       { $inc: { seq: 1 } },
-      { new: true, upsert: true, session }
+      { new: true, upsert: true, session },
     );
     const orderNo = String(counter.seq).padStart(6, "0");
 
@@ -169,7 +45,10 @@ const createOrder = async (orderData, userId) => {
       let price, stock;
 
       if (product.variants.length === 0) {
-        price = product.finalDiscount > 0 ? product.finalDiscount : product.finalPrice;
+        price =
+          product.finalDiscount > 0
+            ? product.finalDiscount
+            : product.finalPrice;
         stock = product.finalStock;
 
         if (stock < quantity)
@@ -178,10 +57,12 @@ const createOrder = async (orderData, userId) => {
         await Product.updateOne(
           { _id: productId },
           { $inc: { finalStock: -quantity } },
-          { session }
+          { session },
         );
       } else {
-        const variant = product.variants.find(v => v._id.toString() === variantId);
+        const variant = product.variants.find(
+          (v) => v._id.toString() === variantId,
+        );
         if (!variant) throw new Error("Variant not found");
 
         if (variant.stock < quantity)
@@ -192,7 +73,7 @@ const createOrder = async (orderData, userId) => {
         await Product.updateOne(
           { _id: productId, "variants._id": variantId },
           { $inc: { "variants.$.stock": -quantity } },
-          { session }
+          { session },
         );
       }
 
@@ -204,10 +85,13 @@ const createOrder = async (orderData, userId) => {
     const shippingMethod = await Shipping.findById(orderData.shippingId);
     if (!shippingMethod) throw new Error("Invalid shipping method");
 
-    const freeDelivery = await FreeDeliveryAmount.findOne().sort({ createdAt: -1 });
+    const freeDelivery = await FreeDeliveryAmount.findOne().sort({
+      createdAt: -1,
+    });
     const freeDeliveryThreshold = freeDelivery ? freeDelivery.value : 0;
 
-    const deliveryCharge = subtotal >= freeDeliveryThreshold ? 0 : shippingMethod.value;
+    const deliveryCharge =
+      subtotal >= freeDeliveryThreshold ? 0 : shippingMethod.value;
 
     // ✅ Backend Coupon Validation
     let promoDiscount = 0;
@@ -224,7 +108,9 @@ const createOrder = async (orderData, userId) => {
       if (!coupon) throw new Error("Invalid or expired promo code");
 
       if (subtotal < coupon.minimumOrder)
-        throw new Error(`Minimum order amount for this coupon is ৳${coupon.minimumOrder}`);
+        throw new Error(
+          `Minimum order amount for this coupon is ৳${coupon.minimumOrder}`,
+        );
 
       if (coupon.type === "percentage") {
         promoDiscount = Math.floor((coupon.value / 100) * subtotal);
@@ -275,16 +161,20 @@ const createOrder = async (orderData, userId) => {
   }
 };
 // Get all orders
-const getAllOrders = async () => {
+const getAllOrders = async (filter = {}) => {
   try {
-    return await Order.find()
+    const orders = await Order.find(filter)
       .populate("userId")
       .populate({
         path: "items.productId",
         select:
           "-sizeChart -longDesc -shortDesc -shippingReturn -videoUrl -flags -metaTitle -metaDescription -metaKeywords -searchTags",
       })
-      .populate("items.variantId");
+      .populate("items.variantId")
+      .sort({ createdAt: -1 }); // sort by newest first
+    const totalOrders = await Order.countDocuments(filter);
+
+    return { totalOrders, orders };
   } catch (error) {
     throw new Error("Error fetching orders: " + error.message);
   }

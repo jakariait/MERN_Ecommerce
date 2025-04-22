@@ -31,6 +31,7 @@ import {
   FaUserCheck,
   FaSignOutAlt,
   FaTrash,
+  FaShoppingBag,
 } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import useAuthAdminStore from "../../store/AuthAdminStore.js";
@@ -41,10 +42,21 @@ import AccordionDetails from "@mui/material/AccordionDetails";
 import Typography from "@mui/material/Typography";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import useProductStore from "../../store/useProductStore.js";
+import useOrderStore from "../../store/useOrderStore.js";
 
 export default function SidebarMenu() {
   const { totalProductsAdmin } = useProductStore();
   const { logout } = useAuthAdminStore();
+  const { totalByStatus, totalOrders } = useOrderStore();
+
+  // To access delivered count
+  const pendingCount = totalByStatus.pending;
+  const approvedCount = totalByStatus.approved;
+  const intransitCount = totalByStatus.intransit;
+  const deliveredCount = totalByStatus.delivered;
+  const returnedCount = totalByStatus.returned;
+  const cancelledCount = totalByStatus.cancelled;
+
   const navigate = useNavigate();
   // Logout function to clear the admin state and navigate to login
   const handleLogout = () => {
@@ -142,11 +154,9 @@ export default function SidebarMenu() {
                 </Typography>
               </AccordionSummary>
               <AccordionDetails>
-                <ul className={"space-y-2"}>
+                <ul className={"space-y-2 pl-4"}>
                   <li>
-                    <Link to="/admin/configsetup">
-                      Setup Your Config
-                    </Link>
+                    <Link to="/admin/configsetup">Setup Your Config</Link>
                   </li>
                   <li>
                     <Link to="/admin/add-product-size">
@@ -199,7 +209,7 @@ export default function SidebarMenu() {
                 </Typography>
               </AccordionSummary>
               <AccordionDetails>
-                <ul className={"space-y-2"}>
+                <ul className={"space-y-2 pl-4"}>
                   <li>
                     <Link to="/admin/addnewcategory">Add New Category</Link>
                   </li>
@@ -246,7 +256,7 @@ export default function SidebarMenu() {
                 </Typography>
               </AccordionSummary>
               <AccordionDetails>
-                <ul className={"space-y-2"}>
+                <ul className={"space-y-2 pl-4"}>
                   <li>
                     <Link to="/admin/addnewsubcategory">
                       Add New Sub Category
@@ -297,7 +307,7 @@ export default function SidebarMenu() {
                 </Typography>
               </AccordionSummary>
               <AccordionDetails>
-                <ul className={"space-y-2"}>
+                <ul className={"space-y-2 pl-4"}>
                   <li>
                     <Link to="/admin/addnewchildcategory">
                       Add New Child Category
@@ -348,7 +358,7 @@ export default function SidebarMenu() {
                 </Typography>
               </AccordionSummary>
               <AccordionDetails>
-                <ul className={"space-y-2"}>
+                <ul className={"space-y-2 pl-4"}>
                   <li>
                     <Link to="/admin/addnewproduct">Add New Product</Link>
                   </li>
@@ -361,6 +371,84 @@ export default function SidebarMenu() {
               </AccordionDetails>
             </Accordion>
           </li>
+
+          <li className="space-x-2 px-2 rounded-md cursor-pointer">
+            <Accordion
+              style={{
+                background: "transparent",
+                boxShadow: "none",
+                width: "100%",
+              }}
+              sx={{
+                color: "white", // Ensures text color is white
+                "& .MuiAccordionSummary-root": {
+                  backgroundColor: "transparent",
+                  minHeight: "auto", // Removes unnecessary padding
+                  padding: "0", // Removes default padding
+                },
+                "& .MuiAccordionDetails-root": {
+                  backgroundColor: "transparent",
+                  paddingLeft: "0", // Ensures no extra left padding
+                },
+                "& .MuiSvgIcon-root": {
+                  color: "white", // Ensures the dropdown icon is white
+                },
+              }}
+            >
+              <AccordionSummary
+                expandIcon={<ExpandMoreIcon />}
+                aria-controls="panel1-content"
+                id="panel1-header"
+                className="p-2 flex items-center"
+              >
+                <Typography component="span">
+                  <div className="flex items-center gap-2">
+                    <FaShoppingBag /> <span>Manage Orders</span>
+                  </div>
+                </Typography>
+              </AccordionSummary>
+              <AccordionDetails>
+                <ul className={"space-y-2 pl-4"}>
+                  <li>
+                    <Link to="/admin/allorders">
+                      All Orders ({totalOrders})
+                    </Link>
+                  </li>
+                  <li>
+                    <Link to="/admin/pendingorders">
+                      Pending Orders ({pendingCount})
+                    </Link>
+                  </li>
+                  <li>
+                    <Link to="/admin/approvedorders">
+                      Approved Orders ({approvedCount})
+                    </Link>
+                  </li>
+                  <li>
+                    <Link to="/admin/intransitorders">
+                      In Transit Orders ({intransitCount})
+                    </Link>
+                  </li>
+                  <li>
+                    <Link to="/admin/deliveredorders">
+                      Delivered Orders ({deliveredCount})
+                    </Link>
+                  </li>
+                  <li>
+                    <Link to="/admin/returnedorders">
+                      Returned Orders ({returnedCount})
+                    </Link>
+                  </li>
+                  <li>
+                    <Link to="/admin/cancelledorders">
+                      Cancelled Orders ({cancelledCount})
+                    </Link>
+                  </li>
+                </ul>
+              </AccordionDetails>
+            </Accordion>
+          </li>
+
           <li className="flex items-center space-x-2 p-2 rounded-md cursor-pointer">
             <FaSms /> <span>SMS Service</span>
           </li>

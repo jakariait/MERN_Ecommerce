@@ -19,6 +19,7 @@ import useFlagStore from "./store/useFlagStore.js";
 import useChildCategoryStore from "./store/useChildCategoryStore.js";
 import useProductStore from "./store/useProductStore.js";
 import useAuthUserStore from "./store/AuthUserStore.js";
+import useOrderStore from "./store/useOrderStore.js";
 
 import ContactRequestPage from "./pagesAdmin/ContactRequestPage.jsx";
 import AdminLogin from "./component/componentAdmin/AdminLogin.jsx";
@@ -50,8 +51,15 @@ import UserHomePage from "./pagesUser/UserHomePage.jsx";
 import CheckoutPage from "./pagesUser/CheckoutPage.jsx";
 import DeliveryChargePage from "./pagesAdmin/DeliveryChargePage.jsx";
 import ConfigSetupPage from "./pagesAdmin/ConfigSetupPage.jsx";
-import ThankYou from "./component/componentGeneral/ThankYou.jsx";
-import ThaankYouPage from "./pagesUser/ThaankYouPage.jsx";
+import ThankYouPage from "./pagesUser/ThankYouPage.jsx";
+import AllOrdersPage from "./pagesAdmin/AllOrdersPage.jsx";
+import PendingOrdersPage from "./pagesAdmin/PendingOrdersPage.jsx";
+import ApprovedOrdersPage from "./pagesAdmin/ApprovedOrdersPage.jsx";
+import InTransitPage from "./pagesAdmin/InTransitOrdersPage.jsx";
+import InTransitOrdersPage from "./pagesAdmin/InTransitOrdersPage.jsx";
+import DeliveredOrdersPage from "./pagesAdmin/DeliveredOrdersPage.jsx";
+import ReturnedOrdersPage from "./pagesAdmin/ReturnedOrdersPage.jsx";
+import CancelledOrdersPage from "./pagesAdmin/CancelledOrdersPage.jsx";
 
 function App() {
   const { GeneralInfoListRequest } = GeneralInfoStore();
@@ -66,6 +74,7 @@ function App() {
   const { fetchChildCategories } = useChildCategoryStore();
   const { fetchProducts, fetchProductsAdmin } = useProductStore();
   const { initialize } = useAuthUserStore();
+  const { fetchAllOrders } = useOrderStore();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -84,6 +93,13 @@ function App() {
           fetchProducts(),
           fetchProductsAdmin(),
           initialize(),
+          fetchAllOrders(),
+          fetchAllOrders("pending"),
+          fetchAllOrders("approved"),
+          fetchAllOrders("intransit"),
+          fetchAllOrders("delivered"),
+          fetchAllOrders("returned"),
+          fetchAllOrders("cancelled"),
         ]);
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -125,8 +141,7 @@ function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/checkout" element={<CheckoutPage />} />
-        <Route path="/thank-you/:orderId" element={<ThaankYouPage />} />
-
+        <Route path="/thank-you/:orderId" element={<ThankYouPage />} />
 
         {/*Admin Login Page*/}
         <Route path="/admin/login" element={<AdminLogin />} />
@@ -222,9 +237,37 @@ function App() {
           />
           <Route path="/admin/customers" element={<CustomerListPage />} />
           {/*Delivery Charges Routes*/}
-          <Route path="/admin/deliverycharge" element={<DeliveryChargePage />} />
+          <Route
+            path="/admin/deliverycharge"
+            element={<DeliveryChargePage />}
+          />
 
-          <Route path="/admin/configsetup" element={<ConfigSetupPage/>} />
+          <Route path="/admin/configsetup" element={<ConfigSetupPage />} />
+
+          {/*Orders Routes*/}
+          <Route path="/admin/allorders" element={<AllOrdersPage />} />
+          <Route path="/admin/pendingorders" element={<PendingOrdersPage />} />
+          <Route
+            path="/admin/approvedorders"
+            element={<ApprovedOrdersPage />}
+          />
+          <Route
+            path="/admin/intransitorders"
+            element={<InTransitOrdersPage />}
+          />
+
+          <Route
+            path="/admin/deliveredorders"
+            element={<DeliveredOrdersPage />}
+          />
+          <Route
+            path="/admin/returnedorders"
+            element={<ReturnedOrdersPage />}
+          />
+          <Route
+            path="/admin/cancelledorders"
+            element={<CancelledOrdersPage />}
+          />
         </Route>
 
         {/* Not Found */}

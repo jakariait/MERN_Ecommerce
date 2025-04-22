@@ -132,7 +132,6 @@ const Checkout = () => {
     e.preventDefault();
 
     const orderPayload = {
-      userId: user._id,
       shippingInfo: {
         fullName: addressData.fullName,
         mobileNo: addressData.phone,
@@ -153,6 +152,10 @@ const Checkout = () => {
       promoCode: appliedCoupon?.code || null,
     };
 
+    if (user?._id) {
+      orderPayload.userId = user._id;
+    }
+
     try {
       const res = await axios.post(`${apiUrl}/orders`, orderPayload);
 
@@ -168,6 +171,7 @@ const Checkout = () => {
       showSnackbar("Something went wrong. Please try again later.", "error");
     }
   };
+
 
   return (
     <div className="xl:container xl:mx-auto p-4">
