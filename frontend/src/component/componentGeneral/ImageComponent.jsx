@@ -12,8 +12,8 @@ const ImageComponent = ({
 
   useEffect(() => {
     if (imageName) {
-      // Directly set the image URL when the imageName is available
-      const imageUrl = `http://localhost:5050/uploads/${imageName}`;
+      const apiUrl = import.meta.env.VITE_API_URL;
+      const imageUrl = `${apiUrl.replace('/api', '')}/uploads/${imageName}`;
       setImageSrc(imageUrl);
       setIsLoading(false);
     }
