@@ -1,4 +1,4 @@
-const newsletterService = require("../services/newsletterService");
+const newsletterService = require("../services/NewsletterService");
 
 // Controller for subscribing an email
 

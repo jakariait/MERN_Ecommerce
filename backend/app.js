@@ -11,8 +11,17 @@ const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const mongoose = require("mongoose");
 const path = require("path");
+const compression = require("compression");
+
 
 const URL = process.env.MONGO_URI; // ✅ Use environment variable
+
+
+if (!process.env.MONGO_URI || !process.env.CLIENT_URL) {
+  console.error("❌ Missing required environment variables");
+  process.exit(1);
+}
+
 
 mongoose
   .connect(URL, {
@@ -37,6 +46,7 @@ const corsOptions = {
 
 // Serve static files from the 'uploads' folder
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+app.use(compression());
 
 app.use(cookieParser());
 app.use(cors(corsOptions));
