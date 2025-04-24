@@ -13,12 +13,20 @@ import {
   Typography,
 } from "@mui/material";
 import Skeleton from "react-loading-skeleton";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 import ProductList from "./ProductList.jsx";
 
 const Product = () => {
-  const { products, totalPages, currentPage, loading, error, fetchProducts, totalProducts } =
-    useProductStore();
+  const {
+    products,
+    totalPages,
+    currentPage,
+    loading,
+    error,
+    fetchProducts,
+    totalProducts,
+  } = useProductStore();
   const { categories } = useCategoryStore();
   const { flags } = useFlagStore();
 
@@ -94,8 +102,6 @@ const Product = () => {
   const calculateDiscountPercentage = (
     priceBeforeDiscount,
     priceAfterDiscount,
-
-
   ) => {
     if (
       !priceBeforeDiscount ||
@@ -261,32 +267,32 @@ const Product = () => {
             </div>
           )}
 
-          <div className="flex justify-center items-center mt-5">
-            <Button
+          <div className="flex justify-center items-center mt-6 gap-4 ">
+            <button
               onClick={() => handlePageChange(currentPage - 1)}
               disabled={currentPage === 1}
-              variant="outlined"
-              color="primary"
-              aria-label="Previous page"
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg border 
+          ${currentPage === 1 ? "border-gray-300 text-gray-400 cursor-not-allowed" : "border-gray-500 hover:bg-gray-100"}`}
             >
-              Previous
-            </Button>
-            <Typography
-              variant="body1"
-              component="span"
-              style={{ margin: "0 10px" }}
-            >
-              Page {currentPage} of {totalPages} || Products: {totalProducts}
-            </Typography>
-            <Button
+              <ChevronLeft size={18} />
+              <span className={"hidden md:block"}>Previous</span>
+            </button>
+
+            <span className=" ">
+              Page {currentPage} of {totalPages}{" "}
+              <span className="text-gray-400 ">|</span> Products:{" "}
+              {totalProducts}
+            </span>
+
+            <button
               onClick={() => handlePageChange(currentPage + 1)}
               disabled={currentPage === totalPages}
-              variant="outlined"
-              color="primary"
-              aria-label="Next page"
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg border 
+          ${currentPage === totalPages ? "border-gray-300 text-gray-400 cursor-not-allowed" : "border-gray-500 hover:bg-gray-100"}`}
             >
-              Next
-            </Button>
+              <span className={"hidden md:block"}>Next</span>
+              <ChevronRight size={18} />
+            </button>
           </div>
         </>
       )}

@@ -29,7 +29,9 @@ A full-featured eCommerce platform built using the **MERN Stack** (MongoDB, Expr
 - **Frontend**: React, Zustand (State Management), Tailwind CSS / MUI, Framer Motion
 - **Backend**: Node.js, Express.js, MongoDB, Mongoose
 - **Auth**: JWT (Admin/User roles)
-- **Payment**: Stripe, PayPal
-- **Image Upload**: Cloudinary integration
+
+[//]: # (- **Payment**: Stripe, PayPal)
+
+[//]: # (- **Image Upload**: Cloudinary integration)
 - **API**: RESTful APIs with clean structure (controller-service-model pattern)
 - **Deployment**: Vercel (Frontend), Render (Backend)

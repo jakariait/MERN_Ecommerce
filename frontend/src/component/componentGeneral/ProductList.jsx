@@ -58,7 +58,7 @@ const ProductList = ( {products}) => {
                   <ImageComponent
                     imageName={product.thumbnailImage}
                     altName={product.name}
-                    skeletonHeight={350}
+                    skeletonHeight={250}
                   />
                 </Link>
                 <Link to={`/product/${product.slug}`}>
