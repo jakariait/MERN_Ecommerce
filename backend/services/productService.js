@@ -153,7 +153,6 @@ const getAllProducts = async ({
       query.isActive = isActive;
     }
 
-
     // Apply filters for valid active categories, subcategories, and child categories
     if (categoryDoc) query.category = categoryDoc._id;
     if (subCategoryDoc) query.subCategory = subCategoryDoc._id;
@@ -311,17 +310,21 @@ const getProductDetailsService = async ({ productId, variantId }) => {
   }
 
   // Check if the product has variants
-  const hasVariants = Array.isArray(product.variants) && product.variants.length > 0;
+  const hasVariants =
+    Array.isArray(product.variants) && product.variants.length > 0;
 
   // 🔒 If product has variants but no variantId provided
   if (hasVariants && !variantId) {
-    throw { status: 400, message: "⚠️ variantId is required for products with variants!" };
+    throw {
+      status: 400,
+      message: "⚠️ variantId is required for products with variants!",
+    };
   }
 
   // 👉 If variantId is provided
   if (variantId) {
     const selectedVariant = product.variants.find(
-      (variant) => variant._id.toString() === variantId
+      (variant) => variant._id.toString() === variantId,
     );
 
     if (!selectedVariant) {
@@ -342,9 +345,9 @@ const getProductDetailsService = async ({ productId, variantId }) => {
           size: selectedVariant.size,
           price: selectedVariant.price,
           stock: selectedVariant.stock,
-          discount: selectedVariant.discount ?? 0
-        }
-      }
+          discount: selectedVariant.discount ?? 0,
+        },
+      },
     };
   }
 
@@ -362,12 +365,44 @@ const getProductDetailsService = async ({ productId, variantId }) => {
       category: product.category,
       finalPrice: product.finalPrice,
       finalDiscount: product.finalDiscount,
-      finalStock: product.finalStock
-    }
+      finalStock: product.finalStock,
+    },
   };
 };
 
+const getHomePageProducts = async () => {
+  try {
+    // Step 1: Get all active flags
+    const flags = await FlagModel.find({ isActive: true }).sort({
+      createdAt: -1,
+    });
 
+    // Step 2: Prepare an object to hold products for each flag
+    const result = {};
+
+    for (const flag of flags) {
+      const products = await ProductModel.find({
+        flags: flag._id,
+        isActive: true,
+      })
+        .limit(10)
+        .select(
+          "name slug finalDiscount finalPrice finalStock thumbnailImage isActive images productId category variants flags",
+        )
+        .populate([
+          { path: "category", select: "-createdAt -updatedAt" },
+          { path: "flags", select: "-createdAt -updatedAt" },
+          { path: "variants.size", select: "-createdAt -updatedAt" },
+        ]);
+
+      result[flag.name] = products;
+    }
+
+    return result;
+  } catch (error) {
+    throw new Error("Failed to load homepage products: " + error.message);
+  }
+};
 
 module.exports = {
   createProduct,
@@ -379,4 +414,5 @@ module.exports = {
   getAllProducts,
   getSimilarProducts,
   getProductDetailsService,
+  getHomePageProducts,
 };

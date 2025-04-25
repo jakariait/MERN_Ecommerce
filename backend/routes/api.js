@@ -288,6 +288,8 @@ router.get(
 
 router.get("/getProductDetails", productController.getProductDetails); // With Product ID and variants ID
 
+router.get("/homepageproducts", productController.homePageProducts); // Home Page Products By Flag
+
 // Cart Routes
 router.get("/getCart", userProtect, cartController.getCart);
 router.post("/addToCart", userProtect, cartController.addToCart);

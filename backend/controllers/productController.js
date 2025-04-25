@@ -309,6 +309,24 @@ const getProductDetails = async (req, res) => {
   }
 };
 
+
+const homePageProducts = async (req, res) => {
+  try {
+    const data = await productService.getHomePageProducts();
+    res.status(200).json({
+      status: "success",
+      message: "Home page products fetched successfully",
+      data,
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: "error",
+      message: error.message,
+    });
+  }
+};
+
+
 module.exports = {
   createProduct,
   getProductBySlug,
@@ -320,4 +338,5 @@ module.exports = {
   getSimilarProductsController,
   getAllProductsAdmin,
   getProductDetails,
+  homePageProducts
 };
