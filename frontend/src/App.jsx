@@ -55,7 +55,6 @@ import ThankYouPage from "./pagesUser/ThankYouPage.jsx";
 import AllOrdersPage from "./pagesAdmin/AllOrdersPage.jsx";
 import PendingOrdersPage from "./pagesAdmin/PendingOrdersPage.jsx";
 import ApprovedOrdersPage from "./pagesAdmin/ApprovedOrdersPage.jsx";
-import InTransitPage from "./pagesAdmin/InTransitOrdersPage.jsx";
 import InTransitOrdersPage from "./pagesAdmin/InTransitOrdersPage.jsx";
 import DeliveredOrdersPage from "./pagesAdmin/DeliveredOrdersPage.jsx";
 import ReturnedOrdersPage from "./pagesAdmin/ReturnedOrdersPage.jsx";
@@ -72,7 +71,7 @@ function App() {
   const { fetchProductSizes } = useProductSizeStore();
   const { fetchFlags } = useFlagStore();
   const { fetchChildCategories } = useChildCategoryStore();
-  const { fetchProducts, fetchProductsAdmin } = useProductStore();
+  const { fetchProducts, fetchProductsAdmin, fetchHomeProducts } = useProductStore();
   const { initialize } = useAuthUserStore();
   const { fetchAllOrders } = useOrderStore();
 
@@ -100,6 +99,7 @@ function App() {
           fetchAllOrders("delivered"),
           fetchAllOrders("returned"),
           fetchAllOrders("cancelled"),
+          fetchHomeProducts(),
         ]);
       } catch (error) {
         console.error("Error fetching data:", error);

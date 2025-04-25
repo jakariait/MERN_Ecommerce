@@ -11,6 +11,7 @@ const useProductStore = create((set) => ({
   totalPages: 0,
   currentPage: 1,
   product: null,
+  homeProducts: {},
   loading: false,
   error: null,
 
@@ -141,6 +142,19 @@ const useProductStore = create((set) => ({
     }
   },
 
+  fetchHomeProducts: async () => {
+    set({ loading: true, error: null });
+
+    try {
+      const response = await axios.get(`${apiUrl}/homepageproducts`);
+      set({ homeProducts: response.data.data || {}, loading: false });
+    } catch (error) {
+      set({
+        error: error.response?.data?.message || "Failed to fetch homepage products",
+        loading: false,
+      });
+    }
+  },
 
 }));
 

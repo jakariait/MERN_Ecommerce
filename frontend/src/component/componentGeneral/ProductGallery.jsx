@@ -296,7 +296,7 @@ const ProductGallery = ({ images, discount, zoom = true }) => {
             <IoIosArrowBack />
           </button>
 
-          <div className="p-2 flex items-center gap-4 overflow-x-auto w-full md:w-[calc(40rem)] scrollbar-hide">
+          <div className="p-2 flex items-center justify-center-safe gap-4 overflow-x-auto w-full md:w-[calc(40rem)] scrollbar-hide">
             <div className="flex gap-4">
               {imageUrls.map((imgUrl, index) => (
                 <div

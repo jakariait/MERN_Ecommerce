@@ -6,6 +6,7 @@ import useFlagStore from "../../store/useFlagStore.js";
 import useProductSizeStore from "../../store/useProductSizeStore.js";
 import AuthAdminStore from "../../store/AuthAdminStore.js";
 import { Editor } from "primereact/editor";
+import { useNavigate } from "react-router-dom";
 
 
 import {
@@ -44,6 +45,8 @@ const AddProduct = () => {
   const { productSizes } = useProductSizeStore();
   const apiUrl = import.meta.env.VITE_API_URL;
   const { token } = AuthAdminStore();
+  const navigate = useNavigate();
+
 
   // Local state for selected category, subcategory, and child category
   const [name, setName] = useState("");
@@ -375,6 +378,7 @@ const AddProduct = () => {
       setSnackbarMessage("Product created successfully!");
       setSnackbarSeverity("success");
       setSnackbarOpen(true);
+
       // Cleanup form data after successful submission
       // Reset all state values to initial states
       setName("");
@@ -412,6 +416,10 @@ const AddProduct = () => {
 
       // Clear any validation errors
       setErrors({});
+      setTimeout(() => {
+        navigate("/admin/viewallproducts");
+      }, 3000);
+
     } catch (error) {
       // Error handling: show error Snackbar
       setSnackbarMessage("Failed to create product. Please try again.");
@@ -457,6 +465,7 @@ const AddProduct = () => {
             />
 
             {/* Long Description */}
+            <h1 className={"py-3 pl-1"}>Long Description</h1>
             <Editor
               value={longDesc}
               onTextChange={(e) => setLongDesc(e.htmlValue)}

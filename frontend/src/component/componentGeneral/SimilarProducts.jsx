@@ -34,6 +34,8 @@ const SimilarProducts = ({ categoryId, productId }) => {
   if (loading) return <p>Loading similar products...</p>;
   if (error) return <p>Error: {error}</p>;
 
+  if (similarProducts.length === 0) return null; // hide section if no similar products
+
   return (
     <div>
       <div className={"xl:container xl:mx-auto md:p-3 mt-4"}>
