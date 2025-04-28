@@ -15,8 +15,25 @@ import {
   InputLabel,
   FormControl,
   TableSortLabel,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
+  Button,
 } from "@mui/material";
 import { Skeleton } from "@mui/material";
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import { Box } from "@mui/material";
+
+import { IconButton } from "@mui/material";
+import DeleteIcon from "@mui/icons-material/Delete";
+import { Tooltip } from "@mui/material";
+import axios from "axios";
+import { Snackbar, Alert } from "@mui/material";
+import { EditIcon } from "lucide-react"; // MUI Snackbar and Alert components
+import { useNavigate } from 'react-router-dom';
+
 
 const AllOrders = ({ allOrders, orderListLoading, orderListError, title }) => {
   // Local state for search, pagination, sorting, and items per page
@@ -25,6 +42,23 @@ const AllOrders = ({ allOrders, orderListLoading, orderListError, title }) => {
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [sortDirection, setSortDirection] = useState("desc"); // For sorting order (ascending/descending)
   const [orderBy, setOrderBy] = useState("orderNo"); // Default sort by Order No
+  const [openDialog, setOpenDialog] = useState(false);
+  const [deleteId, setDeleteId] = useState(null);
+  const apiUrl = import.meta.env.VITE_API_URL;
+  const [snackbarMessage, setSnackbarMessage] = useState(""); // For message content
+  const [snackbarSeverity, setSnackbarSeverity] = useState("success"); // For success/error state
+  const [openSnackbar, setOpenSnackbar] = useState(false); // For controlling snackbar visibility
+  const navigate = useNavigate();
+  const token = localStorage.getItem("token");
+  const handleOpenDialog = (id) => {
+    setDeleteId(id);
+    setOpenDialog(true);
+  };
+
+  const handleCloseDialog = () => {
+    setOpenDialog(false);
+    setDeleteId(null);
+  };
 
   const handleSearchChange = (event) => {
     setSearchTerm(event.target.value);
@@ -133,6 +167,42 @@ const AllOrders = ({ allOrders, orderListLoading, orderListError, title }) => {
         return { backgroundColor: "gray", color: "white", text: "Unknown" };
     }
   };
+
+  const handleConfirmDelete = async () => {
+    if (!deleteId) return;
+    try {
+      // Send delete request to the backend
+      await axios.delete(`${apiUrl}/orders/${deleteId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        }, // <-- this closing comma was missing before!
+      });
+
+      // Show success snackbar message
+      setSnackbarMessage("Order deleted successfully!");
+      setSnackbarSeverity("success");
+      setOpenSnackbar(true);
+
+      // Reload the page after 4 seconds
+      setTimeout(() => {
+        window.location.reload();
+      }, 4000);
+    } catch (error) {
+      // Show error snackbar message
+      setSnackbarMessage("Failed to delete order.");
+      setSnackbarSeverity("error");
+      setOpenSnackbar(true);
+    } finally {
+      // Close the dialog after attempting delete
+      handleCloseDialog();
+    }
+  };
+
+  const handleView = (orderId) => {
+    navigate(`/orders/${orderId}`);
+  };
+
+
 
   return (
     <div className="p-4 shadow rounded-lg">
@@ -297,6 +367,9 @@ const AllOrders = ({ allOrders, orderListLoading, orderListError, title }) => {
                       <Typography variant="body1">Total Amount</Typography>
                     </TableSortLabel>
                   </TableCell>
+                  <TableCell>
+                    <Typography variant="body1">Action</Typography>
+                  </TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -370,6 +443,37 @@ const AllOrders = ({ allOrders, orderListLoading, orderListError, title }) => {
                           Tk. {order.totalAmount.toFixed(2)}
                         </Typography>
                       </TableCell>
+
+                      <TableCell>
+                        <Box display="flex" alignItems="center" gap={1}>
+                          {/* View Button */}
+                          <Tooltip title="View Order">
+                            <IconButton
+                              color="info"
+                              onClick={() => handleView(order._id)}
+                            >
+                              <VisibilityIcon />
+                            </IconButton>
+                          </Tooltip>
+
+                          {/* Edit Button */}
+                          <Tooltip title="Edit Order">
+                            <IconButton color="primary">
+                              <EditIcon />
+                            </IconButton>
+                          </Tooltip>
+
+                          {/* Delete Button */}
+                          <Tooltip title="Delete Order">
+                            <IconButton
+                              color="error"
+                              onClick={() => handleOpenDialog(order._id)}
+                            >
+                              <DeleteIcon />
+                            </IconButton>
+                          </Tooltip>
+                        </Box>
+                      </TableCell>
                     </TableRow>
                   ))
                 )}
@@ -393,6 +497,39 @@ const AllOrders = ({ allOrders, orderListLoading, orderListError, title }) => {
           </div>
         </div>
       )}
+      <Dialog open={openDialog} onClose={handleCloseDialog}>
+        <DialogTitle>Confirm Deletion</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Are you sure you want to delete this order?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseDialog}>Cancel</Button>
+          <Button
+            onClick={handleConfirmDelete}
+            color="error"
+            variant="contained"
+          >
+            Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
+      {/* Snackbar to show success/error messages */}
+      <Snackbar
+        open={openSnackbar}
+        autoHideDuration={3000}
+        onClose={() => setOpenSnackbar(false)}
+        anchorOrigin={{ vertical: "top", horizontal: "right" }} // Positioning it at the top-right corner
+      >
+        <Alert
+          onClose={() => setOpenSnackbar(false)}
+          severity={snackbarSeverity}
+          sx={{ width: "100%" }}
+        >
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
     </div>
   );
 };

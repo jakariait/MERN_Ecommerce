@@ -257,6 +257,11 @@ const updateProduct = async (productId, updatedData, files) => {
   }
 };
 
+
+
+
+
+// Similar Products for product details page
 const getSimilarProducts = async (category, excludeId) => {
   try {
     const categoryObjectId = new mongoose.Types.ObjectId(category);
@@ -386,6 +391,8 @@ const getHomePageProducts = async () => {
         isActive: true,
       })
         .limit(10)
+        .sort({ createdAt: -1 }) // Sort products by newest first
+
         .select(
           "name slug finalDiscount finalPrice finalStock thumbnailImage isActive images productId category variants flags",
         )

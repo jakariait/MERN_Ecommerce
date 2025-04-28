@@ -344,9 +344,9 @@ router.patch(
 
 // Order routes
 router.post("/orders", orderController.createOrder);
-router.get("/orders", orderController.getAllOrders);
-router.get("/orders/:orderId", orderController.getOrderById);
-router.put("/orders/:orderId", orderController.updateOrder);
+router.get("/orders",  orderController.getAllOrders);
+router.get("/orders/:orderId",  orderController.getOrderById);
+router.put("/orders/:orderId", adminProtect, orderController.updateOrder);
 router.delete("/orders/:orderId", orderController.deleteOrder);
 
 module.exports = router;

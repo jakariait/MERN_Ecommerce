@@ -97,7 +97,11 @@ const Product = () => {
   }
 
   const memoizedCategories = useMemo(() => categories, [categories]);
-  const memoizedFlags = useMemo(() => flags, [flags]);
+
+  const memoizedFlags = useMemo(
+    () => flags.filter((flag) => flag.isActive), // Filter flags by active status
+    [flags],
+  );
 
   const calculateDiscountPercentage = (
     priceBeforeDiscount,

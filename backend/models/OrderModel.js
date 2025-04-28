@@ -39,7 +39,7 @@ const orderSchema = new mongoose.Schema(
 
     deliveryMethod: {
       type: String,
-      enum: ["home_delivery", "express", "pickup"],
+      enum: ["home_delivery"],
       required: true,
       default: "home_delivery",
     },
@@ -70,6 +70,7 @@ const orderSchema = new mongoose.Schema(
         productId: { type: mongoose.Schema.Types.ObjectId, ref: "Product" },
         variantId: { type: mongoose.Schema.Types.ObjectId },
         quantity: { type: Number, required: true, min: [1, 'Quantity must be at least 1'] },
+        price: { type: Number, required: true },
       },
     ],
 

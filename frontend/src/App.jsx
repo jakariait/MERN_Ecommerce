@@ -59,6 +59,8 @@ import InTransitOrdersPage from "./pagesAdmin/InTransitOrdersPage.jsx";
 import DeliveredOrdersPage from "./pagesAdmin/DeliveredOrdersPage.jsx";
 import ReturnedOrdersPage from "./pagesAdmin/ReturnedOrdersPage.jsx";
 import CancelledOrdersPage from "./pagesAdmin/CancelledOrdersPage.jsx";
+import ViewOrderPage from "./pagesAdmin/ViewOrderPage.jsx";
+
 
 function App() {
   const { GeneralInfoListRequest } = GeneralInfoStore();
@@ -71,7 +73,8 @@ function App() {
   const { fetchProductSizes } = useProductSizeStore();
   const { fetchFlags } = useFlagStore();
   const { fetchChildCategories } = useChildCategoryStore();
-  const { fetchProducts, fetchProductsAdmin, fetchHomeProducts } = useProductStore();
+  const { fetchProducts, fetchProductsAdmin, fetchHomeProducts } =
+    useProductStore();
   const { initialize } = useAuthUserStore();
   const { fetchAllOrders } = useOrderStore();
 
@@ -268,6 +271,9 @@ function App() {
             path="/admin/cancelledorders"
             element={<CancelledOrdersPage />}
           />
+
+          <Route path="/orders/:orderId" element={<ViewOrderPage />} />
+
         </Route>
 
         {/* Not Found */}
