@@ -12,6 +12,8 @@ import {
   TableRow,
   Paper,
 } from "@mui/material";
+import { useRef } from "react";
+import OrderStatusUpdate from "./OrderStatusUpdate.jsx";
 
 // Import your VITE API URL
 const apiUrl = import.meta.env.VITE_API_URL; // 👈 assuming you set it in .env
@@ -23,6 +25,7 @@ const ViewOrder = () => {
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const printRef = useRef(null);
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -81,34 +84,30 @@ const ViewOrder = () => {
     }
   };
 
-  useEffect(() => {
-    const fetchOrder = async () => {
-      try {
-        // Get the token from localStorage (or wherever you store it)
-        const token = localStorage.getItem("token");
-
-        // If token is missing, handle it as an error
-        if (!token) {
-          setError("You are not authenticated.");
-          setLoading(false);
-          return;
-        }
-
-        // Make the API call with the token in the Authorization header
-        const res = await axios.get(`${apiUrl}/orders/${orderId}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        setOrder(res.data.order); // Storing only the 'order' part from the response
+  const fetchOrder = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        setError("You are not authenticated.");
         setLoading(false);
-      } catch (err) {
-        setError("Failed to fetch order details.");
-        setLoading(false);
+        return;
       }
-    };
 
+      const res = await axios.get(`${apiUrl}/orders/${orderId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      setOrder(res.data.order);
+      setLoading(false);
+    } catch (err) {
+      setError("Failed to fetch order details.");
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchOrder();
   }, [orderId]);
 
@@ -118,119 +117,204 @@ const ViewOrder = () => {
   const orderStatusColor = getStatusColor(order.orderStatus);
   const paymentStatusColor = getPaymentStatusColor(order.paymentStatus);
 
+  const handlePrint = () => {
+    const content = printRef.current.innerHTML; // Get the content to print
+
+    // Create a new div or section in the body to temporarily hold the content for printing
+    const printContainer = document.createElement("div");
+    printContainer.innerHTML = `
+    <html>
+      <head>
+        <title>Invoice</title>
+        <style>
+          body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+          }
+          .invoice {
+            width: 100%;
+            margin: auto;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="invoice">${content}</div>
+      </body>
+    </html>
+  `;
+
+    // Append the print container to the body temporarily
+    document.body.appendChild(printContainer);
+
+    // Trigger the print dialog
+    window.print();
+
+    // Clean up by removing the print container after printing
+    setTimeout(() => {
+      document.body.removeChild(printContainer);
+    }, 1000); // Delay to ensure the print dialog has been opened before removing the element
+  };
+
   return (
-    <div className="p-4 shadow rounded-lg">
-      <div className={"flex justify-between items-center mb-5"}>
-        <div className={"text-2xl"}>{GeneralInfoList.CompanyName}</div>
-        <div>
-          <ImageComponent
-            imageName={GeneralInfoList.PrimaryLogo}
-            className={"w-30"}
-          />
+    <div>
+      <div ref={printRef} className="p-4 shadow rounded-lg">
+        <div className={"flex justify-between items-center mb-5"}>
+          <div className={"text-2xl"}>{GeneralInfoList.CompanyName}</div>
+          <div>
+            <ImageComponent
+              imageName={GeneralInfoList.PrimaryLogo}
+              className={"w-30"}
+            />
+          </div>
+          <div className={"text-2xl"}>
+            <h1>Invoice</h1>
+          </div>
         </div>
-        <div className={"text-2xl"}>
-          <h1>Invoice</h1>
-        </div>
-      </div>
-      <div className="flex justify-between">
-        {/* Shipping Info Section */}
-        <div>
-          <h2 className="font-bold text-xl">Shipping Info:</h2>
-          <div className="flex flex-col gap-0.5">
-            <p>{order.shippingInfo.fullName}</p>
-            <p>{order.shippingInfo.mobileNo}</p>
-            <p>{order.shippingInfo.email}</p>
-            <p>{order.shippingInfo.address}</p>
+        <div className="flex justify-between">
+          {/* Shipping Info Section */}
+          <div>
+            <h2 className="font-bold text-xl">Shipping Info:</h2>
+            <div className="flex flex-col gap-0.5">
+              <p>{order.shippingInfo.fullName}</p>
+              <p>{order.shippingInfo.mobileNo}</p>
+              <p>{order.shippingInfo.email}</p>
+              <p>{order.shippingInfo.address}</p>
+            </div>
+          </div>
+
+          {/* Order Details Section */}
+          <div>
+            <div className="flex justify-between flex-col gap-0.5">
+              <p>
+                <strong>Order No:</strong> {order.orderNo}
+              </p>
+              <p>
+                <strong>Order Date:</strong>{" "}
+                {new Date(order.orderDate).toLocaleDateString()}
+              </p>
+              <p>
+                <strong>Status:</strong>{" "}
+                <span
+                  style={{
+                    color: orderStatusColor.color,
+                  }}
+                >
+                  {orderStatusColor.text}
+                </span>
+              </p>
+              <p>
+                <strong>Payment Method:</strong>{" "}
+                {getPaymentMethodText(order.paymentMethod)}
+              </p>
+              <p>
+                <strong>Payment Status:</strong>{" "}
+                <span
+                  style={{
+                    backgroundColor: paymentStatusColor.backgroundColor,
+                    color: paymentStatusColor.color,
+                    padding: "5px",
+                    borderRadius: "5px",
+                  }}
+                  className={"text-sm"}
+                >
+                  {paymentStatusColor.text}
+                </span>
+              </p>
+              <p>
+                <strong>Delivery Method:</strong>{" "}
+                {getDeliveryMethodText(order.deliveryMethod)}
+              </p>
+            </div>
           </div>
         </div>
 
-        {/* Order Details Section */}
-        <div>
-          <div className="flex justify-between flex-col gap-0.5">
-            <p>
-              <strong>Order No:</strong> {order.orderNo}
+        {/* Items List */}
+        <div className="mt-6">
+          <TableContainer component={Paper}>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell>SL</TableCell>
+                  <TableCell>Item</TableCell>
+                  <TableCell>Variant</TableCell>
+                  <TableCell>Quantity</TableCell>
+                  <TableCell>Unit Cost</TableCell>
+                  <TableCell>Total</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {order.items.map((item, index) => {
+                  const product = item.productId;
+
+                  // Get the first variant (if any)
+                  const variant = product.variants[0];
+
+                  // Check for discount or final price
+                  const price = item.price;
+                  const totalPrice = price * item.quantity;
+
+                  return (
+                    <TableRow key={index}>
+                      <TableCell>{index + 1}</TableCell>
+                      <TableCell>
+                        <div>
+                          <div>{product.name}</div>
+                          <div>Category: {item.productId?.category?.name}</div>
+                          <div>Code: {product.productCode}</div>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        {variant ? variant.sizeName : "N/A"}
+                      </TableCell>
+                      <TableCell>{item.quantity}</TableCell>
+                      <TableCell>{item.price.toFixed(2)}</TableCell>
+
+                      <TableCell>{totalPrice.toFixed(2)}</TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </div>
+        <div className="mt-6 p-1 flex justify-between ">
+          <div>
+            <h1>Billing Address:</h1>
+            <div>
+              <p>{order.shippingInfo.fullName}</p>
+              <p>{order.shippingInfo.address}</p>
+            </div>
+          </div>
+          <div className="flex flex-col gap-2 items-end">
+            <p>Sub-total: Tk.{order.subtotalAmount.toFixed(2)}</p>
+            <p>Promo Discount: Tk.{order.promoDiscount.toFixed(2)}</p>
+            <p>Reward Points Used: {order.rewardPointsUsed}</p>
+            <p>VAT/TAX: {order.vat.toFixed(2)}</p>
+            <p>Delivery Charge: {order.deliveryCharge.toFixed(2)}</p>
+            <p>Special Discount Amount: {order.specialDiscount.toFixed(2)}</p>
+            <p className={"text-2xl"}>
+              Total Order Amount: {order.totalAmount.toFixed(2)}
             </p>
-            <p>
-              <strong>Order Date:</strong>{" "}
-              {new Date(order.orderDate).toLocaleDateString()}
+            <p className={"text-red-500"}>
+              Advance: {order.advanceAmount.toFixed(2)}
             </p>
-            <p>
-              <strong>Status:</strong>{" "}
-              <span
-                style={{
-                  color: orderStatusColor.color,
-                }}
+            <p className={"text-2xl"}>
+              Total Due Amount: {order.dueAmount.toFixed(2)}
+            </p>
+            <div className="flex justify-end mb-4">
+              <button
+                onClick={handlePrint}
+                className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded"
               >
-                {orderStatusColor.text}
-              </span>
-            </p>
-            <p>
-              <strong>Payment Method:</strong>{" "}
-              {getPaymentMethodText(order.paymentMethod)}
-            </p>
-            <p>
-              <strong>Payment Status:</strong>{" "}
-              <span
-                style={{
-                  backgroundColor: paymentStatusColor.backgroundColor,
-                  color: paymentStatusColor.color,
-                  padding: "5px",
-                  borderRadius: "5px",
-                }}
-                className={"text-sm"}
-              >
-                {paymentStatusColor.text}
-              </span>
-            </p>
-            <p>
-              <strong>Delivery Method:</strong>{" "}
-              {getDeliveryMethodText(order.deliveryMethod)}
-            </p>
+                Print Invoice
+              </button>
+            </div>
           </div>
         </div>
       </div>
-
-      {/* Items List */}
       <div className="mt-6">
-        <TableContainer component={Paper}>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>SL</TableCell>
-                <TableCell>Item</TableCell>
-                <TableCell>Variant</TableCell>
-                <TableCell>Quantity</TableCell>
-                <TableCell>Total Price</TableCell>
-                <TableCell>Thumbnail</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {order.items.map((item, index) => {
-                const product = item.productId;
-
-                // Get the first variant (if any)
-                const variant = product.variants[0];
-
-                // Check for discount or final price
-                const price = item.price;
-                const totalPrice = price * item.quantity;
-
-                return (
-                  <TableRow key={index}>
-                    <TableCell>{index + 1}</TableCell>
-                    <TableCell>{product.name}</TableCell>
-                    <TableCell>{variant ? variant.sizeName : "N/A"}</TableCell>
-                    <TableCell>{item.quantity}</TableCell>
-                    <TableCell>{totalPrice.toFixed(2)}</TableCell>
-
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
-        </TableContainer>
+        <OrderStatusUpdate orderId={order._id} onUpdate={fetchOrder} />
       </div>
-
     </div>
   );
 };

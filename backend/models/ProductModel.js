@@ -175,7 +175,7 @@ productSchema.pre("save", function (next) {
     // If variants exist, set finalPrice, finalDiscount, and finalStock based on variants
     this.finalPrice =
       this.variants.reduce((sum, v) => sum + v.price, 0) / this.variants.length;
-    this.finalDiscount =
+      this.finalDiscount =
       this.variants.reduce((sum, v) => sum + v.discount, 0) /
       this.variants.length;
     this.finalStock = this.variants.reduce((total, v) => total + v.stock, 0);

@@ -222,45 +222,125 @@ const getAllProducts = async ({
   }
 };
 
-// Update a product by ID
+// // Update a product by ID
+// const updateProduct = async (productId, updatedData, files) => {
+//   try {
+//     let product = await ProductModel.findOne({ productId });
+//     if (!product) {
+//       throw new Error("Product not found.");
+//     }
+//
+//     // 🚫 Prevent updating productId
+//     delete updatedData.productId;
+//
+//     // ✅ Handle file uploads from Multer
+//     if (files) {
+//       // If new thumbnail image is uploaded, update it
+//       if (files.thumbnailImage) {
+//         updatedData.thumbnailImage = files.thumbnailImage[0].filename; // Save only filename
+//       }
+//
+//       // If new images are uploaded, append them to existing ones
+//       if (files.images) {
+//         const newImagePaths = files.images.map((file) => file.filename); // Get new image filenames
+//         updatedData.images = [...product.images, ...newImagePaths]; // Retain existing images and add new ones
+//       }
+//     }
+//
+//     // ✅ Apply updates manually
+//     Object.assign(product, updatedData);
+//     await product.save();
+//
+//     return product;
+//   } catch (err) {
+//     throw new Error(err.message);
+//   }
+// };
 const updateProduct = async (productId, updatedData, files) => {
   try {
-    let product = await ProductModel.findOne({ productId });
+    // 1. Find the existing product
+    const product = await ProductModel.findOne({ productId });
     if (!product) {
-      throw new Error("Product not found.");
+      throw new Error("Product not found");
     }
 
-    // 🚫 Prevent updating productId
-    delete updatedData.productId;
+    // 2. Secure variant updates
+    if (updatedData.variants && Array.isArray(updatedData.variants)) {
+      const existingVariantsMap = new Map();
+      product.variants.forEach(v => {
+        existingVariantsMap.set(v.size._id.toString(), v);
+      });
 
-    // ✅ Handle file uploads from Multer
-    if (files) {
-      // If new thumbnail image is uploaded, update it
-      if (files.thumbnailImage) {
-        updatedData.thumbnailImage = files.thumbnailImage[0].filename; // Save only filename
-      }
+      updatedData.variants = updatedData.variants.map((variantData, index) => {
+        // Handle all possible size identification formats
+        const sizeId =
+          (variantData.size && typeof variantData.size === 'object' && variantData.size._id) ?
+            variantData.size._id.toString() :
+            (variantData.sizeId) ?
+              variantData.sizeId.toString() :
+              (variantData._id) ?
+                product.variants.id(variantData._id)?.size._id.toString() :
+                (typeof variantData.size === 'string') ?
+                  variantData.size : // This handles your current format
+                  null;
 
-      // If new images are uploaded, append them to existing ones
-      if (files.images) {
-        const newImagePaths = files.images.map((file) => file.filename); // Get new image filenames
-        updatedData.images = [...product.images, ...newImagePaths]; // Retain existing images and add new ones
-      }
+        if (!sizeId) {
+          throw new Error(
+            `Cannot identify variant at index ${index}. Valid formats:\n` +
+            `1. { size: "size_id_string" } (your current format)\n` +
+            `2. { size: { _id: "size_id" } }\n` +
+            `3. { sizeId: "size_id" }\n` +
+            `4. { _id: "variant_id" }`
+          );
+        }
+
+        const existingVariant = existingVariantsMap.get(sizeId);
+
+        if (existingVariant) {
+          return {
+            _id: existingVariant._id,
+            size: existingVariant.size,
+            stock: variantData.stock !== undefined ? Number(variantData.stock) : existingVariant.stock,
+            price: variantData.price !== undefined ? Number(variantData.price) : existingVariant.price,
+            discount: variantData.discount !== undefined ?
+              (variantData.discount === "" ? null : Number(variantData.discount)) :
+              existingVariant.discount
+          };
+        }
+
+        // New variant
+        if (!variantData.price || !variantData.stock) {
+          throw new Error(`New variant requires price and stock`);
+        }
+
+        return {
+          size: { _id: sizeId }, // Convert to proper size object
+          price: Number(variantData.price),
+          stock: Number(variantData.stock),
+          discount: variantData.discount === "" ? null : Number(variantData.discount) || null
+        };
+      });
     }
 
-    // ✅ Apply updates manually
+    // Handle other updates and save...
     Object.assign(product, updatedData);
     await product.save();
 
     return product;
-  } catch (err) {
-    throw new Error(err.message);
+  } catch (error) {
+    console.error('Update failed:', {
+      error: error.message,
+      inputVariants: updatedData.variants,
+      existingVariants: product?.variants?.map(v => ({
+        _id: v._id,
+        size: v.size._id,
+        price: v.price,
+        stock: v.stock
+      }))
+    });
+    throw new Error(`Update failed: ${error.message}`);
   }
 };
-
-
-
-
-
 // Similar Products for product details page
 const getSimilarProducts = async (category, excludeId) => {
   try {

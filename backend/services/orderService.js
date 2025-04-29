@@ -9,159 +9,6 @@ const User = require("../models/UserModel");
 const Coupon = require("../models/CouponModel");
 const ProductSizeModel = require('../models/ProductSizeModel');  // Import the ProductSizeModel
 
-
-// const createOrder = async (orderData, userId) => {
-//   const session = await mongoose.startSession();
-//   session.startTransaction();
-//
-//   try {
-//     // Get user (optional for guests)
-//     let user = null;
-//     if (userId) {
-//       user = await User.findById(userId);
-//       if (!user) throw new Error("User not found");
-//     }
-//
-//     // Generate order number
-//     const counter = await OrderCounter.findOneAndUpdate(
-//       { id: "order" },
-//       { $inc: { seq: 1 } },
-//       { new: true, upsert: true, session },
-//     );
-//     const orderNo = String(counter.seq).padStart(6, "0");
-//
-//     // Get VAT
-//     const vatEntry = await VatPercentage.findOne().sort({ createdAt: -1 });
-//     const vatPercent = vatEntry ? vatEntry.value : 0;
-//
-//     // Calculate subtotal and update stock
-//     let subtotal = 0;
-//     const updatedItems = [];
-//
-//     for (const item of orderData.items) {
-//       const { productId, variantId, quantity } = item;
-//
-//       const product = await Product.findById(productId);
-//       if (!product) throw new Error("Product not found");
-//
-//       let price, stock;
-//
-//       if (product.variants.length === 0) {
-//         price =
-//           product.finalDiscount > 0
-//             ? product.finalDiscount
-//             : product.finalPrice;
-//         stock = product.finalStock;
-//
-//         if (stock < quantity)
-//           throw new Error(`Not enough stock for product ${productId}`);
-//
-//         await Product.updateOne(
-//           { _id: productId },
-//           { $inc: { finalStock: -quantity } },
-//           { session },
-//         );
-//       } else {
-//         const variant = product.variants.find(
-//           (v) => v._id.toString() === variantId,
-//         );
-//         if (!variant) throw new Error("Variant not found");
-//
-//         if (variant.stock < quantity)
-//           throw new Error(`Not enough stock for variant ${variantId}`);
-//
-//         price = variant.discount || variant.price;
-//
-//         await Product.updateOne(
-//           { _id: productId, "variants._id": variantId },
-//           { $inc: { "variants.$.stock": -quantity } },
-//           { session },
-//         );
-//       }
-//
-//       subtotal += price * quantity;
-//       updatedItems.push({ productId, variantId, quantity });
-//     }
-//
-//     // Handle shipping
-//     const shippingMethod = await Shipping.findById(orderData.shippingId);
-//     if (!shippingMethod) throw new Error("Invalid shipping method");
-//
-//     const freeDelivery = await FreeDeliveryAmount.findOne().sort({
-//       createdAt: -1,
-//     });
-//     const freeDeliveryThreshold = freeDelivery ? freeDelivery.value : 0;
-//
-//     const deliveryCharge =
-//       subtotal >= freeDeliveryThreshold ? 0 : shippingMethod.value;
-//
-//     // ✅ Backend Coupon Validation
-//     let promoDiscount = 0;
-//     let appliedCouponCode = orderData.promoCode || null;
-//
-//     if (appliedCouponCode) {
-//       const coupon = await Coupon.findOne({
-//         code: appliedCouponCode.toUpperCase(),
-//         status: "active",
-//         startDate: { $lte: new Date() },
-//         endDate: { $gte: new Date() },
-//       });
-//
-//       if (!coupon) throw new Error("Invalid or expired promo code");
-//
-//       if (subtotal < coupon.minimumOrder)
-//         throw new Error(
-//           `Minimum order amount for this coupon is ৳${coupon.minimumOrder}`,
-//         );
-//
-//       if (coupon.type === "percentage") {
-//         promoDiscount = Math.floor((coupon.value / 100) * subtotal);
-//       } else if (coupon.type === "amount") {
-//         promoDiscount = coupon.value;
-//       }
-//
-//       // Cap promo discount if it exceeds subtotal
-//       promoDiscount = Math.min(promoDiscount, subtotal);
-//     }
-//
-//     // Reward points
-//     const rewardPointsUsed = orderData.rewardPointsUsed || 0;
-//     const finalSubtotal = subtotal - promoDiscount - rewardPointsUsed;
-//
-//     const vat = (finalSubtotal * vatPercent) / 100;
-//     const totalAmount = finalSubtotal + vat + deliveryCharge;
-//
-//     // Save order
-//     const newOrder = new Order({
-//       ...orderData,
-//       orderNo,
-//       userId,
-//       items: updatedItems,
-//       subtotalAmount: subtotal,
-//       deliveryCharge,
-//       vat,
-//       totalAmount,
-//       promoCode: appliedCouponCode,
-//       promoDiscount,
-//       rewardPointsUsed,
-//       specialDiscount: 0,
-//       advanceAmount: 0,
-//       rewardPointsEarned: 0,
-//       adminNote: "",
-//     });
-//
-//     const savedOrder = await newOrder.save({ session });
-//
-//     await session.commitTransaction();
-//     session.endSession();
-//
-//     return savedOrder;
-//   } catch (error) {
-//     await session.abortTransaction();
-//     session.endSession();
-//     throw new Error(error.message);
-//   }
-// };
 const createOrder = async (orderData, userId) => {
   const session = await mongoose.startSession();
   session.startTransaction();
@@ -335,6 +182,7 @@ const getAllOrders = async (filter = {}) => {
   }
 };
 
+// Get order by ID
 const getOrderById = async (orderId) => {
   try {
     const order = await Order.findById(orderId)
@@ -343,6 +191,10 @@ const getOrderById = async (orderId) => {
         path: "items.productId",
         select:
           "-sizeChart -longDesc -shortDesc -shippingReturn -videoUrl -flags -metaTitle -metaDescription -metaKeywords -searchTags",
+        populate: {
+          path: "category",
+          select: "name", // Only bring category name
+        },
       })
       .populate({
         path: "items.variantId",
@@ -392,15 +244,104 @@ const getOrderById = async (orderId) => {
 };
 
 
-
-// Update an order
 const updateOrder = async (orderId, updateData) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
   try {
-    return await Order.findByIdAndUpdate(orderId, updateData, { new: true });
+    // Find the existing order to compare the status
+    const existingOrder = await Order.findById(orderId).session(session);
+    if (!existingOrder) {
+      await session.abortTransaction();
+      session.endSession();
+      throw new Error("Order not found");
+    }
+
+    // Update the order data
+    const updatedOrder = await Order.findByIdAndUpdate(orderId, updateData, { new: true, session });
+    if (!updatedOrder) {
+      await session.abortTransaction();
+      session.endSession();
+      throw new Error("Order not found after update"); // Added extra check
+    }
+
+    // Check if the status has changed to 'Returned' or 'Cancelled'
+    const isNowReturnedOrCancelled =
+      updatedOrder.orderStatus === "returned" || updatedOrder.orderStatus === "cancelled";
+    const wasNotReturnedOrCancelled =
+      existingOrder.orderStatus !== "returned" && existingOrder.orderStatus !== "cancelled";
+
+    if (isNowReturnedOrCancelled && wasNotReturnedOrCancelled) {
+      // Restore stock for each item in the order
+      for (const item of updatedOrder.items) {
+        const { productId, variantId, quantity } = item;
+
+        const product = await Product.findById(productId).session(session);
+        if (!product) throw new Error(`Product not found for ID ${productId}`);
+
+        if (!product.variants || product.variants.length === 0) {
+          await Product.updateOne(
+            { _id: productId },
+            { $inc: { finalStock: quantity } },
+            { session }
+          );
+        } else {
+          const variant = product.variants.find(v => v._id.toString() === variantId.toString());
+          if (!variant) throw new Error(`Variant not found for ID ${variantId}`);
+
+          await Product.updateOne(
+            { _id: productId, "variants._id": variantId },
+            { $inc: { "variants.$.stock": quantity } },
+            { session }
+          );
+        }
+      }
+    }
+
+    // Check if the status is changing from 'returned' or 'cancelled' to any of the following statuses
+    const isRevertingToActiveStatus =
+      (existingOrder.orderStatus === "returned" || existingOrder.orderStatus === "cancelled") &&
+      ["pending", "approved", "intransit", "delivered"].includes(updatedOrder.orderStatus);
+
+    if (isRevertingToActiveStatus) {
+      // Deduct stock for each item in the order
+      for (const item of updatedOrder.items) {
+        const { productId, variantId, quantity } = item;
+
+        const product = await Product.findById(productId).session(session);
+        if (!product) throw new Error(`Product not found for ID ${productId}`);
+
+        if (!product.variants || product.variants.length === 0) {
+          await Product.updateOne(
+            { _id: productId },
+            { $inc: { finalStock: -quantity } },  // Deduct stock
+            { session }
+          );
+        } else {
+          const variant = product.variants.find(v => v._id.toString() === variantId.toString());
+          if (!variant) throw new Error(`Variant not found for ID ${variantId}`);
+
+          await Product.updateOne(
+            { _id: productId, "variants._id": variantId },
+            { $inc: { "variants.$.stock": -quantity } },  // Deduct stock
+            { session }
+          );
+        }
+      }
+    }
+
+    // Commit the transaction to apply the changes
+    await session.commitTransaction();
+    session.endSession();
+
+    return { success: true, message: `Order updated successfully`, updatedOrder };
   } catch (error) {
+    await session.abortTransaction();
+    session.endSession();
     throw new Error("Error updating order: " + error.message);
   }
 };
+
 
 // Delete and order
 const deleteOrder = async (orderId) => {
