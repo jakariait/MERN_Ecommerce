@@ -60,6 +60,7 @@ import DeliveredOrdersPage from "./pagesAdmin/DeliveredOrdersPage.jsx";
 import ReturnedOrdersPage from "./pagesAdmin/ReturnedOrdersPage.jsx";
 import CancelledOrdersPage from "./pagesAdmin/CancelledOrdersPage.jsx";
 import ViewOrderPage from "./pagesAdmin/ViewOrderPage.jsx";
+import BkashCallbackPage from "./pagesUser/BkashCallbackPage.jsx";
 
 
 function App() {
@@ -145,6 +146,8 @@ function App() {
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/checkout" element={<CheckoutPage />} />
         <Route path="/thank-you/:orderId" element={<ThankYouPage />} />
+        <Route path="/bkash-callback" element={<BkashCallbackPage/>} />
+
 
         {/*Admin Login Page*/}
         <Route path="/admin/login" element={<AdminLogin />} />

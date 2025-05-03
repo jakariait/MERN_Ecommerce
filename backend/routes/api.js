@@ -22,6 +22,8 @@ const freeDeliveryController = require("../controllers/FreeDeliveryController");
 const couponController = require("../controllers/CouponController");
 const VatPercentageController = require("../controllers/VatPercentageController");
 const orderController = require("../controllers/orderController");
+const bkashController = require("../controllers/bkashController");
+
 
 // Admin
 const { adminProtect } = require("../middlewares/authAdminMiddleware");
@@ -348,5 +350,12 @@ router.get("/orders",  orderController.getAllOrders);
 router.get("/orders/:orderId",  orderController.getOrderById);
 router.put("/orders/:orderId", adminProtect, orderController.updateOrder);
 router.delete("/orders/:orderId", orderController.deleteOrder);
+
+// bKash Payment Gateway Routes
+router.post("/bkashcreate", bkashController.createPayment);
+router.post("/bkashexecute", bkashController.executePayment);
+router.post("/queryPaymentStatus", bkashController.queryPaymentStatus);
+
+
 
 module.exports = router;

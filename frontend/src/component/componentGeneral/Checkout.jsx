@@ -22,6 +22,7 @@ const Checkout = () => {
   const apiUrl = import.meta.env.VITE_API_URL;
   const navigate = useNavigate();
 
+
   // Store values
   const { cart, removeFromCart, updateQuantity, clearCart } = useCartStore();
   const { user } = useAuthUserStore();
@@ -35,6 +36,10 @@ const Checkout = () => {
     name: "",
     value: 0,
   });
+
+  // Payment Method state
+  const [paymentMethod, setPaymentMethod] = useState("cash_on_delivery");
+
 
   // Free Delivery
   const [freeDelivery, setFreeDelivery] = useState(null);
@@ -150,11 +155,40 @@ const Checkout = () => {
         return baseItem;
       }),
       promoCode: appliedCoupon?.code || null,
+      paymentMethod
     };
 
     if (user?._id) {
       orderPayload.userId = user._id;
     }
+
+    // ---- Handle bKash Checkout ----
+    if (paymentMethod === "bkash") {
+      try {
+        const createRes = await axios.post(`${apiUrl}/bkashcreate`, {
+          amount: grandTotal.toFixed(2), // round to 2 decimal places
+          payerReference: user?.phone || "guestUser",
+          callbackURL: `${window.location.origin}/bkash-callback`,
+        });
+
+        if (createRes.data && createRes.data.bkashURL) {
+          localStorage.setItem("bkash_order_payload", JSON.stringify(orderPayload));
+          window.location.href = createRes.data.bkashURL;
+          return;
+        } else {
+          showSnackbar("Failed to initiate bKash payment", "error");
+        }
+      } catch (err) {
+        console.error(err);
+        showSnackbar("bKash payment initialization failed", "error");
+      }
+      return;
+    }
+
+
+
+
+    // ---- Normal COD Flow ----
 
     try {
       const res = await axios.post(`${apiUrl}/orders`, orderPayload);
@@ -171,6 +205,7 @@ const Checkout = () => {
       showSnackbar("Something went wrong. Please try again later.", "error");
     }
   };
+
 
   return (
     <div className="xl:container xl:mx-auto p-4">
@@ -191,7 +226,10 @@ const Checkout = () => {
               formattedTotalAmount={formattedTotalAmount}
             />
             {/* Payment Method */}
-            <PaymentMethod />
+            <PaymentMethod
+              selectedMethod={paymentMethod}
+              setSelectedMethod={setPaymentMethod}
+            />
           </div>
 
           {/* Right Column - Order Review */}
