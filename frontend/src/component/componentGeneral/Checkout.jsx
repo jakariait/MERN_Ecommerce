@@ -22,7 +22,6 @@ const Checkout = () => {
   const apiUrl = import.meta.env.VITE_API_URL;
   const navigate = useNavigate();
 
-
   // Store values
   const { cart, removeFromCart, updateQuantity, clearCart } = useCartStore();
   const { user } = useAuthUserStore();
@@ -39,7 +38,6 @@ const Checkout = () => {
 
   // Payment Method state
   const [paymentMethod, setPaymentMethod] = useState("cash_on_delivery");
-
 
   // Free Delivery
   const [freeDelivery, setFreeDelivery] = useState(null);
@@ -155,14 +153,14 @@ const Checkout = () => {
         return baseItem;
       }),
       promoCode: appliedCoupon?.code || null,
-      paymentMethod
+      paymentMethod,
     };
 
     if (user?._id) {
       orderPayload.userId = user._id;
     }
 
-    // ---- Handle bKash Checkout ----
+    // // ---- Handle bKash Checkout ----
     if (paymentMethod === "bkash") {
       try {
         const createRes = await axios.post(`${apiUrl}/bkashcreate`, {
@@ -172,7 +170,10 @@ const Checkout = () => {
         });
 
         if (createRes.data && createRes.data.bkashURL) {
-          localStorage.setItem("bkash_order_payload", JSON.stringify(orderPayload));
+          localStorage.setItem(
+            "bkash_order_payload",
+            JSON.stringify(orderPayload),
+          );
           window.location.href = createRes.data.bkashURL;
           return;
         } else {
@@ -184,9 +185,6 @@ const Checkout = () => {
       }
       return;
     }
-
-
-
 
     // ---- Normal COD Flow ----
 
@@ -205,7 +203,6 @@ const Checkout = () => {
       showSnackbar("Something went wrong. Please try again later.", "error");
     }
   };
-
 
   return (
     <div className="xl:container xl:mx-auto p-4">
@@ -275,7 +272,9 @@ const Checkout = () => {
                 "primaryBgColor accentTextColor px-4 py-2 w-full rounded-lg cursor-pointer"
               }
             >
-              Place Order
+              {paymentMethod === "cash_on_delivery"
+                ? "Place Order (Cash on Delivery)"
+                : "Process to Payment (bKash)"}
             </button>
           </div>
         </div>
