@@ -218,7 +218,7 @@ const getToken = async () => {
 const createPayment = async (
   amount,
   payerReference = "guestUser",
-  callbackURL = `${BkashConfig.client_url}/bkash-callback`
+  callbackURL
 
 ) => {
   try {

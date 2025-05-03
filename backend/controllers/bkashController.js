@@ -1,9 +1,24 @@
 const bkashService = require("../services/bkashService");
 
+// const createPayment = async (req, res) => {
+//   try {
+//     const { amount, payerReference } = req.body;
+//     const data = await bkashService.createPayment(amount, payerReference);
+//
+//     res.status(200).json({
+//       paymentID: data.paymentID,
+//       bkashURL: data.bkashURL,
+//     });
+//   } catch (error) {
+//     console.error("Create Payment Error:", error?.response?.data || error.message);
+//     res.status(500).json({ error: "Failed to create payment" });
+//   }
+// };
 const createPayment = async (req, res) => {
   try {
-    const { amount, payerReference } = req.body;
-    const data = await bkashService.createPayment(amount, payerReference);
+    const { amount, payerReference, callbackURL } = req.body;
+
+    const data = await bkashService.createPayment(amount, payerReference, callbackURL);
 
     res.status(200).json({
       paymentID: data.paymentID,
@@ -14,6 +29,7 @@ const createPayment = async (req, res) => {
     res.status(500).json({ error: "Failed to create payment" });
   }
 };
+
 
 const executePayment = async (req, res) => {
   try {
