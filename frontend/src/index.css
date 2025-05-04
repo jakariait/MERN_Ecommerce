@@ -180,3 +180,7 @@
 .animate-bounce-slow {
   animation: bounce-slow 3s infinite;
 }
+
+html {
+  scroll-behavior: smooth; /* Smooth scrolling globally */
+}

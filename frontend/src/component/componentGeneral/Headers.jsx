@@ -40,10 +40,10 @@ const Headers = () => {
   );
 
   const avatarClass = `
-  w-10 h-10 md:w-14 md:h-14 
-  rounded-full object-cover border-white border-4 
-  flex items-center justify-center 
-  primaryBgColor accentTextColor 
+  w-10 h-10 md:w-14 md:h-14
+  rounded-full object-cover border-white border-4
+  flex items-center justify-center
+  primaryBgColor accentTextColor
   transition-all duration-300 ease-in-out
 `;
 
@@ -102,17 +102,6 @@ const Headers = () => {
 
   const totalQuantity = cart.reduce((total, item) => total + item.quantity, 0);
 
-  const [hideTopBar, setHideTopBar] = useState(false);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setHideTopBar(window.scrollY > 100);
-    };
-
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
   const handleLogout = () => {
     logout();
     navigate("/login");
@@ -137,29 +126,28 @@ const Headers = () => {
   }
 
   return (
-    <div className={"sticky top-0 z-50"}>
+    <div>
       {/* Top Bar */}
-      {!hideTopBar && (
-        <div className="primaryBgColor text-white relative">
-          <div className="flex gap-6 xl:container xl:mx-auto p-3 justify-center md:justify-start">
-            <h1 className="md:border-r-1 px-4">
-              Welcome to {GeneralInfoList?.CompanyName}
-            </h1>
-            <div className="items-center gap-2 border-r-1 px-4 hidden md:flex">
-              <TfiTruck />
-              <p>Track Your Order</p>
-            </div>
-            <div className="items-center gap-2 hidden md:flex">
-              <MdEmail className="text-2xl" />
-              {GeneralInfoList?.CompanyEmail.map((email, index) => (
-                <a key={index} href={`mailto:${email}`} className="mr-2">
-                  {email}
-                </a>
-              ))}
-            </div>
+      <div className={"primaryBgColor text-white relative "}>
+        {" "}
+        <div className="flex gap-6 xl:container xl:mx-auto p-3 justify-center md:justify-start">
+          <h1 className="md:border-r-1 px-4">
+            Welcome to {GeneralInfoList?.CompanyName}
+          </h1>
+          <div className="items-center gap-2 border-r-1 px-4 hidden md:flex">
+            <TfiTruck />
+            <p>Track Your Order</p>
+          </div>
+          <div className="items-center gap-2 hidden md:flex">
+            <MdEmail className="text-2xl" />
+            {GeneralInfoList?.CompanyEmail.map((email, index) => (
+              <a key={index} href={`mailto:${email}`} className="mr-2">
+                {email}
+              </a>
+            ))}
           </div>
         </div>
-      )}
+      </div>
 
       {/* Header Main */}
       <div className="border-b border-gray-200 md:px-3 bg-white ">
@@ -374,11 +362,9 @@ const Headers = () => {
       </div>
 
       {/* MenuBar (Desktop) */}
-      {!hideTopBar && (
-        <div className="hidden lg:block">
-          <MenuBar />
-        </div>
-      )}
+      <div className="hidden lg:block">
+        <MenuBar />
+      </div>
     </div>
   );
 };

@@ -62,6 +62,7 @@ import CancelledOrdersPage from "./pagesAdmin/CancelledOrdersPage.jsx";
 import ViewOrderPage from "./pagesAdmin/ViewOrderPage.jsx";
 import BkashCallbackPage from "./pagesUser/BkashCallbackPage.jsx";
 import CouponPage from "./pagesAdmin/CouponPage.jsx";
+import ScrollToTop from "./component/componentGeneral/ScrollToTop.jsx";
 
 
 function App() {
@@ -137,6 +138,8 @@ function App() {
 
   return (
     <Router>
+      <ScrollToTop />
+
       <Routes>
         {/* General User Routes */}
         <Route path="/" element={<HomePage />} />
