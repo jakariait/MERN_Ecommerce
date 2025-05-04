@@ -61,6 +61,7 @@ import ReturnedOrdersPage from "./pagesAdmin/ReturnedOrdersPage.jsx";
 import CancelledOrdersPage from "./pagesAdmin/CancelledOrdersPage.jsx";
 import ViewOrderPage from "./pagesAdmin/ViewOrderPage.jsx";
 import BkashCallbackPage from "./pagesUser/BkashCallbackPage.jsx";
+import CouponPage from "./pagesAdmin/CouponPage.jsx";
 
 
 function App() {
@@ -275,8 +276,9 @@ function App() {
             element={<CancelledOrdersPage />}
           />
 
-          <Route path="/orders/:orderId" element={<ViewOrderPage />} />
+          <Route path="/admin/orders/:orderId" element={<ViewOrderPage />} />
 
+          <Route path="/admin/coupon" element={<CouponPage/>} />
         </Route>
 
         {/* Not Found */}

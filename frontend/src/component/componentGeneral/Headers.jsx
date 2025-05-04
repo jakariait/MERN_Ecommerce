@@ -4,7 +4,6 @@ import { MdEmail, MdClose } from "react-icons/md";
 import { TfiTruck } from "react-icons/tfi";
 import { CiSearch, CiShoppingCart } from "react-icons/ci";
 import { IoPersonOutline } from "react-icons/io5";
-import { AiOutlineHeart } from "react-icons/ai";
 import { GiHamburgerMenu } from "react-icons/gi";
 import { IoIosLogOut } from "react-icons/io";
 import Skeleton from "react-loading-skeleton";
@@ -103,6 +102,17 @@ const Headers = () => {
 
   const totalQuantity = cart.reduce((total, item) => total + item.quantity, 0);
 
+  const [hideTopBar, setHideTopBar] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setHideTopBar(window.scrollY > 100);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   const handleLogout = () => {
     logout();
     navigate("/login");
@@ -127,30 +137,32 @@ const Headers = () => {
   }
 
   return (
-    <div>
+    <div className={"sticky top-0 z-50"}>
       {/* Top Bar */}
-      <div className="primaryBgColor text-white">
-        <div className="flex gap-6 xl:container xl:mx-auto p-3 justify-center md:justify-start">
-          <h1 className="md:border-r-1 px-4">
-            Welcome to {GeneralInfoList?.CompanyName}
-          </h1>
-          <div className="items-center gap-2 border-r-1 px-4 hidden md:flex">
-            <TfiTruck />
-            <p>Track Your Order</p>
-          </div>
-          <div className="items-center gap-2 hidden md:flex">
-            <MdEmail className="text-2xl" />
-            {GeneralInfoList?.CompanyEmail.map((email, index) => (
-              <a key={index} href={`mailto:${email}`} className="mr-2">
-                {email}
-              </a>
-            ))}
+      {!hideTopBar && (
+        <div className="primaryBgColor text-white relative">
+          <div className="flex gap-6 xl:container xl:mx-auto p-3 justify-center md:justify-start">
+            <h1 className="md:border-r-1 px-4">
+              Welcome to {GeneralInfoList?.CompanyName}
+            </h1>
+            <div className="items-center gap-2 border-r-1 px-4 hidden md:flex">
+              <TfiTruck />
+              <p>Track Your Order</p>
+            </div>
+            <div className="items-center gap-2 hidden md:flex">
+              <MdEmail className="text-2xl" />
+              {GeneralInfoList?.CompanyEmail.map((email, index) => (
+                <a key={index} href={`mailto:${email}`} className="mr-2">
+                  {email}
+                </a>
+              ))}
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* Header Main */}
-      <div className="border-b border-gray-200 md:px-3">
+      <div className="border-b border-gray-200 md:px-3 bg-white ">
         <div className="xl:container xl:mx-auto py-3 px-3 flex gap-6 items-center justify-between">
           <div
             ref={hamburgerRef}
@@ -180,7 +192,6 @@ const Headers = () => {
 
           {/* Right Icons */}
           <div className="flex items-center justify-center gap-2 relative">
-
             {/* Cart */}
             <div
               ref={cartButtonRef}
@@ -363,9 +374,11 @@ const Headers = () => {
       </div>
 
       {/* MenuBar (Desktop) */}
-      <div className="hidden lg:block">
-        <MenuBar />
-      </div>
+      {!hideTopBar && (
+        <div className="hidden lg:block">
+          <MenuBar />
+        </div>
+      )}
     </div>
   );
 };

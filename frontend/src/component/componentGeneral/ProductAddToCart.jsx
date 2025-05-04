@@ -5,6 +5,7 @@ import { FiMinus } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import useCartStore from "../../store/useCartStore.js";
+import LiveStatsNotification from "./LiveStatsNotification.jsx";
 
 const ProductAddToCart = ({ product }) => {
   const [quantity, setQuantity] = useState(1);
@@ -49,6 +50,7 @@ const ProductAddToCart = ({ product }) => {
     <div>
       <div>
         <div className="flex flex-col gap-3 md:col-span-4 lg:col-span-3 xl:col-span-4 pt-4 md:pt-0">
+          <LiveStatsNotification/>
           <h2 className="text-xl">{product.name}</h2>
 
           {/* Without Variant Price Display */}

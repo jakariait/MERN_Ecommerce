@@ -19,6 +19,8 @@ const couponSchema = new mongoose.Schema({
   minimumOrder: {
     type: Number,
     default: 0,
+    required: true,
+
   },
   startDate: {
     type: Date,

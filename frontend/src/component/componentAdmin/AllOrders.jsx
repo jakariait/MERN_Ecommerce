@@ -199,7 +199,7 @@ const AllOrders = ({ allOrders, orderListLoading, orderListError, title }) => {
   };
 
   const handleView = (orderId) => {
-    navigate(`/orders/${orderId}`);
+    navigate(`/admin/orders/${orderId}`);
   };
 
 
