@@ -63,7 +63,9 @@ const orderSchema = new mongoose.Schema(
       email: { type: String },
       address: { type: String, required: true },
     },
-
+    paymentId:{
+      type: String,
+    },
     items: [
       {
         productId: { type: mongoose.Schema.Types.ObjectId, ref: "Product" },

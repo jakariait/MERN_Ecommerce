@@ -221,6 +221,12 @@ const ViewOrder = () => {
                 </span>
               </p>
               <p>
+                <strong>Payment ID:</strong> <span className={"text-sm"}>{order.paymentId}</span>
+              </p>
+              <p>
+                <strong>Transaction ID:</strong> {order.transId}
+              </p>
+              <p>
                 <strong>Delivery Method:</strong>{" "}
                 {getDeliveryMethodText(order.deliveryMethod)}
               </p>

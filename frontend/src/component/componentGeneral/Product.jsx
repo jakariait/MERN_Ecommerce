@@ -165,24 +165,81 @@ const Product = () => {
                   <CloseIcon />
                 </IconButton>
               </div>
-              <FormControl fullWidth>
-                <InputLabel>Category</InputLabel>
-                <Select
-                  name="category"
-                  value={filters.category}
-                  onChange={handleFilterChange}
-                  label="Category"
-                >
-                  <MenuItem value="">
-                    <em>None</em>
-                  </MenuItem>
-                  {memoizedCategories.map((cat) => (
-                    <MenuItem key={cat._id} value={cat.name}>
-                      {cat.name}
+              <div className="flex flex-col gap-4  justify-between items-center mb-4">
+                <FormControl fullWidth>
+                  <InputLabel>Category</InputLabel>
+                  <Select
+                    name="category"
+                    value={filters.category}
+                    onChange={handleFilterChange}
+                    label="Category"
+                  >
+                    <MenuItem value="">
+                      <em>None</em>
                     </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
+                    {memoizedCategories.map((cat) => (
+                      <MenuItem key={cat._id} value={cat.name}>
+                        {cat.name}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+                {/* Flag Filter */}
+                <FormControl fullWidth>
+                  <InputLabel>Flag</InputLabel>
+                  <Select
+                    name="flags"
+                    value={filters.flags}
+                    onChange={handleFilterChange}
+                    label="Flag"
+                  >
+                    <MenuItem value="">
+                      <em>None</em>
+                    </MenuItem>
+                    {memoizedFlags.map((flag) => (
+                      <MenuItem key={flag._id} value={flag.name}>
+                        {flag.name}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+
+                {/* Stock Filter */}
+                <FormControl fullWidth>
+                  <InputLabel>Stock</InputLabel>
+                  <Select
+                    name="stock"
+                    value={filters.stock}
+                    onChange={handleFilterChange}
+                    label="Stock"
+                  >
+                    <MenuItem value="">
+                      <em>All</em>
+                    </MenuItem>
+                    <MenuItem value="in">In Stock</MenuItem>
+                    <MenuItem value="out">Out of Stock</MenuItem>
+                  </Select>
+                </FormControl>
+                <FormControl fullWidth>
+                  <InputLabel>Sort</InputLabel>
+                  <Select
+                    name="sort"
+                    value={filters.sort}
+                    onChange={handleFilterChange}
+                    label="Sort"
+                  >
+                    <MenuItem value="">
+                      <em>None</em>
+                    </MenuItem>
+                    <MenuItem value="price_high">Price: High to Low</MenuItem>
+                    <MenuItem value="price_low">Price: Low to High</MenuItem>
+                    <MenuItem value="name_asc">Name: A to Z</MenuItem>
+                    <MenuItem value="name_desc">Name: Z to A</MenuItem>
+                    <MenuItem value="latest">Latest</MenuItem>
+                    <MenuItem value="oldest">Oldest</MenuItem>
+                  </Select>
+                </FormControl>
+              </div>
             </div>
           </Drawer>
 

@@ -161,7 +161,7 @@ const AllOrders = ({ allOrders, orderListLoading, orderListError, title }) => {
         return { backgroundColor: "orange", color: "white", text: "Unpaid" };
 
       case "paid":
-        return { backgroundColor: "green", color: "white", text: "Delivered" };
+        return { backgroundColor: "green", color: "white", text: "Paid" };
 
       default:
         return { backgroundColor: "gray", color: "white", text: "Unknown" };

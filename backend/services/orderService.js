@@ -144,7 +144,6 @@ const createOrder = async (orderData, userId) => {
       promoDiscount,
       rewardPointsUsed,
       specialDiscount: 0,
-      advanceAmount: 0,
       rewardPointsEarned: 0,
       adminNote: "",
     });
