@@ -24,8 +24,7 @@ const VatPercentageController = require("../controllers/VatPercentageController"
 const orderController = require("../controllers/orderController");
 const bkashController = require("../controllers/bkashController");
 const PageContentController = require("../controllers/PageContentController");
-
-
+const FaqController = require("../controllers/FaqController");
 
 // Admin
 const { adminProtect } = require("../middlewares/authAdminMiddleware");
@@ -348,8 +347,8 @@ router.patch(
 
 // Order routes
 router.post("/orders", orderController.createOrder);
-router.get("/orders",  orderController.getAllOrders);
-router.get("/orders/:orderId",  orderController.getOrderById);
+router.get("/orders", orderController.getAllOrders);
+router.get("/orders/:orderId", orderController.getOrderById);
 router.put("/orders/:orderId", adminProtect, orderController.updateOrder);
 router.delete("/orders/:orderId", orderController.deleteOrder);
 
@@ -358,10 +357,19 @@ router.post("/bkashcreate", bkashController.createPayment);
 router.post("/bkashexecute", bkashController.executePayment);
 router.post("/queryPaymentStatus", bkashController.queryPaymentStatus);
 
-
 // Page Content Routes
-router.get("/:page",PageContentController.getPageContent)
-router.patch("/:page", adminProtect, PageContentController.updatePageContent)
+router.get("/pagecontent/:page", PageContentController.getPageContent);
+router.patch(
+  "/pagecontent/:page",
+  adminProtect,
+  PageContentController.updatePageContent,
+);
 
+// FAQ's Routes
+router.get("/faq", FaqController.getAllFAQs);
+router.get("/faq/:id", FaqController.getSingleFAQ);
+router.patch("/faq/:id",adminProtect, FaqController.updateFAQ);
+router.delete("/faq/:id",adminProtect, FaqController.deleteFAQ);
+router.post("/faq",adminProtect, FaqController.createFAQ);
 
 module.exports = router;

@@ -70,6 +70,8 @@ import TosPage from "./pagesUser/TosPage.jsx";
 import PrivacyPolicyPage from "./pagesUser/PrivacyPolicyPage.jsx";
 import RefundPolicyPage from "./pagesUser/RefundPolicyPage.jsx";
 import ShippingPolicyPage from "./pagesUser/ShippingPolicyPage.jsx";
+import FAQPage from "./pagesUser/FAQPage.jsx";
+import AdminFAQSPage from "./pagesAdmin/AdminFAQSPage.jsx";
 
 function App() {
   const { GeneralInfoListRequest } = GeneralInfoStore();
@@ -162,6 +164,8 @@ function App() {
         <Route path="/privacypolicy" element={<PrivacyPolicyPage />} />
         <Route path="/refundpolicy" element={<RefundPolicyPage />} />
         <Route path="/shippinpolicy" element={<ShippingPolicyPage />} />
+        <Route path="/faqs" element={<FAQPage/>} />
+
 
         {/*Admin Login Page*/}
         <Route path="/admin/login" element={<AdminLogin />} />
@@ -294,6 +298,7 @@ function App() {
           <Route path="/admin/coupon" element={<CouponPage />} />
           <Route path="/admin/about-us" element={<AboutUsPage />} />
           <Route path="/admin/terms-policies" element={<TermsPage />} />
+          <Route path="/admin/faqs" element={<AdminFAQSPage/>} />
         </Route>
 
         {/* Not Found */}

@@ -27,7 +27,7 @@ const PublicContentViewer = ({ title, endpoint }) => {
 
   return (
     <div className="xl:container xl:mx-auto p-4">
-      <div className="text-center py-6 md:py-10">
+      <div className="text-center py-6 md:py-10 flex flex-col items-center justify-center" >
         <Typography
           variant="h4"
           className="text-3xl md:text-5xl font-bold primaryTextColor"

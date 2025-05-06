@@ -30,7 +30,7 @@ const PageEditor = ({ title, endpoint }) => {
     const fetchContent = async () => {
       try {
         const res = await axios.get(
-          `${import.meta.env.VITE_API_URL}/${endpoint}`,
+          `${import.meta.env.VITE_API_URL}/pagecontent/${endpoint}`,
         );
         if (res.data?.content) {
           setContent(res.data.content);
@@ -46,7 +46,7 @@ const PageEditor = ({ title, endpoint }) => {
     setLoading(true);
     try {
       await axios.patch(
-        `${import.meta.env.VITE_API_URL}/${endpoint}`,
+        `${import.meta.env.VITE_API_URL}/pagecontent/${endpoint}`,
         { content },
         {
           headers: {

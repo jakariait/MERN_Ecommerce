@@ -9,8 +9,7 @@ const pageContentSchema = new mongoose.Schema(
         "terms",
         "privacy",
         "refund",
-        "shipping",
-        "faq"
+        "shipping"
       ],
       required: true,
       unique: true,

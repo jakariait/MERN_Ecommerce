@@ -140,7 +140,9 @@ const Footer = () => {
                 </AccordionSummary>
                 <AccordionDetails>
                   <ul>
-                    <li className={"hover:primaryTextColor"}>About</li>
+                    <li className={"hover:primaryTextColor"}>
+                      <Link to="/about">About</Link>
+                    </li>
                     <li className={"hover:primaryTextColor"}>Blog</li>
                     <li className={"hover:primaryTextColor"}>
                       <Link
@@ -151,14 +153,20 @@ const Footer = () => {
                       </Link>
                     </li>
                     <li className={"hover:primaryTextColor"}>
-                      Terms of Services
+                      <Link to="/termofservice">Terms of Services</Link>
                     </li>
-                    <li className={"hover:primaryTextColor"}>Privacy Policy</li>
-                    <li className={"hover:primaryTextColor"}>Refund Policy</li>
                     <li className={"hover:primaryTextColor"}>
-                      Shipping Policy
+                      <Link to="/privacypolicy">Privacy Policy</Link>
                     </li>
-                    <li className={"hover:primaryTextColor"}>FAQ</li>
+                    <li className={"hover:primaryTextColor"}>
+                      <Link to="/refundpolicy">Refund Policy</Link>
+                    </li>
+                    <li className={"hover:primaryTextColor"}>
+                      <Link to="/shippinpolicy">Shipping Policy</Link>
+                    </li>
+                    <li className={"hover:primaryTextColor"}>
+                      <Link to="/faqs">FAQ</Link>
+                    </li>
                   </ul>
                 </AccordionDetails>
               </Accordion>
@@ -276,21 +284,30 @@ const Footer = () => {
                   <Link to="/contact-us" className={"hover:primaryTextColor"}>
                     <li>Contact</li>
                   </Link>
-                  <Link to="/termofservice" className={"hover:primaryTextColor"}>
+                  <Link
+                    to="/termofservice"
+                    className={"hover:primaryTextColor"}
+                  >
                     <li>Terms of Services</li>
                   </Link>
-                  <Link to="/privacypolicy" className={"hover:primaryTextColor"}>
+                  <Link
+                    to="/privacypolicy"
+                    className={"hover:primaryTextColor"}
+                  >
                     <li>Privacy Policy</li>
                   </Link>
                   <Link to="/refundpolicy" className={"hover:primaryTextColor"}>
                     <li>Refund Policy</li>
                   </Link>
-                  <Link to="/shippinpolicy" className={"hover:primaryTextColor"}>
+                  <Link
+                    to="/shippinpolicy"
+                    className={"hover:primaryTextColor"}
+                  >
                     <li>Shipping Policy</li>
                   </Link>
-                  <Link className={"hover:primaryTextColor"}>
-                    <li>FAQ</li>
-                  </Link>
+                  <li className={"hover:primaryTextColor"}>
+                    <Link to="/faqs">FAQ</Link>
+                  </li>
                 </ul>
               </div>
               {/*Newsletters*/}
