@@ -23,6 +23,8 @@ const couponController = require("../controllers/CouponController");
 const VatPercentageController = require("../controllers/VatPercentageController");
 const orderController = require("../controllers/orderController");
 const bkashController = require("../controllers/bkashController");
+const PageContentController = require("../controllers/PageContentController");
+
 
 
 // Admin
@@ -356,6 +358,10 @@ router.post("/bkashcreate", bkashController.createPayment);
 router.post("/bkashexecute", bkashController.executePayment);
 router.post("/queryPaymentStatus", bkashController.queryPaymentStatus);
 
+
+// Page Content Routes
+router.get("/:page",PageContentController.getPageContent)
+router.patch("/:page", adminProtect, PageContentController.updatePageContent)
 
 
 module.exports = router;

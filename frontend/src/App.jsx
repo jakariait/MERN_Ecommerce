@@ -63,7 +63,13 @@ import ViewOrderPage from "./pagesAdmin/ViewOrderPage.jsx";
 import BkashCallbackPage from "./pagesUser/BkashCallbackPage.jsx";
 import CouponPage from "./pagesAdmin/CouponPage.jsx";
 import ScrollToTop from "./component/componentGeneral/ScrollToTop.jsx";
-
+import AboutUsPage from "./pagesAdmin/AboutUsPage.jsx";
+import TermsPage from "./pagesAdmin/TermsPage.jsx";
+import AboutUsPageUser from "./pagesUser/AboutUsPageUser.jsx";
+import TosPage from "./pagesUser/TosPage.jsx";
+import PrivacyPolicyPage from "./pagesUser/PrivacyPolicyPage.jsx";
+import RefundPolicyPage from "./pagesUser/RefundPolicyPage.jsx";
+import ShippingPolicyPage from "./pagesUser/ShippingPolicyPage.jsx";
 
 function App() {
   const { GeneralInfoListRequest } = GeneralInfoStore();
@@ -150,8 +156,12 @@ function App() {
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/checkout" element={<CheckoutPage />} />
         <Route path="/thank-you/:orderId" element={<ThankYouPage />} />
-        <Route path="/bkash-callback" element={<BkashCallbackPage/>} />
-
+        <Route path="/bkash-callback" element={<BkashCallbackPage />} />
+        <Route path="/about" element={<AboutUsPageUser />} />
+        <Route path="/termofservice" element={<TosPage />} />
+        <Route path="/privacypolicy" element={<PrivacyPolicyPage />} />
+        <Route path="/refundpolicy" element={<RefundPolicyPage />} />
+        <Route path="/shippinpolicy" element={<ShippingPolicyPage />} />
 
         {/*Admin Login Page*/}
         <Route path="/admin/login" element={<AdminLogin />} />
@@ -281,7 +291,9 @@ function App() {
 
           <Route path="/admin/orders/:orderId" element={<ViewOrderPage />} />
 
-          <Route path="/admin/coupon" element={<CouponPage/>} />
+          <Route path="/admin/coupon" element={<CouponPage />} />
+          <Route path="/admin/about-us" element={<AboutUsPage />} />
+          <Route path="/admin/terms-policies" element={<TermsPage />} />
         </Route>
 
         {/* Not Found */}

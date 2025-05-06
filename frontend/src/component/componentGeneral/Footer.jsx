@@ -267,7 +267,7 @@ const Footer = () => {
                   <span className="absolute left-0 top-6 w-15 border-b-2 border-gray-300 mt-1"></span>
                 </h1>
                 <ul>
-                  <Link className={"hover:primaryTextColor"}>
+                  <Link to="/about" className={"hover:primaryTextColor"}>
                     <li>About</li>
                   </Link>
                   <Link className={"hover:primaryTextColor"}>
@@ -276,16 +276,16 @@ const Footer = () => {
                   <Link to="/contact-us" className={"hover:primaryTextColor"}>
                     <li>Contact</li>
                   </Link>
-                  <Link className={"hover:primaryTextColor"}>
+                  <Link to="/termofservice" className={"hover:primaryTextColor"}>
                     <li>Terms of Services</li>
                   </Link>
-                  <Link className={"hover:primaryTextColor"}>
+                  <Link to="/privacypolicy" className={"hover:primaryTextColor"}>
                     <li>Privacy Policy</li>
                   </Link>
-                  <Link className={"hover:primaryTextColor"}>
+                  <Link to="/refundpolicy" className={"hover:primaryTextColor"}>
                     <li>Refund Policy</li>
                   </Link>
-                  <Link className={"hover:primaryTextColor"}>
+                  <Link to="/shippinpolicy" className={"hover:primaryTextColor"}>
                     <li>Shipping Policy</li>
                   </Link>
                   <Link className={"hover:primaryTextColor"}>

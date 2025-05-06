@@ -32,7 +32,8 @@ import {
   FaSignOutAlt,
   FaTrash,
   FaShoppingBag,
-  FaGift
+  FaGift,
+  FaInfo
 } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import useAuthAdminStore from "../../store/AuthAdminStore.js";
@@ -517,37 +518,33 @@ export default function SidebarMenu() {
         </h3>
         <ul>
           {[
-            {
-              icon: <FaSlidersH />,
-              label: "Sliders & Banners",
-              to: "/admin/sliders-banners",
-            }, // Add 'to' for Link
-            { icon: <FaQuoteRight />, label: "Testimonial", to: "/" },
-            { icon: <FaNewspaper />, label: "Manage Blogs", to: "/" },
-            { icon: <FaFileAlt />, label: "Terms & Policies", to: "/" },
-            { icon: <FaInfoCircle />, label: "Custom Pages", to: "/" },
-            { icon: <FaQuestionCircle />, label: "FAQs", to: "/" },
+            { icon: <FaSlidersH />, label: "Sliders & Banners", to: "/admin/sliders-banners" },
+            { icon: <FaQuoteRight />, label: "Testimonial", to: "/admin/testimonials" },
+            { icon: <FaNewspaper />, label: "Manage Blogs", to: "/admin/blogs" },
+            { icon: <FaFileAlt />, label: "Terms & Policies", to: "/admin/terms-policies" },
+            { icon: <FaInfoCircle />, label: "Custom Pages", to: "/admin/custom-pages" },
+            { icon: <FaQuestionCircle />, label: "FAQs", to: "/admin/faqs" },
+            { icon: <FaInfo />, label: "About Us", to: "/admin/about-us" },
           ].map((item, index) => (
             <li
               key={index}
               className="flex items-center space-x-2 p-2 rounded-md cursor-pointer"
             >
-              {item.label === "Sliders & Banners" ? ( // Wrap only "Sliders & Banners" with Link
-                <Link
-                  to={item.to}
-                  className="flex items-center space-x-2 w-full"
-                >
+              {item.to ? (
+                <Link to={item.to} className="flex items-center space-x-2 w-full">
                   {item.icon}
                   <span>{item.label}</span>
                 </Link>
               ) : (
                 <>
-                  {item.icon} <span>{item.label}</span>
+                  {item.icon}
+                  <span>{item.label}</span>
                 </>
               )}
             </li>
           ))}
         </ul>
+
       </div>
 
       <div className="mt-4">
