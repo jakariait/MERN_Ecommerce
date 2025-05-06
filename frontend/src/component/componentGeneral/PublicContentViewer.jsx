@@ -10,7 +10,7 @@ const PublicContentViewer = ({ title, endpoint }) => {
   useEffect(() => {
     const fetchContent = async () => {
       try {
-        const res = await axios.get(`${apiUrl}/${endpoint}`);
+        const res = await axios.get(`${apiUrl}/pagecontent/${endpoint}`);
         if (res.data?.content) {
           setContent(res.data.content);
         }
