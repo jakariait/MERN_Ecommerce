@@ -72,6 +72,8 @@ import RefundPolicyPage from "./pagesUser/RefundPolicyPage.jsx";
 import ShippingPolicyPage from "./pagesUser/ShippingPolicyPage.jsx";
 import FAQPage from "./pagesUser/FAQPage.jsx";
 import AdminFAQSPage from "./pagesAdmin/AdminFAQSPage.jsx";
+import MarqueeAdminPage from "./pagesAdmin/MarqueeAdminPage.jsx";
+import AdminMetaPage from "./pagesAdmin/AdminMetaPage.jsx";
 
 function App() {
   const { GeneralInfoListRequest } = GeneralInfoStore();
@@ -299,6 +301,10 @@ function App() {
           <Route path="/admin/about-us" element={<AboutUsPage />} />
           <Route path="/admin/terms-policies" element={<TermsPage />} />
           <Route path="/admin/faqs" element={<AdminFAQSPage/>} />
+          <Route path="/admin/scroll-text" element={<MarqueeAdminPage/>} />
+          <Route path="/admin/homepage-seo" element={<AdminMetaPage/>} />
+
+
         </Route>
 
         {/* Not Found */}

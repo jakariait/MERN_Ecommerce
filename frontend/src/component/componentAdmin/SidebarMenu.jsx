@@ -15,7 +15,6 @@ import {
   FaUsers,
   FaHeart,
   FaTruck,
-
   FaMoneyBill,
   FaTicketAlt,
   FaEnvelope,
@@ -33,7 +32,7 @@ import {
   FaTrash,
   FaShoppingBag,
   FaGift,
-  FaInfo
+  FaInfo,
 } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import useAuthAdminStore from "../../store/AuthAdminStore.js";
@@ -101,10 +100,12 @@ export default function SidebarMenu() {
               <FaLink /> <span>Social Media Links</span>
             </li>
           </Link>
+          <Link to="/admin/homepage-seo">
+            <li className="flex items-center space-x-2 p-2 rounded-md cursor-pointer">
+              <FaSearch /> <span>Home Page SEO</span>
+            </li>
+          </Link>
 
-          <li className="flex items-center space-x-2 p-2 rounded-md cursor-pointer">
-            <FaSearch /> <span>Home Page SEO</span>
-          </li>
           <li className="flex items-center space-x-2 p-2 rounded-md cursor-pointer">
             <FaCode /> <span>Custom CSS & JS</span>
           </li>
@@ -170,6 +171,9 @@ export default function SidebarMenu() {
                   </li>
                   <li>
                     <Link to="/admin/product-flags">Product Flags</Link>
+                  </li>
+                  <li>
+                    <Link to="/admin/scroll-text">Scroll Text</Link>
                   </li>
                 </ul>
               </AccordionDetails>
@@ -454,7 +458,6 @@ export default function SidebarMenu() {
             <Link to="/admin/coupon" className={"flex items-center gap-2"}>
               <FaGift /> <span>Coupon</span>
             </Link>
-
           </li>
           <li className="flex items-center space-x-2 p-2 rounded-md cursor-pointer">
             <FaSms /> <span>SMS Service</span>
@@ -518,11 +521,31 @@ export default function SidebarMenu() {
         </h3>
         <ul>
           {[
-            { icon: <FaSlidersH />, label: "Sliders & Banners", to: "/admin/sliders-banners" },
-            { icon: <FaQuoteRight />, label: "Testimonial", to: "/admin/testimonials" },
-            { icon: <FaNewspaper />, label: "Manage Blogs", to: "/admin/blogs" },
-            { icon: <FaFileAlt />, label: "Terms & Policies", to: "/admin/terms-policies" },
-            { icon: <FaInfoCircle />, label: "Custom Pages", to: "/admin/custom-pages" },
+            {
+              icon: <FaSlidersH />,
+              label: "Sliders & Banners",
+              to: "/admin/sliders-banners",
+            },
+            {
+              icon: <FaQuoteRight />,
+              label: "Testimonial",
+              to: "/admin/testimonials",
+            },
+            {
+              icon: <FaNewspaper />,
+              label: "Manage Blogs",
+              to: "/admin/blogs",
+            },
+            {
+              icon: <FaFileAlt />,
+              label: "Terms & Policies",
+              to: "/admin/terms-policies",
+            },
+            {
+              icon: <FaInfoCircle />,
+              label: "Custom Pages",
+              to: "/admin/custom-pages",
+            },
             { icon: <FaQuestionCircle />, label: "FAQs", to: "/admin/faqs" },
             { icon: <FaInfo />, label: "About Us", to: "/admin/about-us" },
           ].map((item, index) => (
@@ -531,7 +554,10 @@ export default function SidebarMenu() {
               className="flex items-center space-x-2 p-2 rounded-md cursor-pointer"
             >
               {item.to ? (
-                <Link to={item.to} className="flex items-center space-x-2 w-full">
+                <Link
+                  to={item.to}
+                  className="flex items-center space-x-2 w-full"
+                >
                   {item.icon}
                   <span>{item.label}</span>
                 </Link>
@@ -544,7 +570,6 @@ export default function SidebarMenu() {
             </li>
           ))}
         </ul>
-
       </div>
 
       <div className="mt-4">

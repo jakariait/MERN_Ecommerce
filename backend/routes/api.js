@@ -25,6 +25,10 @@ const orderController = require("../controllers/orderController");
 const bkashController = require("../controllers/bkashController");
 const PageContentController = require("../controllers/PageContentController");
 const FaqController = require("../controllers/FaqController");
+const MarqueeController = require("../controllers/MarqueeController");
+const metaController = require("../controllers/metaController");
+
+
 
 // Admin
 const { adminProtect } = require("../middlewares/authAdminMiddleware");
@@ -371,5 +375,15 @@ router.get("/faq/:id", FaqController.getSingleFAQ);
 router.patch("/faq/:id",adminProtect, FaqController.updateFAQ);
 router.delete("/faq/:id",adminProtect, FaqController.deleteFAQ);
 router.post("/faq",adminProtect, FaqController.createFAQ);
+
+
+// Marquee Routes
+router.get("/marquee", MarqueeController.getMessages);
+router.patch("/marquee",adminProtect, MarqueeController.updateMessageSet);
+
+// Meta Routes
+router.get('/meta', metaController.getMeta);
+router.patch('/meta', adminProtect, metaController.updateMeta);
+
 
 module.exports = router;

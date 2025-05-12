@@ -1,15 +1,15 @@
 import React from "react";
-import GeneralInfoForm from "../component/componentAdmin/GeneralInfoForm.jsx";
 import LayoutAdmin from "../component/componentAdmin/LayoutAdmin.jsx";
 import Breadcrumb from "../component/componentAdmin/Breadcrumb.jsx";
+import AdminMetaForm from "../component/componentAdmin/AdminMetaForm.jsx";
 
 const GeneralInfoPage = ({ pageDetails, title }) => {
   return (
     <LayoutAdmin>
       <div>
-        <Breadcrumb title={"General Info"} pageDetails={"WEBSITE CONFIG"} />
+        <Breadcrumb title={"SEO for HomePage"} pageDetails={"WEBSITE CONFIG"} />
         {/* Form Section */}
-        <GeneralInfoForm />
+        <AdminMetaForm />
       </div>
     </LayoutAdmin>
   );
