@@ -1,4 +1,4 @@
-const Meta = require('../models/metaModel');
+const Meta = require('../models/MetaModel');
 
 const getMetaInfo = async () => {
   try {
