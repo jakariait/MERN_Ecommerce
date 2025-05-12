@@ -74,6 +74,7 @@ import FAQPage from "./pagesUser/FAQPage.jsx";
 import AdminFAQSPage from "./pagesAdmin/AdminFAQSPage.jsx";
 import MarqueeAdminPage from "./pagesAdmin/MarqueeAdminPage.jsx";
 import AdminMetaPage from "./pagesAdmin/AdminMetaPage.jsx";
+import MetaProvider from "./component/componentGeneral/MetaProvider.jsx";
 
 function App() {
   const { GeneralInfoListRequest } = GeneralInfoStore();
@@ -148,8 +149,8 @@ function App() {
 
   return (
     <Router>
+      <MetaProvider />
       <ScrollToTop />
-
       <Routes>
         {/* General User Routes */}
         <Route path="/" element={<HomePage />} />
@@ -166,8 +167,7 @@ function App() {
         <Route path="/privacypolicy" element={<PrivacyPolicyPage />} />
         <Route path="/refundpolicy" element={<RefundPolicyPage />} />
         <Route path="/shippinpolicy" element={<ShippingPolicyPage />} />
-        <Route path="/faqs" element={<FAQPage/>} />
-
+        <Route path="/faqs" element={<FAQPage />} />
 
         {/*Admin Login Page*/}
         <Route path="/admin/login" element={<AdminLogin />} />
@@ -300,11 +300,9 @@ function App() {
           <Route path="/admin/coupon" element={<CouponPage />} />
           <Route path="/admin/about-us" element={<AboutUsPage />} />
           <Route path="/admin/terms-policies" element={<TermsPage />} />
-          <Route path="/admin/faqs" element={<AdminFAQSPage/>} />
-          <Route path="/admin/scroll-text" element={<MarqueeAdminPage/>} />
-          <Route path="/admin/homepage-seo" element={<AdminMetaPage/>} />
-
-
+          <Route path="/admin/faqs" element={<AdminFAQSPage />} />
+          <Route path="/admin/scroll-text" element={<MarqueeAdminPage />} />
+          <Route path="/admin/homepage-seo" element={<AdminMetaPage />} />
         </Route>
 
         {/* Not Found */}

@@ -1,28 +1,43 @@
 import { useEffect, useState } from "react";
 import { Helmet } from "react-helmet";
+import { useLocation } from "react-router-dom";
 import axios from "axios";
-import App from "../../App.jsx";
+import ReactGA from "react-ga4";
+
+// Initialize GA4 (once)
+ReactGA.initialize("G-GVD1LV60K0");
 
 const MetaProvider = () => {
   const [meta, setMeta] = useState(null);
   const [loading, setLoading] = useState(true);
-  const apiURl = import.meta.env.VITE_API_URL;
+  const apiURL = import.meta.env.VITE_API_URL;
+  const location = useLocation();
 
+  // Fetch meta info
   useEffect(() => {
     const fetchMeta = async () => {
       try {
-        const { data } = await axios.get(`${apiURl}/meta`);
-        setMeta(data.data); // from res.data.data
+        const { data } = await axios.get(`${apiURL}/meta`);
+        setMeta(data.data);
       } catch (err) {
         console.error("Failed to fetch meta info", err);
       } finally {
         setLoading(false);
       }
     };
+
     fetchMeta();
   }, []);
 
-  if (loading) return null; // or a loader/spinner
+  // Track pageview on route change
+  useEffect(() => {
+    ReactGA.send({
+      hitType: "pageview",
+      page: location.pathname + location.search,
+    });
+  }, [location]);
+
+  if (loading) return null; // Or a loading spinner
 
   return (
     <>
@@ -31,7 +46,6 @@ const MetaProvider = () => {
         <meta name="description" content={meta.description} />
         <meta name="keywords" content={meta.keywords.join(", ")} />
       </Helmet>
-      <App />
     </>
   );
 };
