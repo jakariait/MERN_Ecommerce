@@ -14,6 +14,7 @@ import {
 } from "@mui/material";
 import { useRef } from "react";
 import OrderStatusUpdate from "./OrderStatusUpdate.jsx";
+import CourierStats from "./CourierStats.jsx";
 
 // Import your VITE API URL
 const apiUrl = import.meta.env.VITE_API_URL; // 👈 assuming you set it in .env
@@ -221,7 +222,8 @@ const ViewOrder = () => {
                 </span>
               </p>
               <p>
-                <strong>Payment ID:</strong> <span className={"text-sm"}>{order.paymentId}</span>
+                <strong>Payment ID:</strong>{" "}
+                <span className={"text-sm"}>{order.paymentId}</span>
               </p>
               <p>
                 <strong>Transaction ID:</strong> {order.transId}
@@ -320,6 +322,9 @@ const ViewOrder = () => {
       </div>
       <div className="mt-6">
         <OrderStatusUpdate orderId={order._id} onUpdate={fetchOrder} />
+      </div>
+      <div className="mt-6">
+        <CourierStats phone={order.shippingInfo.mobileNo} />
       </div>
     </div>
   );

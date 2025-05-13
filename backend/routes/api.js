@@ -27,6 +27,8 @@ const PageContentController = require("../controllers/PageContentController");
 const FaqController = require("../controllers/FaqController");
 const MarqueeController = require("../controllers/MarqueeController");
 const metaController = require("../controllers/metaController");
+const { handleCourierCheck } = require("../controllers/courierController");
+
 
 
 
@@ -385,5 +387,8 @@ router.patch("/marquee",adminProtect, MarqueeController.updateMessageSet);
 router.get('/meta', metaController.getMeta);
 router.patch('/meta', adminProtect, metaController.updateMeta);
 
+
+// Courier Check Routs
+router.post("/courier-check", handleCourierCheck);
 
 module.exports = router;

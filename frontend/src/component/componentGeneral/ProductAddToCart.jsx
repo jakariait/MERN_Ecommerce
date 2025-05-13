@@ -128,12 +128,12 @@ const ProductAddToCart = ({ product }) => {
           {product.variants?.length > 0 && (
             <div className={"flex gap-4 items-center"}>
               <h2 className="text-lg">Size</h2>
-              <div className="flex gap-2 flex-wrap justify-center">
+              <div className="flex gap-2 flex-wrap justify-center ">
                 {product.variants.map((variant) => (
                   <button
                     key={variant.size.name}
                     onClick={() => handleSizeChange(variant.size.name)}
-                    className={`px-2 py-1 rounded transition-all ${
+                    className={`px-2 py-1 rounded transition-all cursor-pointer  ${
                       selectedVariant?.size.name === variant.size.name
                         ? "primaryBgColor text-white"
                         : "bg-gray-100 text-gray-700 hover:bg-gray-200"

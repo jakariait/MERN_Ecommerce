@@ -32,8 +32,8 @@ import { Tooltip } from "@mui/material";
 import axios from "axios";
 import { Snackbar, Alert } from "@mui/material";
 import { EditIcon } from "lucide-react"; // MUI Snackbar and Alert components
-import { useNavigate } from 'react-router-dom';
-
+import { useNavigate } from "react-router-dom";
+import CourierSummery from "./CourierSummery.jsx";
 
 const AllOrders = ({ allOrders, orderListLoading, orderListError, title }) => {
   // Local state for search, pagination, sorting, and items per page
@@ -202,8 +202,6 @@ const AllOrders = ({ allOrders, orderListLoading, orderListError, title }) => {
     navigate(`/admin/orders/${orderId}`);
   };
 
-
-
   return (
     <div className="p-4 shadow rounded-lg">
       <h1 className="border-l-4 primaryBorderColor primaryTextColor mb-6 pl-2 text-lg font-semibold">
@@ -334,6 +332,11 @@ const AllOrders = ({ allOrders, orderListLoading, orderListError, title }) => {
                       <Typography variant="body1">Mobile No</Typography>
                     </TableSortLabel>
                   </TableCell>
+
+                  <TableCell align="center">
+                    <Typography variant="body1">Courier Stats</Typography>
+                  </TableCell>
+
                   <TableCell>
                     <TableSortLabel
                       active={orderBy === "orderStatus"}
@@ -409,6 +412,13 @@ const AllOrders = ({ allOrders, orderListLoading, orderListError, title }) => {
                         </Typography>
                       </TableCell>
                       <TableCell>{order.shippingInfo.mobileNo}</TableCell>
+
+                      <TableCell>
+                        <Typography variant="body2">
+                          <CourierSummery phone={order.shippingInfo.mobileNo} />
+                        </Typography>
+                      </TableCell>
+
                       <TableCell>
                         <Typography
                           variant="body2"

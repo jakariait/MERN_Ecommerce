@@ -26,9 +26,16 @@ const AddressForm = ({ user, onAddressChange }) => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+
+    let newValue = value;
+
+    // Only allow digits in the phone field
+    if (name === "phone") {
+      newValue = value.replace(/\D/g, ""); // Remove all non-digit characters
+    }
+
     setFormData((prev) => {
-      const newData = { ...prev, [name]: value };
-      // The useEffect above will handle sending the updated data to the parent
+      const newData = { ...prev, [name]: newValue };
       return newData;
     });
   };
@@ -64,6 +71,7 @@ const AddressForm = ({ user, onAddressChange }) => {
           name="phone"
           type="tel"
           placeholder="ex 01234567890"
+          maxLength={11}
           className="py-2 px-4 w-full border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:primaryRingColor transition placeholder:text-sm"
           required
           value={formData.phone}
