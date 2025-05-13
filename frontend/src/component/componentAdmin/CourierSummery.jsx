@@ -7,6 +7,8 @@ const CourierSummery = ({ phone }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  const apiUrl = import.meta.env.VITE_API_URL;
+
   useEffect(() => {
     if (!phone) return;
 
@@ -17,8 +19,8 @@ const CourierSummery = ({ phone }) => {
 
       try {
         const response = await axios.post(
-          "http://localhost:5050/api/courier-check",
-          { phone },
+          `${apiUrl}/courier-check`,
+          { phone }
         );
 
         if (response.data.status === "success") {
