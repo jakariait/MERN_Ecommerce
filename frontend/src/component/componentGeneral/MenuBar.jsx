@@ -79,10 +79,10 @@ const MenuBar = () => {
             <SubMenu
               items={[
                 { name: "About Us", path: "/about" },
-                { name: "FAQ", path: "/faq" },
-                { name: "Privacy Policy", path: "/privacy-policy" },
-                { name: "Refund Policy", path: "/refund-policy" },
-                { name: "Terms of Services", path: "/terms" },
+                { name: "FAQ", path: "/faqs" },
+                { name: "Privacy Policy", path: "/privacypolicy" },
+                { name: "Refund Policy", path: "/refundpolicy" },
+                { name: "Terms of Services", path: "/termofservice" },
                 { name: "Blog", path: "/blog" },
                 { name: "Contact", path: "/contact-us" },
               ]}

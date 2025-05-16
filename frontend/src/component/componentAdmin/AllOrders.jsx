@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   TextField,
   Pagination,
@@ -34,8 +34,16 @@ import { Snackbar, Alert } from "@mui/material";
 import { EditIcon } from "lucide-react"; // MUI Snackbar and Alert components
 import { useNavigate } from "react-router-dom";
 import CourierSummery from "./CourierSummery.jsx";
+import useOrderStore from "../../store/useOrderStore.js";
+import SendToCourierButton from "./SendToCourierButton.jsx";
 
 const AllOrders = ({ allOrders, orderListLoading, orderListError, title }) => {
+  const { fetchAllOrders } = useOrderStore();
+
+  useEffect(() => {
+    fetchAllOrders(); // ✅ Fetch orders when component mounts
+  }, [fetchAllOrders]);
+
   // Local state for search, pagination, sorting, and items per page
   const [searchTerm, setSearchTerm] = useState("");
   const [page, setPage] = useState(1);
@@ -183,10 +191,7 @@ const AllOrders = ({ allOrders, orderListLoading, orderListError, title }) => {
       setSnackbarSeverity("success");
       setOpenSnackbar(true);
 
-      // Reload the page after 4 seconds
-      setTimeout(() => {
-        window.location.reload();
-      }, 4000);
+      fetchAllOrders();
     } catch (error) {
       // Show error snackbar message
       setSnackbarMessage("Failed to delete order.");
@@ -200,6 +205,10 @@ const AllOrders = ({ allOrders, orderListLoading, orderListError, title }) => {
 
   const handleView = (orderId) => {
     navigate(`/admin/orders/${orderId}`);
+  };
+
+  const handleSuccess = () => {
+    fetchAllOrders(); // Refetch orders on success
   };
 
   return (
@@ -370,7 +379,7 @@ const AllOrders = ({ allOrders, orderListLoading, orderListError, title }) => {
                       <Typography variant="body1">Total Amount</Typography>
                     </TableSortLabel>
                   </TableCell>
-                  <TableCell>
+                  <TableCell align={"center"}>
                     <Typography variant="body1">Action</Typography>
                   </TableCell>
                 </TableRow>
@@ -386,10 +395,7 @@ const AllOrders = ({ allOrders, orderListLoading, orderListError, title }) => {
                   paginatedOrders.map((order) => (
                     <TableRow key={order._id}>
                       <TableCell>
-                        <Typography variant="body2">
-                          {" "}
-                          {order.orderNo}
-                        </Typography>
+                        <Typography variant="body2">{order.orderNo}</Typography>
                       </TableCell>
                       <TableCell>
                         <Typography variant="body2">
@@ -408,7 +414,7 @@ const AllOrders = ({ allOrders, orderListLoading, orderListError, title }) => {
                       </TableCell>
                       <TableCell>
                         <Typography variant="body2">
-                          {order.shippingInfo.fullName}{" "}
+                          {order.shippingInfo.fullName}
                         </Typography>
                       </TableCell>
                       <TableCell>{order.shippingInfo.mobileNo}</TableCell>
@@ -456,7 +462,22 @@ const AllOrders = ({ allOrders, orderListLoading, orderListError, title }) => {
 
                       <TableCell>
                         <Box display="flex" alignItems="center" gap={1}>
-                          {/* View Button */}
+                          {/* Send it To Courier Button */}
+                          <SendToCourierButton
+                            orderData={{
+                              invoice: order.orderNo,
+                              recipient_name: order.shippingInfo?.fullName,
+                              recipient_phone: order.shippingInfo?.mobileNo,
+                              recipient_address: order.shippingInfo?.address,
+                              cod_amount: order.dueAmount,
+                              note: order.note || "", // optional fallback
+                              order_id: order._id,
+                              courier_status: order.sentToCourier,
+                            }}
+                            onSuccess={handleSuccess}
+                          />
+
+                          {/* View Order */}
                           <Tooltip title="View Order">
                             <IconButton
                               color="info"
@@ -466,14 +487,14 @@ const AllOrders = ({ allOrders, orderListLoading, orderListError, title }) => {
                             </IconButton>
                           </Tooltip>
 
-                          {/* Edit Button */}
+                          {/* Edit Order */}
                           <Tooltip title="Edit Order">
                             <IconButton color="primary">
                               <EditIcon />
                             </IconButton>
                           </Tooltip>
 
-                          {/* Delete Button */}
+                          {/* Delete Order */}
                           <Tooltip title="Delete Order">
                             <IconButton
                               color="error"

@@ -151,7 +151,10 @@ const orderSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
-
+    sentToCourier: {
+      type: Boolean,
+      default: false,
+    }
 
   },
   { timestamps: true, versionKey: false },

@@ -28,9 +28,10 @@ const FaqController = require("../controllers/FaqController");
 const MarqueeController = require("../controllers/MarqueeController");
 const metaController = require("../controllers/metaController");
 const { handleCourierCheck } = require("../controllers/courierController");
-
-
-
+const {
+  createSteadfastOrder,
+  getSteadfastOrderStatusByInvoice,
+} = require("../controllers/steadfastController");
 
 // Admin
 const { adminProtect } = require("../middlewares/authAdminMiddleware");
@@ -374,21 +375,27 @@ router.patch(
 // FAQ's Routes
 router.get("/faq", FaqController.getAllFAQs);
 router.get("/faq/:id", FaqController.getSingleFAQ);
-router.patch("/faq/:id",adminProtect, FaqController.updateFAQ);
-router.delete("/faq/:id",adminProtect, FaqController.deleteFAQ);
-router.post("/faq",adminProtect, FaqController.createFAQ);
-
+router.patch("/faq/:id", adminProtect, FaqController.updateFAQ);
+router.delete("/faq/:id", adminProtect, FaqController.deleteFAQ);
+router.post("/faq", adminProtect, FaqController.createFAQ);
 
 // Marquee Routes
 router.get("/marquee", MarqueeController.getMessages);
-router.patch("/marquee",adminProtect, MarqueeController.updateMessageSet);
+router.patch("/marquee", adminProtect, MarqueeController.updateMessageSet);
 
 // Meta Routes
-router.get('/meta', metaController.getMeta);
-router.patch('/meta', adminProtect, metaController.updateMeta);
-
+router.get("/meta", metaController.getMeta);
+router.patch("/meta", adminProtect, metaController.updateMeta);
 
 // Courier Check Routs
 router.post("/courier-check", handleCourierCheck);
+
+// Steadfast Courier Routes
+router.post("/steadfast/create-order", adminProtect, createSteadfastOrder);
+router.get(
+  "/steadfast/get-order-status",
+  adminProtect,
+  getSteadfastOrderStatusByInvoice,
+);
 
 module.exports = router;
