@@ -34,7 +34,7 @@ const ProductAddToCart = ({ product }) => {
                 : product.finalPrice * quantity,
         items: [
           {
-            item_id: product._id,
+            item_id: product.productId,
             item_name: product.name,
             currency: "BDT",
             discount:
