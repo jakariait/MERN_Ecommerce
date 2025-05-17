@@ -17,7 +17,42 @@ const ProductAddToCart = ({ product }) => {
 
   const handleAddToCart = () => {
     addToCart(product, quantity, selectedVariant);
+
+    // Push event to Google Tag Manager
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({
+      event: "add_to_cart",
+      ecommerce: {
+        currency: "BDT", // or your preferred currency
+        value:
+          selectedVariant?.discount > 0
+            ? selectedVariant.discount * quantity
+            : selectedVariant?.price
+              ? selectedVariant.price * quantity
+              : product.finalDiscount > 0
+                ? product.finalDiscount * quantity
+                : product.finalPrice * quantity,
+        items: [
+          {
+            item_id: product._id,
+            item_name: product.name,
+            currency: "BDT",
+            discount:
+              selectedVariant?.discount > 0
+                ? selectedVariant.price - selectedVariant.discount
+                : product.finalPrice - product.finalDiscount,
+            item_variant: selectedVariant?.size?.name || "Default",
+            price:
+              selectedVariant?.discount > 0
+                ? selectedVariant.discount
+                : selectedVariant?.price || product.finalDiscount || product.finalPrice,
+            quantity,
+          },
+        ],
+      },
+    });
   };
+
 
   // Handle Quantity Change
   const handleQuantityChange = (type) => {
