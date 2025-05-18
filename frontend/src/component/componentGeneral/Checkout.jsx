@@ -126,7 +126,6 @@ const Checkout = () => {
     fetchVatAmount();
   }, []);
 
-
   // Data Layer for Initiat Checkout
 
   useEffect(() => {
@@ -148,6 +147,61 @@ const Checkout = () => {
       });
     }
   }, [cart]);
+
+  // Handle abandoned cart sending only once after valid phone & cart loaded
+  const [cartTracked, setCartTracked] = useState(false);
+
+
+  useEffect(() => {
+    const sendAbandonedCart = async () => {
+      if (
+        addressData?.phone?.length === 11 &&
+        cart.length > 0 &&
+        !cartTracked
+      ) {
+        try {
+          await axios.post(`${apiUrl}/abandoned-cart`, {
+            userId: user?._id || undefined,
+            fullName: addressData.fullName || undefined,
+            number: addressData.phone,
+            email: addressData.email || undefined,
+            address: addressData.address || undefined,
+            cartItems: cart.map((item) => {
+              const variantId =
+                item.variantId && item.variantId !== "Default"
+                  ? item.variantId
+                  : undefined;
+              return {
+                productId: item.productId,
+                ...(variantId && { variantId }),
+                price:
+                  item.discountPrice > 0 ? item.discountPrice : item.originalPrice,
+                quantity: item.quantity,
+              };
+            }),
+            totalAmount,
+          });
+
+          setCartTracked(true);
+        } catch (error) {
+          console.error("Failed to send abandoned cart", error);
+        }
+      }
+    };
+
+    sendAbandonedCart();
+  }, [
+    addressData.phone,
+    cart,
+    cartTracked,
+    addressData.email,
+    addressData.fullName,
+    totalAmount,
+    user?._id,
+    apiUrl,
+  ]);
+
+
 
   if (vatPercentage === null || freeDelivery === null) return null;
 
@@ -226,8 +280,6 @@ const Checkout = () => {
       showSnackbar("Something went wrong. Please try again later.", "error");
     }
   };
-
-  console.table(cart);
 
   return (
     <div className="xl:container xl:mx-auto p-4">

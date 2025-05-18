@@ -27,6 +27,8 @@ const PageContentController = require("../controllers/PageContentController");
 const FaqController = require("../controllers/FaqController");
 const MarqueeController = require("../controllers/MarqueeController");
 const metaController = require("../controllers/metaController");
+const abandonedCartController = require("../controllers/abandonedCartController");
+
 const { handleCourierCheck } = require("../controllers/courierController");
 const {
   createSteadfastOrder,
@@ -360,9 +362,6 @@ router.put("/orders/:orderId", adminProtect, orderController.updateOrder);
 router.delete("/orders/:orderId", orderController.deleteOrder);
 router.get("/order-no/:orderNo", orderController.getOrderByOrderNo);
 
-
-
-
 // bKash Payment Gateway Routes
 router.post("/bkashcreate", bkashController.createPayment);
 router.post("/bkashexecute", bkashController.executePayment);
@@ -400,6 +399,17 @@ router.get(
   "/steadfast/get-order-status",
   adminProtect,
   getSteadfastOrderStatusByInvoice,
+);
+
+// Abandoned Cart Routes
+router.post("/abandoned-cart", abandonedCartController.createAbandonedCart);
+router.get(
+  "/abandoned-cart",
+  abandonedCartController.getAllAbandonedCarts ,
+);
+router.delete(
+  "/abandoned-cart/:id",
+  abandonedCartController.deleteAbandonedCart,
 );
 
 module.exports = router;
