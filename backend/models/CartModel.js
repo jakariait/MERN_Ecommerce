@@ -6,6 +6,7 @@ const cartItemSchema = new mongoose.Schema({
     ref: "Product",
     required: true,
   },
+  contentId: String,
   name: String,
   originalPrice: Number,
   discountPrice: Number,

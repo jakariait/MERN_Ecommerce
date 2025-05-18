@@ -45,14 +45,15 @@ const ProductAddToCart = ({ product }) => {
             price:
               selectedVariant?.discount > 0
                 ? selectedVariant.discount
-                : selectedVariant?.price || product.finalDiscount || product.finalPrice,
+                : selectedVariant?.price ||
+                  product.finalDiscount ||
+                  product.finalPrice,
             quantity,
           },
         ],
       },
     });
   };
-
 
   // Handle Quantity Change
   const handleQuantityChange = (type) => {
@@ -81,11 +82,56 @@ const ProductAddToCart = ({ product }) => {
     setSelectedVariant(newVariant);
   };
 
+  // Data Layer for View Content
+
+  const [hasViewed, setHasViewed] = useState(false);
+
+  useEffect(() => {
+    if (!product || !selectedVariant || hasViewed) return;
+
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({
+      event: "view_item",
+      ecommerce: {
+        currency: "BDT",
+        value:
+          selectedVariant?.discount > 0
+            ? selectedVariant.discount * quantity
+            : selectedVariant?.price
+              ? selectedVariant.price * quantity
+              : product.finalDiscount > 0
+                ? product.finalDiscount * quantity
+                : product.finalPrice * quantity,
+        items: [
+          {
+            item_id: product.productId,
+            item_name: product.name,
+            currency: "BDT",
+            discount:
+              selectedVariant.discount > 0
+                ? selectedVariant.price - selectedVariant.discount
+                : product.finalPrice - product.finalDiscount,
+            item_variant: selectedVariant.size?.name || "Default",
+            price:
+              selectedVariant.discount > 0
+                ? selectedVariant.discount
+                : selectedVariant.price ||
+                  product.finalDiscount ||
+                  product.finalPrice,
+            quantity: 1,
+          },
+        ],
+      },
+    });
+
+    setHasViewed(true);
+  }, [product, selectedVariant, hasViewed]);
+
   return (
     <div>
       <div>
         <div className="flex flex-col gap-3 md:col-span-4 lg:col-span-3 xl:col-span-4 pt-4 md:pt-0">
-          <LiveStatsNotification/>
+          <LiveStatsNotification />
           <h2 className="text-xl">{product.name}</h2>
 
           {/* Without Variant Price Display */}

@@ -397,6 +397,72 @@ const deleteOrder = async (orderId) => {
 };
 
 
+const getOrderByOrderNo = async (orderNo) => {
+  try {
+    const order = await Order.findOne({ orderNo })
+      .populate("userId")
+      .populate({
+        path: "items.productId",
+        select:
+          "-sizeChart -longDesc -shortDesc -shippingReturn -videoUrl -flags -metaTitle -metaDescription -metaKeywords -searchTags",
+        populate: {
+          path: "category",
+          select: "name",
+        },
+      })
+      .populate({
+        path: "items.variantId",
+      })
+      .sort({ createdAt: -1 })
+      .lean();
+
+    if (!order) {
+      throw new Error("Order not found");
+    }
+
+    // Collect all unique size IDs for the selected variants
+    const sizeIds = new Set();
+    order.items.forEach((item) => {
+      if (item.productId && item.productId.variants.length > 0) {
+        const matchedVariant = item.productId.variants.find(
+          (variant) => variant._id.toString() === item.variantId.toString()
+        );
+        if (matchedVariant && matchedVariant.size) {
+          sizeIds.add(matchedVariant.size);
+        }
+      }
+    });
+
+    // Fetch all size names in one query
+    const sizes = await ProductSizeModel.find({
+      _id: { $in: Array.from(sizeIds) },
+    })
+      .select("name")
+      .lean();
+    const sizeMap = new Map(sizes.map((size) => [size._id.toString(), size.name]));
+
+    // Clean up and assign size names
+    order.items = order.items.map((item) => {
+      if (item.productId && item.productId.variants) {
+        item.productId.variants = item.productId.variants.filter(
+          (variant) => variant._id.toString() === item.variantId.toString()
+        );
+
+        if (item.productId.variants.length > 0) {
+          const variant = item.productId.variants[0];
+          const sizeId = variant.size;
+          variant.sizeName = sizeMap.get(sizeId.toString()) || "N/A";
+        }
+      }
+      return item;
+    });
+
+    return order;
+  } catch (error) {
+    throw new Error("Error fetching order by orderNo: " + error.message);
+  }
+};
+
 
 // Export the functions as an object
 module.exports = {
@@ -405,4 +471,5 @@ module.exports = {
   getOrderById,
   updateOrder,
   deleteOrder,
+  getOrderByOrderNo
 };

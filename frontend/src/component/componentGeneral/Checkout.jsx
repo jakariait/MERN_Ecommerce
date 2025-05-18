@@ -126,6 +126,29 @@ const Checkout = () => {
     fetchVatAmount();
   }, []);
 
+
+  // Data Layer for Initiat Checkout
+
+  useEffect(() => {
+    if (cart.length > 0) {
+      window.dataLayer.push({
+        event: "begin_checkout",
+        ecommerce: {
+          currency: "BDT",
+          value: totalAmount,
+          items: cart.map((item) => ({
+            item_name: item.name,
+            item_id: item.contentId,
+            price:
+              item.discountPrice > 0 ? item.discountPrice : item.originalPrice,
+            quantity: item.quantity,
+            item_variant: item.variantId || "Default",
+          })),
+        },
+      });
+    }
+  }, [cart]);
+
   if (vatPercentage === null || freeDelivery === null) return null;
 
   // --- Grand Total ---
@@ -203,6 +226,8 @@ const Checkout = () => {
       showSnackbar("Something went wrong. Please try again later.", "error");
     }
   };
+
+  console.table(cart);
 
   return (
     <div className="xl:container xl:mx-auto p-4">

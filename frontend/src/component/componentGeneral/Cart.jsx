@@ -22,6 +22,8 @@ const Cart = ({ onCloseCartMenu }) => {
     return Number(amount).toLocaleString();
   };
 
+
+
   // console.table(cart);
 
   return (

@@ -358,6 +358,10 @@ router.get("/orders", orderController.getAllOrders);
 router.get("/orders/:orderId", orderController.getOrderById);
 router.put("/orders/:orderId", adminProtect, orderController.updateOrder);
 router.delete("/orders/:orderId", orderController.deleteOrder);
+router.get("/order-no/:orderNo", orderController.getOrderByOrderNo);
+
+
+
 
 // bKash Payment Gateway Routes
 router.post("/bkashcreate", bkashController.createPayment);

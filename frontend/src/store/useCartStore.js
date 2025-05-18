@@ -2,13 +2,11 @@ import { create } from "zustand";
 import axios from "axios";
 const apiUrl = import.meta.env.VITE_API_URL;
 
-// Load cart from local storage
 const loadCart = () => {
   const savedCart = localStorage.getItem("cart");
   return savedCart ? JSON.parse(savedCart) : [];
 };
 
-// Save cart to local storage
 const saveCart = (cart) => {
   localStorage.setItem("cart", JSON.stringify(cart));
 };
@@ -16,34 +14,24 @@ const saveCart = (cart) => {
 const useCartStore = create((set, get) => ({
   cart: loadCart(),
 
-  // Fetch cart from backend after login
   loadCartFromBackend: async (token) => {
     try {
       const res = await axios.get(`${apiUrl}/getCart`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      const serverCartItems = res.data.cart.items.map((item) => {
-        // Calculate finalDiscount
-        // const finalDiscount =
-        //   item?.variant?.discount > 0
-        //     ? item.variant.discount
-        //     : item?.finalDiscount > 0
-        //       ? item.finalDiscount
-        //       : 0;
-
-        return {
-          productId: item.productId,
-          name: item.name,
-          originalPrice: item.originalPrice,
-          discountPrice: item.discountPrice, // Set discountPrice to finalDiscount
-          variant: item.variant || "Default", // Fallback to "Default" if no variant
-          quantity: item.quantity,
-          thumbnail: item.thumbnail,
-          slug: item.slug,
-          variantId: item.variantId || "Default", // Fallback to "Default" if no variantId
-        };
-      });
+      const serverCartItems = res.data.cart.items.map((item) => ({
+        productId: item.productId,
+        contentId: item.contentId,
+        name: item.name,
+        originalPrice: item.originalPrice,
+        discountPrice: item.discountPrice,
+        variant: item.variant || "Default",
+        quantity: item.quantity,
+        thumbnail: item.thumbnail,
+        slug: item.slug,
+        variantId: item.variantId || "Default",
+      }));
 
       saveCart(serverCartItems);
       set({ cart: serverCartItems });
@@ -59,7 +47,7 @@ const useCartStore = create((set, get) => ({
 
     set((state) => {
       const existingIndex = state.cart.findIndex(
-        (item) => item.productId === product.id && item.variant === variant,
+        (item) => item.productId === product.id && item.variant === variant
       );
 
       let updatedCart = [...state.cart];
@@ -79,6 +67,7 @@ const useCartStore = create((set, get) => ({
       } else {
         updatedCart.push({
           productId: product.id,
+          contentId: product.productId, // ✅ added here
           name: product.name,
           originalPrice: selectedVariant?.price ?? product.finalPrice,
           discountPrice: finalDiscount,
@@ -94,7 +83,6 @@ const useCartStore = create((set, get) => ({
       return { cart: updatedCart };
     });
 
-    // Send to DB if logged in
     if (token) {
       try {
         const finalDiscount =
@@ -108,6 +96,7 @@ const useCartStore = create((set, get) => ({
           `${apiUrl}/addToCart`,
           {
             productId: product.id,
+            contentId: product.productId, // ✅ added here
             name: product.name,
             originalPrice: selectedVariant?.price ?? product.finalPrice,
             discountPrice: finalDiscount,
@@ -117,7 +106,7 @@ const useCartStore = create((set, get) => ({
             slug: product.slug,
             variantId,
           },
-          { headers: { Authorization: `Bearer ${token}` } },
+          { headers: { Authorization: `Bearer ${token}` } }
         );
       } catch (error) {
         console.error("Error adding item to DB cart:", error);
@@ -129,41 +118,33 @@ const useCartStore = create((set, get) => ({
     const newQuantity = Math.min(quantity, 5);
     const token = localStorage.getItem("user_token");
 
-    // Update local cart immediately
     set((state) => {
       const updatedCart = state.cart.map((item) =>
         item.productId === productId && item.variant === variant
           ? { ...item, quantity: newQuantity }
-          : item,
+          : item
       );
       saveCart(updatedCart);
       return { cart: updatedCart };
     });
 
-    // Ensure token is available
-    if (!token) {
-      return;
-    }
+    if (!token) return;
 
     try {
-      const response = await axios.patch(
-        `${apiUrl}/updateCartItem`, // ✅ relative path
+      await axios.patch(
+        `${apiUrl}/updateCartItem`,
         { productId, variant, quantity: newQuantity },
-        { headers: { Authorization: `Bearer ${token}` } },
+        { headers: { Authorization: `Bearer ${token}` } }
       );
     } catch (error) {
       console.error("Error updating quantity in DB:", error);
-      if (error.response) {
-        console.error("Response from backend:", error.response.data);
-        console.error("Response status code:", error.response.status);
-      }
     }
   },
 
   removeFromCart: async (productId, variant) => {
     set((state) => {
       const updatedCart = state.cart.filter(
-        (item) => !(item.productId === productId && item.variant === variant),
+        (item) => !(item.productId === productId && item.variant === variant)
       );
       saveCart(updatedCart);
       return { cart: updatedCart };
@@ -200,17 +181,16 @@ const useCartStore = create((set, get) => ({
     }
   },
 
-  // Sync full cart (used after login or fallback)
   syncCartToDB: async (token) => {
     const localCart = get().cart;
 
     try {
-      // Loop through each item in the cart and send it individually
       for (const item of localCart) {
         await axios.post(
-          `/api/addToCart`, // relative path
+          `/api/addToCart`,
           {
-            productId: item.productId, // Send each item's productId
+            productId: item.productId,
+            contentId: item.contentId, // ✅ added here
             name: item.name,
             originalPrice: item.originalPrice,
             discountPrice: item.discountPrice,
@@ -224,11 +204,10 @@ const useCartStore = create((set, get) => ({
             headers: {
               Authorization: `Bearer ${token}`,
             },
-          },
+          }
         );
       }
 
-      // // Optionally, after adding all items, fetch the updated cart from the backend
       const res = await axios.get(`/api/getCart`, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -237,6 +216,7 @@ const useCartStore = create((set, get) => ({
 
       const serverCartItems = res.data.cart.items.map((item) => ({
         productId: item.product._id,
+        contentId: item.contentId, // ✅ added here
         name: item.name,
         originalPrice: item.originalPrice,
         discountPrice: item.discountPrice,
