@@ -93,7 +93,7 @@ const MarqueeAdmin = () => {
               type="text"
               value={msg}
               onChange={(e) => handleInputChange(index, e.target.value)}
-              className="flex-1 border rounded px-3 py-2"
+              className="flex-1 bg-gray-100 rounded px-3 py-2"
               placeholder={`Message ${index + 1}`}
               required
             />

@@ -76,6 +76,9 @@ import MarqueeAdminPage from "./pagesAdmin/MarqueeAdminPage.jsx";
 import AdminMetaPage from "./pagesAdmin/AdminMetaPage.jsx";
 import MetaProvider from "./component/componentGeneral/MetaProvider.jsx";
 import BKashConfigPage from "./pagesAdmin/BKashConfigPage.jsx";
+import SteadFastConfigPag from "./pagesAdmin/SteadFastConfigPag.jsx";
+import ScrollToTopButton from "./component/componentGeneral/ScrollToTopButton.jsx";
+import DashboardPage from "./pagesAdmin/DashboardPage.jsx";
 
 function App() {
   const { GeneralInfoListRequest } = GeneralInfoStore();
@@ -152,6 +155,7 @@ function App() {
     <Router>
       <MetaProvider />
       <ScrollToTop />
+      <ScrollToTopButton />
       <Routes>
         {/* General User Routes */}
         <Route path="/" element={<HomePage />} />
@@ -305,6 +309,12 @@ function App() {
           <Route path="/admin/scroll-text" element={<MarqueeAdminPage />} />
           <Route path="/admin/homepage-seo" element={<AdminMetaPage />} />
           <Route path="/admin/bkash-config" element={<BKashConfigPage />} />
+          <Route
+            path="/admin/steadfast-config"
+            element={<SteadFastConfigPag />}
+          />
+
+          <Route path="/admin/dashboard" element={<DashboardPage />} />
         </Route>
 
         {/* Not Found */}

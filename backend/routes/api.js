@@ -30,7 +30,7 @@ const metaController = require("../controllers/metaController");
 const abandonedCartController = require("../controllers/abandonedCartController");
 const GoogleTagManagerController = require("../controllers/GoogleTagManagerController");
 const bkashConfigController = require("../controllers/bkashConfigController");
-
+const SteadfastConfigController = require("../controllers/SteadfastConfigController");
 
 const { handleCourierCheck } = require("../controllers/courierController");
 const {
@@ -416,11 +416,25 @@ router.delete(
 router.get("/getGTM", GoogleTagManagerController.getGTM);
 router.post("/updateGTM", adminProtect, GoogleTagManagerController.updateGTM);
 
-
 // bKash Config Routes
 router.get("/bkash-config", adminProtect, bkashConfigController.getBkashConfig);
-router.patch("/bkash-config",adminProtect,  bkashConfigController.updateBkashConfig);
+router.patch(
+  "/bkash-config",
+  adminProtect,
+  bkashConfigController.updateBkashConfig,
+);
 router.get("/bkash-is-active", bkashConfigController.getBkashIsActive);
 
+// SteadFast Config Routes
+router.get(
+  "/steadfast-config",
+  adminProtect,
+  SteadfastConfigController.getConfig,
+);
+router.patch(
+  "/steadfast-config",
+  adminProtect,
+  SteadfastConfigController.updateConfig,
+);
 
 module.exports = router;

@@ -69,7 +69,7 @@ export default function SidebarMenu() {
       {/* Dashboard */}
       <ul>
         <li className="flex items-center space-x-2 p-2 rounded-md cursor-pointer">
-          <Link to="/" className={"flex items-center gap-2"}>
+          <Link to="/admin/dashboard" className={"flex items-center gap-2"}>
             <FaHome /> <span>Dashboard</span>
           </Link>
         </li>
@@ -493,12 +493,22 @@ export default function SidebarMenu() {
               </AccordionSummary>
               <AccordionDetails>
                 <ul className={"space-y-2 pl-4"}>
-                  <Link
-                    to="/admin/bkash-config"
-                    className={"flex items-center gap-2"}
-                  >
-                    <span>bKash</span>
-                  </Link>
+                  <li>
+                    <Link
+                      to="/admin/bkash-config"
+                      className={"flex items-center gap-2"}
+                    >
+                      <span>bKash</span>
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      to="/admin/steadfast-config"
+                      className={"flex items-center gap-2"}
+                    >
+                      <span>Steadfast</span>
+                    </Link>
+                  </li>
                 </ul>
               </AccordionDetails>
             </Accordion>
@@ -512,9 +522,7 @@ export default function SidebarMenu() {
               <FaUsers /> <span>Customers</span>
             </Link>
           </li>
-          <li className="flex items-center space-x-2 p-2 rounded-md cursor-pointer">
-            <FaHeart /> <span>Customer's Wishlist</span>
-          </li>
+
           <li className=" p-2 rounded-md cursor-pointer">
             <Link
               to="/admin/deliverycharge"
