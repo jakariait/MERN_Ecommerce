@@ -2,12 +2,14 @@ const abandonedCartService = require("../services/abandonedCartService");
 
 const createAbandonedCart = async (req, res) => {
   try {
-    const { number, cartItems, userId, fullName, email, address, totalAmount } = req.body;
+    const { number, cartItems, userId, fullName, email, address, totalAmount } =
+      req.body;
 
     if (!number || !cartItems || cartItems.length === 0) {
       return res.status(400).json({
         success: false,
-        message: "Validation failed: 'number' and 'cartItems' are required and cartItems cannot be empty.",
+        message:
+          "Validation failed: 'number' and 'cartItems' are required and cartItems cannot be empty.",
       });
     }
 
@@ -35,7 +37,6 @@ const createAbandonedCart = async (req, res) => {
   }
 };
 
-
 const getAllAbandonedCarts = async (req, res) => {
   try {
     const carts = await abandonedCartService.getAllAbandonedCarts();
@@ -56,7 +57,9 @@ const getAllAbandonedCarts = async (req, res) => {
 
 const deleteAbandonedCart = async (req, res) => {
   try {
-    const deletedCart = await abandonedCartService.deleteAbandonedCartById(req.params.id);
+    const deletedCart = await abandonedCartService.deleteAbandonedCartById(
+      req.params.id,
+    );
     if (!deletedCart) {
       return res.status(404).json({
         success: false,

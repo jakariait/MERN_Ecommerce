@@ -2,188 +2,134 @@ import React, { useEffect, useCallback, useRef } from "react";
 import { useLocation } from "react-router-dom";
 
 const AbandonedCartTracker = ({
-	addressData,
-	cart,
-	totalAmount,
-	user,
-	apiUrl,
-	orderPlaced,
-}) => {
-	const location = useLocation();
-	const orderPlacedRef = useRef(orderPlaced);
-	console.log(orderPlaced);
-	// Keep track of the latest orderPlaced value
-	useEffect(() => {
-		orderPlacedRef.current = orderPlaced;
-		if (orderPlaced) {
-			console.log(
-				"[AbandonedCartTracker] Order placed, clearing all tracking flags"
-			);
-			sessionStorage.removeItem("wasInCheckout");
-			sessionStorage.removeItem("abandonedCartSent");
-			sessionStorage.setItem("orderPlaced", "true");
-		}
-	}, [orderPlaced]);
+                                addressData,
+                                cart,
+                                totalAmount,
+                                user,
+                                apiUrl,
+                                orderPlaced,
+                              }) => {
+  const location = useLocation();
+  const prevPathRef = useRef(location.pathname);
 
-	const isOrderPlaced = useCallback(() => {
-		return (
-			orderPlacedRef.current || sessionStorage.getItem("orderPlaced") === "true"
-		);
-	}, []);
+  // Ref to keep latest orderPlaced value
+  const orderPlacedRef = useRef(orderPlaced);
 
-	const canSend = useCallback(() => {
-		if (isOrderPlaced()) {
-			console.log(
-				"[AbandonedCartTracker] Order placed, not sending abandoned cart"
-			);
-			return false;
-		}
+  useEffect(() => {
+    orderPlacedRef.current = orderPlaced;
+    if (orderPlaced) {
+      sessionStorage.setItem("orderPlaced", "true");
+      sessionStorage.removeItem("wasInCheckout");
+      sessionStorage.removeItem("abandonedCartSent");
+    }
+  }, [orderPlaced]);
 
-		if (location.pathname.includes("/checkout")) {
-			sessionStorage.removeItem("abandonedCartSent");
-		}
+  const isOrderPlaced = useCallback(() => {
+    const refValue = orderPlacedRef.current;
+    const storageValue = sessionStorage.getItem("orderPlaced") === "true";
+    return refValue || storageValue;
+  }, []);
 
-		const canSendResult =
-			addressData?.phone?.length === 11 &&
-			cart?.length > 0 &&
-			!sessionStorage.getItem("abandonedCartSent");
+  const canSend = useCallback(() => {
+    const phoneValid = addressData?.phone?.length === 11;
+    const cartValid = cart?.length > 0;
+    const notSentBefore = !sessionStorage.getItem("abandonedCartSent");
+    return phoneValid && cartValid && notSentBefore;
+  }, [addressData?.phone, cart?.length, isOrderPlaced]);
 
-		console.log("[AbandonedCartTracker] canSend check:", {
-			orderPlaced: orderPlacedRef.current,
-			orderPlacedInStorage: sessionStorage.getItem("orderPlaced"),
-			phoneLength: addressData?.phone?.length,
-			cartLength: cart?.length,
-			alreadySent: sessionStorage.getItem("abandonedCartSent"),
-			result: canSendResult,
-			currentPath: location.pathname,
-		});
+  const getPayload = useCallback(() => {
+    return {
+      userId: user?._id || undefined,
+      fullName: addressData?.fullName || undefined,
+      number: addressData?.phone,
+      email: addressData?.email || undefined,
+      address: addressData?.address || undefined,
+      cartItems: cart.map((item) => {
+        const variantId =
+          item.variantId && item.variantId !== "Default"
+            ? item.variantId
+            : undefined;
+        return {
+          productId: item.productId,
+          ...(variantId && { variantId }),
+          price:
+            item.discountPrice > 0 ? item.discountPrice : item.originalPrice,
+          quantity: item.quantity,
+        };
+      }),
+      totalAmount,
+      orderPlaced: orderPlaced,
+    };
+  }, [addressData, cart, totalAmount, user]);
 
-		return canSendResult;
-	}, [location.pathname, addressData, cart, isOrderPlaced]);
+  const sendAbandonedCart = useCallback(() => {
+    const payload = getPayload();
+    try {
+      navigator.sendBeacon(
+        `${apiUrl}/abandoned-cart`,
+        new Blob([JSON.stringify(payload)], { type: "application/json" })
+      );
+      sessionStorage.setItem("abandonedCartSent", "true");
+    } catch (error) {}
+  }, [apiUrl, canSend, getPayload]);
 
-	const getPayload = useCallback(
-		() => ({
-			userId: user?._id || undefined,
-			fullName: addressData?.fullName || undefined,
-			number: addressData?.phone,
-			email: addressData?.email || undefined,
-			address: addressData?.address || undefined,
-			cartItems: cart.map((item) => {
-				const variantId =
-					item.variantId && item.variantId !== "Default"
-						? item.variantId
-						: undefined;
-				return {
-					productId: item.productId,
-					...(variantId && { variantId }),
-					price:
-						item.discountPrice > 0 ? item.discountPrice : item.originalPrice,
-					quantity: item.quantity,
-				};
-			}),
-			totalAmount,
-		}),
-		[addressData, cart, totalAmount, user?._id]
-	);
+  useEffect(() => {
+    const handleRouteChange = () => {
+      if (isOrderPlaced()) {
+        return;
+      }
 
-	const sendAbandonedCart = useCallback(() => {
-		if (isOrderPlaced()) {
-			console.log("[AbandonedCartTracker] Order placed, aborting send");
-			return;
-		}
+      const currentPath = window.location.pathname;
+      const wasInCheckout = sessionStorage.getItem("wasInCheckout") === "true";
 
-		if (!canSend()) {
-			console.log(
-				"[AbandonedCartTracker] Cannot send abandoned cart - conditions not met"
-			);
-			return;
-		}
+      if (currentPath.includes("/checkout")) {
+        sessionStorage.setItem("wasInCheckout", "true");
+        sessionStorage.removeItem("abandonedCartSent");
+      } else if (wasInCheckout) {
+        sendAbandonedCart();
+        sessionStorage.removeItem("wasInCheckout");
+      }
+    };
 
-		const payload = getPayload();
-		console.log("[AbandonedCartTracker] Sending payload:", payload);
+    handleRouteChange(); // initial check
 
-		try {
-			navigator.sendBeacon(
-				`${apiUrl}/abandoned-cart`,
-				new Blob([JSON.stringify(payload)], {
-					type: "application/json",
-				})
-			);
-			sessionStorage.setItem("abandonedCartSent", "true");
-			console.log("[AbandonedCartTracker] Abandoned cart sent successfully");
-		} catch (error) {
-			console.error(
-				"[AbandonedCartTracker] Failed to send abandoned cart",
-				error
-			);
-		}
-	}, [apiUrl, canSend, getPayload, isOrderPlaced]);
+    window.addEventListener("popstate", handleRouteChange);
 
-	// Detect navigation changes
-	useEffect(() => {
-		const handleRouteChange = () => {
-			if (isOrderPlaced()) {
-				console.log(
-					"[AbandonedCartTracker] Order placed, not tracking navigation"
-				);
-				return;
-			}
+    const originalPushState = window.history.pushState;
+    const originalReplaceState = window.history.replaceState;
 
-			const currentPath = window.location.pathname;
-			const wasInCheckout = sessionStorage.getItem("wasInCheckout") === "true";
+    window.history.pushState = function () {
+      originalPushState.apply(this, arguments);
+      handleRouteChange();
+    };
 
-			if (currentPath.includes("/checkout")) {
-				sessionStorage.setItem("wasInCheckout", "true");
-				sessionStorage.removeItem("abandonedCartSent");
-			} else if (wasInCheckout) {
-				console.log("[AbandonedCartTracker] Left checkout page");
-				sendAbandonedCart();
-				sessionStorage.removeItem("wasInCheckout");
-			}
-		};
+    window.history.replaceState = function () {
+      originalReplaceState.apply(this, arguments);
+      handleRouteChange();
+    };
 
-		handleRouteChange();
+    return () => {
+      window.removeEventListener("popstate", handleRouteChange);
+      window.history.pushState = originalPushState;
+      window.history.replaceState = originalReplaceState;
+    };
+  }, [sendAbandonedCart, isOrderPlaced]);
 
-		window.addEventListener("popstate", handleRouteChange);
+  useEffect(() => {
+    const handleUnload = () => {
+      if (
+        !isOrderPlaced() &&
+        sessionStorage.getItem("wasInCheckout") === "true"
+      ) {
+        sendAbandonedCart();
+      }
+    };
 
-		const originalPushState = window.history.pushState;
-		const originalReplaceState = window.history.replaceState;
+    window.addEventListener("beforeunload", handleUnload);
+    return () => window.removeEventListener("beforeunload", handleUnload);
+  }, [sendAbandonedCart, isOrderPlaced]);
 
-		window.history.pushState = function () {
-			originalPushState.apply(this, arguments);
-			handleRouteChange();
-		};
-
-		window.history.replaceState = function () {
-			originalReplaceState.apply(this, arguments);
-			handleRouteChange();
-		};
-
-		return () => {
-			window.removeEventListener("popstate", handleRouteChange);
-			window.history.pushState = originalPushState;
-			window.history.replaceState = originalReplaceState;
-		};
-	}, [location.pathname, sendAbandonedCart, isOrderPlaced]);
-
-	// Send abandoned cart on page unload
-	useEffect(() => {
-		const handleUnload = () => {
-			if (isOrderPlaced()) {
-				console.log(
-					"[AbandonedCartTracker] Order placed, not sending on unload"
-				);
-				return;
-			}
-			console.log("[AbandonedCartTracker] Page unload detected");
-			sendAbandonedCart();
-		};
-
-		window.addEventListener("beforeunload", handleUnload);
-		return () => window.removeEventListener("beforeunload", handleUnload);
-	}, [sendAbandonedCart, isOrderPlaced]);
-
-	return null;
+  return null;
 };
 
 export default AbandonedCartTracker;

@@ -15,7 +15,7 @@ const abandonedCartSchema = new mongoose.Schema(
         quantity: { type: Number, required: true },
       },
     ],
-    totalAmount: { type: Number },
+    totalAmount: { type: Number }
   },
   { timestamps: true, versionKey: false }
 );
