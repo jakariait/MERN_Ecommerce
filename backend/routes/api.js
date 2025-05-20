@@ -28,6 +28,9 @@ const FaqController = require("../controllers/FaqController");
 const MarqueeController = require("../controllers/MarqueeController");
 const metaController = require("../controllers/metaController");
 const abandonedCartController = require("../controllers/abandonedCartController");
+const GoogleTagManagerController = require("../controllers/GoogleTagManagerController");
+const bkashConfigController = require("../controllers/bkashConfigController");
+
 
 const { handleCourierCheck } = require("../controllers/courierController");
 const {
@@ -403,13 +406,21 @@ router.get(
 
 // Abandoned Cart Routes
 router.post("/abandoned-cart", abandonedCartController.createAbandonedCart);
-router.get(
-  "/abandoned-cart",
-  abandonedCartController.getAllAbandonedCarts ,
-);
+router.get("/abandoned-cart", abandonedCartController.getAllAbandonedCarts);
 router.delete(
   "/abandoned-cart/:id",
   abandonedCartController.deleteAbandonedCart,
 );
+
+// Google Tag Manager Routes
+router.get("/getGTM", GoogleTagManagerController.getGTM);
+router.post("/updateGTM", adminProtect, GoogleTagManagerController.updateGTM);
+
+
+// bKash Config Routes
+router.get("/bkash-config", adminProtect, bkashConfigController.getBkashConfig);
+router.patch("/bkash-config",adminProtect,  bkashConfigController.updateBkashConfig);
+router.get("/bkash-is-active", bkashConfigController.getBkashIsActive);
+
 
 module.exports = router;

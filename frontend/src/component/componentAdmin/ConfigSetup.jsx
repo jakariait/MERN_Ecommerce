@@ -1,6 +1,7 @@
 import React from "react";
 import UpdateFreeDeliveryAmount from "./UpdateFreeDeliveryAmount.jsx";
 import UpdateTaxPercentage from "./UpdateTaxPercentage.jsx";
+import UpdateGTM from "./UpdateGTM.jsx";
 
 const ConfigSetup = () => {
   return (
@@ -11,6 +12,7 @@ const ConfigSetup = () => {
       <div className={"grid md:grid-cols-2 gap-6"}>
         <UpdateFreeDeliveryAmount />
         <UpdateTaxPercentage />
+        <UpdateGTM/>
       </div>
     </div>
   );

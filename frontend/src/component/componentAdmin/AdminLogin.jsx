@@ -8,6 +8,8 @@ const AdminLogin = () => {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [checkingAuth, setCheckingAuth] = useState(true); // ⬅️ new state
+
   const { login, error, loading, token } = useAuthAdminStore();
   const navigate = useNavigate();
 
@@ -19,8 +21,23 @@ const AdminLogin = () => {
   useEffect(() => {
     if (token) {
       navigate("/admin/general-info");
+    } else {
+      setCheckingAuth(false);
     }
   }, [token, navigate]);
+
+  if (checkingAuth) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-gradient-to-tl primaryBgColor">
+        <div className="flex flex-col items-center">
+          <div className="h-10 w-10 animate-spin rounded-full border-4 border-white border-t-transparent"></div>
+          <p className="mt-4 text-white text-sm">Checking authentication...</p>
+        </div>
+      </div>
+    );
+  }
+
+
 
   return (
     <div
@@ -76,7 +93,7 @@ const AdminLogin = () => {
 
           <button
             type="submit"
-            className="w-full rounded-md primaryBgColor px-4 py-2 accentTextColor hover:bg-blue-700"
+            className="w-full cursor-pointer rounded-md primaryBgColor px-4 py-2 accentTextColor hover:bg-blue-700"
             disabled={loading}
           >
             {loading ? "Logging in..." : "Login"}

@@ -105,13 +105,6 @@ export default function SidebarMenu() {
               <FaSearch /> <span>Home Page SEO</span>
             </li>
           </Link>
-
-          <li className="flex items-center space-x-2 p-2 rounded-md cursor-pointer">
-            <FaCode /> <span>Custom CSS & JS</span>
-          </li>
-          <li className="flex items-center space-x-2 p-2 rounded-md cursor-pointer">
-            <FaComments /> <span>Social & Chat Scripts</span>
-          </li>
         </ul>
       </div>
 
@@ -462,9 +455,55 @@ export default function SidebarMenu() {
           <li className="flex items-center space-x-2 p-2 rounded-md cursor-pointer">
             <FaSms /> <span>SMS Service</span>
           </li>
-          <li className="flex items-center space-x-2 p-2 rounded-md cursor-pointer">
-            <FaCreditCard /> <span>Gateway & API</span>
+
+          <li className="space-x-2 px-2 rounded-md cursor-pointer">
+            <Accordion
+              style={{
+                background: "transparent",
+                boxShadow: "none",
+                width: "100%",
+              }}
+              sx={{
+                color: "white", // Ensures text color is white
+                "& .MuiAccordionSummary-root": {
+                  backgroundColor: "transparent",
+                  minHeight: "auto", // Removes unnecessary padding
+                  padding: "0", // Removes default padding
+                },
+                "& .MuiAccordionDetails-root": {
+                  backgroundColor: "transparent",
+                  paddingLeft: "0", // Ensures no extra left padding
+                },
+                "& .MuiSvgIcon-root": {
+                  color: "white", // Ensures the dropdown icon is white
+                },
+              }}
+            >
+              <AccordionSummary
+                expandIcon={<ExpandMoreIcon />}
+                aria-controls="panel1-content"
+                id="panel1-header"
+                className="p-2 flex items-center"
+              >
+                <Typography component="span">
+                  <div className="flex items-center gap-2">
+                    <FaCreditCard /> <span>Gateway & API</span>
+                  </div>
+                </Typography>
+              </AccordionSummary>
+              <AccordionDetails>
+                <ul className={"space-y-2 pl-4"}>
+                  <Link
+                    to="/admin/bkash-config"
+                    className={"flex items-center gap-2"}
+                  >
+                    <span>bKash</span>
+                  </Link>
+                </ul>
+              </AccordionDetails>
+            </Accordion>
           </li>
+
           <li>
             <Link
               to="/admin/customers"

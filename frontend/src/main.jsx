@@ -6,13 +6,27 @@ import "react-loading-skeleton/dist/skeleton.css";
 import App from "./App.jsx";
 import TagManager from "react-gtm-module";
 
-const tagManagerArgs = {
-  gtmId: "GTM-KS63HB6S", // replace with your ID
-};
-TagManager.initialize(tagManagerArgs);
+const API_BASE = import.meta.env.VITE_API_URL;
 
-createRoot(document.getElementById("root")).render(
-  <StrictMode>
-    <App />
-  </StrictMode>,
-);
+const initializeApp = async () => {
+  try {
+    const res = await fetch(`${API_BASE}/getGTM`);
+    if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+
+    const data = await res.json();
+
+    if (data?.isActive && data?.googleTagManagerId) {
+      TagManager.initialize({ gtmId: data.googleTagManagerId });
+    }
+  } catch {
+    // fail silently in production
+  } finally {
+    createRoot(document.getElementById("root")).render(
+      <StrictMode>
+        <App />
+      </StrictMode>
+    );
+  }
+};
+
+initializeApp();

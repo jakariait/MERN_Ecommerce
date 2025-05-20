@@ -75,6 +75,7 @@ import AdminFAQSPage from "./pagesAdmin/AdminFAQSPage.jsx";
 import MarqueeAdminPage from "./pagesAdmin/MarqueeAdminPage.jsx";
 import AdminMetaPage from "./pagesAdmin/AdminMetaPage.jsx";
 import MetaProvider from "./component/componentGeneral/MetaProvider.jsx";
+import BKashConfigPage from "./pagesAdmin/BKashConfigPage.jsx";
 
 function App() {
   const { GeneralInfoListRequest } = GeneralInfoStore();
@@ -303,6 +304,7 @@ function App() {
           <Route path="/admin/faqs" element={<AdminFAQSPage />} />
           <Route path="/admin/scroll-text" element={<MarqueeAdminPage />} />
           <Route path="/admin/homepage-seo" element={<AdminMetaPage />} />
+          <Route path="/admin/bkash-config" element={<BKashConfigPage />} />
         </Route>
 
         {/* Not Found */}

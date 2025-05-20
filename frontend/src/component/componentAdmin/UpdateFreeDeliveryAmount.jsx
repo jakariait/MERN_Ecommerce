@@ -81,7 +81,7 @@ const UpdateFreeDeliveryAmount = () => {
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
               placeholder="e.g. 5000"
-              className=" px-4 py-2 border rounded-md focus:outline-none focus:ring focus:ring-blue-300"
+              className=" px-4 py-2 border border-gray-300 rounded-md focus:outline-none "
             />
             <button
               type="submit"

@@ -126,7 +126,7 @@ const Breadcrumb = ({ pageDetails, title }) => {
           <button
             ref={buttonRef} // Attach ref here
             onClick={toggleDropdown} // Use toggleDropdown to control dropdown state
-            className={"flex items-center gap-2"}
+            className={"flex items-center gap-2 cursor-pointer"}
           >
             <img
               src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQLwzhli3UiGlUsTtOAoxA_f4dKRDG9DGa99w&s"
