@@ -29,21 +29,19 @@ const menuItems = [
   {
     icon: <FaShoppingCart />,
     label: "My orders",
-    path: "/orders",
+    path: "/user/orders",
   },
-  { icon: <FaHeart />, label: "Wishlist's", path: "/wishlist" },
   { icon: <FaTicketAlt />, label: "Promo/ Coupon", path: "/coupons" },
-  { icon: <FaMapMarkedAlt />, label: "Address", path: "/address" },
-  { icon: <FaCreditCard />, label: "Payments", path: "/payments" },
-  { icon: <FaStar />, label: "Product reviews", path: "/reviews" },
-  { icon: <FaLifeRing />, label: "Support tickets", path: "/support" },
-  { icon: <FaUserCog />, label: "Manage profile", path: "/profile" },
+  {
+    icon: <FaUserCog />,
+    label: "Manage profile",
+    path: "/user/manage-profile",
+  },
   { icon: <FaKey />, label: "Change password", path: "/change-password" },
 ];
 const UserMenu = () => {
   const { initialize, user, loading, error, logout } = useAuthUserStore();
   const navigate = useNavigate();
-
 
   useEffect(() => {
     initialize();

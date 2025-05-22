@@ -79,6 +79,9 @@ import BKashConfigPage from "./pagesAdmin/BKashConfigPage.jsx";
 import SteadFastConfigPag from "./pagesAdmin/SteadFastConfigPag.jsx";
 import ScrollToTopButton from "./component/componentGeneral/ScrollToTopButton.jsx";
 import DashboardPage from "./pagesAdmin/DashboardPage.jsx";
+import UserAllOrdersPage from "./pagesUser/UserAllOrdersPage.jsx";
+import UserOrderDetailsPage from "./pagesUser/UserOrderDetailsPage.jsx";
+import UpdateUserPage from "./pagesUser/UpdateUserPage.jsx";
 
 function App() {
   const { GeneralInfoListRequest } = GeneralInfoStore();
@@ -180,6 +183,11 @@ function App() {
         {/* Protected User Routes */}
         <Route element={<UserProtectedRoute />}>
           <Route path="/user/home" element={<UserHomePage />} />
+          <Route path="/user/orders" element={<UserAllOrdersPage />} />
+          <Route path="/user/orders/:orderNo" element={<UserOrderDetailsPage/>} />
+          <Route path="/user/manage-profile" element={<UpdateUserPage/>} />
+
+
         </Route>
 
         {/* Protected Admin Routes */}

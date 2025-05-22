@@ -34,7 +34,7 @@ const MonthlyOrderStatusGroupedChart = () => {
       if (!monthlyData[key]) return;
 
       const status = order.orderStatus?.toLowerCase();
-      if (["pending", "intransit", "delivered"].includes(status)) {
+      if (["delivered"].includes(status)) {
         monthlyData[key].Success += 1;
       } else if (status === "cancelled") {
         monthlyData[key].Failed += 1;

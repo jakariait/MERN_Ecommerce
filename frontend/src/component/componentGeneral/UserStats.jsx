@@ -1,51 +1,92 @@
+import React, { useEffect, useState } from "react";
 import {
   FaShoppingBag,
   FaBox,
   FaShoppingCart,
-  FaHeart,
   FaMoneyBillWave,
-  FaComments,
 } from "react-icons/fa";
-import useCartStore from "../../store/useCartStore.js"; // Importing the store
+import useCartStore from "../../store/useCartStore.js";
+import useAuthUserStore from "../../store/AuthUserStore.js";
+import axios from "axios";
 
 const UserStats = () => {
-  const { cart } = useCartStore(); // Call hook inside function component
+  const apiUrl = import.meta.env.VITE_API_URL;
+  const { cart } = useCartStore();
+  const { user, token } = useAuthUserStore();
+
+  const [totalOrders, setTotalOrders] = useState(0);
+  const [deliveredAmount, setDeliveredAmount] = useState(0);
+  const [runningOrders, setRunningOrders] = useState(0);
+
+  useEffect(() => {
+    if (!user?._id) return;
+
+    const fetchOrders = async () => {
+      try {
+        const response = await axios.get(`${apiUrl}/ordersbyUser/${user._id}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        if (response.data.success) {
+          const orders = response.data.orders;
+
+          setTotalOrders(response.data.totalOrders);
+
+          // Delivered orders
+          const deliveredOrders = orders.filter(
+            (order) => order.orderStatus === "delivered",
+          );
+
+          // Running orders: orders not delivered, not returned, and not cancelled
+          const runningOrders = orders.filter(
+            (order) =>
+              !["delivered", "returned", "cancelled"].includes(
+                order.orderStatus,
+              ),
+          );
+
+          // Sum total amounts of delivered orders
+          const totalDeliveredAmount = deliveredOrders.reduce((sum, order) => {
+            return sum + (order.totalAmount || 0);
+          }, 0);
+
+          setDeliveredAmount(totalDeliveredAmount);
+          setRunningOrders(runningOrders.length); // You'll need a new state for runningOrders
+        }
+      } catch (error) {
+        console.error("Failed to fetch orders:", error);
+      }
+    };
+
+    fetchOrders();
+  }, [user?._id]);
 
   const statsData = [
     {
-      value: 16,
+      value: totalOrders,
       label: "Total order placed",
       icon: <FaShoppingBag className="text-3xl text-blue-500" />,
     },
     {
-      value: 2,
+      value: runningOrders,
       label: "Running orders",
       icon: <FaBox className="text-3xl text-yellow-500" />,
     },
     {
-      value: cart?.reduce((total, item) => total + item.quantity, 0) || 0, // Dynamically calculated cart quantity
+      value: cart?.reduce((total, item) => total + item.quantity, 0) || 0,
       label: "Items in cart",
       icon: <FaShoppingCart className="text-3xl text-green-500" />,
     },
     {
-      value: 1,
-      label: "Product in wishlist's",
-      icon: <FaHeart className="text-3xl text-orange-500" />,
-    },
-    {
-      value: 57865858,
-      label: "Amount spent",
+      value: deliveredAmount,
+      label: "Amount spent on delivered orders",
       icon: <FaMoneyBillWave className="text-3xl text-blue-600" />,
-    },
-    {
-      value: 2,
-      label: "Opened Tickets",
-      icon: <FaComments className="text-3xl text-purple-500" />,
     },
   ];
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-5 p-2 py-5">
+    <div className="grid grid-cols-1  lg:grid-cols-2 gap-3 md:gap-5 p-2 py-5">
       {statsData.map((item, index) => (
         <div
           key={index}
