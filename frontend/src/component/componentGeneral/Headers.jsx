@@ -605,14 +605,18 @@ const Headers = () => {
                   onClick={() => setIsDropdownOpen((prev) => !prev)}
                   className="flex items-center gap-2 cursor-pointer"
                 >
-                  {user.userImage ? (
+                  {user?.userImage &&
+                  typeof user.userImage === "string" &&
+                  user.userImage.trim() !== "" ? (
                     <ImageComponent
                       imageName={user.userImage}
                       className={avatarClass}
                     />
                   ) : (
                     <span className={avatarClass}>
-                      {user.fullName?.charAt(0) || "U"}
+                      {(user?.fullName &&
+                        user.fullName.trim().charAt(0).toUpperCase()) ||
+                        "U"}
                     </span>
                   )}
                 </button>
