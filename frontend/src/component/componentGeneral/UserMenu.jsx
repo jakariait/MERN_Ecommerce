@@ -37,7 +37,7 @@ const menuItems = [
     label: "Manage profile",
     path: "/user/manage-profile",
   },
-  { icon: <FaKey />, label: "Change password", path: "/change-password" },
+  { icon: <FaKey />, label: "Change password", path: "/user/change-password" },
 ];
 const UserMenu = () => {
   const { initialize, user, loading, error, logout } = useAuthUserStore();

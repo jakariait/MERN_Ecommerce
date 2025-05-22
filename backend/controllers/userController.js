@@ -55,12 +55,6 @@ const createUser = asyncHandler(async (req, res) => {
   }
 });
 
-
-
-
-
-
-
 // 📤 Get all users
 const getAllUsers = asyncHandler(async (req, res) => {
   try {
@@ -182,13 +176,29 @@ const requestAccountDeletion = asyncHandler(async (req, res) => {
       user: updatedUser,
     });
   } catch (error) {
-    res
-      .status(500)
-      .json({
-        message: "Failed to request account deletion",
-        error: error.message,
-      });
+    res.status(500).json({
+      message: "Failed to request account deletion",
+      error: error.message,
+    });
   }
+});
+
+const changePassword = asyncHandler(async (req, res) => {
+  const userId = req.user._id; // From your auth middleware
+  const { currentPassword, newPassword } = req.body;
+
+  if (!currentPassword || !newPassword) {
+    return res
+      .status(400)
+      .json({ message: "Current and new passwords are required" });
+  }
+
+  const result = await userService.changePassword(
+    userId,
+    currentPassword,
+    newPassword,
+  );
+  res.json(result);
 });
 
 module.exports = {
@@ -200,4 +210,5 @@ module.exports = {
   deleteUser,
   getLoggedInUser,
   requestAccountDeletion,
+  changePassword
 };

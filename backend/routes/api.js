@@ -199,6 +199,7 @@ router.put(
   userProtect,
   userController.requestAccountDeletion,
 );
+router.patch("/change-password", userProtect, userController.changePassword);
 
 // Admin Protected Routes
 router.get("/getAllUsers", adminProtect, userController.getAllUsers);
