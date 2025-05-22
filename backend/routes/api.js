@@ -359,11 +359,20 @@ router.patch(
 
 // Order routes
 router.post("/orders", orderController.createOrder);
-router.get("/orders", orderController.getAllOrders);
-router.get("/orders/:orderId", orderController.getOrderById);
+router.get("/orders", adminProtect, orderController.getAllOrders);
+router.get("/orders/:orderId", adminProtect, orderController.getOrderById);
 router.put("/orders/:orderId", adminProtect, orderController.updateOrder);
-router.delete("/orders/:orderId", orderController.deleteOrder);
-router.get("/order-no/:orderNo", orderController.getOrderByOrderNo);
+router.delete("/orders/:orderId", adminProtect, orderController.deleteOrder);
+router.get(
+  "/order-no/:orderNo",
+  userProtect,
+  orderController.getOrderByOrderNo,
+);
+router.get(
+  "/ordersbyUser/:userId",
+  userProtect,
+  orderController.getOrdersForUser,
+);
 
 // bKash Payment Gateway Routes
 router.post("/bkashcreate", bkashController.createPayment);

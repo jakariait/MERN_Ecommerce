@@ -7,7 +7,7 @@ const Shipping = require("../models/ShippingModel");
 const FreeDeliveryAmount = require("../models/FreeDeliveryAmount");
 const User = require("../models/UserModel");
 const Coupon = require("../models/CouponModel");
-const ProductSizeModel = require('../models/ProductSizeModel');  // Import the ProductSizeModel
+const ProductSizeModel = require("../models/ProductSizeModel"); // Import the ProductSizeModel
 
 const createOrder = async (orderData, userId) => {
   const session = await mongoose.startSession();
@@ -207,9 +207,11 @@ const getOrderById = async (orderId) => {
 
     // Collect all unique size IDs for the selected variants
     const sizeIds = new Set();
-    order.items.forEach(item => {
+    order.items.forEach((item) => {
       if (item.productId && item.productId.variants.length > 0) {
-        const matchedVariant = item.productId.variants.find(variant => variant._id.toString() === item.variantId.toString());
+        const matchedVariant = item.productId.variants.find(
+          (variant) => variant._id.toString() === item.variantId.toString(),
+        );
         if (matchedVariant && matchedVariant.size) {
           sizeIds.add(matchedVariant.size); // Add the size ID of the matched variant
         }
@@ -217,14 +219,22 @@ const getOrderById = async (orderId) => {
     });
 
     // Fetch all size names in one query
-    const sizes = await ProductSizeModel.find({ _id: { $in: Array.from(sizeIds) } }).select('name').lean();
-    const sizeMap = new Map(sizes.map(size => [size._id.toString(), size.name]));
+    const sizes = await ProductSizeModel.find({
+      _id: { $in: Array.from(sizeIds) },
+    })
+      .select("name")
+      .lean();
+    const sizeMap = new Map(
+      sizes.map((size) => [size._id.toString(), size.name]),
+    );
 
     // Iterate through items and remove non-matched variants, set size name for the matched variant only
     order.items = order.items.map((item) => {
       if (item.productId && item.productId.variants) {
         // Filter variants to keep only the matched variant
-        item.productId.variants = item.productId.variants.filter(variant => variant._id.toString() === item.variantId.toString());
+        item.productId.variants = item.productId.variants.filter(
+          (variant) => variant._id.toString() === item.variantId.toString(),
+        );
 
         // If a matched variant is found, set its size name
         if (item.productId.variants.length > 0) {
@@ -242,7 +252,6 @@ const getOrderById = async (orderId) => {
   }
 };
 
-
 const updateOrder = async (orderId, updateData) => {
   const session = await mongoose.startSession();
   session.startTransaction();
@@ -257,7 +266,10 @@ const updateOrder = async (orderId, updateData) => {
     }
 
     // Update the order data
-    const updatedOrder = await Order.findByIdAndUpdate(orderId, updateData, { new: true, session });
+    const updatedOrder = await Order.findByIdAndUpdate(orderId, updateData, {
+      new: true,
+      session,
+    });
     if (!updatedOrder) {
       await session.abortTransaction();
       session.endSession();
@@ -266,9 +278,11 @@ const updateOrder = async (orderId, updateData) => {
 
     // Check if the status has changed to 'Returned' or 'Cancelled'
     const isNowReturnedOrCancelled =
-      updatedOrder.orderStatus === "returned" || updatedOrder.orderStatus === "cancelled";
+      updatedOrder.orderStatus === "returned" ||
+      updatedOrder.orderStatus === "cancelled";
     const wasNotReturnedOrCancelled =
-      existingOrder.orderStatus !== "returned" && existingOrder.orderStatus !== "cancelled";
+      existingOrder.orderStatus !== "returned" &&
+      existingOrder.orderStatus !== "cancelled";
 
     if (isNowReturnedOrCancelled && wasNotReturnedOrCancelled) {
       // Restore stock for each item in the order
@@ -282,16 +296,19 @@ const updateOrder = async (orderId, updateData) => {
           await Product.updateOne(
             { _id: productId },
             { $inc: { finalStock: quantity } },
-            { session }
+            { session },
           );
         } else {
-          const variant = product.variants.find(v => v._id.toString() === variantId.toString());
-          if (!variant) throw new Error(`Variant not found for ID ${variantId}`);
+          const variant = product.variants.find(
+            (v) => v._id.toString() === variantId.toString(),
+          );
+          if (!variant)
+            throw new Error(`Variant not found for ID ${variantId}`);
 
           await Product.updateOne(
             { _id: productId, "variants._id": variantId },
             { $inc: { "variants.$.stock": quantity } },
-            { session }
+            { session },
           );
         }
       }
@@ -299,8 +316,11 @@ const updateOrder = async (orderId, updateData) => {
 
     // Check if the status is changing from 'returned' or 'cancelled' to any of the following statuses
     const isRevertingToActiveStatus =
-      (existingOrder.orderStatus === "returned" || existingOrder.orderStatus === "cancelled") &&
-      ["pending", "approved", "intransit", "delivered"].includes(updatedOrder.orderStatus);
+      (existingOrder.orderStatus === "returned" ||
+        existingOrder.orderStatus === "cancelled") &&
+      ["pending", "approved", "intransit", "delivered"].includes(
+        updatedOrder.orderStatus,
+      );
 
     if (isRevertingToActiveStatus) {
       // Deduct stock for each item in the order
@@ -313,17 +333,20 @@ const updateOrder = async (orderId, updateData) => {
         if (!product.variants || product.variants.length === 0) {
           await Product.updateOne(
             { _id: productId },
-            { $inc: { finalStock: -quantity } },  // Deduct stock
-            { session }
+            { $inc: { finalStock: -quantity } }, // Deduct stock
+            { session },
           );
         } else {
-          const variant = product.variants.find(v => v._id.toString() === variantId.toString());
-          if (!variant) throw new Error(`Variant not found for ID ${variantId}`);
+          const variant = product.variants.find(
+            (v) => v._id.toString() === variantId.toString(),
+          );
+          if (!variant)
+            throw new Error(`Variant not found for ID ${variantId}`);
 
           await Product.updateOne(
             { _id: productId, "variants._id": variantId },
-            { $inc: { "variants.$.stock": -quantity } },  // Deduct stock
-            { session }
+            { $inc: { "variants.$.stock": -quantity } }, // Deduct stock
+            { session },
           );
         }
       }
@@ -333,14 +356,17 @@ const updateOrder = async (orderId, updateData) => {
     await session.commitTransaction();
     session.endSession();
 
-    return { success: true, message: `Order updated successfully`, updatedOrder };
+    return {
+      success: true,
+      message: `Order updated successfully`,
+      updatedOrder,
+    };
   } catch (error) {
     await session.abortTransaction();
     session.endSession();
     throw new Error("Error updating order: " + error.message);
   }
 };
-
 
 // Delete and order
 const deleteOrder = async (orderId) => {
@@ -349,7 +375,9 @@ const deleteOrder = async (orderId) => {
 
   try {
     // Find the order by ID
-    const order = await Order.findById(orderId).populate("items.productId").populate("items.variantId");
+    const order = await Order.findById(orderId)
+      .populate("items.productId")
+      .populate("items.variantId");
 
     if (!order) throw new Error("Order not found");
 
@@ -365,17 +393,20 @@ const deleteOrder = async (orderId) => {
         await Product.updateOne(
           { _id: productId },
           { $inc: { finalStock: quantity } },
-          { session }
+          { session },
         );
       } else {
         // If the product has variants, find the specific variant and restore the stock
-        const variant = product.variants.find(v => v._id.toString() === variantId.toString());
-        if (!variant) throw new Error(`Variant not found for product ${productId}`);
+        const variant = product.variants.find(
+          (v) => v._id.toString() === variantId.toString(),
+        );
+        if (!variant)
+          throw new Error(`Variant not found for product ${productId}`);
 
         await Product.updateOne(
           { _id: productId, "variants._id": variantId },
           { $inc: { "variants.$.stock": quantity } },
-          { session }
+          { session },
         );
       }
     }
@@ -392,10 +423,11 @@ const deleteOrder = async (orderId) => {
     // Abort the transaction if there's an error
     await session.abortTransaction();
     session.endSession();
-    throw new Error("Error deleting order and updating stock: " + error.message);
+    throw new Error(
+      "Error deleting order and updating stock: " + error.message,
+    );
   }
 };
-
 
 const getOrderByOrderNo = async (orderNo) => {
   try {
@@ -425,7 +457,7 @@ const getOrderByOrderNo = async (orderNo) => {
     order.items.forEach((item) => {
       if (item.productId && item.productId.variants.length > 0) {
         const matchedVariant = item.productId.variants.find(
-          (variant) => variant._id.toString() === item.variantId.toString()
+          (variant) => variant._id.toString() === item.variantId.toString(),
         );
         if (matchedVariant && matchedVariant.size) {
           sizeIds.add(matchedVariant.size);
@@ -439,13 +471,15 @@ const getOrderByOrderNo = async (orderNo) => {
     })
       .select("name")
       .lean();
-    const sizeMap = new Map(sizes.map((size) => [size._id.toString(), size.name]));
+    const sizeMap = new Map(
+      sizes.map((size) => [size._id.toString(), size.name]),
+    );
 
     // Clean up and assign size names
     order.items = order.items.map((item) => {
       if (item.productId && item.productId.variants) {
         item.productId.variants = item.productId.variants.filter(
-          (variant) => variant._id.toString() === item.variantId.toString()
+          (variant) => variant._id.toString() === item.variantId.toString(),
         );
 
         if (item.productId.variants.length > 0) {
@@ -463,6 +497,88 @@ const getOrderByOrderNo = async (orderNo) => {
   }
 };
 
+const getOrdersByUserId = async (userId) => {
+  try {
+    const orders = await Order.find({ userId })
+      .populate({
+        path: "items.productId",
+        select:
+          "-sizeChart -longDesc -shortDesc -shippingReturn -videoUrl -flags -metaTitle -metaDescription -metaKeywords -searchTags",
+        populate: {
+          path: "category",
+          select: "name",
+        },
+      })
+      .populate({
+        path: "items.variantId",
+      })
+      .sort({ createdAt: -1 })
+      .lean();
+
+    const totalOrders = orders.length;
+
+    if (totalOrders === 0) {
+      throw new Error("No orders found for this user");
+    }
+
+    // Collect all unique size IDs from all orders
+    const sizeIds = new Set();
+
+    orders.forEach((order) => {
+      order.items?.forEach((item) => {
+        if (item?.productId?.variants?.length > 0 && item?.variantId) {
+          const matchedVariant = item.productId.variants.find(
+            (variant) =>
+              variant?._id?.toString() === item.variantId?.toString(),
+          );
+
+          if (matchedVariant?.size) {
+            sizeIds.add(matchedVariant.size);
+          }
+        }
+      });
+    });
+
+    // Fetch all size names in one query
+    const sizes = await ProductSizeModel.find({
+      _id: { $in: Array.from(sizeIds) },
+    })
+      .select("name")
+      .lean();
+
+    const sizeMap = new Map(
+      sizes.map((size) => [size._id.toString(), size.name]),
+    );
+
+    // Clean up and assign size names to all orders
+    const updatedOrders = orders.map((order) => {
+      order.items = order.items.map((item) => {
+        if (item?.productId?.variants?.length > 0 && item?.variantId) {
+          item.productId.variants = item.productId.variants.filter(
+            (variant) =>
+              variant?._id?.toString() === item.variantId?.toString(),
+          );
+
+          if (item.productId.variants.length > 0) {
+            const variant = item.productId.variants[0];
+            const sizeId = variant.size;
+            variant.sizeName = sizeMap.get(sizeId?.toString()) || "N/A";
+          }
+        }
+        return item;
+      });
+
+      return order;
+    });
+
+    return {
+      totalOrders,
+      orders: updatedOrders,
+    };
+  } catch (error) {
+    throw new Error("Error fetching orders by userId: " + error.message);
+  }
+};
 
 // Export the functions as an object
 module.exports = {
@@ -471,5 +587,6 @@ module.exports = {
   getOrderById,
   updateOrder,
   deleteOrder,
-  getOrderByOrderNo
+  getOrderByOrderNo,
+  getOrdersByUserId,
 };

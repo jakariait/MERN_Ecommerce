@@ -141,6 +141,43 @@ const getOrderByOrderNo = async (req, res) => {
   }
 };
 
+// Get oder by Registered User
+const getOrdersForUser = async (req, res) => {
+  try {
+    const userId = req.params.userId;  // get userId from URL parameter
+
+    if (!userId) {
+      return res
+        .status(400)
+        .json({ success: false, message: "User ID is required" });
+    }
+
+    const result = await orderService.getOrdersByUserId(userId);
+
+    if (!result || result.totalOrders === 0) {
+      return res
+        .status(404)
+        .json({ success: false, message: "No orders found for this user" });
+    }
+
+    return res.status(200).json({
+      success: true,
+      totalOrders: result.totalOrders,
+      orders: result.orders,
+    });
+  } catch (error) {
+    console.error("Fetch error:", error.message);
+    return res.status(500).json({
+      success: false,
+      message: error.message || "Unknown error occurred while fetching orders",
+    });
+  }
+};
+
+
+
+
+
 
 // Exporting the controller functions
 module.exports = {
@@ -149,5 +186,6 @@ module.exports = {
   getOrderById,
   updateOrder,
   deleteOrder,
-  getOrderByOrderNo
+  getOrderByOrderNo,
+  getOrdersForUser
 };
