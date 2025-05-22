@@ -18,13 +18,23 @@ const AdminLogin = () => {
     await login(email, password);
   };
 
+  const isTokenExpired = (token) => {
+    try {
+      const payload = JSON.parse(atob(token.split(".")[1]));
+      return payload.exp * 1000 < Date.now();
+    } catch {
+      return true;
+    }
+  };
+
   useEffect(() => {
-    if (token) {
-      navigate("/admin/general-info");
+    if (token && !isTokenExpired(token)) {
+      navigate("/admin/dashboard");
     } else {
       setCheckingAuth(false);
     }
   }, [token, navigate]);
+
 
   if (checkingAuth) {
     return (
@@ -36,8 +46,6 @@ const AdminLogin = () => {
       </div>
     );
   }
-
-
 
   return (
     <div

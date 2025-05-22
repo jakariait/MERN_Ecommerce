@@ -325,8 +325,21 @@ const Footer = () => {
                 <NewsletterForm />
               </div>
             </div>
-            <div className={"text-center pb-5 pt-5"}>
+            <div
+              className={
+                "text-center pb-5 pt-5 flex items-center justify-center gap-3"
+              }
+            >
               <p>{GeneralInfoList?.FooterCopyright}</p>
+              <p>
+                Design and Deveoped by{" "}
+                <a
+                  href="https://buildwithjakaria.com/"
+                  className={"text-red-500 hover:underline"}
+                >
+                  Jakaria
+                </a>
+              </p>
             </div>
           </div>
         </>
