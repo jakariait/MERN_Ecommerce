@@ -36,6 +36,7 @@ import { useNavigate } from "react-router-dom";
 import CourierSummery from "./CourierSummery.jsx";
 import useOrderStore from "../../store/useOrderStore.js";
 import SendToCourierButton from "./SendToCourierButton.jsx";
+import OrderStatusSelector from "./OrderStatusSelector.jsx";
 
 const AllOrders = ({ allOrders, orderListLoading, orderListError, title }) => {
   const { fetchAllOrders } = useOrderStore();
@@ -262,7 +263,7 @@ const AllOrders = ({ allOrders, orderListLoading, orderListError, title }) => {
                   "Total Amount",
                 ].map((header, i) => (
                   <TableCell key={i}>
-                    <Skeleton variant="text" width={120} height={30} />
+                    <Skeleton variant="text" width={120} height={30} align="center" />
                   </TableCell>
                 ))}
               </TableRow>
@@ -426,18 +427,7 @@ const AllOrders = ({ allOrders, orderListLoading, orderListError, title }) => {
                       </TableCell>
 
                       <TableCell>
-                        <Typography
-                          variant="body2"
-                          sx={{
-                            ...getStatusColor(order.orderStatus), // Apply dynamic styles
-                            padding: "5px 10px",
-                            borderRadius: "4px",
-                            textAlign: "center",
-                          }}
-                        >
-                          {getStatusColor(order.orderStatus).text}{" "}
-                          {/* Display corresponding text */}
-                        </Typography>
+                        <OrderStatusSelector orderId={order._id} />
                       </TableCell>
 
                       <TableCell>
