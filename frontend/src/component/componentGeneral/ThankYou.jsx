@@ -8,6 +8,51 @@ const ThankYou = () => {
   const [order, setOrder] = useState(null);
   const apiUrl = import.meta.env.VITE_API_URL;
 
+  // useEffect(() => {
+  //   if (!orderId) return;
+  //
+  //   const fetchOrder = async () => {
+  //     try {
+  //       const res = await axios.get(`${apiUrl}/order-no/${orderId}`);
+  //       if (res.data.success) {
+  //         const order = res.data.order;
+  //         setOrder(order);
+  //
+  //         // Push purchase event to dataLayer
+  //         window.dataLayer = window.dataLayer || [];
+  //         window.dataLayer.push({
+  //           event: "purchase",
+  //           ecommerce: {
+  //             transaction_id: order.orderNo,
+  //             currency: "BDT",
+  //             value: order.totalAmount,
+  //             tax: order.vat,
+  //             shipping: order.deliveryCharge,
+  //             coupon: order.promoCode || "",
+  //             items: order.items.map((item) => ({
+  //               item_name: item.productId?.name || "Unknown Product",
+  //               item_id: item.productId?.productId || "N/A", // <-- numeric productId here
+  //               price: item.price,
+  //               quantity: item.quantity,
+  //               item_variant: item.variantId || "Default",
+  //               item_category: item.productId?.category?.name || "N/A",
+  //               item_image: item.productId?.thumbnailImage || "",
+  //               item_size:
+  //                 item.productId?.variants?.find(
+  //                   (variant) => variant._id === item.variantId,
+  //                 )?.sizeName || "N/A",
+  //             })),
+  //           },
+  //         });
+  //       }
+  //     } catch (error) {
+  //       console.error("Failed to fetch order:", error);
+  //     }
+  //   };
+  //
+  //   fetchOrder();
+  // }, [orderId, apiUrl]);
+
   useEffect(() => {
     if (!orderId) return;
 
@@ -18,32 +63,35 @@ const ThankYou = () => {
           const order = res.data.order;
           setOrder(order);
 
-          // Push purchase event to dataLayer
           window.dataLayer = window.dataLayer || [];
-          window.dataLayer.push({
-            event: "purchase",
-            ecommerce: {
-              transaction_id: order.orderNo,
-              currency: "BDT",
-              value: order.totalAmount,
-              tax: order.vat,
-              shipping: order.deliveryCharge,
-              coupon: order.promoCode || "",
-              items: order.items.map((item) => ({
-                item_name: item.productId?.name || "Unknown Product",
-                item_id: item.productId?.productId || "N/A", // <-- numeric productId here
-                price: item.price,
-                quantity: item.quantity,
-                item_variant: item.variantId || "Default",
-                item_category: item.productId?.category?.name || "N/A",
-                item_image: item.productId?.thumbnailImage || "",
-                item_size:
-                  item.productId?.variants?.find(
-                    (variant) => variant._id === item.variantId,
-                  )?.sizeName || "N/A",
-              })),
-            },
-          });
+
+          // 🕒 Delay the push to allow GTM to be ready
+          setTimeout(() => {
+            window.dataLayer.push({
+              event: "purchase",
+              ecommerce: {
+                transaction_id: order.orderNo,
+                currency: "BDT",
+                value: order.totalAmount,
+                tax: order.vat,
+                shipping: order.deliveryCharge,
+                coupon: order.promoCode || "",
+                items: order.items.map((item) => ({
+                  item_name: item.productId?.name || "Unknown Product",
+                  item_id: item.productId?.productId || "N/A",
+                  price: item.price,
+                  quantity: item.quantity,
+                  item_variant: item.variantId || "Default",
+                  item_category: item.productId?.category?.name || "N/A",
+                  item_image: item.productId?.thumbnailImage || "",
+                  item_size:
+                    item.productId?.variants?.find(
+                      (variant) => variant._id === item.variantId,
+                    )?.sizeName || "N/A",
+                })),
+              },
+            });
+          }, 200); // Wait 200ms
         }
       } catch (error) {
         console.error("Failed to fetch order:", error);
@@ -52,6 +100,7 @@ const ThankYou = () => {
 
     fetchOrder();
   }, [orderId, apiUrl]);
+
 
   return (
     <div className="flex items-center justify-center p-14">
