@@ -37,9 +37,13 @@ const createAbandonedCart = async (req, res) => {
   }
 };
 
+
 const getAllAbandonedCarts = async (req, res) => {
   try {
-    const carts = await abandonedCartService.getAllAbandonedCarts();
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+
+    const carts = await abandonedCartService.getAllAbandonedCarts(page, limit);
 
     return res.status(200).json({
       success: true,
@@ -54,6 +58,7 @@ const getAllAbandonedCarts = async (req, res) => {
     });
   }
 };
+
 
 const deleteAbandonedCart = async (req, res) => {
   try {

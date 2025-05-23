@@ -21,6 +21,7 @@ const DashboardPage = ({ pageDetails, title }) => {
           <MonthlyRevenueChart />
           <MonthlyOrderStatusRatioChart/>
         </div>
+
       </div>
     </LayoutAdmin>
   );

@@ -156,7 +156,7 @@ const Breadcrumb = ({ pageDetails, title }) => {
           {isDropdownOpen && (
             <div
               ref={dropdownRef}
-              className="absolute top-full right-0 mt-5 bg-white shadow-lg rounded-md p-2"
+              className="absolute top-full right-0 mt-5 bg-white shadow-lg z-100 rounded-md p-2"
             >
               <div className={"flex items-center justify-around gap-1 p-3"}>
                 <button

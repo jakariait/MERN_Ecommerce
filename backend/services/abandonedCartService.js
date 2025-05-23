@@ -23,9 +23,19 @@ const deleteAbandonedCartById = async (cartId) => {
 };
 
 
-const getAllAbandonedCarts = async () => {
+const getAllAbandonedCarts = async (page = 1, limit = 10) => {
   try {
-    const carts = await AbandonedCart.find().sort({ createdAt: -1 }).lean();
+    const skip = (page - 1) * limit;
+
+    // Get total count of abandoned carts
+    const totalCount = await AbandonedCart.countDocuments();
+
+    // Fetch abandoned carts with sorting and pagination
+    const carts = await AbandonedCart.find()
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .lean();
 
     const allProductIds = [
       ...new Set(
@@ -97,11 +107,19 @@ const getAllAbandonedCarts = async () => {
       });
     });
 
-    return carts;
+    return {
+      totalCount,
+      totalPages: Math.ceil(totalCount / limit),
+      currentPage: page,
+      limit,
+      carts,
+    };
   } catch (error) {
     throw new Error("Error fetching abandoned carts: " + error.message);
   }
 };
+
+
 
 module.exports = {
   createAbandonedCart,

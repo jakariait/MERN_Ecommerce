@@ -51,20 +51,31 @@ const createOrder = async (req, res) => {
   }
 };
 
-// Get all orders
 const getAllOrders = async (req, res) => {
   try {
-    const { orderStatus } = req.query;
+    const { orderStatus, page = 1, limit = 10 } = req.query;
 
-    // Build filter object
     const filter = {};
     if (orderStatus) {
       filter.orderStatus = orderStatus;
     }
 
-    const { totalOrders, orders } = await orderService.getAllOrders(filter);
+    const pageNum = parseInt(page);
+    const limitNum = parseInt(limit);
 
-    res.status(200).json({ success: true, totalOrders, orders });
+    const { totalOrders, orders } = await orderService.getAllOrders(
+      filter,
+      pageNum,
+      limitNum,
+    );
+
+    res.status(200).json({
+      success: true,
+      totalOrders,
+      totalPages: Math.ceil(totalOrders / limitNum),
+      currentPage: pageNum,
+      orders,
+    });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
@@ -144,7 +155,7 @@ const getOrderByOrderNo = async (req, res) => {
 // Get oder by Registered User
 const getOrdersForUser = async (req, res) => {
   try {
-    const userId = req.params.userId;  // get userId from URL parameter
+    const userId = req.params.userId; // get userId from URL parameter
 
     if (!userId) {
       return res
@@ -174,11 +185,6 @@ const getOrdersForUser = async (req, res) => {
   }
 };
 
-
-
-
-
-
 // Exporting the controller functions
 module.exports = {
   createOrder,
@@ -187,5 +193,5 @@ module.exports = {
   updateOrder,
   deleteOrder,
   getOrderByOrderNo,
-  getOrdersForUser
+  getOrdersForUser,
 };

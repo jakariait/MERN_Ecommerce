@@ -1,16 +1,15 @@
 import React from "react";
 import LayoutAdmin from "../component/componentAdmin/LayoutAdmin.jsx";
 import Breadcrumb from "../component/componentAdmin/Breadcrumb.jsx";
-import PageEditor from "../component/componentAdmin/PageEditor.jsx";
 import AbandonedCartsContainer from "../component/componentAdmin/AbandonedCartsContainer.jsx";
 
-const AddNewCategoryPage = () => {
+const AbandonedCartPage = () => {
   return (
     <LayoutAdmin>
-      <Breadcrumb pageDetails="ABOUT US" title="Update About Us" />
-      <PageEditor title="About Us" endpoint="about" />
+      <Breadcrumb pageDetails="INCOMPLETE ORDER" title="View All Incomplete Orders" />
+      <AbandonedCartsContainer />
     </LayoutAdmin>
   );
 };
 
-export default AddNewCategoryPage;
+export default AbandonedCartPage;

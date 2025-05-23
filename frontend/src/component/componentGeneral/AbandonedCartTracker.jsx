@@ -2,13 +2,13 @@ import React, { useEffect, useCallback, useRef } from "react";
 import { useLocation } from "react-router-dom";
 
 const AbandonedCartTracker = ({
-                                addressData,
-                                cart,
-                                totalAmount,
-                                user,
-                                apiUrl,
-                                orderPlaced,
-                              }) => {
+  addressData,
+  cart,
+  totalAmount,
+  user,
+  apiUrl,
+  orderPlaced,
+}) => {
   const location = useLocation();
   const prevPathRef = useRef(location.pathname);
 
@@ -67,7 +67,7 @@ const AbandonedCartTracker = ({
     try {
       navigator.sendBeacon(
         `${apiUrl}/abandoned-cart`,
-        new Blob([JSON.stringify(payload)], { type: "application/json" })
+        new Blob([JSON.stringify(payload)], { type: "application/json" }),
       );
       sessionStorage.setItem("abandonedCartSent", "true");
     } catch (error) {}

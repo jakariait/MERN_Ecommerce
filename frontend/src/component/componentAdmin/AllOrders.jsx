@@ -41,10 +41,6 @@ import OrderStatusSelector from "./OrderStatusSelector.jsx";
 const AllOrders = ({ allOrders, orderListLoading, orderListError, title }) => {
   const { fetchAllOrders } = useOrderStore();
 
-  useEffect(() => {
-    fetchAllOrders(); // ✅ Fetch orders when component mounts
-  }, [fetchAllOrders]);
-
   // Local state for search, pagination, sorting, and items per page
   const [searchTerm, setSearchTerm] = useState("");
   const [page, setPage] = useState(1);
@@ -59,6 +55,11 @@ const AllOrders = ({ allOrders, orderListLoading, orderListError, title }) => {
   const [openSnackbar, setOpenSnackbar] = useState(false); // For controlling snackbar visibility
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
+
+  useEffect(() => {
+    fetchAllOrders("", page, itemsPerPage); // status = "", then page, then limit
+  }, [fetchAllOrders, page, itemsPerPage]);
+
   const handleOpenDialog = (id) => {
     setDeleteId(id);
     setOpenDialog(true);
@@ -263,7 +264,12 @@ const AllOrders = ({ allOrders, orderListLoading, orderListError, title }) => {
                   "Total Amount",
                 ].map((header, i) => (
                   <TableCell key={i}>
-                    <Skeleton variant="text" width={120} height={30} align="center" />
+                    <Skeleton
+                      variant="text"
+                      width={120}
+                      height={30}
+                      align="center"
+                    />
                   </TableCell>
                 ))}
               </TableRow>
@@ -386,14 +392,14 @@ const AllOrders = ({ allOrders, orderListLoading, orderListError, title }) => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {paginatedOrders.length === 0 ? (
+                {sortedOrders.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={8} align="center">
                       No orders found
                     </TableCell>
                   </TableRow>
                 ) : (
-                  paginatedOrders.map((order) => (
+                  sortedOrders.map((order) => (
                     <TableRow key={order._id}>
                       <TableCell>
                         <Typography variant="body2">{order.orderNo}</Typography>
@@ -426,8 +432,12 @@ const AllOrders = ({ allOrders, orderListLoading, orderListError, title }) => {
                         </Typography>
                       </TableCell>
 
+                      {/*Button to change order status*/}
                       <TableCell>
-                        <OrderStatusSelector orderId={order._id} />
+                        <OrderStatusSelector
+                          orderId={order._id}
+                          refetchOrders={fetchAllOrders}
+                        />
                       </TableCell>
 
                       <TableCell>
@@ -510,10 +520,15 @@ const AllOrders = ({ allOrders, orderListLoading, orderListError, title }) => {
 
             {/* Pagination */}
             <Pagination
-              count={Math.ceil(filteredOrders.length / itemsPerPage)}
+              count={Math.ceil(
+                useOrderStore.getState().totalOrders / itemsPerPage,
+              )} // totalOrders from backend
               page={page}
-              onChange={handlePageChange}
+              onChange={(e, value) => setPage(value)}
               color="primary"
+              shape="rounded"
+              showFirstButton
+              showLastButton
             />
           </div>
         </div>

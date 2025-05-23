@@ -359,8 +359,8 @@ router.patch(
 );
 
 // Order routes
-router.post("/orders", orderController.createOrder);
-router.get("/orders", adminProtect, orderController.getAllOrders);
+router.post("/orders", adminProtect, orderController.createOrder);
+router.get("/orders", orderController.getAllOrders);
 router.get("/orders/:orderId", adminProtect, orderController.getOrderById);
 router.put("/orders/:orderId", adminProtect, orderController.updateOrder);
 router.delete("/orders/:orderId", adminProtect, orderController.deleteOrder);
@@ -412,7 +412,11 @@ router.get(
 
 // Abandoned Cart Routes
 router.post("/abandoned-cart", abandonedCartController.createAbandonedCart);
-router.get("/abandoned-cart", abandonedCartController.getAllAbandonedCarts);
+router.get(
+  "/abandoned-cart",
+  adminProtect,
+  abandonedCartController.getAllAbandonedCarts,
+);
 router.delete(
   "/abandoned-cart/:id",
   abandonedCartController.deleteAbandonedCart,

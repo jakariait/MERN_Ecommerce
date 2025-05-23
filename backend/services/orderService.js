@@ -161,9 +161,10 @@ const createOrder = async (orderData, userId) => {
   }
 };
 
-// Get all orders
-const getAllOrders = async (filter = {}) => {
+const getAllOrders = async (filter = {}, page = 1, limit = 10) => {
   try {
+    const skip = (page - 1) * limit;
+
     const orders = await Order.find(filter)
       .populate("userId")
       .populate({
@@ -172,7 +173,10 @@ const getAllOrders = async (filter = {}) => {
           "-sizeChart -longDesc -shortDesc -shippingReturn -videoUrl -flags -metaTitle -metaDescription -metaKeywords -searchTags",
       })
       .populate("items.variantId")
-      .sort({ createdAt: -1 }); // sort by newest first
+      .sort({ createdAt: -1 }) // sort by newest first
+      .skip(skip)
+      .limit(limit);
+
     const totalOrders = await Order.countDocuments(filter);
 
     return { totalOrders, orders };
@@ -350,6 +354,12 @@ const updateOrder = async (orderId, updateData) => {
           );
         }
       }
+    }
+
+    // If order is now marked as 'delivered', set paymentStatus to 'paid'
+    if (updatedOrder.orderStatus === "delivered") {
+      updatedOrder.paymentStatus = "paid";
+      await updatedOrder.save({ session });
     }
 
     // Commit the transaction to apply the changes

@@ -83,6 +83,7 @@ import UserAllOrdersPage from "./pagesUser/UserAllOrdersPage.jsx";
 import UserOrderDetailsPage from "./pagesUser/UserOrderDetailsPage.jsx";
 import UpdateUserPage from "./pagesUser/UpdateUserPage.jsx";
 import ChangePasswordPage from "./pagesUser/ChangePasswordPage.jsx";
+import AbandonedCartPage from "./pagesAdmin/AbandonedCartPage.jsx";
 
 function App() {
   const { GeneralInfoListRequest } = GeneralInfoStore();
@@ -185,10 +186,15 @@ function App() {
         <Route element={<UserProtectedRoute />}>
           <Route path="/user/home" element={<UserHomePage />} />
           <Route path="/user/orders" element={<UserAllOrdersPage />} />
-          <Route path="/user/orders/:orderNo" element={<UserOrderDetailsPage/>} />
-          <Route path="/user/manage-profile" element={<UpdateUserPage/>} />
-          <Route path="/user/change-password" element={<ChangePasswordPage/>} />
-
+          <Route
+            path="/user/orders/:orderNo"
+            element={<UserOrderDetailsPage />}
+          />
+          <Route path="/user/manage-profile" element={<UpdateUserPage />} />
+          <Route
+            path="/user/change-password"
+            element={<ChangePasswordPage />}
+          />
         </Route>
 
         {/* Protected Admin Routes */}
@@ -324,6 +330,10 @@ function App() {
           />
 
           <Route path="/admin/dashboard" element={<DashboardPage />} />
+          <Route
+            path="/admin/incomplete-order"
+            element={<AbandonedCartPage />}
+          />
         </Route>
 
         {/* Not Found */}

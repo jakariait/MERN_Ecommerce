@@ -32,7 +32,58 @@ const useOrderStore = create((set, get) => ({
   orderListError: null,
 
   // Fetch orders by status or all
-  fetchAllOrders: async (status = "") => {
+  // fetchAllOrders: async (status = "") => {
+  //   const token = useAuthAdminStore.getState().token;
+  //
+  //   set({ orderListLoading: true, orderListError: null });
+  //
+  //   try {
+  //     const res = await axios.get(`${apiUrl}/orders`, {
+  //       headers: {
+  //         Authorization: `Bearer ${token}`,
+  //       },
+  //       params: status ? { orderStatus: status } : {},
+  //     });
+  //
+  //     if (res.data.success) {
+  //       const { orders, totalOrders } = res.data;
+  //
+  //       if (status) {
+  //         set((state) => ({
+  //           orderListByStatus: {
+  //             ...state.orderListByStatus,
+  //             [status]: orders || [],
+  //           },
+  //           totalByStatus: {
+  //             ...state.totalByStatus,
+  //             [status]: totalOrders || 0,
+  //           },
+  //           orderListLoading: false,
+  //         }));
+  //       } else {
+  //         // Storing all orders without filtering
+  //         set({
+  //           allOrders: orders || [],
+  //           totalOrders: totalOrders || 0,
+  //           orderListLoading: false,
+  //         });
+  //       }
+  //     } else {
+  //       set({
+  //         orderListError: "Failed to fetch orders",
+  //         orderListLoading: false,
+  //       });
+  //     }
+  //   } catch (error) {
+  //     set({
+  //       orderListError:
+  //         error.response?.data?.message || "Failed to fetch orders",
+  //       orderListLoading: false,
+  //     });
+  //   }
+  // },
+
+  fetchAllOrders: async (status = "", page = 1, limit = 10) => {
     const token = useAuthAdminStore.getState().token;
 
     set({ orderListLoading: true, orderListError: null });
@@ -42,11 +93,15 @@ const useOrderStore = create((set, get) => ({
         headers: {
           Authorization: `Bearer ${token}`,
         },
-        params: status ? { orderStatus: status } : {},
+        params: {
+          ...(status && { orderStatus: status }),
+          page,
+          limit,
+        },
       });
 
       if (res.data.success) {
-        const { orders, totalOrders } = res.data;
+        const { orders, totalOrders, totalPages, currentPage } = res.data;
 
         if (status) {
           set((state) => ({
@@ -61,10 +116,11 @@ const useOrderStore = create((set, get) => ({
             orderListLoading: false,
           }));
         } else {
-          // Storing all orders without filtering
           set({
             allOrders: orders || [],
             totalOrders: totalOrders || 0,
+            totalPages: totalPages || 1,
+            currentPage: currentPage || 1,
             orderListLoading: false,
           });
         }
@@ -82,6 +138,7 @@ const useOrderStore = create((set, get) => ({
       });
     }
   },
+
 }));
 
 export default useOrderStore;

@@ -37,7 +37,7 @@ const customStyles = {
   }),
 };
 
-const OrderStatusSelector = ({ orderId }) => {
+const OrderStatusSelector = ({ orderId, refetchOrders }) => {
   const { token } = useAuthAdminStore();
   const apiUrl = import.meta.env.VITE_API_URL;
 
@@ -99,6 +99,8 @@ const OrderStatusSelector = ({ orderId }) => {
         setSnackbarMessage("Order status updated successfully!");
         setSnackbarSeverity("success");
         setOpenSnackbar(true);
+        if (refetchOrders) refetchOrders(); // 🔁 Call the refetch
+
       } else {
         setSnackbarMessage(data.message || "Failed to update status");
         setSnackbarSeverity("error");

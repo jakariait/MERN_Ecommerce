@@ -3,17 +3,13 @@ import {
   FaPalette,
   FaLink,
   FaSearch,
-  FaCode,
-  FaComments,
   FaCog,
   FaThLarge,
   FaBoxes,
   FaList,
   FaTags,
-  FaSms,
   FaCreditCard,
   FaUsers,
-  FaHeart,
   FaTruck,
   FaMoneyBill,
   FaTicketAlt,
@@ -33,6 +29,7 @@ import {
   FaShoppingBag,
   FaGift,
   FaInfo,
+  FaClipboardList
 } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import useAuthAdminStore from "../../store/AuthAdminStore.js";
@@ -448,12 +445,15 @@ export default function SidebarMenu() {
             </Accordion>
           </li>
           <li className="flex items-center space-x-2 p-2 rounded-md cursor-pointer">
+            <Link to="/admin/incomplete-order" className={"flex items-center gap-2"}>
+              <FaClipboardList /> <span>Incomplete Order</span>
+            </Link>
+          </li>
+
+          <li className="flex items-center space-x-2 p-2 rounded-md cursor-pointer">
             <Link to="/admin/coupon" className={"flex items-center gap-2"}>
               <FaGift /> <span>Coupon</span>
             </Link>
-          </li>
-          <li className="flex items-center space-x-2 p-2 rounded-md cursor-pointer">
-            <FaSms /> <span>SMS Service</span>
           </li>
 
           <li className="space-x-2 px-2 rounded-md cursor-pointer">
