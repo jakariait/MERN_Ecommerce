@@ -1,29 +1,34 @@
-import React, {useEffect} from "react";
+import React, { useEffect } from "react";
 import LayoutAdmin from "../component/componentAdmin/LayoutAdmin.jsx";
 import Breadcrumb from "../component/componentAdmin/Breadcrumb.jsx";
 import AllOrders from "../component/componentAdmin/AllOrders.jsx";
 import useOrderStore from "../store/useOrderStore.js";
 
-const AddNewCategoryPage = () => {
-  const { orderListByStatus, orderListLoading, orderListError, fetchAllOrders } =
-    useOrderStore();
+const PendingOrdersPage = () => {
+	const {
+		orderListByStatus,
+		orderListLoading,
+		orderListError,
+		fetchAllOrders,
+		currentPage,
+		itemsPerPage,
+	} = useOrderStore();
 
-  useEffect(() => {
-    fetchAllOrders("pending");
-  }, [fetchAllOrders]);
+	useEffect(() => {
+		fetchAllOrders("pending", currentPage, itemsPerPage);
+	}, [fetchAllOrders, currentPage, itemsPerPage]);
 
-
-  return (
-    <LayoutAdmin>
-      <Breadcrumb pageDetails="ORDERS" title="View All Pending Orders" />
-      <AllOrders
-        allOrders={orderListByStatus.pending}
-        orderListLoading={orderListLoading}
-        orderListError={orderListError}
-        title={"Pending Orders"}
-      />
-    </LayoutAdmin>
-  );
+	return (
+		<LayoutAdmin>
+			<Breadcrumb pageDetails="ORDERS" title="View All Pending Orders" />
+			<AllOrders
+				allOrders={orderListByStatus.pending}
+				orderListLoading={orderListLoading}
+				orderListError={orderListError}
+				title={"Pending Orders"}
+			/>
+		</LayoutAdmin>
+	);
 };
 
-export default AddNewCategoryPage;
+export default PendingOrdersPage;

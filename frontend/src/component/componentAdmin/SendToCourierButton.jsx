@@ -214,7 +214,6 @@ const SendToCourierButton = ({ orderData, onSuccess }) => {
                 <span className="font-medium">COD Amount:</span> Tk{" "}
                 {orderData.cod_amount}
               </p>
-              <p>{orderData.order_id}</p>
             </div>
 
             <div>

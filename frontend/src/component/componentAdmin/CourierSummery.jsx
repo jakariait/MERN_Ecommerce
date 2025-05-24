@@ -49,7 +49,7 @@ const CourierSummery = ({ phone }) => {
       {error && <p className="text-center text-red-500">{error}</p>}
 
       {courierData && (
-        <div className={" grid grid-cols-2 gap-x-2 gap-y-1 w-44"}>
+        <div className={" grid grid-cols-2 gap-x-2 gap-y-1 w-44 text-xs"}>
           <p>Total: {courierData.summary.total_parcel}</p>
           <p>Success: {courierData.summary.success_parcel}</p>
           <p>Cancelled: {courierData.summary.cancelled_parcel}</p>

@@ -1,32 +1,34 @@
-import React, {useEffect} from "react";
+import React, { useEffect } from "react";
 import LayoutAdmin from "../component/componentAdmin/LayoutAdmin.jsx";
 import Breadcrumb from "../component/componentAdmin/Breadcrumb.jsx";
 import AllOrders from "../component/componentAdmin/AllOrders.jsx";
 import useOrderStore from "../store/useOrderStore.js";
 
-const AddNewCategoryPage = () => {
-  const {
-    orderListByStatus,
-    orderListLoading,
-    orderListError,
-    fetchAllOrders,
-  } = useOrderStore();
+const ApprovedOrdersPage = () => {
+	const {
+		orderListByStatus,
+		orderListLoading,
+		orderListError,
+		fetchAllOrders,
+		currentPage,
+		itemsPerPage,
+	} = useOrderStore();
 
-  useEffect(() => {
-    fetchAllOrders("approved");
-  }, [fetchAllOrders]);
+	useEffect(() => {
+		fetchAllOrders("approved", currentPage, itemsPerPage);
+	}, [fetchAllOrders, currentPage, itemsPerPage]);
 
-  return (
-    <LayoutAdmin>
-      <Breadcrumb pageDetails="ORDERS" title="View All Approved Orders" />
-      <AllOrders
-        allOrders={orderListByStatus.approved}
-        orderListLoading={orderListLoading}
-        orderListError={orderListError}
-        title={"Approved Orders"}
-      />
-    </LayoutAdmin>
-  );
+	return (
+		<LayoutAdmin>
+			<Breadcrumb pageDetails="ORDERS" title="View All Approved Orders" />
+			<AllOrders
+				allOrders={orderListByStatus.approved}
+				orderListLoading={orderListLoading}
+				orderListError={orderListError}
+				title={"Approved Orders"}
+			/>
+		</LayoutAdmin>
+	);
 };
 
-export default AddNewCategoryPage;
+export default ApprovedOrdersPage;

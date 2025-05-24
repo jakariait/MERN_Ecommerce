@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   TextField,
   Pagination,
@@ -21,44 +21,46 @@ import {
   DialogContentText,
   DialogActions,
   Button,
+  Chip,
 } from "@mui/material";
 import { Skeleton } from "@mui/material";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import { Box } from "@mui/material";
-
 import { IconButton } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { Tooltip } from "@mui/material";
 import axios from "axios";
 import { Snackbar, Alert } from "@mui/material";
-import { EditIcon } from "lucide-react"; // MUI Snackbar and Alert components
 import { useNavigate } from "react-router-dom";
-import CourierSummery from "./CourierSummery.jsx";
 import useOrderStore from "../../store/useOrderStore.js";
-import SendToCourierButton from "./SendToCourierButton.jsx";
 import OrderStatusSelector from "./OrderStatusSelector.jsx";
+import SendToCourierButton from "./SendToCourierButton.jsx";
+import CourierSummary from "../componentAdmin/CourierSummery.jsx";
+import PropTypes from "prop-types";
 
 const AllOrders = ({ allOrders, orderListLoading, orderListError, title }) => {
-  const { fetchAllOrders } = useOrderStore();
+  const {
+    fetchAllOrders,
+    totalOrders,
+    totalPages,
+    currentPage,
+    itemsPerPage,
+    setCurrentPage,
+    setItemsPerPage,
+  } = useOrderStore();
 
-  // Local state for search, pagination, sorting, and items per page
+  // Local state for search and sorting
   const [searchTerm, setSearchTerm] = useState("");
-  const [page, setPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(10);
-  const [sortDirection, setSortDirection] = useState("desc"); // For sorting order (ascending/descending)
-  const [orderBy, setOrderBy] = useState("orderNo"); // Default sort by Order No
+  const [sortDirection, setSortDirection] = useState("desc");
+  const [orderBy, setOrderBy] = useState("orderNo");
   const [openDialog, setOpenDialog] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
   const apiUrl = import.meta.env.VITE_API_URL;
-  const [snackbarMessage, setSnackbarMessage] = useState(""); // For message content
-  const [snackbarSeverity, setSnackbarSeverity] = useState("success"); // For success/error state
-  const [openSnackbar, setOpenSnackbar] = useState(false); // For controlling snackbar visibility
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [snackbarSeverity, setSnackbarSeverity] = useState("success");
+  const [openSnackbar, setOpenSnackbar] = useState(false);
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
-
-  useEffect(() => {
-    fetchAllOrders("", page, itemsPerPage); // status = "", then page, then limit
-  }, [fetchAllOrders, page, itemsPerPage]);
 
   const handleOpenDialog = (id) => {
     setDeleteId(id);
@@ -75,12 +77,12 @@ const AllOrders = ({ allOrders, orderListLoading, orderListError, title }) => {
   };
 
   const handlePageChange = (event, value) => {
-    setPage(value);
+    setCurrentPage(value);
   };
 
   const handleItemsPerPageChange = (event) => {
-    setItemsPerPage(event.target.value);
-    setPage(1); // Reset to the first page whenever items per page changes
+    const newLimit = event.target.value;
+    setItemsPerPage(newLimit);
   };
 
   const handleSortRequest = (property) => {
@@ -135,84 +137,43 @@ const AllOrders = ({ allOrders, orderListLoading, orderListError, title }) => {
   // Sorting the filtered orders
   const sortedOrders = sortData(filteredOrders);
 
-  // Pagination logic
-  const paginatedOrders = sortedOrders.slice(
-    (page - 1) * itemsPerPage,
-    page * itemsPerPage,
-  );
-
   // Calculate the range for "Showing X to Y of Z entries"
-  const startEntry = (page - 1) * itemsPerPage + 1;
-  const endEntry = Math.min(page * itemsPerPage, filteredOrders.length);
-
-  // Function to get button style based on the order status
-  const getStatusColor = (status) => {
-    switch (status) {
-      case "pending":
-        return { backgroundColor: "orange", color: "white", text: "Pending" };
-      case "intransit":
-        return { backgroundColor: "blue", color: "white", text: "In Transit" };
-      case "approved":
-        return { backgroundColor: "teal", color: "white", text: "Approved" };
-      case "delivered":
-        return { backgroundColor: "green", color: "white", text: "Delivered" };
-      case "cancelled":
-        return { backgroundColor: "red", color: "white", text: "Cancelled" };
-      case "returned":
-        return { backgroundColor: "purple", color: "white", text: "Returned" }; // Text for returned
-      default:
-        return { backgroundColor: "gray", color: "white", text: "Unknown" };
-    }
-  };
-
-  const getPaymentStatusColor = (status) => {
-    switch (status) {
-      case "unpaid":
-        return { backgroundColor: "orange", color: "white", text: "Unpaid" };
-
-      case "paid":
-        return { backgroundColor: "green", color: "white", text: "Paid" };
-
-      default:
-        return { backgroundColor: "gray", color: "white", text: "Unknown" };
-    }
-  };
-
-  const handleConfirmDelete = async () => {
-    if (!deleteId) return;
-    try {
-      // Send delete request to the backend
-      await axios.delete(`${apiUrl}/orders/${deleteId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        }, // <-- this closing comma was missing before!
-      });
-
-      // Show success snackbar message
-      setSnackbarMessage("Order deleted successfully!");
-      setSnackbarSeverity("success");
-      setOpenSnackbar(true);
-
-      fetchAllOrders();
-    } catch (error) {
-      // Show error snackbar message
-      setSnackbarMessage("Failed to delete order.");
-      setSnackbarSeverity("error");
-      setOpenSnackbar(true);
-    } finally {
-      // Close the dialog after attempting delete
-      handleCloseDialog();
-    }
-  };
+  const startEntry = (currentPage - 1) * itemsPerPage + 1;
+  const endEntry = Math.min(currentPage * itemsPerPage, totalOrders);
 
   const handleView = (orderId) => {
     navigate(`/admin/orders/${orderId}`);
   };
 
+  const handleConfirmDelete = async () => {
+    try {
+      const response = await axios.delete(`${apiUrl}/orders/${deleteId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (response.data.success) {
+        setSnackbarMessage("Order deleted successfully");
+        setSnackbarSeverity("success");
+        setOpenSnackbar(true);
+        fetchAllOrders("", currentPage, itemsPerPage);
+      } else {
+        setSnackbarMessage(response.data.message || "Failed to delete order");
+        setSnackbarSeverity("error");
+        setOpenSnackbar(true);
+      }
+    } catch (error) {
+      setSnackbarMessage(
+        error.response?.data?.message || "Error deleting order",
+      );
+      setSnackbarSeverity("error");
+      setOpenSnackbar(true);
+    }
+    handleCloseDialog();
+  };
+
   const handleSuccess = () => {
     fetchAllOrders(); // Refetch orders on success
   };
-
   return (
     <div className="p-4 shadow rounded-lg">
       <h1 className="border-l-4 primaryBorderColor primaryTextColor mb-6 pl-2 text-lg font-semibold">
@@ -296,10 +257,9 @@ const AllOrders = ({ allOrders, orderListLoading, orderListError, title }) => {
       )}
 
       {!orderListLoading && !orderListError && (
-        <div>
-          {/* Orders Table */}
-          <TableContainer component={Paper} sx={{ marginBottom: 2 }}>
-            <Table aria-label="orders table">
+        <>
+          <TableContainer component={Paper}>
+            <Table>
               <TableHead>
                 <TableRow>
                   <TableCell>
@@ -308,7 +268,7 @@ const AllOrders = ({ allOrders, orderListLoading, orderListError, title }) => {
                       direction={orderBy === "orderNo" ? sortDirection : "asc"}
                       onClick={() => handleSortRequest("orderNo")}
                     >
-                      <Typography variant="body1">Order No</Typography>
+                      Order No
                     </TableSortLabel>
                   </TableCell>
                   <TableCell>
@@ -319,7 +279,7 @@ const AllOrders = ({ allOrders, orderListLoading, orderListError, title }) => {
                       }
                       onClick={() => handleSortRequest("orderDate")}
                     >
-                      <Typography variant="body1">Order Date</Typography>
+                      Order Date & Time
                     </TableSortLabel>
                   </TableCell>
                   <TableCell>
@@ -332,7 +292,7 @@ const AllOrders = ({ allOrders, orderListLoading, orderListError, title }) => {
                       }
                       onClick={() => handleSortRequest("shippingInfo.fullName")}
                     >
-                      <Typography variant="body1">Customer</Typography>
+                      Customer
                     </TableSortLabel>
                   </TableCell>
                   <TableCell>
@@ -345,13 +305,11 @@ const AllOrders = ({ allOrders, orderListLoading, orderListError, title }) => {
                       }
                       onClick={() => handleSortRequest("shippingInfo.mobileNo")}
                     >
-                      <Typography variant="body1">Mobile No</Typography>
+                      Mobile No
                     </TableSortLabel>
                   </TableCell>
-
-                  <TableCell align="center">
-                    <Typography variant="body1">Courier Stats</Typography>
-                  </TableCell>
+                  <TableCell>Courier</TableCell>
+                  <TableCell>Courier Status</TableCell>
 
                   <TableCell>
                     <TableSortLabel
@@ -361,7 +319,7 @@ const AllOrders = ({ allOrders, orderListLoading, orderListError, title }) => {
                       }
                       onClick={() => handleSortRequest("orderStatus")}
                     >
-                      <Typography variant="body1">Status</Typography>
+                      Status
                     </TableSortLabel>
                   </TableCell>
                   <TableCell>
@@ -372,7 +330,7 @@ const AllOrders = ({ allOrders, orderListLoading, orderListError, title }) => {
                       }
                       onClick={() => handleSortRequest("paymentStatus")}
                     >
-                      <Typography variant="body1">Payment Status</Typography>
+                      Payment Status
                     </TableSortLabel>
                   </TableCell>
                   <TableCell>
@@ -383,180 +341,160 @@ const AllOrders = ({ allOrders, orderListLoading, orderListError, title }) => {
                       }
                       onClick={() => handleSortRequest("totalAmount")}
                     >
-                      <Typography variant="body1">Total Amount</Typography>
+                      Total Amount
                     </TableSortLabel>
                   </TableCell>
-                  <TableCell align={"center"}>
-                    <Typography variant="body1">Action</Typography>
-                  </TableCell>
+                  <TableCell>Actions</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
-                {sortedOrders.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={8} align="center">
-                      No orders found
+                {sortedOrders.map((order) => (
+                  <TableRow key={order._id} hover>
+                    <TableCell>{order.orderNo}</TableCell>
+                    <TableCell>
+                      {new Date(order.createdAt).toLocaleString()}
+                    </TableCell>
+                    <TableCell>{order.shippingInfo.fullName}</TableCell>
+                    <TableCell>{order.shippingInfo.mobileNo}</TableCell>
+                    <TableCell>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: 1,
+                        }}
+                      >
+                        <SendToCourierButton
+                          orderData={{
+                            invoice: order.orderNo,
+                            recipient_name: order.shippingInfo?.fullName,
+                            recipient_phone: order.shippingInfo?.mobileNo,
+                            recipient_address: order.shippingInfo?.address,
+                            cod_amount: order.dueAmount,
+                            note: order.note || "", // optional fallback
+                            order_id: order._id,
+                            courier_status: order.sentToCourier,
+                          }}
+                          onSuccess={handleSuccess}
+                        />
+                      </Box>
+                    </TableCell>
+                    <TableCell>
+                      <CourierSummary phone={order.shippingInfo?.mobileNo} />
+                    </TableCell>
+                    <TableCell>
+                      <OrderStatusSelector
+                        orderId={order._id}
+                        refetchOrders={() =>
+                          fetchAllOrders("", currentPage, itemsPerPage)
+                        }
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <Chip
+                        label={
+                          order.paymentStatus.charAt(0).toUpperCase() +
+                          order.paymentStatus.slice(1)
+                        }
+                        color={
+                          order.paymentStatus === "paid" ? "success" : "error"
+                        }
+                        variant="filled"
+                        sx={{
+                          fontWeight: "bold",
+                          minWidth: "100px",
+                          height: "32px",
+                          borderRadius: "4px",
+                          backgroundColor:
+                            order.paymentStatus === "paid"
+                              ? "#4caf50"
+                              : "#f44336",
+                          color: "#ffffff",
+                          "&:hover": {
+                            backgroundColor:
+                              order.paymentStatus === "paid"
+                                ? "#388e3c"
+                                : "#d32f2f",
+                          },
+                          "& .MuiChip-label": {
+                            textTransform: "capitalize",
+                            fontSize: "0.875rem",
+                          },
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell>Tk. {order.totalAmount?.toFixed(2)}</TableCell>
+                    <TableCell>
+                      <Box sx={{ display: "flex", gap: 1 }}>
+                        <Tooltip title="View">
+                          <IconButton
+                            onClick={() => handleView(order._id)}
+                            color="primary"
+                          >
+                            <VisibilityIcon />
+                          </IconButton>
+                        </Tooltip>
+                        <Tooltip title="Delete">
+                          <IconButton
+                            onClick={() => handleOpenDialog(order._id)}
+                            color="error"
+                          >
+                            <DeleteIcon />
+                          </IconButton>
+                        </Tooltip>
+                      </Box>
                     </TableCell>
                   </TableRow>
-                ) : (
-                  sortedOrders.map((order) => (
-                    <TableRow key={order._id}>
-                      <TableCell>
-                        <Typography variant="body2">{order.orderNo}</Typography>
-                      </TableCell>
-                      <TableCell>
-                        <Typography variant="body2">
-                          {new Date(order.orderDate)
-                            .toLocaleString("en-US", {
-                              year: "numeric",
-                              month: "2-digit", // Two-digit month (e.g., 04 for April)
-                              day: "2-digit", // Two-digit day (e.g., 20)
-                              hour: "2-digit", // Two-digit hour (e.g., 22)
-                              minute: "2-digit", // Two-digit minute (e.g., 56)
-                              second: "2-digit", // Two-digit second (e.g., 24)
-                              hour12: false, // 24-hour format
-                            })
-                            .replace(",", "")}
-                        </Typography>
-                      </TableCell>
-                      <TableCell>
-                        <Typography variant="body2">
-                          {order.shippingInfo.fullName}
-                        </Typography>
-                      </TableCell>
-                      <TableCell>{order.shippingInfo.mobileNo}</TableCell>
-
-                      <TableCell>
-                        <Typography variant="body2">
-                          <CourierSummery phone={order.shippingInfo.mobileNo} />
-                        </Typography>
-                      </TableCell>
-
-                      {/*Button to change order status*/}
-                      <TableCell>
-                        <OrderStatusSelector
-                          orderId={order._id}
-                          refetchOrders={fetchAllOrders}
-                        />
-                      </TableCell>
-
-                      <TableCell>
-                        <Typography
-                          variant="body2"
-                          sx={{
-                            ...getPaymentStatusColor(order.paymentStatus), // Apply dynamic styles
-                            padding: "5px 10px",
-                            borderRadius: "4px",
-                            textAlign: "center",
-                          }}
-                        >
-                          {getPaymentStatusColor(order.paymentStatus).text}
-                          {/* Display corresponding text */}
-                        </Typography>
-                      </TableCell>
-                      <TableCell>
-                        <Typography variant="body2">
-                          Tk. {order.totalAmount.toFixed(2)}
-                        </Typography>
-                      </TableCell>
-
-                      <TableCell>
-                        <Box display="flex" alignItems="center" gap={1}>
-                          {/* Send it To Courier Button */}
-                          <SendToCourierButton
-                            orderData={{
-                              invoice: order.orderNo,
-                              recipient_name: order.shippingInfo?.fullName,
-                              recipient_phone: order.shippingInfo?.mobileNo,
-                              recipient_address: order.shippingInfo?.address,
-                              cod_amount: order.dueAmount,
-                              note: order.note || "", // optional fallback
-                              order_id: order._id,
-                              courier_status: order.sentToCourier,
-                            }}
-                            onSuccess={handleSuccess}
-                          />
-
-                          {/* View Order */}
-                          <Tooltip title="View Order">
-                            <IconButton
-                              color="info"
-                              onClick={() => handleView(order._id)}
-                            >
-                              <VisibilityIcon />
-                            </IconButton>
-                          </Tooltip>
-
-                          {/* Edit Order */}
-                          <Tooltip title="Edit Order">
-                            <IconButton color="primary">
-                              <EditIcon />
-                            </IconButton>
-                          </Tooltip>
-
-                          {/* Delete Order */}
-                          <Tooltip title="Delete Order">
-                            <IconButton
-                              color="error"
-                              onClick={() => handleOpenDialog(order._id)}
-                            >
-                              <DeleteIcon />
-                            </IconButton>
-                          </Tooltip>
-                        </Box>
-                      </TableCell>
-                    </TableRow>
-                  ))
-                )}
+                ))}
               </TableBody>
             </Table>
           </TableContainer>
-          <div className="flex justify-between items-center mb-4">
-            {/* Showing X to Y of Z entries */}
-            <Typography variant="body2">
-              Showing {startEntry} to {endEntry} of {filteredOrders.length}{" "}
-              entries
-            </Typography>
 
-            {/* Pagination */}
+          {/* Pagination */}
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              mt: 2,
+            }}
+          >
+            <Typography>
+              Showing {startEntry} to {endEntry} of {totalOrders} entries
+            </Typography>
             <Pagination
-              count={Math.ceil(
-                useOrderStore.getState().totalOrders / itemsPerPage,
-              )} // totalOrders from backend
-              page={page}
-              onChange={(e, value) => setPage(value)}
+              count={totalPages}
+              page={currentPage}
+              onChange={handlePageChange}
               color="primary"
-              shape="rounded"
-              showFirstButton
-              showLastButton
             />
-          </div>
-        </div>
+          </Box>
+        </>
       )}
+
+      {/* Delete Confirmation Dialog */}
       <Dialog open={openDialog} onClose={handleCloseDialog}>
-        <DialogTitle>Confirm Deletion</DialogTitle>
+        <DialogTitle>Confirm Delete</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            Are you sure you want to delete this order?
+            Are you sure you want to delete this order? This action cannot be
+            undone.
           </DialogContentText>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseDialog}>Cancel</Button>
-          <Button
-            onClick={handleConfirmDelete}
-            color="error"
-            variant="contained"
-          >
+          <Button onClick={handleConfirmDelete} color="error">
             Delete
           </Button>
         </DialogActions>
       </Dialog>
-      {/* Snackbar to show success/error messages */}
+
+      {/* Snackbar for notifications */}
       <Snackbar
         open={openSnackbar}
         autoHideDuration={3000}
         onClose={() => setOpenSnackbar(false)}
-        anchorOrigin={{ vertical: "top", horizontal: "right" }} // Positioning it at the top-right corner
+        anchorOrigin={{ vertical: "top", horizontal: "right" }}
       >
         <Alert
           onClose={() => setOpenSnackbar(false)}
@@ -568,6 +506,13 @@ const AllOrders = ({ allOrders, orderListLoading, orderListError, title }) => {
       </Snackbar>
     </div>
   );
+};
+
+AllOrders.propTypes = {
+  allOrders: PropTypes.array.isRequired,
+  orderListLoading: PropTypes.bool.isRequired,
+  orderListError: PropTypes.string,
+  title: PropTypes.string.isRequired,
 };
 
 export default AllOrders;
