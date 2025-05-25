@@ -171,6 +171,16 @@ export default function SidebarMenu() {
                   <li>
                     <Link to="/admin/scroll-text">Scroll Text</Link>
                   </li>
+                  <li>
+                    <Link to="/admin/deliverycharge">
+                      <span>Delivery Charges</span>
+                    </Link>
+                  </li>
+                  <li>
+                    <Link to="/admin/coupon">
+                      <span>Coupon</span>
+                    </Link>
+                  </li>
                 </ul>
               </AccordionDetails>
             </Accordion>
@@ -459,12 +469,6 @@ export default function SidebarMenu() {
             </Link>
           </li>
 
-          <li className="flex items-center space-x-2 p-2 rounded-md cursor-pointer">
-            <Link to="/admin/coupon" className={"flex items-center gap-2"}>
-              <FaGift /> <span>Coupon</span>
-            </Link>
-          </li>
-
           <li className="space-x-2 px-2 rounded-md cursor-pointer">
             <Accordion
               style={{
@@ -531,19 +535,6 @@ export default function SidebarMenu() {
               <FaUsers /> <span>Customers</span>
             </Link>
           </li>
-
-          <li className=" p-2 rounded-md cursor-pointer">
-            <Link
-              to="/admin/deliverycharge"
-              className={"flex items-center space-x-2"}
-            >
-              <FaTruck /> <span>Delivery Charges</span>
-            </Link>
-          </li>
-
-          <li className="flex items-center space-x-2 p-2 rounded-md cursor-pointer">
-            <FaMoneyBill /> <span>Payment History</span>
-          </li>
         </ul>
       </div>
 
@@ -588,20 +579,11 @@ export default function SidebarMenu() {
               to: "/admin/testimonials",
             },
             {
-              icon: <FaNewspaper />,
-              label: "Manage Blogs",
-              to: "/admin/blogs",
-            },
-            {
               icon: <FaFileAlt />,
               label: "Terms & Policies",
               to: "/admin/terms-policies",
             },
-            {
-              icon: <FaInfoCircle />,
-              label: "Custom Pages",
-              to: "/admin/custom-pages",
-            },
+            ,
             { icon: <FaQuestionCircle />, label: "FAQs", to: "/admin/faqs" },
             { icon: <FaInfo />, label: "About Us", to: "/admin/about-us" },
           ].map((item, index) => (
@@ -628,33 +610,29 @@ export default function SidebarMenu() {
         </ul>
       </div>
 
-      <div className="mt-4">
-        <h3 className="text-yellow-400 text-sm font-semibold mb-2">
-          USER ROLE PERMISSION
-        </h3>
-        <ul>
-          {[
-            { icon: <FaUserShield />, label: "System Users" },
-            { icon: <FaLock />, label: "Permission Routes" },
-            { icon: <FaUserCheck />, label: "Assign Role Permission" },
-          ].map((item, index) => (
-            <li
-              key={index}
-              className="flex items-center space-x-2 p-2 rounded-md cursor-pointer"
-            >
-              {item.icon} <span>{item.label}</span>
-            </li>
-          ))}
-        </ul>
-      </div>
+      {/*<div className="mt-4">*/}
+      {/*  <h3 className="text-yellow-400 text-sm font-semibold mb-2">*/}
+      {/*    USER ROLE PERMISSION*/}
+      {/*  </h3>*/}
+      {/*  <ul>*/}
+      {/*    {[*/}
+      {/*      { icon: <FaUserShield />, label: "System Users" },*/}
+      {/*      { icon: <FaLock />, label: "Permission Routes" },*/}
+      {/*      { icon: <FaUserCheck />, label: "Assign Role Permission" },*/}
+      {/*    ].map((item, index) => (*/}
+      {/*      <li*/}
+      {/*        key={index}*/}
+      {/*        className="flex items-center space-x-2 p-2 rounded-md cursor-pointer"*/}
+      {/*      >*/}
+      {/*        {item.icon} <span>{item.label}</span>*/}
+      {/*      </li>*/}
+      {/*    ))}*/}
+      {/*  </ul>*/}
+      {/*</div>*/}
 
       {/* Logout and Others */}
       <div>
         <ul>
-          <li className="flex items-center space-x-2 p-2 rounded-md cursor-pointer">
-            <FaTrash /> <span>Clear Cache</span>
-          </li>
-
           <li className="flex items-center space-x-2 p-2 rounded-md text-red-500 cursor-pointer">
             <button
               onClick={handleLogout}
