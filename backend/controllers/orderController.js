@@ -185,6 +185,34 @@ const getOrdersForUser = async (req, res) => {
   }
 };
 
+
+
+const trackOrderByOrderNoAndPhone = async (req, res) => {
+  try {
+    const { orderNo, phone } = req.body;
+
+    if (!orderNo || !phone) {
+      return res.status(400).json({ success: false, message: "Order number and phone are required" });
+    }
+
+    const order = await orderService.trackOrderByOrderNoAndPhone(orderNo, phone);
+
+    return res.status(200).json({ success: true, order });
+  } catch (error) {
+    if (
+      error.message === "Order not found" ||
+      error.message === "Phone number does not match order"
+    ) {
+      return res.status(404).json({ success: false, message: error.message });
+    }
+
+    console.error(error);
+    return res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+
+
+
 // Exporting the controller functions
 module.exports = {
   createOrder,
@@ -194,4 +222,5 @@ module.exports = {
   deleteOrder,
   getOrderByOrderNo,
   getOrdersForUser,
+  trackOrderByOrderNoAndPhone
 };

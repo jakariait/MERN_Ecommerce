@@ -29,7 +29,7 @@ import {
   FaShoppingBag,
   FaGift,
   FaInfo,
-  FaClipboardList
+  FaClipboardList,
 } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import useAuthAdminStore from "../../store/AuthAdminStore.js";
@@ -41,11 +41,12 @@ import Typography from "@mui/material/Typography";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import useProductStore from "../../store/useProductStore.js";
 import useOrderStore from "../../store/useOrderStore.js";
+import { useEffect } from "react";
 
 export default function SidebarMenu() {
   const { totalProductsAdmin } = useProductStore();
   const { logout } = useAuthAdminStore();
-  const { totalByStatus, totalOrders } = useOrderStore();
+  const { totalByStatus } = useOrderStore();
 
   // To access delivered count
   const pendingCount = totalByStatus.pending;
@@ -54,6 +55,11 @@ export default function SidebarMenu() {
   const deliveredCount = totalByStatus.delivered;
   const returnedCount = totalByStatus.returned;
   const cancelledCount = totalByStatus.cancelled;
+
+  const totalOrders = Object.values(totalByStatus).reduce(
+    (acc, count) => acc + count,
+    0,
+  );
 
   const navigate = useNavigate();
   // Logout function to clear the admin state and navigate to login
@@ -445,7 +451,10 @@ export default function SidebarMenu() {
             </Accordion>
           </li>
           <li className="flex items-center space-x-2 p-2 rounded-md cursor-pointer">
-            <Link to="/admin/incomplete-order" className={"flex items-center gap-2"}>
+            <Link
+              to="/admin/incomplete-order"
+              className={"flex items-center gap-2"}
+            >
               <FaClipboardList /> <span>Incomplete Order</span>
             </Link>
           </li>

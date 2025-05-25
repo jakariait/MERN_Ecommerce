@@ -359,7 +359,7 @@ router.patch(
 );
 
 // Order routes
-router.post("/orders", adminProtect, orderController.createOrder);
+router.post("/orders", orderController.createOrder);
 router.get("/orders", orderController.getAllOrders);
 router.get("/orders/:orderId", adminProtect, orderController.getOrderById);
 router.put("/orders/:orderId", adminProtect, orderController.updateOrder);
@@ -370,6 +370,9 @@ router.get(
   userProtect,
   orderController.getOrdersForUser,
 );
+
+// // Order Tracking
+router.post("/track-order", orderController.trackOrderByOrderNoAndPhone);
 
 // bKash Payment Gateway Routes
 router.post("/bkashcreate", bkashController.createPayment);

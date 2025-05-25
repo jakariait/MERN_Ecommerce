@@ -590,6 +590,142 @@ const getOrdersByUserId = async (userId) => {
   }
 };
 
+// const trackOrderByOrderNoAndPhone = async (orderNo, phone) => {
+//   const order = await Order.findOne({ orderNo })
+//     .populate("userId", "phone")
+//     .populate({
+//       path: "items.productId",
+//       select:
+//         "-sizeChart -longDesc -shortDesc -shippingReturn -videoUrl -flags -metaTitle -metaDescription -metaKeywords -searchTags",
+//       populate: {
+//         path: "category",
+//         select: "name",
+//       },
+//     })
+//     .populate("items.variantId")
+//     .lean();
+//
+//   if (!order) {
+//     throw new Error("Order not found");
+//   }
+//
+//   if (order.userId.phone !== phone) {
+//     throw new Error("Phone number does not match order");
+//   }
+//
+//   // Collect size IDs
+//   const sizeIds = new Set();
+//   order.items.forEach((item) => {
+//     if (item.productId && item.productId.variants.length > 0) {
+//       const matchedVariant = item.productId.variants.find(
+//         (variant) => variant._id.toString() === item.variantId.toString(),
+//       );
+//       if (matchedVariant && matchedVariant.size) {
+//         sizeIds.add(matchedVariant.size);
+//       }
+//     }
+//   });
+//
+//   // Fetch size names
+//   const sizes = await ProductSizeModel.find({
+//     _id: { $in: Array.from(sizeIds) },
+//   })
+//     .select("name")
+//     .lean();
+//
+//   const sizeMap = new Map(
+//     sizes.map((size) => [size._id.toString(), size.name]),
+//   );
+//
+//   // Assign size names
+//   order.items = order.items.map((item) => {
+//     if (item.productId && item.productId.variants) {
+//       item.productId.variants = item.productId.variants.filter(
+//         (variant) => variant._id.toString() === item.variantId.toString(),
+//       );
+//
+//       if (item.productId.variants.length > 0) {
+//         const variant = item.productId.variants[0];
+//         const sizeId = variant.size;
+//         variant.sizeName = sizeMap.get(sizeId.toString()) || "N/A";
+//       }
+//     }
+//     return item;
+//   });
+//
+//   return order;
+// };
+const trackOrderByOrderNoAndPhone = async (orderNo, phone) => {
+  const order = await Order.findOne({ orderNo })
+    .populate("userId", "phone")
+    .populate({
+      path: "items.productId",
+      select:
+        "-sizeChart -longDesc -shortDesc -shippingReturn -videoUrl -flags -metaTitle -metaDescription -metaKeywords -searchTags",
+      populate: {
+        path: "category",
+        select: "name",
+      },
+    })
+    .populate("items.variantId")
+    .lean();
+
+  if (!order) {
+    throw new Error("Order not found");
+  }
+
+  // Get phone from userId or shippingInfo or fallback to order.phone
+  const storedPhone =
+    order.userId?.phone || order.shippingInfo?.mobileNo || order.phone;
+
+  const normalize = (num) => (num || "").replace(/[^0-9]/g, "").replace(/^88/, "");
+
+  if (normalize(storedPhone) !== normalize(phone)) {
+    throw new Error("Phone number does not match order");
+  }
+
+  // --- Size logic (no change) ---
+  const sizeIds = new Set();
+  order.items.forEach((item) => {
+    if (item.productId?.variants?.length > 0) {
+      const matchedVariant = item.productId.variants.find(
+        (variant) => variant._id.toString() === item.variantId.toString()
+      );
+      if (matchedVariant?.size) {
+        sizeIds.add(matchedVariant.size);
+      }
+    }
+  });
+
+  const sizes = await ProductSizeModel.find({
+    _id: { $in: Array.from(sizeIds) },
+  })
+    .select("name")
+    .lean();
+
+  const sizeMap = new Map(sizes.map((size) => [size._id.toString(), size.name]));
+
+  order.items = order.items.map((item) => {
+    if (item.productId?.variants) {
+      item.productId.variants = item.productId.variants.filter(
+        (variant) => variant._id.toString() === item.variantId.toString()
+      );
+
+      if (item.productId.variants.length > 0) {
+        const variant = item.productId.variants[0];
+        const sizeId = variant.size;
+        variant.sizeName = sizeMap.get(sizeId.toString()) || "N/A";
+      }
+    }
+    return item;
+  });
+
+  return order;
+};
+
+
+
+
 // Export the functions as an object
 module.exports = {
   createOrder,
@@ -599,4 +735,5 @@ module.exports = {
   deleteOrder,
   getOrderByOrderNo,
   getOrdersByUserId,
+  trackOrderByOrderNoAndPhone,
 };

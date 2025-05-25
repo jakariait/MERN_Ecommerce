@@ -525,8 +525,10 @@ const Headers = () => {
             Welcome to {GeneralInfoList?.CompanyName}
           </h1>
           <div className="items-center gap-2 border-r-1 px-4 hidden md:flex">
-            <TfiTruck />
-            <p>Track Your Order</p>
+            <Link to="/track-order" className="flex items-center gap-2 ">
+              <TfiTruck />
+              <p>Track Your Order</p>
+            </Link>
           </div>
           <div className="items-center gap-2 hidden md:flex">
             <MdEmail className="text-2xl" />

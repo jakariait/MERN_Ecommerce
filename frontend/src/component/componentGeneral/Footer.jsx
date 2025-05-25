@@ -54,7 +54,7 @@ const Footer = () => {
         </>
       ) : (
         <>
-          <div className={"secondaryBgColor  text-white"}>
+          <div className={"secondaryBgColor accentTextColor  "}>
             {" "}
             {/*Mobile Footer*/}
             <div className={" lg:hidden px-0 py-3"}>
@@ -171,26 +171,6 @@ const Footer = () => {
                 </AccordionDetails>
               </Accordion>
 
-              {/* Track Order */}
-              <Accordion
-                style={{
-                  background: "transparent",
-                  boxShadow: "none",
-                  width: "100%",
-                  color: "white",
-                }}
-              >
-                <AccordionSummary
-                  expandIcon={<ExpandMoreIcon className={"text-white"} />}
-                  aria-controls="panel4a-content"
-                >
-                  <Typography>Track Your Order</Typography>
-                </AccordionSummary>
-                <AccordionDetails>
-                  <h1>Will work on it later</h1>
-                </AccordionDetails>
-              </Accordion>
-
               {/* Newsletter */}
               <Accordion
                 style={{
@@ -214,6 +194,13 @@ const Footer = () => {
                   <NewsletterForm />
                 </AccordionDetails>
               </Accordion>
+              {/* Track Order */}
+              <Link
+                to="/track-order"
+                className="flex items-center gap-2 ml-4 pt-2 pb-2 "
+              >
+                <p>Track Your Order</p>
+              </Link>
             </div>
             {/*Desktop Footer*/}
             <div
@@ -327,7 +314,7 @@ const Footer = () => {
             </div>
             <div
               className={
-                "text-center pb-5 pt-5 flex items-center justify-center gap-3"
+                "text-center pb-5 pt-5 flex flex-col md:flex-row items-center justify-center gap-3"
               }
             >
               <p>{GeneralInfoList?.FooterCopyright}</p>

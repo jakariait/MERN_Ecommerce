@@ -84,6 +84,7 @@ import UserOrderDetailsPage from "./pagesUser/UserOrderDetailsPage.jsx";
 import UpdateUserPage from "./pagesUser/UpdateUserPage.jsx";
 import ChangePasswordPage from "./pagesUser/ChangePasswordPage.jsx";
 import AbandonedCartPage from "./pagesAdmin/AbandonedCartPage.jsx";
+import TrackOrderPage from "./pagesUser/TrackOrderPage.jsx";
 
 function App() {
   const { GeneralInfoListRequest } = GeneralInfoStore();
@@ -178,6 +179,8 @@ function App() {
         <Route path="/refundpolicy" element={<RefundPolicyPage />} />
         <Route path="/shippinpolicy" element={<ShippingPolicyPage />} />
         <Route path="/faqs" element={<FAQPage />} />
+        <Route path="/track-order" element={<TrackOrderPage />} />
+
 
         {/*Admin Login Page*/}
         <Route path="/admin/login" element={<AdminLogin />} />
