@@ -5,12 +5,12 @@ import useOrderStore from "../../store/useOrderStore";
 import dayjs from "dayjs";
 
 const MonthlyRevenueChart = () => {
-  const { fetchAllOrders, allOrders } = useOrderStore();
+  const { fetchAllOrdersWithoutPagination, allOrders } = useOrderStore();
   const [monthlyRevenue, setMonthlyRevenue] = useState([]);
 
   useEffect(() => {
-    fetchAllOrders();
-  }, [fetchAllOrders]);
+    fetchAllOrdersWithoutPagination();
+  }, [fetchAllOrdersWithoutPagination]);
 
   useEffect(() => {
     if (allOrders.length === 0) return;

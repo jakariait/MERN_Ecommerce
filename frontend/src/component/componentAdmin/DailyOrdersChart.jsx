@@ -5,12 +5,12 @@ import useOrderStore from "../../store/useOrderStore";
 import dayjs from "dayjs";
 
 const DailyOrdersChart = () => {
-  const { fetchAllOrders, allOrders } = useOrderStore();
+  const { fetchAllOrdersWithoutPagination, allOrders } = useOrderStore();
   const [chartData, setChartData] = useState([]);
 
   useEffect(() => {
-    fetchAllOrders();
-  }, [fetchAllOrders]);
+    fetchAllOrdersWithoutPagination();
+  }, [fetchAllOrdersWithoutPagination]);
 
   useEffect(() => {
     if (allOrders.length > 0) {

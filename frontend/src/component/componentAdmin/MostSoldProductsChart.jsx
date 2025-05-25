@@ -5,15 +5,15 @@ import useOrderStore from "../../store/useOrderStore.js";
 import dayjs from "dayjs";
 
 const MostSoldProductsPieChart = () => {
-  const { fetchAllOrders, allOrders } = useOrderStore();
+  const { fetchAllOrdersWithoutPagination, allOrders } = useOrderStore();
   const [productSales, setProductSales] = useState([]);
   const [totalSold, setTotalSold] = useState(0);
   const [hoveredSlice, setHoveredSlice] = useState(null);
   const [timeframe, setTimeframe] = useState("monthly");
 
   useEffect(() => {
-    fetchAllOrders();
-  }, [fetchAllOrders]);
+    fetchAllOrdersWithoutPagination();
+  }, [fetchAllOrdersWithoutPagination]);
 
   useEffect(() => {
     if (allOrders.length > 0) {

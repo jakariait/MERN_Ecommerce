@@ -107,6 +107,73 @@ const useOrderStore = create((set) => ({
       });
     }
   },
+
+	fetchAllOrdersWithoutPagination: async (status = "", page , limit ) => {
+		const token = useAuthAdminStore.getState().token;
+
+		set({
+			orderListLoading: true,
+			orderListError: null,
+			currentStatus: status,
+		});
+
+		try {
+			const res = await axios.get(`${apiUrl}/orders`, {
+				headers: {
+					Authorization: `Bearer ${token}`,
+				},
+				params: {
+					...(status && { orderStatus: status }),
+					page,
+					limit,
+				},
+			});
+
+			if (res.data.success) {
+				const { orders, totalOrders, totalPages, currentPage } = res.data;
+
+				if (status) {
+					set((state) => ({
+						orderListByStatus: {
+							...state.orderListByStatus,
+							[status]: orders || [],
+						},
+						totalByStatus: {
+							...state.totalByStatus,
+							[status]: totalOrders || 0,
+						},
+						totalOrders: totalOrders || 0,
+						totalPages: totalPages || 1,
+						currentPage: currentPage || 1,
+						itemsPerPage: limit,
+						orderListLoading: false,
+					}));
+				} else {
+					set({
+						allOrders: orders || [],
+						totalOrders: totalOrders || 0,
+						totalPages: totalPages || 1,
+						currentPage: currentPage || 1,
+						itemsPerPage: limit,
+						orderListLoading: false,
+					});
+				}
+			} else {
+				set({
+					orderListError: "Failed to fetch orders",
+					orderListLoading: false,
+				});
+			}
+		} catch (error) {
+			set({
+				orderListError:
+					error.response?.data?.message || "Failed to fetch orders",
+				orderListLoading: false,
+			});
+		}
+	},
+
+
 }));
 
 export default useOrderStore;
