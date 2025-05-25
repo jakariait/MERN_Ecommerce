@@ -3,6 +3,7 @@ import OrderProgress from "./OrderProgress";
 import ImageComponent from "./ImageComponent";
 
 const TrackOrder = () => {
+  const apiUrl = import.meta.env.VITE_API_URL;
   const [orderNo, setOrderNo] = useState("");
   const [phone, setPhone] = useState("");
   const [loading, setLoading] = useState(false);
@@ -16,7 +17,7 @@ const TrackOrder = () => {
     setOrder(null);
 
     try {
-      const response = await fetch("http://localhost:5050/api/track-order", {
+      const response = await fetch(`${apiUrl}/track-order`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ orderNo, phone }),
@@ -62,7 +63,7 @@ const TrackOrder = () => {
               value={orderNo}
               onChange={(e) => setOrderNo(e.target.value)}
               placeholder="Order Number (e.g., #123456)"
-              className="  p-3 w-96 focus:outline-none bg-gray-100  rounded-md"
+              className="  p-3 w-76 focus:outline-none bg-gray-100  rounded-md"
             />
 
             <input
@@ -71,7 +72,7 @@ const TrackOrder = () => {
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
               placeholder="Your phone number"
-              className="p-3 w-96 focus:outline-none bg-gray-100  rounded-md"
+              className="p-3 w-76 focus:outline-none bg-gray-100  rounded-md"
             />
           </div>
 
@@ -99,10 +100,10 @@ const TrackOrder = () => {
 
           <div
             className={
-              "flex md:grid md:grid-cols-2 gap-4 items-center-center justify-center"
+              "grid md:grid-cols-2 gap-4 items-center-center justify-center"
             }
           >
-            <div className={"border-1 primaryBorderColor p-4 rounded-md"}>
+            <div className={"border-1 primaryBorderColor p-4 rounded-md "}>
               <p>Name: {order.shippingInfo?.fullName || "N/A"} </p>
               <p>Phone: {order.shippingInfo?.mobileNo || "N/A"}</p>
               <p>Address: {order.shippingInfo?.address || "N/A"}</p>
@@ -132,7 +133,7 @@ const TrackOrder = () => {
               {order.items.map((item, index) => (
                 <div
                   key={item._id}
-                  className="flex gap-4 p-3 rounded-lg bg-gray-50 hover:shadow-md transition"
+                  className="flex gap-4 p-3 rounded-lg bg-gray-50 "
                 >
                   <div className="w-20 h-20 overflow-hidden rounded-md flex-shrink-0">
                     <ImageComponent

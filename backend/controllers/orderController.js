@@ -53,7 +53,7 @@ const createOrder = async (req, res) => {
 
 const getAllOrders = async (req, res) => {
   try {
-    const { orderStatus, page = 1, limit = 10 } = req.query;
+    const { orderStatus, page , limit } = req.query;
 
     const filter = {};
     if (orderStatus) {

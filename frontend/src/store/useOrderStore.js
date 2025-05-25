@@ -5,108 +5,108 @@ import useAuthAdminStore from "./AuthAdminStore.js";
 const apiUrl = import.meta.env.VITE_API_URL;
 
 const useOrderStore = create((set) => ({
-	// Status-wise orders and totals
-	orderListByStatus: {
-		pending: [],
-		approved: [],
-		intransit: [],
-		delivered: [],
-		returned: [],
-		cancelled: [],
-	},
-	totalByStatus: {
-		pending: 0,
-		approved: 0,
-		intransit: 0,
-		delivered: 0,
-		returned: 0,
-		cancelled: 0,
-	},
+  // Status-wise orders and totals
+  orderListByStatus: {
+    pending: [],
+    approved: [],
+    intransit: [],
+    delivered: [],
+    returned: [],
+    cancelled: [],
+  },
+  totalByStatus: {
+    pending: 0,
+    approved: 0,
+    intransit: 0,
+    delivered: 0,
+    returned: 0,
+    cancelled: 0,
+  },
 
-	// All orders regardless of status
-	allOrders: [],
-	totalOrders: 0,
-	totalPages: 1,
-	currentPage: 1,
-	itemsPerPage: 10,
-	currentStatus: "", // Track current status filter
+  // All orders regardless of status
+  allOrders: [],
+  totalOrders: 0,
+  totalPages: 1,
+  currentPage: 1,
+  itemsPerPage: 10,
+  currentStatus: "", // Track current status filter
 
-	// Common loading/error state
-	orderListLoading: false,
-	orderListError: null,
+  // Common loading/error state
+  orderListLoading: false,
+  orderListError: null,
 
-	setCurrentPage: (page) => {
-		set({ currentPage: page });
-	},
+  setCurrentPage: (page) => {
+    set({ currentPage: page });
+  },
 
-	setItemsPerPage: (limit) => {
-		set({ itemsPerPage: limit, currentPage: 1 });
-	},
+  setItemsPerPage: (limit) => {
+    set({ itemsPerPage: limit, currentPage: 1 });
+  },
 
-	fetchAllOrders: async (status = "", page = 1, limit = 10) => {
-		const token = useAuthAdminStore.getState().token;
+  fetchAllOrders: async (status = "", page = 1, limit = 10) => {
+    const token = useAuthAdminStore.getState().token;
 
-		set({
-			orderListLoading: true,
-			orderListError: null,
-			currentStatus: status,
-		});
+    set({
+      orderListLoading: true,
+      orderListError: null,
+      currentStatus: status,
+    });
 
-		try {
-			const res = await axios.get(`${apiUrl}/orders`, {
-				headers: {
-					Authorization: `Bearer ${token}`,
-				},
-				params: {
-					...(status && { orderStatus: status }),
-					page,
-					limit,
-				},
-			});
+    try {
+      const res = await axios.get(`${apiUrl}/orders`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        params: {
+          ...(status && { orderStatus: status }),
+          page,
+          limit,
+        },
+      });
 
-			if (res.data.success) {
-				const { orders, totalOrders, totalPages, currentPage } = res.data;
+      if (res.data.success) {
+        const { orders, totalOrders, totalPages, currentPage } = res.data;
 
-				if (status) {
-					set((state) => ({
-						orderListByStatus: {
-							...state.orderListByStatus,
-							[status]: orders || [],
-						},
-						totalByStatus: {
-							...state.totalByStatus,
-							[status]: totalOrders || 0,
-						},
-						totalOrders: totalOrders || 0,
-						totalPages: totalPages || 1,
-						currentPage: currentPage || 1,
-						itemsPerPage: limit,
-						orderListLoading: false,
-					}));
-				} else {
-					set({
-						allOrders: orders || [],
-						totalOrders: totalOrders || 0,
-						totalPages: totalPages || 1,
-						currentPage: currentPage || 1,
-						itemsPerPage: limit,
-						orderListLoading: false,
-					});
-				}
-			} else {
-				set({
-					orderListError: "Failed to fetch orders",
-					orderListLoading: false,
-				});
-			}
-		} catch (error) {
-			set({
-				orderListError:
-					error.response?.data?.message || "Failed to fetch orders",
-				orderListLoading: false,
-			});
-		}
-	},
+        if (status) {
+          set((state) => ({
+            orderListByStatus: {
+              ...state.orderListByStatus,
+              [status]: orders || [],
+            },
+            totalByStatus: {
+              ...state.totalByStatus,
+              [status]: totalOrders || 0,
+            },
+            totalOrders: totalOrders || 0,
+            totalPages: totalPages || 1,
+            currentPage: currentPage || 1,
+            itemsPerPage: limit,
+            orderListLoading: false,
+          }));
+        } else {
+          set({
+            allOrders: orders || [],
+            totalOrders: totalOrders || 0,
+            totalPages: totalPages || 1,
+            currentPage: currentPage || 1,
+            itemsPerPage: limit,
+            orderListLoading: false,
+          });
+        }
+      } else {
+        set({
+          orderListError: "Failed to fetch orders",
+          orderListLoading: false,
+        });
+      }
+    } catch (error) {
+      set({
+        orderListError:
+          error.response?.data?.message || "Failed to fetch orders",
+        orderListLoading: false,
+      });
+    }
+  },
 }));
 
 export default useOrderStore;

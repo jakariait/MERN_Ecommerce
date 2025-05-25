@@ -13,6 +13,7 @@ const AllOrdersPage = () => {
 		fetchAllOrders,
 		currentPage,
 		itemsPerPage,
+
 	} = useOrderStore();
 
 	useEffect(() => {
