@@ -610,25 +610,25 @@ export default function SidebarMenu() {
         </ul>
       </div>
 
-      {/*<div className="mt-4">*/}
-      {/*  <h3 className="text-yellow-400 text-sm font-semibold mb-2">*/}
-      {/*    USER ROLE PERMISSION*/}
-      {/*  </h3>*/}
-      {/*  <ul>*/}
-      {/*    {[*/}
-      {/*      { icon: <FaUserShield />, label: "System Users" },*/}
-      {/*      { icon: <FaLock />, label: "Permission Routes" },*/}
-      {/*      { icon: <FaUserCheck />, label: "Assign Role Permission" },*/}
-      {/*    ].map((item, index) => (*/}
-      {/*      <li*/}
-      {/*        key={index}*/}
-      {/*        className="flex items-center space-x-2 p-2 rounded-md cursor-pointer"*/}
-      {/*      >*/}
-      {/*        {item.icon} <span>{item.label}</span>*/}
-      {/*      </li>*/}
-      {/*    ))}*/}
-      {/*  </ul>*/}
-      {/*</div>*/}
+      <div className="mt-4">
+        <h3 className="text-yellow-400 text-sm font-semibold mb-2">
+          USER ROLE PERMISSION
+        </h3>
+        <ul>
+          {[
+            { icon: <FaUserShield />, label: "System Users" },
+            { icon: <FaLock />, label: "Permission Routes" },
+            { icon: <FaUserCheck />, label: "Assign Role Permission" },
+          ].map((item, index) => (
+            <li
+              key={index}
+              className="flex items-center space-x-2 p-2 rounded-md cursor-pointer"
+            >
+              {item.icon} <span>{item.label}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
 
       {/* Logout and Others */}
       <div>

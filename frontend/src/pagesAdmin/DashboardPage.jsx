@@ -19,9 +19,8 @@ const DashboardPage = ({ pageDetails, title }) => {
           </div>
           <DailyOrdersChart />
           <MonthlyRevenueChart />
-          <MonthlyOrderStatusRatioChart/>
+          <MonthlyOrderStatusRatioChart />
         </div>
-
       </div>
     </LayoutAdmin>
   );

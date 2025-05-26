@@ -8,6 +8,7 @@ import LocalShippingIcon from "@mui/icons-material/LocalShipping";
 import DoneAllIcon from "@mui/icons-material/DoneAll";
 import ReplayIcon from "@mui/icons-material/Replay";
 import CancelIcon from "@mui/icons-material/Cancel";
+import useAuthAdminStore from "../../store/AuthAdminStore.js";
 
 const statusIcons = {
   pending: <HourglassEmptyIcon color="warning" fontSize="large" />,
@@ -20,6 +21,7 @@ const statusIcons = {
 
 const OrderStats = () => {
   const apiUrl = import.meta.env.VITE_API_URL;
+  const { token } = useAuthAdminStore();
   const [amountByStatus, setAmountByStatus] = useState({
     pending: 0,
     approved: 0,
@@ -33,7 +35,7 @@ const OrderStats = () => {
     try {
       const res = await axios.get(`${apiUrl}/orders`, {
         headers: {
-          Authorization: `Bearer your_token_here`, // Replace with actual token if needed
+          Authorization: `Bearer ${token}`,
         },
       });
 

@@ -12,11 +12,11 @@ const UserLayout = ({ children }) => {
     <Layout>
       <div className={"xl:container xl:mx-auto p-3 flex gap-4 relative"}>
         {/*User Menu*/}
-        <div className={"w-[350px] hidden md:block"}>
+        <div className={"w-[350px] hidden lg:block"}>
           <UserMenu />
         </div>
         {/*User Menu Icon*/}
-        <div className="md:hidden fixed left-0 top-1/2 -translate-y-1/2 z-50 secondaryBgColor accentTextColor p-3 rounded-r-lg">
+        <div className="lg:hidden fixed left-0 top-1/2 -translate-y-1/2 z-50 secondaryBgColor accentTextColor p-3 rounded-r-lg cursor-pointer">
           <FaUser
             onClick={() => setIsMenuOpen(!isMenuOpen)}
             className={"text-2xl"}

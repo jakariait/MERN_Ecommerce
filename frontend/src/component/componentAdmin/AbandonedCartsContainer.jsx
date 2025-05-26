@@ -113,7 +113,7 @@ const AbandonedCartsList = ({ data, onPageChange, onDeleteRequest }) => {
             <button
               onClick={() => onPageChange(page - 1)}
               disabled={page === 1}
-              className="px-4 py-1 rounded primaryBgColor accentTextColor disabled:opacity-50"
+              className="px-4 py-1 rounded primaryBgColor accentTextColor disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed"
             >
               Previous
             </button>
@@ -123,7 +123,7 @@ const AbandonedCartsList = ({ data, onPageChange, onDeleteRequest }) => {
             <button
               onClick={() => onPageChange(page + 1)}
               disabled={page === totalPages}
-              className="px-4 py-1 rounded primaryBgColor accentTextColor disabled:opacity-50"
+              className="px-4 py-1 rounded primaryBgColor accentTextColor disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed"
             >
               Next
             </button>

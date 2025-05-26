@@ -79,7 +79,7 @@ const TrackOrder = () => {
           <button
             type="submit"
             disabled={loading}
-            className="primaryBgColor px-4 py-2 accentTextColor rounded-md cursor-pointer w-96 "
+            className="primaryBgColor px-4 py-2 accentTextColor rounded-md cursor-pointer  "
           >
             {loading ? "Tracking..." : "Track Order"}
           </button>

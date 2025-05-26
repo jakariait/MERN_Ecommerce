@@ -50,8 +50,9 @@ const UserStats = () => {
           const totalDeliveredAmount = deliveredOrders.reduce((sum, order) => {
             return sum + (order.totalAmount || 0);
           }, 0);
+          const formattedAmount = totalDeliveredAmount.toFixed(2); // returns string "7087.80"
 
-          setDeliveredAmount(totalDeliveredAmount);
+          setDeliveredAmount(formattedAmount);
           setRunningOrders(runningOrders.length); // You'll need a new state for runningOrders
         }
       } catch (error) {
@@ -90,7 +91,7 @@ const UserStats = () => {
       {statsData.map((item, index) => (
         <div
           key={index}
-          className="bg-gradient-to-br from-white via-[#f4f4f9] to-white p-5 rounded-2xl shadow-sm flex justify-between items-center hover:shadow-lg transition-all duration-200"
+          className="bg-gradient-to-br from-white via-[#f4f4f9] to-white p-5 rounded-2xl shadow-sm flex justify-between items-center transition-all duration-200"
         >
           <div>
             <p className="text-2xl font-bold">{item.value}</p>
