@@ -185,6 +185,13 @@ router.delete("/contacts/:id", adminProtect, contactController.deleteContact);
 router.post("/admin/login", AdminController.loginAdmin);
 router.get("/admin/me", authenticateToken, AdminController.getLoggedInAdmin);
 
+// CRUD routes for Admin User
+router.post("/admin/create", adminProtect, AdminController.createAdmin);
+router.get("/admin/getall",  AdminController.getAllAdmins);
+router.get("/admin/:id", adminProtect, AdminController.getAdminById);
+router.put("/admin/:id", adminProtect, AdminController.updateAdmin);
+router.delete("/admin/:id", adminProtect, AdminController.deleteAdmin);
+
 // User Login Route
 
 // 🚀 Public Routes
@@ -205,13 +212,6 @@ router.patch("/change-password", userProtect, userController.changePassword);
 router.get("/getAllUsers", adminProtect, userController.getAllUsers);
 router.get("/getUserById/:id", adminProtect, userController.getUserById);
 router.delete("/deleteUser/:id", adminProtect, userController.deleteUser);
-
-// CRUD routes for Admin User
-router.get("/admin/", adminProtect, AdminController.getAllAdmins);
-router.get("/admin/:id", adminProtect, AdminController.getAdminById);
-router.post("/admin/", adminProtect, AdminController.createAdmin);
-router.put("/admin/:id", adminProtect, AdminController.updateAdmin);
-router.delete("/admin/:id", adminProtect, AdminController.deleteAdmin);
 
 // CRUD routes for Products Category
 router.get("/category", categoryController.getCategories);
@@ -360,7 +360,7 @@ router.patch(
 
 // Order routes
 router.post("/orders", orderController.createOrder);
-router.get("/orders", orderController.getAllOrders);
+router.get("/orders", adminProtect, orderController.getAllOrders);
 router.get("/orders/:orderId", adminProtect, orderController.getOrderById);
 router.put("/orders/:orderId", adminProtect, orderController.updateOrder);
 router.delete("/orders/:orderId", adminProtect, orderController.deleteOrder);

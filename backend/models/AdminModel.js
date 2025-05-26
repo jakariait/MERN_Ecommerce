@@ -15,9 +15,20 @@ const adminSchema = new mongoose.Schema(
       trim: true,
       match: [/.+\@.+\..+/, "Please fill a valid email address"],
     },
+    mobileNo: {
+      type: String,
+      required: true,
+      unique: true,
+      trim: true,
+      match: [/^\d{10,15}$/, "Please enter a valid phone number"],
+    },
+
     password: {
       type: String,
       required: true,
+    },
+    permissions: {
+      type: [String],
     },
   },
   { timestamps: true, versionKey: false },

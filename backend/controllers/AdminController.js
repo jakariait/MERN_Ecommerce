@@ -71,8 +71,10 @@ const createAdmin = asyncHandler(async (req, res) => {
       admin,
     });
   } catch (error) {
+    console.error("Error creating admin:", error); // <-- this line
+
     if (error.code === 11000) { // Duplicate key error from MongoDB
-      res.status(400).json({ message: "Email already exists" });
+      res.status(400).json({ message: "Email and Phone Number already exists" });
     } else {
       res.status(500).json({ message: "Failed to create admin", error: error.message });
     }

@@ -616,15 +616,18 @@ export default function SidebarMenu() {
         </h3>
         <ul>
           {[
-            { icon: <FaUserShield />, label: "System Users" },
-            { icon: <FaLock />, label: "Permission Routes" },
-            { icon: <FaUserCheck />, label: "Assign Role Permission" },
+            { icon: <FaUserShield />, label: "System Users", path: "/admin/adminlist" },
+            { icon: <FaLock />, label: "Permission Routes", path: "/admin/permission-routes" },
+            { icon: <FaUserCheck />, label: "Assign Role Permission", path: "/admin/assign-permission" },
           ].map((item, index) => (
             <li
               key={index}
-              className="flex items-center space-x-2 p-2 rounded-md cursor-pointer"
+              className="flex items-center space-x-2 p-2 rounded-md cursor-pointer "
             >
-              {item.icon} <span>{item.label}</span>
+              {item.icon}
+              <Link to={item.path} className="text-inherit no-underline">
+                {item.label}
+              </Link>
             </li>
           ))}
         </ul>

@@ -21,6 +21,7 @@ import {
 } from "@mui/material";
 import axios from "axios";
 import useAuthAdminStore from "../../store/AuthAdminStore.js";
+import PermissionsCheckboxGroup from "./PermissionsCheckboxGroup.jsx";
 
 const AdminList = () => {
   const apiUrl = import.meta.env.VITE_API_URL;
@@ -58,6 +59,8 @@ const AdminList = () => {
     password: "",
   });
   const [updating, setUpdating] = useState(false);
+
+  const [selectedPermissions, setSelectedPermissions] = useState([]);
 
   useEffect(() => {
     fetchAdmins();
@@ -276,6 +279,10 @@ const AdminList = () => {
             fullWidth
             margin="normal"
             type="password"
+          />
+          <PermissionsCheckboxGroup
+            selectedPermissions={selectedPermissions}
+            setSelectedPermissions={setSelectedPermissions}
           />
         </DialogContent>
         <DialogActions>
