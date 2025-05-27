@@ -37,7 +37,7 @@ const MetaProvider = () => {
     });
   }, [location]);
 
-  if (loading) return null; // Or a loading spinner
+  if (loading || !meta) return null; // Prevent rendering until meta is available
 
   return (
     <>

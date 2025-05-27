@@ -86,6 +86,8 @@ import ChangePasswordPage from "./pagesUser/ChangePasswordPage.jsx";
 import AbandonedCartPage from "./pagesAdmin/AbandonedCartPage.jsx";
 import TrackOrderPage from "./pagesUser/TrackOrderPage.jsx";
 import AdminListPage from "./pagesAdmin/AdminListPage.jsx";
+import CreateAdminPage from "./pagesAdmin/CreateAdminPage.jsx";
+import EditAdminPage from "./pagesAdmin/EditAdminPage.jsx";
 
 function App() {
   const { GeneralInfoListRequest } = GeneralInfoStore();
@@ -335,6 +337,11 @@ function App() {
 
           <Route path="/admin/dashboard" element={<DashboardPage />} />
           <Route path="/admin/adminlist" element={<AdminListPage/>} />
+          <Route path="/admin/createadmin" element={<CreateAdminPage/>} />
+          <Route path="/admin/edit/:id" element={<EditAdminPage />} />
+
+
+
           <Route
             path="/admin/incomplete-order"
             element={<AbandonedCartPage />}

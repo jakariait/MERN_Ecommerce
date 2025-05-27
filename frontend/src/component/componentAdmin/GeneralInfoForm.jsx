@@ -6,10 +6,7 @@ import { TextField, Button, Snackbar, Alert, Input } from "@mui/material";
 
 export default function GeneralInfoForm() {
   const { token } = useAuthAdminStore();
-  const {
-    GeneralInfoList,
-    GeneralInfoUpdate
-  } = useGeneralInfoStore();
+  const { GeneralInfoList, GeneralInfoUpdate } = useGeneralInfoStore();
 
   const [formData, setFormData] = useState({
     CompanyName: "",
@@ -35,7 +32,6 @@ export default function GeneralInfoForm() {
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState("success");
-
 
   useEffect(() => {
     if (GeneralInfoList) {
@@ -77,6 +73,7 @@ export default function GeneralInfoForm() {
     setFormData({ ...formData, [field]: newArray });
   };
 
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     const form = new FormData();
@@ -95,16 +92,24 @@ export default function GeneralInfoForm() {
       }
     });
 
-    try {
-      await GeneralInfoUpdate(form, token);
+    const result = await GeneralInfoUpdate(form, token);
+
+    if (result.success) {
       setSnackbarMessage("General information updated successfully!");
       setSnackbarSeverity("success");
-      setOpenSnackbar(true);
-    } catch (error) {
-      setSnackbarMessage("Failed to update general information.");
-      setSnackbarSeverity("error");
-      setOpenSnackbar(true);
+    } else {
+      if (result.status === 403) {
+        setSnackbarMessage(
+          "You do not have permission to perform this action. (403 Forbidden)",
+        );
+        setSnackbarSeverity("warning");
+      } else {
+        setSnackbarMessage("Failed to update general information.");
+        setSnackbarSeverity("error");
+      }
     }
+
+    setOpenSnackbar(true);
   };
 
   const handleCloseSnackbar = () => {

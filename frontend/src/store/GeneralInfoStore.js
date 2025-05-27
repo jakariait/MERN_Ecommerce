@@ -27,6 +27,7 @@ const useGeneralInfoStore = create((set) => ({
   },
 
   // Update General Info
+
   GeneralInfoUpdate: async (formData, token) => {
     set({ GeneralInfoUpdateLoading: true, GeneralInfoErrorMessage: null, GeneralInfoSuccessMessage: null });
     try {
@@ -34,13 +35,21 @@ const useGeneralInfoStore = create((set) => ({
         headers: { Authorization: `Bearer ${token}`, "Content-Type": "multipart/form-data" },
       });
       set({ GeneralInfoSuccessMessage: res.data.message, GeneralInfoUpdateLoading: false });
+      return { success: true, message: res.data.message };
     } catch (error) {
       set({
         GeneralInfoErrorMessage: error.response?.data?.message || "Failed to update General Info",
         GeneralInfoUpdateLoading: false,
       });
+      return {
+        success: false,
+        message: error.response?.data?.message || "Failed to update General Info",
+        status: error.response?.status
+      };
     }
   },
+
+
 
   // Delete General Info
   GeneralInfoDelete: async (token) => {

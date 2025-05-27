@@ -10,6 +10,7 @@ import {
   DialogTitle,
   Button,
 } from "@mui/material";
+import RequirePermission from "./RequirePermission.jsx";
 
 const AbandonedCartsList = ({ data, onPageChange, onDeleteRequest }) => {
   const { totalCount, carts, page, limit } = data;
@@ -18,11 +19,11 @@ const AbandonedCartsList = ({ data, onPageChange, onDeleteRequest }) => {
   return (
     <div className="p-4 shadow rounded-lg">
       <h1 className="border-l-4 primaryBorderColor primaryTextColor mb-6 pl-2 text-lg font-semibold">
-        Abandoned Carts ({totalCount})
+        Incomplete Orders ({totalCount})
       </h1>
 
       {carts.length === 0 ? (
-        <p className="text-gray-600">No abandoned carts found.</p>
+        <p className="text-gray-600">No  Incomplete Orders Found.</p>
       ) : (
         <div className="space-y-4">
           {carts.map((cart) => (
@@ -62,12 +63,14 @@ const AbandonedCartsList = ({ data, onPageChange, onDeleteRequest }) => {
                       timeStyle: "short",
                     })}
                   </p>
-                  <button
-                    onClick={() => onDeleteRequest(cart._id)}
-                    className="text-xs primaryBgColor accentTextColor rounded-md px-2 py-1 cursor-pointer"
-                  >
-                    Delete
-                  </button>
+                  <RequirePermission permission="delete_incomplete_orders"  fallback={true}>
+                    <button
+                      onClick={() => onDeleteRequest(cart._id)}
+                      className="text-xs primaryBgColor accentTextColor rounded-md px-2 py-1 cursor-pointer"
+                    >
+                      Delete
+                    </button>
+                  </RequirePermission >
                 </div>
               </div>
 
@@ -254,6 +257,7 @@ const AbandonedCartsContainer = () => {
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCancelDelete}>Cancel</Button>
+
           <Button
             onClick={handleConfirmDelete}
             color="error"

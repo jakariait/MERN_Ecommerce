@@ -6,21 +6,25 @@ import DailyOrdersChart from "../component/componentAdmin/DailyOrdersChart.jsx";
 import MostSoldProductsChart from "../component/componentAdmin/MostSoldProductsChart.jsx";
 import MonthlyRevenueChart from "../component/componentAdmin/MonthlyRevenueChart.jsx";
 import MonthlyOrderStatusRatioChart from "../component/componentAdmin/MonthlyOrderStatusRatioChart.jsx";
+import RequirePermission from "../component/componentAdmin/RequirePermission.jsx";
 
 const DashboardPage = ({ pageDetails, title }) => {
   return (
     <LayoutAdmin>
       <div>
         <Breadcrumb title={"Dashboard"} pageDetails={"WEBSITE CONFIG"} />
-        <div className={"flex flex-col gap-8"}>
-          <div className={"grid md:grid-cols-2 gap-4"}>
-            <OrdersPieChart />
-            <MostSoldProductsChart />
+
+        <RequirePermission permission="dashboard">
+          <div className={"flex flex-col gap-8"}>
+            <div className={"grid md:grid-cols-2 gap-4"}>
+              <OrdersPieChart />
+              <MostSoldProductsChart />
+            </div>
+            <DailyOrdersChart />
+            <MonthlyRevenueChart />
+            <MonthlyOrderStatusRatioChart />
           </div>
-          <DailyOrdersChart />
-          <MonthlyRevenueChart />
-          <MonthlyOrderStatusRatioChart />
-        </div>
+        </RequirePermission>
       </div>
     </LayoutAdmin>
   );

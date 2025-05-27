@@ -2,6 +2,7 @@ import React from "react";
 import LayoutAdmin from "../component/componentAdmin/LayoutAdmin.jsx";
 import Breadcrumb from "../component/componentAdmin/Breadcrumb.jsx";
 import AdminMetaForm from "../component/componentAdmin/AdminMetaForm.jsx";
+import RequirePermission from "../component/componentAdmin/RequirePermission.jsx";
 
 const GeneralInfoPage = ({ pageDetails, title }) => {
   return (
@@ -9,7 +10,9 @@ const GeneralInfoPage = ({ pageDetails, title }) => {
       <div>
         <Breadcrumb title={"SEO for HomePage"} pageDetails={"WEBSITE CONFIG"} />
         {/* Form Section */}
-        <AdminMetaForm />
+        <RequirePermission permission="home_page_seo">
+          <AdminMetaForm />
+        </RequirePermission>
       </div>
     </LayoutAdmin>
   );

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { TextField, Button, Box, Snackbar, Alert } from "@mui/material";
+import { TextField, Snackbar, Alert } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import useAuthAdminStore from "../../store/AuthAdminStore.js";
@@ -8,6 +8,8 @@ import PermissionsCheckboxGroup from "../../component/componentAdmin/Permissions
 const AdminCreate = () => {
   const apiUrl = import.meta.env.VITE_API_URL;
   const { token } = useAuthAdminStore();
+
+
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
@@ -42,7 +44,10 @@ const AdminCreate = () => {
         message: "Admin created successfully",
         severity: "success",
       });
-      navigate("/admins");
+      // Delay navigation by 2 seconds
+      setTimeout(() => {
+        navigate("/admin/adminlist");
+      }, 2000);
     } catch (error) {
       setSnackbar({
         open: true,
@@ -98,22 +103,34 @@ const AdminCreate = () => {
         />
       </div>
 
-
       <PermissionsCheckboxGroup
         selectedPermissions={selectedPermissions}
         setSelectedPermissions={setSelectedPermissions}
       />
-
-      <Button variant="contained" onClick={handleSubmit} disabled={loading}>
-        {loading ? "Creating..." : "Create Admin"}
-      </Button>
+      <div className={"flex justify-center mt-4"}>
+        <button
+          className={
+            "primaryBgColor accentTextColor px-4 py-2 rounded-md cursor-pointer "
+          }
+          onClick={handleSubmit}
+          disabled={loading}
+        >
+          {loading ? "Creating..." : "Create Admin"}
+        </button>
+      </div>
 
       <Snackbar
+        anchorOrigin={{ vertical: "top", horizontal: "right" }} // 👈 this positions it
         open={snackbar.open}
-        autoHideDuration={4000}
+        autoHideDuration={3000}
         onClose={() => setSnackbar((prev) => ({ ...prev, open: false }))}
       >
-        <Alert severity={snackbar.severity}>{snackbar.message}</Alert>
+        <Alert
+          severity={snackbar.severity}
+          onClose={() => setSnackbar((prev) => ({ ...prev, open: false }))}
+        >
+          {snackbar.message}
+        </Alert>
       </Snackbar>
     </div>
   );

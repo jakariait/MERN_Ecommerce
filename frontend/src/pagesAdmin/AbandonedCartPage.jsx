@@ -6,8 +6,11 @@ import AbandonedCartsContainer from "../component/componentAdmin/AbandonedCartsC
 const AbandonedCartPage = () => {
   return (
     <LayoutAdmin>
-      <Breadcrumb pageDetails="INCOMPLETE ORDER" title="View All Incomplete Orders" />
-      <AbandonedCartsContainer />
+      <Breadcrumb
+        pageDetails="INCOMPLETE ORDER"
+        title="View All Incomplete Orders"
+      />
+        <AbandonedCartsContainer />
     </LayoutAdmin>
   );
 };

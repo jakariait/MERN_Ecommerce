@@ -1,8 +1,8 @@
 import React from "react";
-import GeneralInfoForm from "../component/componentAdmin/GeneralInfoForm.jsx";
 import LayoutAdmin from "../component/componentAdmin/LayoutAdmin.jsx";
 import Breadcrumb from "../component/componentAdmin/Breadcrumb.jsx";
 import MarqueeAdmin from "../component/componentAdmin/MarqueeAdmin.jsx";
+import RequirePermission from "../component/componentAdmin/RequirePermission.jsx";
 
 const GeneralInfoPage = ({ pageDetails, title }) => {
   return (
@@ -10,7 +10,9 @@ const GeneralInfoPage = ({ pageDetails, title }) => {
       <div>
         <Breadcrumb title={"Scroll Text"} pageDetails={"WEBSITE CONFIG"} />
         {/* Form Section */}
-        <MarqueeAdmin/>
+        <RequirePermission permission="scroll_text">
+          <MarqueeAdmin />
+        </RequirePermission>
       </div>
     </LayoutAdmin>
   );

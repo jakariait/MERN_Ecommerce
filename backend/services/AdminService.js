@@ -6,7 +6,7 @@ const adminService = {
     return await AdminModel.find().select("-password");
   },
 
-  getAdminById: async (id) => await AdminModel.findById(id),
+  getAdminById: async (id) => await AdminModel.findById(id).select("-password"),
 
   createAdmin: async (adminData) => await AdminModel.create(adminData),
 

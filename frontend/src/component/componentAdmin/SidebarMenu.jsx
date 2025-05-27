@@ -41,7 +41,10 @@ import Typography from "@mui/material/Typography";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import useProductStore from "../../store/useProductStore.js";
 import useOrderStore from "../../store/useOrderStore.js";
-import { useEffect } from "react";
+import React, { useEffect } from "react";
+import RequirePermission from "./RequirePermission.jsx";
+import AbandonedCartsContainer from "./AbandonedCartsContainer.jsx";
+import GeneralInfoForm from "./GeneralInfoForm.jsx";
 
 export default function SidebarMenu() {
   const { totalProductsAdmin } = useProductStore();
@@ -71,11 +74,13 @@ export default function SidebarMenu() {
     <div className="w-fit p-4 h-screen overflow-y-auto ">
       {/* Dashboard */}
       <ul>
-        <li className="flex items-center space-x-2 p-2 rounded-md cursor-pointer">
-          <Link to="/admin/dashboard" className={"flex items-center gap-2"}>
-            <FaHome /> <span>Dashboard</span>
-          </Link>
-        </li>
+        <RequirePermission permission="dashboard" fallback={true}>
+          <li className="flex items-center space-x-2 p-2 rounded-md cursor-pointer">
+            <Link to="/admin/dashboard" className={"flex items-center gap-2"}>
+              <FaHome /> <span>Dashboard</span>
+            </Link>
+          </li>
+        </RequirePermission>
       </ul>
 
       {/* Website Config */}
@@ -84,30 +89,38 @@ export default function SidebarMenu() {
           WEBSITE CONFIG
         </h3>
         <ul className="space-y-1">
-          <li className="flex items-center space-x-2 p-2 rounded-md cursor-pointer">
-            <Link
-              to="/admin/general-info"
-              className={"flex items-center gap-2"}
-            >
-              <FaThLarge /> <span>General Info</span>
-            </Link>
-          </li>
-          <Link to="/admin/color-updater/">
+          <RequirePermission permission="website_theme_color" fallback={true}>
             <li className="flex items-center space-x-2 p-2 rounded-md cursor-pointer">
-              <FaPalette /> <span>Website Theme Color</span>
+              <Link
+                to="/admin/general-info"
+                className={"flex items-center gap-2"}
+              >
+                <FaThLarge /> <span>General Info</span>
+              </Link>
             </li>
-          </Link>
+          </RequirePermission>
 
-          <Link to="/admin/social-link-updater">
-            <li className="flex items-center space-x-2 p-2 rounded-md cursor-pointer">
-              <FaLink /> <span>Social Media Links</span>
-            </li>
-          </Link>
-          <Link to="/admin/homepage-seo">
-            <li className="flex items-center space-x-2 p-2 rounded-md cursor-pointer">
-              <FaSearch /> <span>Home Page SEO</span>
-            </li>
-          </Link>
+          <RequirePermission permission="general_info" fallback={true}>
+            <Link to="/admin/color-updater/">
+              <li className="flex items-center space-x-2 p-2 rounded-md cursor-pointer">
+                <FaPalette /> <span>Website Theme Color</span>
+              </li>
+            </Link>
+          </RequirePermission>
+          <RequirePermission permission="website_theme_color" fallback={true}>
+            <Link to="/admin/social-link-updater">
+              <li className="flex items-center space-x-2 p-2 rounded-md cursor-pointer">
+                <FaLink /> <span>Social Media Links</span>
+              </li>
+            </Link>
+          </RequirePermission>
+          <RequirePermission permission="home_page_seo" fallback={true}>
+            <Link to="/admin/homepage-seo">
+              <li className="flex items-center space-x-2 p-2 rounded-md cursor-pointer">
+                <FaSearch /> <span>Home Page SEO</span>
+              </li>
+            </Link>
+          </RequirePermission>
         </ul>
       </div>
 
@@ -154,135 +167,160 @@ export default function SidebarMenu() {
               </AccordionSummary>
               <AccordionDetails>
                 <ul className={"space-y-2 pl-4"}>
-                  <li>
-                    <Link to="/admin/configsetup">Setup Your Config</Link>
-                  </li>
-                  <li>
-                    <Link to="/admin/add-product-size">
-                      Add New Product Size
-                    </Link>
-                  </li>
-                  <li>
-                    <Link to="/admin/product-sizes">View All Product Size</Link>
-                  </li>
-                  <li>
-                    <Link to="/admin/product-flags">Product Flags</Link>
-                  </li>
-                  <li>
-                    <Link to="/admin/scroll-text">Scroll Text</Link>
-                  </li>
-                  <li>
-                    <Link to="/admin/deliverycharge">
-                      <span>Delivery Charges</span>
-                    </Link>
-                  </li>
-                  <li>
-                    <Link to="/admin/coupon">
-                      <span>Coupon</span>
-                    </Link>
-                  </li>
+                  <RequirePermission permission="setup_config" fallback={true}>
+                    <li>
+                      <Link to="/admin/configsetup">Setup Your Config</Link>
+                    </li>
+                  </RequirePermission>
+                  <RequirePermission permission="product_size" fallback={true}>
+                    <li>
+                      <Link to="/admin/add-product-size">
+                        Add New Product Size
+                      </Link>
+                    </li>
+                    <li>
+                      <Link to="/admin/product-sizes">
+                        View All Product Size
+                      </Link>
+                    </li>
+                  </RequirePermission>
+                  <RequirePermission permission="product_flag" fallback={true}>
+                    <li>
+                      <Link to="/admin/product-flags">Product Flags</Link>
+                    </li>
+                  </RequirePermission>
+                  <RequirePermission permission="scroll_text" fallback={true}>
+                    <li>
+                      <Link to="/admin/scroll-text">Scroll Text</Link>
+                    </li>
+                  </RequirePermission>
+                  <RequirePermission
+                    permission="delivery_charges"
+                    fallback={true}
+                  >
+                    <li>
+                      <Link to="/admin/deliverycharge">
+                        <span>Delivery Charges</span>
+                      </Link>
+                    </li>
+                  </RequirePermission>
+                  <RequirePermission
+                    permission="manage_coupons"
+                    fallback={true}
+                  >
+                    <li>
+                      <Link to="/admin/coupon">
+                        <span>Coupon</span>
+                      </Link>
+                    </li>
+                  </RequirePermission>
                 </ul>
               </AccordionDetails>
             </Accordion>
           </li>
-          <li className="space-x-2 px-2 rounded-md cursor-pointer">
-            <Accordion
-              style={{
-                background: "transparent",
-                boxShadow: "none",
-                width: "100%",
-              }}
-              sx={{
-                color: "white", // Ensures text color is white
-                "& .MuiAccordionSummary-root": {
-                  backgroundColor: "transparent",
-                  minHeight: "auto", // Removes unnecessary padding
-                  padding: "0", // Removes default padding
-                },
-                "& .MuiAccordionDetails-root": {
-                  backgroundColor: "transparent",
-                  paddingLeft: "0", // Ensures no extra left padding
-                },
-                "& .MuiSvgIcon-root": {
-                  color: "white", // Ensures the dropdown icon is white
-                },
-              }}
-            >
-              <AccordionSummary
-                expandIcon={<ExpandMoreIcon />}
-                aria-controls="panel1-content"
-                id="panel1-header"
-                className="p-2 flex items-center"
+          <RequirePermission permission="category" fallback={true}>
+            <li className="space-x-2 px-2 rounded-md cursor-pointer">
+              <Accordion
+                style={{
+                  background: "transparent",
+                  boxShadow: "none",
+                  width: "100%",
+                }}
+                sx={{
+                  color: "white", // Ensures text color is white
+                  "& .MuiAccordionSummary-root": {
+                    backgroundColor: "transparent",
+                    minHeight: "auto", // Removes unnecessary padding
+                    padding: "0", // Removes default padding
+                  },
+                  "& .MuiAccordionDetails-root": {
+                    backgroundColor: "transparent",
+                    paddingLeft: "0", // Ensures no extra left padding
+                  },
+                  "& .MuiSvgIcon-root": {
+                    color: "white", // Ensures the dropdown icon is white
+                  },
+                }}
               >
-                <Typography component="span">
-                  <div className="flex items-center gap-2">
-                    <FaThLarge /> <span>Category</span>
-                  </div>
-                </Typography>
-              </AccordionSummary>
-              <AccordionDetails>
-                <ul className={"space-y-2 pl-4"}>
-                  <li>
-                    <Link to="/admin/addnewcategory">Add New Category</Link>
-                  </li>
-                  <li>
-                    <Link to="/admin/categorylist">View All Categories</Link>
-                  </li>
-                </ul>
-              </AccordionDetails>
-            </Accordion>
-          </li>
-          <li className="space-x-2 px-2 rounded-md cursor-pointer">
-            <Accordion
-              style={{
-                background: "transparent",
-                boxShadow: "none",
-                width: "100%",
-              }}
-              sx={{
-                color: "white", // Ensures text color is white
-                "& .MuiAccordionSummary-root": {
-                  backgroundColor: "transparent",
-                  minHeight: "auto", // Removes unnecessary padding
-                  padding: "0", // Removes default padding
-                },
-                "& .MuiAccordionDetails-root": {
-                  backgroundColor: "transparent",
-                  paddingLeft: "0", // Ensures no extra left padding
-                },
-                "& .MuiSvgIcon-root": {
-                  color: "white", // Ensures the dropdown icon is white
-                },
-              }}
-            >
-              <AccordionSummary
-                expandIcon={<ExpandMoreIcon />}
-                aria-controls="panel1-content"
-                id="panel1-header"
-                className="p-2 flex items-center"
+                <AccordionSummary
+                  expandIcon={<ExpandMoreIcon />}
+                  aria-controls="panel1-content"
+                  id="panel1-header"
+                  className="p-2 flex items-center"
+                >
+                  <Typography component="span">
+                    <div className="flex items-center gap-2">
+                      <FaThLarge /> <span>Category</span>
+                    </div>
+                  </Typography>
+                </AccordionSummary>
+                <AccordionDetails>
+                  <ul className={"space-y-2 pl-4"}>
+                    <li>
+                      <Link to="/admin/addnewcategory">Add New Category</Link>
+                    </li>
+                    <li>
+                      <Link to="/admin/categorylist">View All Categories</Link>
+                    </li>
+                  </ul>
+                </AccordionDetails>
+              </Accordion>
+            </li>
+          </RequirePermission>
+          <RequirePermission permission="sub_category" fallback={true}>
+            <li className="space-x-2 px-2 rounded-md cursor-pointer">
+              <Accordion
+                style={{
+                  background: "transparent",
+                  boxShadow: "none",
+                  width: "100%",
+                }}
+                sx={{
+                  color: "white", // Ensures text color is white
+                  "& .MuiAccordionSummary-root": {
+                    backgroundColor: "transparent",
+                    minHeight: "auto", // Removes unnecessary padding
+                    padding: "0", // Removes default padding
+                  },
+                  "& .MuiAccordionDetails-root": {
+                    backgroundColor: "transparent",
+                    paddingLeft: "0", // Ensures no extra left padding
+                  },
+                  "& .MuiSvgIcon-root": {
+                    color: "white", // Ensures the dropdown icon is white
+                  },
+                }}
               >
-                <Typography component="span">
-                  <div className="flex items-center gap-2">
-                    <FaBoxes /> <span>Subcategory</span>
-                  </div>
-                </Typography>
-              </AccordionSummary>
-              <AccordionDetails>
-                <ul className={"space-y-2 pl-4"}>
-                  <li>
-                    <Link to="/admin/addnewsubcategory">
-                      Add New Sub Category
-                    </Link>
-                  </li>
-                  <li>
-                    <Link to="/admin/subcategorylist">
-                      View All SubCategories
-                    </Link>
-                  </li>
-                </ul>
-              </AccordionDetails>
-            </Accordion>
-          </li>
+                <AccordionSummary
+                  expandIcon={<ExpandMoreIcon />}
+                  aria-controls="panel1-content"
+                  id="panel1-header"
+                  className="p-2 flex items-center"
+                >
+                  <Typography component="span">
+                    <div className="flex items-center gap-2">
+                      <FaBoxes /> <span>Subcategory</span>
+                    </div>
+                  </Typography>
+                </AccordionSummary>
+                <AccordionDetails>
+                  <ul className={"space-y-2 pl-4"}>
+                    <li>
+                      <Link to="/admin/addnewsubcategory">
+                        Add New Sub Category
+                      </Link>
+                    </li>
+                    <li>
+                      <Link to="/admin/subcategorylist">
+                        View All SubCategories
+                      </Link>
+                    </li>
+                  </ul>
+                </AccordionDetails>
+              </Accordion>
+            </li>
+          </RequirePermission>
+
           <li className="space-x-2 px-2 rounded-md cursor-pointer">
             <Accordion
               style={{
@@ -460,6 +498,7 @@ export default function SidebarMenu() {
               </AccordionDetails>
             </Accordion>
           </li>
+
           <li className="flex items-center space-x-2 p-2 rounded-md cursor-pointer">
             <Link
               to="/admin/incomplete-order"
@@ -616,9 +655,21 @@ export default function SidebarMenu() {
         </h3>
         <ul>
           {[
-            { icon: <FaUserShield />, label: "System Users", path: "/admin/adminlist" },
-            { icon: <FaLock />, label: "Permission Routes", path: "/admin/permission-routes" },
-            { icon: <FaUserCheck />, label: "Assign Role Permission", path: "/admin/assign-permission" },
+            {
+              icon: <FaUserShield />,
+              label: "System Users",
+              path: "/admin/adminlist",
+            },
+            {
+              icon: <FaLock />,
+              label: "Permission Routes",
+              path: "/admin/permission-routes",
+            },
+            {
+              icon: <FaUserCheck />,
+              label: "Assign Role Permission",
+              path: "/admin/assign-permission",
+            },
           ].map((item, index) => (
             <li
               key={index}

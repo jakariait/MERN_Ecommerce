@@ -1,8 +1,7 @@
-import React, { useState } from "react";
+import React from "react";
 import LayoutAdmin from "../component/componentAdmin/LayoutAdmin.jsx";
 import Breadcrumb from "../component/componentAdmin/Breadcrumb.jsx";
 import AdminList from "../component/componentAdmin/AdminList.jsx";
-import AdminCreate from "../component/componentAdmin/AdminCreate.jsx";
 
 const AdminListPage = () => {
   return (
@@ -12,7 +11,6 @@ const AdminListPage = () => {
         pageDetails={"SYSTEM USERS"}
       />
       <AdminList />
-      <AdminCreate />
 
     </LayoutAdmin>
   );

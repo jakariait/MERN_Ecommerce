@@ -40,6 +40,8 @@ const {
 
 // Admin
 const { adminProtect } = require("../middlewares/authAdminMiddleware");
+const checkPermission = require("../middlewares/checkPermissionMiddleware");
+
 const { authenticateToken } = require("../middlewares/authenticateToken");
 
 // User
@@ -102,15 +104,20 @@ router.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 //   Routes for General Information
 router.get("/getGeneralInfo", generalInfoController.getGeneralInfo);
+
 router.post(
   "/updateGeneralInfo",
-  upload,
   adminProtect,
+  checkPermission("general_info"),
+  upload,
   generalInfoController.generalInfoUpdate,
 );
+
 router.delete(
   "/deleteGeneralInfo",
   adminProtect,
+  checkPermission("general_info"),
+
   generalInfoController.deleteGeneralInfo,
 );
 
@@ -164,13 +171,19 @@ router.delete(
 
 // Routes for Colors
 router.get("/colors", colorController.getColors);
-router.put("/colors", adminProtect, colorController.updateColor);
+router.put(
+  "/colors",
+  adminProtect,
+  checkPermission("website_theme_color"),
+  colorController.updateColor,
+);
 
 // Routes for Social Media Link
 router.get("/socialmedia", socialMediaLinkController.getSocialMedia);
 router.put(
   "/socialmedia",
   adminProtect,
+  checkPermission("social_media_link"),
   socialMediaLinkController.updateSocialMedia,
 );
 
@@ -187,8 +200,8 @@ router.get("/admin/me", authenticateToken, AdminController.getLoggedInAdmin);
 
 // CRUD routes for Admin User
 router.post("/admin/create", adminProtect, AdminController.createAdmin);
-router.get("/admin/getall",  AdminController.getAllAdmins);
-router.get("/admin/:id", adminProtect, AdminController.getAdminById);
+router.get("/admin/getall", AdminController.getAllAdmins);
+router.get("/admin/:id", AdminController.getAdminById);
 router.put("/admin/:id", adminProtect, AdminController.updateAdmin);
 router.delete("/admin/:id", adminProtect, AdminController.deleteAdmin);
 
@@ -216,9 +229,24 @@ router.delete("/deleteUser/:id", adminProtect, userController.deleteUser);
 // CRUD routes for Products Category
 router.get("/category", categoryController.getCategories);
 router.get("/category/:id", categoryController.getCategoryById);
-router.post("/category/", adminProtect, categoryController.createCategory);
-router.put("/category/:id", adminProtect, categoryController.updateCategory);
-router.delete("/category/:id", adminProtect, categoryController.deleteCategory);
+router.post(
+  "/category/",
+  adminProtect,
+  checkPermission("category"),
+  categoryController.createCategory,
+);
+router.put(
+  "/category/:id",
+  adminProtect,
+  checkPermission("category"),
+  categoryController.updateCategory,
+);
+router.delete(
+  "/category/:id",
+  adminProtect,
+  checkPermission("category"),
+  categoryController.deleteCategory,
+);
 
 // Define routes for subcategories
 router.get("/sub-category", subCategoryController.getAllSubCategories);
@@ -226,16 +254,19 @@ router.get("/sub-category/:id", subCategoryController.getSubCategoryById);
 router.post(
   "/sub-category",
   adminProtect,
+  checkPermission("sub_category"),
   subCategoryController.createSubCategory,
 );
 router.put(
   "/sub-category/:id",
   adminProtect,
+  checkPermission("sub_category"),
   subCategoryController.updateSubCategory,
 );
 router.delete(
   "/sub-category/:id",
   adminProtect,
+  checkPermission("sub_category"),
   subCategoryController.deleteSubCategory,
 );
 
@@ -264,24 +295,43 @@ router.get("/product-sizes/:id", productSizeController.getProductSizeById);
 router.post(
   "/product-sizes",
   adminProtect,
+  checkPermission("product_size"),
   productSizeController.createProductSize,
 );
 router.put(
   "/product-sizes/:id",
   adminProtect,
+  checkPermission("product_size"),
   productSizeController.updateProductSize,
 );
 router.delete(
   "/product-sizes/:id",
   adminProtect,
+  checkPermission("product_size"),
   productSizeController.deleteProductSize,
 );
+
 // Routes for Flags
 router.get("/flags", flagController.getAllFlags);
 router.get("/flags/:id", flagController.getFlagById);
-router.post("/flags", adminProtect, flagController.createFlag);
-router.put("/flags/:id", adminProtect, flagController.updateFlag);
-router.delete("/flags/:id", adminProtect, flagController.deleteFlag);
+router.post(
+  "/flags",
+  adminProtect,
+  checkPermission("product_flag"),
+  flagController.createFlag,
+);
+router.put(
+  "/flags/:id",
+  adminProtect,
+  checkPermission("product_flag"),
+  flagController.updateFlag,
+);
+router.delete(
+  "/flags/:id",
+  adminProtect,
+  checkPermission("product_flag"),
+  flagController.deleteFlag,
+);
 
 // Routes for Products
 router.get("/products", productController.getProducts); // All Products Without Sorting
@@ -314,21 +364,29 @@ router.delete("/removeCartItem", userProtect, cartController.removeCartItem);
 router.delete("/clearCart", userProtect, cartController.clearCart);
 
 // Shipping Option Routes
-router.post("/createShipping", adminProtect, shippingController.createShipping);
 router.get("/getAllShipping", shippingController.getAllShipping);
+router.post(
+  "/createShipping",
+  adminProtect,
+  checkPermission("delivery_charges"),
+  shippingController.createShipping,
+);
 router.get(
   "/getShippingById/:id",
   adminProtect,
+  checkPermission("delivery_charges"),
   shippingController.getShippingById,
 );
 router.patch(
   "/updateShipping/:id",
   adminProtect,
+  checkPermission("delivery_charges"),
   shippingController.updateShipping,
 );
 router.delete(
   "/deleteShipping/:id",
   adminProtect,
+  checkPermission("delivery_charges"),
   shippingController.deleteShipping,
 );
 
@@ -340,21 +398,44 @@ router.get(
 router.patch(
   "/updateFreeDeliveryAmount",
   adminProtect,
+  checkPermission("setup_config"),
   freeDeliveryController.updateFreeDeliveryAmount,
 );
 
 // Coupon Routes
-router.post("/createCoupon", couponController.createCoupon);
 router.post("/applyCoupon", couponController.applyCoupon);
-router.get("/getAllCoupons", couponController.getAllCoupons);
-router.patch("/updateCoupon/:id", couponController.updateCoupon);
-router.delete("/deleteCoupon/:id", couponController.deleteCoupon);
+
+router.post(
+  "/createCoupon",
+  adminProtect,
+  checkPermission("manage_coupons"),
+  couponController.createCoupon,
+);
+router.get(
+  "/getAllCoupons",
+  adminProtect,
+  checkPermission("manage_coupons"),
+  couponController.getAllCoupons,
+);
+router.patch(
+  "/updateCoupon/:id",
+  adminProtect,
+  checkPermission("manage_coupons"),
+  couponController.updateCoupon,
+);
+router.delete(
+  "/deleteCoupon/:id",
+  adminProtect,
+  checkPermission("manage_coupons"),
+  couponController.deleteCoupon,
+);
 
 // VAT Percentage Routes
 router.get("/getVatPercentage", VatPercentageController.getVatPercentage);
 router.patch(
   "/updateVatPercentage",
   adminProtect,
+  checkPermission("setup_config"),
   VatPercentageController.updateVatPercentage,
 );
 
@@ -396,11 +477,21 @@ router.post("/faq", adminProtect, FaqController.createFAQ);
 
 // Marquee Routes
 router.get("/marquee", MarqueeController.getMessages);
-router.patch("/marquee", adminProtect, MarqueeController.updateMessageSet);
+router.patch(
+  "/marquee",
+  adminProtect,
+  checkPermission("scroll_text"),
+  MarqueeController.updateMessageSet,
+);
 
 // Meta Routes
 router.get("/meta", metaController.getMeta);
-router.patch("/meta", adminProtect, metaController.updateMeta);
+router.patch(
+  "/meta",
+  adminProtect,
+  checkPermission("home_page_seo"),
+  metaController.updateMeta,
+);
 
 // Courier Check Routs
 router.post("/courier-check", handleCourierCheck);
@@ -415,19 +506,28 @@ router.get(
 
 // Abandoned Cart Routes
 router.post("/abandoned-cart", abandonedCartController.createAbandonedCart);
+
 router.get(
   "/abandoned-cart",
   adminProtect,
+  checkPermission("incomplete_orders"),
   abandonedCartController.getAllAbandonedCarts,
 );
 router.delete(
   "/abandoned-cart/:id",
+  adminProtect,
+  checkPermission("delete_incomplete_orders"),
   abandonedCartController.deleteAbandonedCart,
 );
 
 // Google Tag Manager Routes
 router.get("/getGTM", GoogleTagManagerController.getGTM);
-router.post("/updateGTM", adminProtect, GoogleTagManagerController.updateGTM);
+router.post(
+  "/updateGTM",
+  adminProtect,
+  checkPermission("setup_config"),
+  GoogleTagManagerController.updateGTM,
+);
 
 // bKash Config Routes
 router.get("/bkash-config", adminProtect, bkashConfigController.getBkashConfig);
