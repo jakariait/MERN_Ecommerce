@@ -2,6 +2,7 @@ import React from "react";
 import LayoutAdmin from "../component/componentAdmin/LayoutAdmin.jsx";
 import Breadcrumb from "../component/componentAdmin/Breadcrumb.jsx";
 import AdminList from "../component/componentAdmin/AdminList.jsx";
+import RequirePermission from "../component/componentAdmin/RequirePermission.jsx";
 
 const AdminListPage = () => {
   return (
@@ -10,7 +11,10 @@ const AdminListPage = () => {
         title={"View All System Users"}
         pageDetails={"SYSTEM USERS"}
       />
-      <AdminList />
+      <RequirePermission permission="admin-users">
+        <AdminList />
+      </RequirePermission >
+
 
     </LayoutAdmin>
   );

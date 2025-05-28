@@ -15,6 +15,7 @@ import {
 import { useRef } from "react";
 import OrderStatusUpdate from "./OrderStatusUpdate.jsx";
 import CourierStats from "./CourierStats.jsx";
+import RequirePermission from "./RequirePermission.jsx";
 
 // Import your VITE API URL
 const apiUrl = import.meta.env.VITE_API_URL; // 👈 assuming you set it in .env
@@ -327,7 +328,11 @@ const ViewOrder = () => {
         </div>
       </div>
       <div className="mt-6">
-        <OrderStatusUpdate orderId={order._id} onUpdate={fetchOrder} />
+        <RequirePermission permission="edit_orders">
+          <OrderStatusUpdate orderId={order._id} onUpdate={fetchOrder} />
+
+        </RequirePermission >
+
       </div>
       <div className="mt-6">
         <CourierStats phone={order.shippingInfo.mobileNo} />

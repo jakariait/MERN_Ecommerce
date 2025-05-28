@@ -26,6 +26,7 @@ import { MdDeleteOutline } from "react-icons/md";
 import { BsArrowsCollapse } from "react-icons/bs";
 import Skeleton from "react-loading-skeleton";
 import { Link } from "react-router-dom";
+import RequirePermission from "./RequirePermission.jsx";
 
 const ViewAllProducts = () => {
   const {
@@ -253,25 +254,35 @@ const ViewAllProducts = () => {
                         <FaEye className="w-5 h-5" />
                       </a>
                     </div>
-                    <div
-                      className={
-                        "primaryBgColor py-1 flex justify-center items-center accentTextColor rounded-lg"
-                      }
+                    <RequirePermission
+                      permission="edit_products"
+                      fallback={true}
                     >
-                      <Link to={`/admin/edit-product/${product.slug}`}>
-                        <FaRegEdit className="w-5 h-5" />
-                      </Link>
-                    </div>
-                    <div
-                      className={
-                        "primaryBgColor py-1 flex justify-center items-center accentTextColor rounded-lg"
-                      }
+                      <div
+                        className={
+                          "primaryBgColor py-1 flex justify-center items-center accentTextColor rounded-lg"
+                        }
+                      >
+                        <Link to={`/admin/edit-product/${product.slug}`}>
+                          <FaRegEdit className="w-5 h-5" />
+                        </Link>
+                      </div>
+                    </RequirePermission>
+                    <RequirePermission
+                      permission="delete_products"
+                      fallback={true}
                     >
-                      <MdDeleteOutline
-                        onClick={() => handleOpenDialog(product.productId)}
-                        className={"w-5 h-5 cursor-pointer"}
-                      />
-                    </div>
+                      <div
+                        className={
+                          "primaryBgColor py-1 flex justify-center items-center accentTextColor rounded-lg"
+                        }
+                      >
+                        <MdDeleteOutline
+                          onClick={() => handleOpenDialog(product.productId)}
+                          className={"w-5 h-5 cursor-pointer"}
+                        />
+                      </div>
+                    </RequirePermission>
                   </div>
                 </TableCell>
               </TableRow>

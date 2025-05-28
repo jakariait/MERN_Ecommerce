@@ -37,6 +37,7 @@ import OrderStatusSelector from "./OrderStatusSelector.jsx";
 import SendToCourierButton from "./SendToCourierButton.jsx";
 import CourierSummary from "../componentAdmin/CourierSummery.jsx";
 import PropTypes from "prop-types";
+import RequirePermission from "./RequirePermission.jsx";
 
 const AllOrders = ({ allOrders, orderListLoading, orderListError, title }) => {
   const {
@@ -434,14 +435,16 @@ const AllOrders = ({ allOrders, orderListLoading, orderListError, title }) => {
                             <VisibilityIcon />
                           </IconButton>
                         </Tooltip>
-                        <Tooltip title="Delete">
-                          <IconButton
-                            onClick={() => handleOpenDialog(order._id)}
-                            color="error"
-                          >
-                            <DeleteIcon />
-                          </IconButton>
-                        </Tooltip>
+                        <RequirePermission permission="delete_orders" fallback={true}>
+                          <Tooltip title="Delete">
+                            <IconButton
+                              onClick={() => handleOpenDialog(order._id)}
+                              color="error"
+                            >
+                              <DeleteIcon />
+                            </IconButton>
+                          </Tooltip>
+                        </RequirePermission>
                       </Box>
                     </TableCell>
                   </TableRow>

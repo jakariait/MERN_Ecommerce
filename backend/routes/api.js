@@ -122,11 +122,17 @@ router.delete(
 );
 
 //   Routes for Newsletter Subscription
-router.post("/subscribe", newsletterController.subscribe); // POST /api/newsletter/subscribe
-router.get("/subscribers", adminProtect, newsletterController.getSubscription); // GET /api/newsletter/subscribers
+router.post("/subscribe", newsletterController.subscribe);
+router.get(
+  "/subscribers",
+  adminProtect,
+  checkPermission("subscribed_users"),
+  newsletterController.getSubscription,
+);
 router.delete(
   "/delete-subscriber",
   adminProtect,
+  checkPermission("subscribed_users"),
   newsletterController.deleteSubscriber,
 );
 
@@ -135,12 +141,14 @@ router.post(
   "/createcarousel",
   upload,
   adminProtect,
+  checkPermission("sliders-banners"),
   CarouselController.createCarousel,
 );
 router.get("/getallcarousel", CarouselController.getAllCarousel);
 router.delete(
   "/deletebyidcarousel/:id",
   adminProtect,
+  checkPermission("sliders-banners"),
   CarouselController.deleteByIdCarousel,
 );
 
@@ -149,23 +157,27 @@ router.post(
   "/feature-images/create",
   upload,
   adminProtect,
+  checkPermission("sliders-banners"),
   featureImageController.createFeatureImage,
 );
 router.get("/feature-images", featureImageController.getAllFeatureImages);
 router.get(
   "/feature-images/:id",
   adminProtect,
+  checkPermission("sliders-banners"),
   featureImageController.getFeatureImageById,
 );
 router.put(
   "/feature-images/:id",
   upload,
   adminProtect,
+  checkPermission("sliders-banners"),
   featureImageController.updateFeatureImage,
 );
 router.delete(
   "/feature-images/:id",
   adminProtect,
+  checkPermission("sliders-banners"),
   featureImageController.deleteFeatureImage,
 );
 
@@ -189,21 +201,65 @@ router.put(
 
 // Routes for Contact Us Form
 router.post("/contacts", contactController.createContact);
-router.get("/contacts", adminProtect, contactController.getAllContacts);
-router.get("/contacts/:id", adminProtect, contactController.getContactById);
-router.put("/contacts/:id", adminProtect, contactController.updateContact);
-router.delete("/contacts/:id", adminProtect, contactController.deleteContact);
+router.get(
+  "/contacts",
+  adminProtect,
+  checkPermission("contact_request"),
+  contactController.getAllContacts,
+);
+router.get(
+  "/contacts/:id",
+  adminProtect,
+  checkPermission("contact_request"),
+  contactController.getContactById,
+);
+router.put(
+  "/contacts/:id",
+  adminProtect,
+  checkPermission("contact_request"),
+  contactController.updateContact,
+);
+router.delete(
+  "/contacts/:id",
+  adminProtect,
+  checkPermission("contact_request"),
+  contactController.deleteContact,
+);
 
 // Admin Login route
 router.post("/admin/login", AdminController.loginAdmin);
 router.get("/admin/me", authenticateToken, AdminController.getLoggedInAdmin);
 
 // CRUD routes for Admin User
-router.post("/admin/create", adminProtect, AdminController.createAdmin);
-router.get("/admin/getall", AdminController.getAllAdmins);
-router.get("/admin/:id", AdminController.getAdminById);
-router.put("/admin/:id", adminProtect, AdminController.updateAdmin);
-router.delete("/admin/:id", adminProtect, AdminController.deleteAdmin);
+router.post(
+  "/admin/create",
+  adminProtect,
+  checkPermission("admin-users"),
+  AdminController.createAdmin,
+);
+router.get(
+  "/admin/getall",
+  adminProtect,
+  checkPermission("admin-users"),
+  AdminController.getAllAdmins,
+);
+router.get(
+  "/admin/:id",
+  adminProtect,checkPermission("admin-users"),
+  AdminController.getAdminById,
+);
+router.put(
+  "/admin/:id",
+  adminProtect,
+  checkPermission("admin-users"),
+  AdminController.updateAdmin,
+);
+router.delete(
+  "/admin/:id",
+  adminProtect,
+  checkPermission("admin-users"),
+  AdminController.deleteAdmin,
+);
 
 // User Login Route
 
@@ -222,9 +278,24 @@ router.put(
 router.patch("/change-password", userProtect, userController.changePassword);
 
 // Admin Protected Routes
-router.get("/getAllUsers", adminProtect, userController.getAllUsers);
-router.get("/getUserById/:id", adminProtect, userController.getUserById);
-router.delete("/deleteUser/:id", adminProtect, userController.deleteUser);
+router.get(
+  "/getAllUsers",
+  adminProtect,
+  checkPermission("view_customers"),
+  userController.getAllUsers,
+);
+router.get(
+  "/getUserById/:id",
+  adminProtect,
+  checkPermission("view_customers"),
+  userController.getUserById,
+);
+router.delete(
+  "/deleteUser/:id",
+  adminProtect,
+  checkPermission("delete_customers"),
+  userController.deleteUser,
+);
 
 // CRUD routes for Products Category
 router.get("/category", categoryController.getCategories);
@@ -276,16 +347,19 @@ router.get("/child-category/:id", childCategoryController.getChildCategoryById);
 router.post(
   "/child-category",
   adminProtect,
+  checkPermission("child_category"),
   childCategoryController.createChildCategory,
 );
 router.put(
   "/child-category/:id",
   adminProtect,
+  checkPermission("child_category"),
   childCategoryController.updateChildCategory,
 );
 router.delete(
   "/child-category/:id",
   adminProtect,
+  checkPermission("child_category"),
   childCategoryController.deleteChildCategory,
 );
 
@@ -339,14 +413,28 @@ router.get("/getAllProducts", productController.getAllProducts); // All Products
 router.get("/getAllProductsAdmin", productController.getAllProductsAdmin);
 router.get("/products/:id", productController.getProductById);
 router.get("/products/slug/:slug", productController.getProductBySlug);
-router.post("/products", adminProtect, upload, productController.createProduct);
+
+router.post(
+  "/products",
+  adminProtect,
+  checkPermission("add_products"),
+  upload,
+  productController.createProduct,
+);
 router.put(
   "/products/:id",
   adminProtect,
+  checkPermission("edit_products"),
   upload,
   productController.updateProduct,
 );
-router.delete("/products/:id", adminProtect, productController.deleteProduct);
+router.delete(
+  "/products/:id",
+  adminProtect,
+  checkPermission("delete_products"),
+  productController.deleteProduct,
+);
+
 router.get(
   "/similar/:category/:productId",
   productController.getSimilarProductsController,
@@ -441,10 +529,33 @@ router.patch(
 
 // Order routes
 router.post("/orders", orderController.createOrder);
-router.get("/orders", adminProtect, orderController.getAllOrders);
-router.get("/orders/:orderId", adminProtect, orderController.getOrderById);
-router.put("/orders/:orderId", adminProtect, orderController.updateOrder);
-router.delete("/orders/:orderId", adminProtect, orderController.deleteOrder);
+
+router.get(
+  "/orders",
+  adminProtect,
+  checkPermission("view_orders"),
+  orderController.getAllOrders,
+);
+router.get(
+  "/orders/:orderId",
+  adminProtect,
+  checkPermission("view_orders"),
+  orderController.getOrderById,
+);
+
+router.put(
+  "/orders/:orderId",
+  adminProtect,
+  checkPermission("edit_orders"),
+  orderController.updateOrder,
+);
+
+router.delete(
+  "/orders/:orderId",
+  adminProtect,
+  checkPermission("delete_orders"),
+  orderController.deleteOrder,
+);
 router.get("/order-no/:orderNo", orderController.getOrderByOrderNo);
 router.get(
   "/ordersbyUser/:userId",
@@ -465,15 +576,31 @@ router.get("/pagecontent/:page", PageContentController.getPageContent);
 router.patch(
   "/pagecontent/:page",
   adminProtect,
+  checkPermission("about_terms-policies"),
   PageContentController.updatePageContent,
 );
 
 // FAQ's Routes
 router.get("/faq", FaqController.getAllFAQs);
 router.get("/faq/:id", FaqController.getSingleFAQ);
-router.patch("/faq/:id", adminProtect, FaqController.updateFAQ);
-router.delete("/faq/:id", adminProtect, FaqController.deleteFAQ);
-router.post("/faq", adminProtect, FaqController.createFAQ);
+router.patch(
+  "/faq/:id",
+  adminProtect,
+  checkPermission("faqs"),
+  FaqController.updateFAQ,
+);
+router.delete(
+  "/faq/:id",
+  adminProtect,
+  checkPermission("faqs"),
+  FaqController.deleteFAQ,
+);
+router.post(
+  "/faq",
+  adminProtect,
+  checkPermission("faqs"),
+  FaqController.createFAQ,
+);
 
 // Marquee Routes
 router.get("/marquee", MarqueeController.getMessages);
@@ -530,23 +657,32 @@ router.post(
 );
 
 // bKash Config Routes
-router.get("/bkash-config", adminProtect, bkashConfigController.getBkashConfig);
+router.get(
+  "/bkash-config",
+  adminProtect,
+  checkPermission("bkash_api"),
+  bkashConfigController.getBkashConfig,
+);
 router.patch(
   "/bkash-config",
   adminProtect,
+  checkPermission("bkash_api"),
   bkashConfigController.updateBkashConfig,
 );
+
 router.get("/bkash-is-active", bkashConfigController.getBkashIsActive);
 
 // SteadFast Config Routes
 router.get(
   "/steadfast-config",
   adminProtect,
+  checkPermission("steadfast_api"),
   SteadfastConfigController.getConfig,
 );
 router.patch(
   "/steadfast-config",
   adminProtect,
+  checkPermission("steadfast_api"),
   SteadfastConfigController.updateConfig,
 );
 

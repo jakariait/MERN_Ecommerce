@@ -287,6 +287,7 @@ function App() {
             path="/admin/edit-product/:slug"
             element={<EditProductPage />}
           />
+
           <Route path="/admin/customers" element={<CustomerListPage />} />
           {/*Delivery Charges Routes*/}
           <Route

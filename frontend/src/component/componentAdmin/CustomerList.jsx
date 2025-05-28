@@ -27,6 +27,7 @@ import ImageComponent from "../componentGeneral/ImageComponent.jsx";
 
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
+import RequirePermission from "./RequirePermission.jsx";
 
 const CustomerList = () => {
   const { token } = useAuthAdminStore();
@@ -235,7 +236,9 @@ const CustomerList = () => {
               <TableCell>Reward Points</TableCell>
               <TableCell>Joined</TableCell>
               <TableCell>Account Deletion</TableCell>
-              <TableCell>Action</TableCell>
+              <RequirePermission permission="delete_customers" fallback={true}>
+                <TableCell>Action</TableCell>
+              </RequirePermission>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -286,12 +289,17 @@ const CustomerList = () => {
                         <span className="text-green-600">Active</span>
                       )}
                     </TableCell>
-                    <TableCell>
-                      <MdDeleteOutline
-                        className="text-red-600 cursor-pointer text-2xl"
-                        onClick={() => handleOpenDialog(cus._id)}
-                      />
-                    </TableCell>
+                    <RequirePermission
+                      permission="delete_customers"
+                      fallback={true}
+                    >
+                      <TableCell>
+                        <MdDeleteOutline
+                          className="text-red-600 cursor-pointer text-2xl"
+                          onClick={() => handleOpenDialog(cus._id)}
+                        />
+                      </TableCell>
+                    </RequirePermission>
                   </TableRow>
                 ))}
           </TableBody>

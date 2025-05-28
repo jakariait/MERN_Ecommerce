@@ -45,7 +45,7 @@ const ContactTable = () => {
         const sortedData = data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
         setContacts(sortedData);
       } catch (error) {
-        alert(error.message);
+        console.log(error.message);
       } finally {
         setLoading(false);
       }
@@ -61,7 +61,7 @@ const ContactTable = () => {
   };
 
   const handleDelete = async (id) => {
-    if (!token) return alert("Unauthorized request");
+    if (!token) return console.log("Unauthorized request");
 
     if (window.confirm("Are you sure you want to delete this contact?")) {
       try {

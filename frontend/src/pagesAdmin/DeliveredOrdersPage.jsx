@@ -3,6 +3,7 @@ import LayoutAdmin from "../component/componentAdmin/LayoutAdmin.jsx";
 import Breadcrumb from "../component/componentAdmin/Breadcrumb.jsx";
 import AllOrders from "../component/componentAdmin/AllOrders.jsx";
 import useOrderStore from "../store/useOrderStore.js";
+import RequirePermission from "../component/componentAdmin/RequirePermission.jsx";
 
 const DeliveredOrdersPage = () => {
 	const {
@@ -21,12 +22,16 @@ const DeliveredOrdersPage = () => {
 	return (
 		<LayoutAdmin>
 			<Breadcrumb pageDetails="ORDERS" title="View All Delivered Orders" />
+			<RequirePermission permission="view_orders">
+
 			<AllOrders
 				allOrders={orderListByStatus.delivered}
 				orderListLoading={orderListLoading}
 				orderListError={orderListError}
 				title={"Delivered Orders"}
 			/>
+			</RequirePermission >
+
 		</LayoutAdmin>
 	);
 };
