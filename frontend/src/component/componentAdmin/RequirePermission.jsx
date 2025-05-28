@@ -1,44 +1,26 @@
-// import React from "react";
-// import useAuthAdminStore from "../../store/AuthAdminStore.js";
-// import { Box, Typography } from "@mui/material";
-//
-// const RequirePermission = ({ permission, children, fallback }) => {
-//   const { admin } = useAuthAdminStore();
-//   const hasPermission = admin?.permissions?.includes(permission);
-//
-//   if (hasPermission) {
-//     return <>{children}</>;
-//   }
-//
-//   if (fallback === true) {
-//     // Silent hide
-//     return null;
-//   }
-//
-//   if (fallback) {
-//     // Custom fallback UI
-//     return <>{fallback}</>;
-//   }
-//
-//   // Default message fallback
-//   return (
-//     <Box sx={{ p: 2, border: "1px dashed #ccc", borderRadius: 1 }}>
-//       <Typography color="error">
-//         You do not have permission to view this section.
-//       </Typography>
-//     </Box>
-//   );
-// };
-//
-// export default RequirePermission;
-
 import React from "react";
 import useAuthAdminStore from "../../store/AuthAdminStore.js";
-import { Box, Typography } from "@mui/material";
+import { Box, Typography, CircularProgress } from "@mui/material";
 
 const RequirePermission = ({ permission, children, fallback, match = "all" }) => {
-  const { admin } = useAuthAdminStore();
-  const userPermissions = admin?.permissions || [];
+  const { admin, loading } = useAuthAdminStore();
+  const userPermissions = admin?.permissions;
+
+  // ✅ Show spinner while loading or permissions are not available
+  if (loading || !Array.isArray(userPermissions)) {
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          py: 4,
+        }}
+      >
+        <CircularProgress />
+      </Box>
+    );
+  }
 
   const requiredPermissions = Array.isArray(permission)
     ? permission
@@ -66,3 +48,4 @@ const RequirePermission = ({ permission, children, fallback, match = "all" }) =>
 };
 
 export default RequirePermission;
+
