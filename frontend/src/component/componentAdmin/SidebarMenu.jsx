@@ -45,12 +45,13 @@ import React, { useEffect } from "react";
 import RequirePermission from "./RequirePermission.jsx";
 import AbandonedCartsContainer from "./AbandonedCartsContainer.jsx";
 import GeneralInfoForm from "./GeneralInfoForm.jsx";
+import { CircularProgress, Skeleton } from "@mui/material";
 
 export default function SidebarMenu() {
   const { totalProductsAdmin } = useProductStore();
   const { logout } = useAuthAdminStore();
   const { totalByStatus } = useOrderStore();
-
+  const { loading } = useAuthAdminStore();
   // To access delivered count
   const pendingCount = totalByStatus.pending;
   const approvedCount = totalByStatus.approved;
@@ -70,6 +71,15 @@ export default function SidebarMenu() {
     logout();
     navigate("/admin/login");
   };
+
+  if (loading) {
+    return (
+      <div className="w-64 mt-100 flex justify-center items-center">
+        <CircularProgress />
+      </div>
+    );
+  }
+
   return (
     <div className="w-fit p-4 h-screen overflow-y-auto ">
       {/* Dashboard */}
