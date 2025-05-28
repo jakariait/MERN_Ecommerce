@@ -6,8 +6,20 @@ const RequirePermission = ({ permission, children, fallback, match = "all" }) =>
   const { admin, loading } = useAuthAdminStore();
   const userPermissions = admin?.permissions;
 
-  // ✅ Show spinner while loading or permissions are not available
-  if (loading || !Array.isArray(userPermissions)) {
+  const requiredPermissions = Array.isArray(permission)
+    ? permission
+    : [permission];
+
+  const hasPermission =
+    Array.isArray(userPermissions) &&
+    (match === "any"
+      ? requiredPermissions.some((perm) => userPermissions.includes(perm))
+      : requiredPermissions.every((perm) => userPermissions.includes(perm)));
+
+  // ⛔ Don't show loading spinner if fallback === true
+  if (!hasPermission && (loading || !Array.isArray(userPermissions))) {
+    if (fallback === true) return null;
+
     return (
       <Box
         sx={{
@@ -21,15 +33,6 @@ const RequirePermission = ({ permission, children, fallback, match = "all" }) =>
       </Box>
     );
   }
-
-  const requiredPermissions = Array.isArray(permission)
-    ? permission
-    : [permission];
-
-  const hasPermission =
-    match === "any"
-      ? requiredPermissions.some((perm) => userPermissions.includes(perm))
-      : requiredPermissions.every((perm) => userPermissions.includes(perm));
 
   if (hasPermission) {
     return <>{children}</>;
@@ -48,4 +51,3 @@ const RequirePermission = ({ permission, children, fallback, match = "all" }) =>
 };
 
 export default RequirePermission;
-
