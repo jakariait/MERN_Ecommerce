@@ -10,24 +10,14 @@ import {
   FaTags,
   FaCreditCard,
   FaUsers,
-  FaTruck,
-  FaMoneyBill,
-  FaTicketAlt,
   FaEnvelope,
   FaUserFriends,
   FaSlidersH,
-  FaQuoteRight,
-  FaNewspaper,
   FaFileAlt,
-  FaInfoCircle,
   FaQuestionCircle,
   FaUserShield,
-  FaLock,
-  FaUserCheck,
   FaSignOutAlt,
-  FaTrash,
   FaShoppingBag,
-  FaGift,
   FaInfo,
   FaClipboardList,
 } from "react-icons/fa";
@@ -41,11 +31,10 @@ import Typography from "@mui/material/Typography";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import useProductStore from "../../store/useProductStore.js";
 import useOrderStore from "../../store/useOrderStore.js";
-import React, { useEffect } from "react";
+import React from "react";
 import RequirePermission from "./RequirePermission.jsx";
-import AbandonedCartsContainer from "./AbandonedCartsContainer.jsx";
-import GeneralInfoForm from "./GeneralInfoForm.jsx";
-import { CircularProgress, Skeleton } from "@mui/material";
+
+import { CircularProgress } from "@mui/material";
 
 export default function SidebarMenu() {
   const { totalProductsAdmin } = useProductStore();

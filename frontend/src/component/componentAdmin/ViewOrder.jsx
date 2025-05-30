@@ -18,16 +18,96 @@ import CourierStats from "./CourierStats.jsx";
 import RequirePermission from "./RequirePermission.jsx";
 
 // Import your VITE API URL
-const apiUrl = import.meta.env.VITE_API_URL; // 👈 assuming you set it in .env
+const apiUrl = import.meta.env.VITE_API_URL;
 
 const ViewOrder = () => {
+  const printRef = useRef(null);
+
+  const handlePrint = () => {
+    const content = document.getElementById("print-area");
+    if (!content) return;
+
+    const iframe = document.createElement("iframe");
+    iframe.style.position = "fixed";
+    iframe.style.right = "0";
+    iframe.style.bottom = "0";
+    iframe.style.width = "0";
+    iframe.style.height = "0";
+    iframe.style.border = "0";
+    document.body.appendChild(iframe);
+
+    const doc = iframe.contentWindow?.document;
+    if (!doc) return;
+
+    doc.open();
+    doc.write(`
+    <html>
+      <head>
+        <title>Print Invoice</title>
+        <style>
+        body {
+          font-family: Arial, sans-serif;
+          font-size: 12pt;      /* good size for print */
+          line-height: 1;     /* comfortable line height */
+          margin: 20px;
+        }
+
+        h1 {
+          font-size: 24px;
+          margin-bottom: 20px;
+        }
+        table {
+          width: 100%;
+          border-collapse: collapse;
+        }
+        th, td {
+          padding: 10px;
+          border: 1px solid #ddd;
+          text-align: left;
+        }
+        img{
+        width: 100px;
+        }
+         #firstRow, #secondRow{
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+         }
+          #thirdRow{
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+
+          }
+          button{
+          display: none;
+          }
+          #thirdRowRight, #secondRowRight{
+          text-align: right;
+          }
+        </style>
+      </head>
+      <body>
+        ${content.innerHTML}
+      </body>
+    </html>
+  `);
+    doc.close();
+
+    iframe.onload = () => {
+      iframe.contentWindow?.focus();
+      iframe.contentWindow?.print();
+      setTimeout(() => document.body.removeChild(iframe), 1000);
+    };
+  };
+
   const { GeneralInfoList } = useGeneralInfoStore();
 
   const { orderId } = useParams();
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const printRef = useRef(null);
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -119,49 +199,11 @@ const ViewOrder = () => {
   const orderStatusColor = getStatusColor(order.orderStatus);
   const paymentStatusColor = getPaymentStatusColor(order.paymentStatus);
 
-  const handlePrint = () => {
-    const content = printRef.current.innerHTML; // Get the content to print
-
-    // Create a new div or section in the body to temporarily hold the content for printing
-    const printContainer = document.createElement("div");
-    printContainer.innerHTML = `
-    <html>
-      <head>
-        <title>Invoice</title>
-        <style>
-          body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-          }
-          .invoice {
-            width: 100%;
-            margin: auto;
-          }
-        </style>
-      </head>
-      <body>
-        <div class="invoice">${content}</div>
-      </body>
-    </html>
-  `;
-
-    // Append the print container to the body temporarily
-    document.body.appendChild(printContainer);
-
-    // Trigger the print dialog
-    window.print();
-
-    // Clean up by removing the print container after printing
-    setTimeout(() => {
-      document.body.removeChild(printContainer);
-    }, 1000); // Delay to ensure the print dialog has been opened before removing the element
-  };
-
   return (
     <div>
-      <div ref={printRef} className="p-4 shadow rounded-lg">
-        <div className={"flex justify-between items-center mb-5"}>
-          <div className={"text-2xl"}>{GeneralInfoList.CompanyName}</div>
+      <div id="print-area" ref={printRef} className=" p-4 shadow rounded-lg">
+        <div id="firstRow" className={"flex justify-between items-center mb-5"}>
+          <h1 className={"text-2xl"}>{GeneralInfoList.CompanyName}</h1>
           <div>
             <ImageComponent
               imageName={GeneralInfoList.PrimaryLogo}
@@ -172,7 +214,7 @@ const ViewOrder = () => {
             <h1>Invoice</h1>
           </div>
         </div>
-        <div className="flex justify-between">
+        <div id="secondRow" className="flex justify-between">
           {/* Shipping Info Section */}
           <div>
             <h2 className="font-bold text-xl">Shipping Info:</h2>
@@ -185,8 +227,8 @@ const ViewOrder = () => {
           </div>
 
           {/* Order Details Section */}
-          <div>
-            <div className="flex justify-between flex-col gap-0.5">
+          <div id="secondRowRight" className="flex flex-col gap-2">
+            <div className="flex justify-between flex-col gap-0.5 text-right">
               <p>
                 <strong>Order No:</strong> {order.orderNo}
               </p>
@@ -292,7 +334,7 @@ const ViewOrder = () => {
             </Table>
           </TableContainer>
         </div>
-        <div className="mt-6 p-1 flex justify-between ">
+        <div id="thirdRow" className="mt-6 p-1 flex justify-between ">
           <div>
             <h1>Billing Address:</h1>
             <div>
@@ -300,26 +342,38 @@ const ViewOrder = () => {
               <p>{order.shippingInfo.address}</p>
             </div>
           </div>
-          <div className="flex flex-col gap-2 items-end">
+          <div id="thirdRowRight" className="flex flex-col gap-2 items-end">
             <p>Sub-total: Tk.{order.subtotalAmount.toFixed(2)}</p>
-            <p>Promo Discount: Tk.{order.promoDiscount.toFixed(2)}</p>
-            <p>Reward Points Used: {order.rewardPointsUsed}</p>
-            <p>VAT/TAX: {order.vat.toFixed(2)}</p>
+            {order.promoDiscount !== 0 && (
+              <p>Promo Discount: Tk.{order.promoDiscount.toFixed(2)}</p>
+            )}
+
+            {order.rewardPointsUsed !== 0 && (
+              <p>Reward Points Used: {order.rewardPointsUsed}</p>
+            )}
+
+            {order.vat !== 0 && <p>VAT/TAX: {order.vat.toFixed(2)}</p>}
+
             <p>Delivery Charge: {order.deliveryCharge.toFixed(2)}</p>
-            <p>Special Discount Amount: {order.specialDiscount.toFixed(2)}</p>
+            {order.specialDiscount !== 0 && (
+              <p>Special Discount Amount: {order.specialDiscount.toFixed(2)}</p>
+            )}
             <p className={"text-2xl"}>
               Total Order Amount: {order.totalAmount.toFixed(2)}
             </p>
-            <p className={"text-red-500"}>
-              Advance: {order.advanceAmount.toFixed(2)}
-            </p>
+            {order.advanceAmount !== 0 && (
+              <p className={"text-red-500"}>
+                Advance: {order.advanceAmount.toFixed(2)}
+              </p>
+            )}
+
             <p className={"text-2xl"}>
               Total Due Amount: {order.dueAmount.toFixed(2)}
             </p>
             <div className="flex justify-end mb-4">
               <button
                 onClick={handlePrint}
-                className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded"
+                className="primaryBgColor accentTextColor cursor-pointer font-bold py-2 px-4 rounded"
               >
                 Print Invoice
               </button>
@@ -330,9 +384,7 @@ const ViewOrder = () => {
       <div className="mt-6">
         <RequirePermission permission="edit_orders">
           <OrderStatusUpdate orderId={order._id} onUpdate={fetchOrder} />
-
-        </RequirePermission >
-
+        </RequirePermission>
       </div>
       <div className="mt-6">
         <CourierStats phone={order.shippingInfo.mobileNo} />

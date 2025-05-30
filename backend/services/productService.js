@@ -94,6 +94,177 @@ const deleteProduct = async (productId) => {
 };
 
 // Get all products with pagination, filters, and sorting
+// const getAllProducts = async ({
+//   page = 1,
+//   limit = 10,
+//   sort,
+//   category,
+//   subcategory,
+//   childCategory,
+//   stock,
+//   flags,
+//   isActive,
+//   search, // <-- added
+// }) => {
+//   try {
+//     // Fetch category, subcategory, and childCategory independently
+//     const [categoryDoc, subCategoryDoc, childCategoryDoc, flagDocs] =
+//       await Promise.all([
+//         category
+//           ? CategoryModel.findOne({ name: category }).select("_id")
+//           : null,
+//         subcategory
+//           ? SubCategoryModel.findOne({
+//               slug: subcategory,
+//               isActive: true,
+//             }).select("_id")
+//           : null,
+//         childCategory
+//           ? ChildCategoryModel.findOne({
+//               slug: childCategory,
+//               isActive: true,
+//             }).select("_id")
+//           : null,
+//         flags
+//           ? FlagModel.find({
+//               name: { $in: flags.split(",") },
+//               isActive: true,
+//             }).select("_id")
+//           : [],
+//       ]);
+//
+//     // If any provided category, subcategory, or childCategory is invalid, return an empty result
+//     if (
+//       (category && !categoryDoc) ||
+//       (subcategory && !subCategoryDoc) ||
+//       (childCategory && !childCategoryDoc) ||
+//       (flags && flagDocs.length === 0)
+//     ) {
+//       return {
+//         products: [],
+//         totalProducts: 0,
+//         totalPages: 0,
+//         currentPage: page,
+//       };
+//     }
+//
+//     let query = {};
+//
+//     if (typeof isActive === "boolean") {
+//       query.isActive = isActive;
+//     }
+//
+//     // Apply filters for valid active categories, subcategories, and child categories
+//     if (categoryDoc) query.category = categoryDoc._id;
+//     if (subCategoryDoc) query.subCategory = subCategoryDoc._id;
+//     if (childCategoryDoc) query.childCategory = childCategoryDoc._id;
+//
+//     // Apply stock filter (in-stock or out-of-stock)
+//     if (stock === "in") query.finalStock = { $gt: 0 };
+//     if (stock === "out") query.finalStock = { $lte: 0 };
+//
+//
+//
+//
+//
+//     // Apply flags filter if provided
+//     if (flagDocs.length)
+//       query.flags = { $in: flagDocs.map((flag) => flag._id) };
+//
+//     // Default sorting to newest first
+//     let sortOption = { createdAt: -1 };
+//
+//     // Check for valid sorting values
+//     const validSortValues = [
+//       "price_high",
+//       "price_low",
+//       "name_asc",
+//       "name_desc",
+//       "latest",
+//       "oldest",
+//     ];
+//     if (sort && !validSortValues.includes(sort)) {
+//       return {
+//         products: [],
+//         totalProducts: 0,
+//         totalPages: 0,
+//         currentPage: page,
+//       };
+//     }
+//
+//     // Sorting logic
+//     if (sort === "price_high") sortOption = { finalDiscount: -1 };
+//     if (sort === "price_low") sortOption = { finalDiscount: 1 };
+//     if (sort === "name_asc") sortOption = { name: 1 }; // A-Z
+//     if (sort === "name_desc") sortOption = { name: -1 }; // Z-A
+//     if (sort === "oldest") sortOption = { createdAt: 1 }; // Oldest first
+//
+//     // Count total products based on the active filter
+//     const totalProducts = await ProductModel.countDocuments(query);
+//
+//     // Fetch products with filters, sorting, and pagination
+//     const products = await ProductModel.find(query)
+//       .sort(sortOption)
+//       .skip((page - 1) * limit)
+//       .limit(limit)
+//       .select(
+//         "name slug finalDiscount finalPrice finalStock thumbnailImage isActive images productId category variants flags productId",
+//       )
+//       .populate([
+//         { path: "category", select: "-createdAt -updatedAt" },
+//         { path: "flags", select: "-createdAt -updatedAt" },
+//         { path: "variants.size", select: "-createdAt -updatedAt" },
+//       ]);
+//     if (
+//       (category && !categoryDoc) ||
+//       (subcategory && !subCategoryDoc) ||
+//       (childCategory && !childCategoryDoc) ||
+//       (flags && flagDocs.length === 0)
+//     ) {
+//       return {
+//         products: [],
+//         totalProducts: 0,
+//         totalPages: 0,
+//         currentPage: page,
+//       };
+//     }
+//
+// // ✅ ADD THIS NEXT
+//     if (search && search.trim()) {
+//       const matchedProduct = await ProductModel.findOne({
+//         $expr: {
+//           $eq: [{ $toLower: "$name" }, search.toLowerCase()],
+//         },
+//         isActive: true,
+//       })
+//         .select(
+//           "name slug finalDiscount finalPrice finalStock thumbnailImage isActive images productId category variants flags"
+//         )
+//         .populate([
+//           { path: "category", select: "-createdAt -updatedAt" },
+//           { path: "flags", select: "-createdAt -updatedAt" },
+//           { path: "variants.size", select: "-createdAt -updatedAt" },
+//         ]);
+//
+//       return {
+//         products: matchedProduct ? [matchedProduct] : [],
+//         totalProducts: matchedProduct ? 1 : 0,
+//         totalPages: 1,
+//         currentPage: page,
+//       };
+//     }
+//
+//     return {
+//       products,
+//       totalProducts,
+//       totalPages: Math.ceil(totalProducts / limit),
+//       currentPage: page,
+//     };
+//   } catch (error) {
+//     throw new Error(error.message);
+//   }
+// };
+
 const getAllProducts = async ({
   page = 1,
   limit = 10,
@@ -104,9 +275,10 @@ const getAllProducts = async ({
   stock,
   flags,
   isActive,
+  search,
 }) => {
   try {
-    // Fetch category, subcategory, and childCategory independently
+    // Fetch category, subcategory, childCategory, and flags independently
     const [categoryDoc, subCategoryDoc, childCategoryDoc, flagDocs] =
       await Promise.all([
         category
@@ -132,7 +304,7 @@ const getAllProducts = async ({
           : [],
       ]);
 
-    // If any provided category, subcategory, or childCategory is invalid, return an empty result
+    // If any provided category, subcategory, childCategory, or flags are invalid, return empty result
     if (
       (category && !categoryDoc) ||
       (subcategory && !subCategoryDoc) ||
@@ -147,29 +319,30 @@ const getAllProducts = async ({
       };
     }
 
+    // Build the query object
     let query = {};
 
     if (typeof isActive === "boolean") {
       query.isActive = isActive;
     }
 
-    // Apply filters for valid active categories, subcategories, and child categories
     if (categoryDoc) query.category = categoryDoc._id;
     if (subCategoryDoc) query.subCategory = subCategoryDoc._id;
     if (childCategoryDoc) query.childCategory = childCategoryDoc._id;
 
-    // Apply stock filter (in-stock or out-of-stock)
     if (stock === "in") query.finalStock = { $gt: 0 };
     if (stock === "out") query.finalStock = { $lte: 0 };
 
-    // Apply flags filter if provided
-    if (flagDocs.length)
+    if (flagDocs.length) {
       query.flags = { $in: flagDocs.map((flag) => flag._id) };
+    }
 
-    // Default sorting to newest first
-    let sortOption = { createdAt: -1 };
+    // Add search filter: partial, case-insensitive match on product name
+    if (search && search.trim()) {
+      query.name = { $regex: search.trim(), $options: "i" };
+    }
 
-    // Check for valid sorting values
+    // Validate sort option
     const validSortValues = [
       "price_high",
       "price_low",
@@ -187,14 +360,15 @@ const getAllProducts = async ({
       };
     }
 
-    // Sorting logic
+    // Define sorting options
+    let sortOption = { createdAt: -1 }; // default newest first
     if (sort === "price_high") sortOption = { finalDiscount: -1 };
     if (sort === "price_low") sortOption = { finalDiscount: 1 };
-    if (sort === "name_asc") sortOption = { name: 1 }; // A-Z
-    if (sort === "name_desc") sortOption = { name: -1 }; // Z-A
-    if (sort === "oldest") sortOption = { createdAt: 1 }; // Oldest first
+    if (sort === "name_asc") sortOption = { name: 1 };
+    if (sort === "name_desc") sortOption = { name: -1 };
+    if (sort === "oldest") sortOption = { createdAt: 1 };
 
-    // Count total products based on the active filter
+    // Count total documents matching the query
     const totalProducts = await ProductModel.countDocuments(query);
 
     // Fetch products with filters, sorting, and pagination
@@ -203,7 +377,7 @@ const getAllProducts = async ({
       .skip((page - 1) * limit)
       .limit(limit)
       .select(
-        "name slug finalDiscount finalPrice finalStock thumbnailImage isActive images productId category variants flags productId",
+        "name slug finalDiscount finalPrice finalStock thumbnailImage isActive images productId category variants flags",
       )
       .populate([
         { path: "category", select: "-createdAt -updatedAt" },
@@ -222,40 +396,6 @@ const getAllProducts = async ({
   }
 };
 
-// // Update a product by ID
-// const updateProduct = async (productId, updatedData, files) => {
-//   try {
-//     let product = await ProductModel.findOne({ productId });
-//     if (!product) {
-//       throw new Error("Product not found.");
-//     }
-//
-//     // 🚫 Prevent updating productId
-//     delete updatedData.productId;
-//
-//     // ✅ Handle file uploads from Multer
-//     if (files) {
-//       // If new thumbnail image is uploaded, update it
-//       if (files.thumbnailImage) {
-//         updatedData.thumbnailImage = files.thumbnailImage[0].filename; // Save only filename
-//       }
-//
-//       // If new images are uploaded, append them to existing ones
-//       if (files.images) {
-//         const newImagePaths = files.images.map((file) => file.filename); // Get new image filenames
-//         updatedData.images = [...product.images, ...newImagePaths]; // Retain existing images and add new ones
-//       }
-//     }
-//
-//     // ✅ Apply updates manually
-//     Object.assign(product, updatedData);
-//     await product.save();
-//
-//     return product;
-//   } catch (err) {
-//     throw new Error(err.message);
-//   }
-// };
 const updateProduct = async (productId, updatedData, files) => {
   try {
     // 1. Find the existing product
@@ -267,30 +407,32 @@ const updateProduct = async (productId, updatedData, files) => {
     // 2. Secure variant updates
     if (updatedData.variants && Array.isArray(updatedData.variants)) {
       const existingVariantsMap = new Map();
-      product.variants.forEach(v => {
+      product.variants.forEach((v) => {
         existingVariantsMap.set(v.size._id.toString(), v);
       });
 
       updatedData.variants = updatedData.variants.map((variantData, index) => {
         // Handle all possible size identification formats
         const sizeId =
-          (variantData.size && typeof variantData.size === 'object' && variantData.size._id) ?
-            variantData.size._id.toString() :
-            (variantData.sizeId) ?
-              variantData.sizeId.toString() :
-              (variantData._id) ?
-                product.variants.id(variantData._id)?.size._id.toString() :
-                (typeof variantData.size === 'string') ?
-                  variantData.size : // This handles your current format
-                  null;
+          variantData.size &&
+          typeof variantData.size === "object" &&
+          variantData.size._id
+            ? variantData.size._id.toString()
+            : variantData.sizeId
+              ? variantData.sizeId.toString()
+              : variantData._id
+                ? product.variants.id(variantData._id)?.size._id.toString()
+                : typeof variantData.size === "string"
+                  ? variantData.size // This handles your current format
+                  : null;
 
         if (!sizeId) {
           throw new Error(
             `Cannot identify variant at index ${index}. Valid formats:\n` +
-            `1. { size: "size_id_string" } (your current format)\n` +
-            `2. { size: { _id: "size_id" } }\n` +
-            `3. { sizeId: "size_id" }\n` +
-            `4. { _id: "variant_id" }`
+              `1. { size: "size_id_string" } (your current format)\n` +
+              `2. { size: { _id: "size_id" } }\n` +
+              `3. { sizeId: "size_id" }\n` +
+              `4. { _id: "variant_id" }`,
           );
         }
 
@@ -300,11 +442,20 @@ const updateProduct = async (productId, updatedData, files) => {
           return {
             _id: existingVariant._id,
             size: existingVariant.size,
-            stock: variantData.stock !== undefined ? Number(variantData.stock) : existingVariant.stock,
-            price: variantData.price !== undefined ? Number(variantData.price) : existingVariant.price,
-            discount: variantData.discount !== undefined ?
-              (variantData.discount === "" ? null : Number(variantData.discount)) :
-              existingVariant.discount
+            stock:
+              variantData.stock !== undefined
+                ? Number(variantData.stock)
+                : existingVariant.stock,
+            price:
+              variantData.price !== undefined
+                ? Number(variantData.price)
+                : existingVariant.price,
+            discount:
+              variantData.discount !== undefined
+                ? variantData.discount === ""
+                  ? null
+                  : Number(variantData.discount)
+                : existingVariant.discount,
           };
         }
 
@@ -317,7 +468,10 @@ const updateProduct = async (productId, updatedData, files) => {
           size: { _id: sizeId }, // Convert to proper size object
           price: Number(variantData.price),
           stock: Number(variantData.stock),
-          discount: variantData.discount === "" ? null : Number(variantData.discount) || null
+          discount:
+            variantData.discount === ""
+              ? null
+              : Number(variantData.discount) || null,
         };
       });
     }
@@ -328,15 +482,15 @@ const updateProduct = async (productId, updatedData, files) => {
 
     return product;
   } catch (error) {
-    console.error('Update failed:', {
+    console.error("Update failed:", {
       error: error.message,
       inputVariants: updatedData.variants,
-      existingVariants: product?.variants?.map(v => ({
+      existingVariants: product?.variants?.map((v) => ({
         _id: v._id,
         size: v.size._id,
         price: v.price,
-        stock: v.stock
-      }))
+        stock: v.stock,
+      })),
     });
     throw new Error(`Update failed: ${error.message}`);
   }

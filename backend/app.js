@@ -38,7 +38,7 @@ const clientUrl = process.env.CLIENT_URL
 
 // CORS setup
 const corsOptions = {
-  origin: '*',
+  origin: clientUrl,
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
   credentials: true,
   allowedHeaders: ["Content-Type", "Authorization"],

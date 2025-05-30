@@ -192,6 +192,8 @@ productSchema.pre("save", function (next) {
 // Indexing for faster queries
 productSchema.index({ name: 1, slug: 1 });
 productSchema.index({ category: 1 });
+productSchema.index({ name: "text" });
+
 
 const ProductModel = mongoose.model("Product", productSchema);
 

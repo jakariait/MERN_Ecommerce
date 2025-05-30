@@ -12,7 +12,6 @@ import {
   Typography,
   Drawer,
   IconButton,
-  Button,
 } from "@mui/material";
 import Skeleton from "react-loading-skeleton";
 import {
@@ -43,6 +42,7 @@ const Product = () => {
     fetchProducts,
     totalProducts,
   } = useProductStore();
+
   const { categories } = useCategoryStore();
   const { flags } = useFlagStore();
 
@@ -561,7 +561,7 @@ const Product = () => {
             <button
               onClick={() => handlePageChange(currentPage - 1)}
               disabled={currentPage === 1}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg border 
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg border
                 ${currentPage === 1 ? "border-gray-300 text-gray-400 cursor-not-allowed" : "border-gray-500 hover:bg-gray-100"}`}
             >
               <ChevronLeft size={18} />
@@ -581,7 +581,7 @@ const Product = () => {
             <button
               onClick={() => handlePageChange(currentPage + 1)}
               disabled={currentPage >= totalPages}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg border 
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg border
                 ${currentPage >= totalPages ? "border-gray-300 text-gray-400 cursor-not-allowed" : "border-gray-500 hover:bg-gray-100"}`}
             >
               <span className="hidden md:block">Next</span>

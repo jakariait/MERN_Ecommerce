@@ -157,6 +157,7 @@ const getAllProducts = async (req, res) => {
       childCategory,
       stock,
       flags,
+      search,
     } = req.query;
 
     const productsData = await productService.getAllProducts({
@@ -169,6 +170,7 @@ const getAllProducts = async (req, res) => {
       stock,
       flags,
       isActive: true,
+      search,
     });
 
     res.status(200).json({
