@@ -1,4 +1,10 @@
-import React, { useEffect, useState, useCallback, useMemo } from "react";
+import React, {
+  useEffect,
+  useState,
+  useCallback,
+  useMemo,
+  useRef,
+} from "react";
 import { useSearchParams } from "react-router-dom";
 import useProductStore from "../../store/useProductStore.js";
 import useCategoryStore from "../../store/useCategoryStore.js";
@@ -46,47 +52,19 @@ const Product = () => {
   const { categories } = useCategoryStore();
   const { flags } = useFlagStore();
 
-  // Local state for drawer visibility (mobile filters and preview)
+  // Local state for drawer visibility
   const [leftDrawerOpen, setLeftDrawerOpen] = useState(false);
   const [rightDrawerOpen, setRightDrawerOpen] = useState(false);
 
-  // URL search parameters for syncing state
+  // URL search parameters
   const [searchParams, setSearchParams] = useSearchParams();
 
-  // Filter state derived from searchParams
-  const [filters, setFilters] = useState({
-    page: parseInt(searchParams.get("page")) || 1,
-    limit: parseInt(searchParams.get("limit")) || 20,
-    sort: searchParams.get("sort") || "",
-    category: searchParams.get("category") || "",
-    subcategory: searchParams.get("subcategory") || "",
-    childCategory: searchParams.get("childCategory") || "",
-    stock: searchParams.get("stock") || "",
-    flags: searchParams.get("flags") || "",
-  });
+  // Ref to prevent initial fetch on mount
+  const isInitialized = useRef(false);
 
-  // Handler to change pages
-  const handlePageChange = useCallback((newPage) => {
-    setFilters((prev) => ({ ...prev, page: newPage }));
-  }, []);
-
-  // Handler for all dropdown-based filters
-  const handleFilterChange = useCallback((e) => {
-    const { name, value } = e.target;
-    setFilters((prev) => ({ ...prev, [name]: value, page: 1 }));
-    setLeftDrawerOpen(false);
-    setRightDrawerOpen(false);
-  }, []);
-
-  // Handler to change items per page
-  const handleItemsPerPageChange = useCallback((e) => {
-    const newLimit = parseInt(e.target.value);
-    setFilters((prev) => ({ ...prev, limit: newLimit, page: 1 }));
-  }, []);
-
-  // Sync filters with search params on mount & search param change
-  useEffect(() => {
-    const updatedFilters = {
+  // Get current filters from URL params - single source of truth
+  const currentFilters = useMemo(
+    () => ({
       page: parseInt(searchParams.get("page")) || 1,
       limit: parseInt(searchParams.get("limit")) || 20,
       sort: searchParams.get("sort") || "",
@@ -95,35 +73,118 @@ const Product = () => {
       childCategory: searchParams.get("childCategory") || "",
       stock: searchParams.get("stock") || "",
       flags: searchParams.get("flags") || "",
-    };
-    setFilters(updatedFilters);
-  }, [searchParams]);
+    }),
+    [searchParams],
+  );
 
-  // Update URL whenever filters change
-  useEffect(() => {
-    const params = { ...filters };
-    Object.keys(params).forEach((key) => {
-      if (!params[key]) delete params[key];
-    });
-    setSearchParams(params);
-  }, [filters, setSearchParams]);
+  // Function to update URL params
+  const updateFilters = useCallback(
+    (newFilters) => {
+      const params = new URLSearchParams(searchParams);
 
-  // Fetch products when filters change
-  useEffect(() => {
-    fetchProducts(filters);
-  }, [filters, fetchProducts]);
+      Object.entries(newFilters).forEach(([key, value]) => {
+        if (value && value !== "") {
+          params.set(key, value);
+        } else {
+          params.delete(key);
+        }
+      });
+
+      setSearchParams(params, { replace: true });
+    },
+    [searchParams, setSearchParams],
+  );
+
+  // Handler to change pages
+  const handlePageChange = useCallback(
+    (newPage) => {
+      updateFilters({ ...currentFilters, page: newPage });
+    },
+    [currentFilters, updateFilters],
+  );
+
+  // Handler for all dropdown-based filters
+  const handleFilterChange = useCallback(
+    (e) => {
+      const { name, value } = e.target;
+      updateFilters({
+        ...currentFilters,
+        [name]: value,
+        page: 1, // Reset to first page when filters change
+      });
+      setLeftDrawerOpen(false);
+      setRightDrawerOpen(false);
+    },
+    [currentFilters, updateFilters],
+  );
+
+  // Handler to change items per page
+  const handleItemsPerPageChange = useCallback(
+    (e) => {
+      const newLimit = parseInt(e.target.value);
+      updateFilters({
+        ...currentFilters,
+        limit: newLimit,
+        page: 1,
+      });
+    },
+    [currentFilters, updateFilters],
+  );
+
+  // Custom sort handler for mobile drawer
+  const handleSortChange = useCallback(
+    (sortValue) => {
+      updateFilters({
+        ...currentFilters,
+        sort: sortValue,
+        page: 1,
+      });
+      setRightDrawerOpen(false);
+    },
+    [currentFilters, updateFilters],
+  );
 
   // Memoized values to avoid unnecessary re-renders
-  const memoizedCategories = useMemo(() => categories, [categories]);
+  const memoizedCategories = useMemo(() => categories || [], [categories]);
   const memoizedFlags = useMemo(
-    () => flags.filter((flag) => flag.isActive),
+    () => (flags || []).filter((flag) => flag.isActive),
     [flags],
   );
+
+  // Single effect to fetch products when filters change
+  useEffect(() => {
+    // Skip initial render to prevent double fetch
+    if (!isInitialized.current) {
+      isInitialized.current = true;
+      return;
+    }
+
+    // Create a stable reference for the filters
+    const filtersToFetch = { ...currentFilters };
+
+    // Only fetch if we have valid filters
+    const hasValidFilters =
+      Object.values(filtersToFetch).some(
+        (value) => value !== "" && value !== null && value !== undefined,
+      ) || filtersToFetch.page === 1;
+
+    if (hasValidFilters) {
+      fetchProducts(filtersToFetch);
+    }
+  }, [currentFilters, fetchProducts]);
+
+  // Initial fetch on component mount
+  useEffect(() => {
+    if (isInitialized.current === false) {
+      fetchProducts(currentFilters);
+      isInitialized.current = true;
+    }
+  }, []); // Only run once on mount
 
   // Show error if exists
   if (error) {
     return (
-      <Typography variant="h6" color="error">
+      <Typography variant="h6" color="error" className="p-4">
         {error}
       </Typography>
     );
@@ -133,13 +194,15 @@ const Product = () => {
     <div className="xl:container xl:mx-auto px-6 py-5 justify-center md:justify-start">
       {/* Loading skeletons */}
       {loading ? (
-        [...Array(6)].map((_, idx) => (
-          <div key={idx} className="grid grid-cols-2 md:grid-cols-4 gap-1">
-            {[...Array(4)].map((_, subIdx) => (
-              <Skeleton key={subIdx} height={250} width="100%" />
-            ))}
-          </div>
-        ))
+        <div className="space-y-4">
+          {[...Array(3)].map((_, idx) => (
+            <div key={idx} className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {[...Array(4)].map((_, subIdx) => (
+                <Skeleton key={subIdx} height={250} width="100%" />
+              ))}
+            </div>
+          ))}
+        </div>
       ) : (
         <>
           {/* Mobile Filter/Sort Buttons */}
@@ -165,12 +228,12 @@ const Product = () => {
                   <CloseIcon />
                 </IconButton>
               </div>
-              <div className="flex flex-col gap-4  justify-between items-center mb-4">
+              <div className="flex flex-col gap-4">
                 <FormControl fullWidth>
                   <InputLabel>Category</InputLabel>
                   <Select
                     name="category"
-                    value={filters.category}
+                    value={currentFilters.category}
                     onChange={handleFilterChange}
                     label="Category"
                   >
@@ -184,12 +247,12 @@ const Product = () => {
                     ))}
                   </Select>
                 </FormControl>
-                {/* Flag Filter */}
+
                 <FormControl fullWidth>
                   <InputLabel>Flag</InputLabel>
                   <Select
                     name="flags"
-                    value={filters.flags}
+                    value={currentFilters.flags}
                     onChange={handleFilterChange}
                     label="Flag"
                   >
@@ -204,12 +267,11 @@ const Product = () => {
                   </Select>
                 </FormControl>
 
-                {/* Stock Filter */}
                 <FormControl fullWidth>
                   <InputLabel>Stock</InputLabel>
                   <Select
                     name="stock"
-                    value={filters.stock}
+                    value={currentFilters.stock}
                     onChange={handleFilterChange}
                     label="Stock"
                   >
@@ -220,11 +282,12 @@ const Product = () => {
                     <MenuItem value="out">Out of Stock</MenuItem>
                   </Select>
                 </FormControl>
+
                 <FormControl fullWidth>
                   <InputLabel>Sort</InputLabel>
                   <Select
                     name="sort"
-                    value={filters.sort}
+                    value={currentFilters.sort}
                     onChange={handleFilterChange}
                     label="Sort"
                   >
@@ -243,207 +306,84 @@ const Product = () => {
             </div>
           </Drawer>
 
-          {/* Mobile Right Drawer (Preview placeholder) */}
+          {/* Mobile Right Drawer (Sort options) */}
           <Drawer
             anchor="bottom"
             open={rightDrawerOpen}
             onClose={() => setRightDrawerOpen(false)}
           >
-            <div className=" p-4">
+            <div className="p-4">
               <div className="flex justify-between items-center mb-4">
-                <Typography variant="h6">Filters</Typography>
+                <Typography variant="h6">Sort Options</Typography>
                 <IconButton onClick={() => setRightDrawerOpen(false)}>
                   <CloseIcon />
                 </IconButton>
               </div>
-              {/* Sort Filter with Lucide Radio Icons */}
-              <div>
-                <Typography variant="subtitle1" className="mb-2">
-                  Sort By:
-                </Typography>
-                <div className="flex flex-col gap-2">
+
+              <div className="flex flex-col gap-2 max-h-96 overflow-y-auto">
+                {[
+                  { value: "", label: "None", icon: Radio },
+                  {
+                    value: "price_high",
+                    label: "Price: High to Low",
+                    icon: ArrowUp10,
+                  },
+                  {
+                    value: "price_low",
+                    label: "Price: Low to High",
+                    icon: ArrowDown01,
+                  },
+                  {
+                    value: "name_asc",
+                    label: "Name: A to Z",
+                    icon: ArrowDownAZ,
+                  },
+                  {
+                    value: "name_desc",
+                    label: "Name: Z to A",
+                    icon: ArrowUpAZ,
+                  },
+                  { value: "latest", label: "Latest", icon: ArrowUpNarrowWide },
+                  {
+                    value: "oldest",
+                    label: "Oldest",
+                    icon: ArrowDownNarrowWide,
+                  },
+                ].map(({ value, label, icon: Icon }) => (
                   <div
-                    className="flex items-center cursor-pointer"
-                    onClick={() =>
-                      handleFilterChange({
-                        target: { name: "sort", value: "" },
-                      })
-                    }
+                    key={value}
+                    className="flex items-center cursor-pointer p-2 rounded hover:bg-gray-100"
+                    onClick={() => handleSortChange(value)}
                   >
-                    {filters.sort === "" ? (
-                      <Circle className="mr-2 text-primary" size={20} />
+                    {currentFilters.sort === value ? (
+                      <Circle className="mr-3 text-primary" size={20} />
                     ) : (
-                      <Radio className="mr-2 text-secondary" size={20} />
+                      <Icon className="mr-3 text-secondary" size={20} />
                     )}
                     <Typography
                       className={
-                        filters.sort === ""
+                        currentFilters.sort === value
                           ? "font-semibold text-primary"
                           : "text-secondary"
                       }
                     >
-                      None
+                      {label}
                     </Typography>
                   </div>
-                  <div
-                    className="flex items-center cursor-pointer"
-                    onClick={() =>
-                      handleFilterChange({
-                        target: { name: "sort", value: "price_high" },
-                      })
-                    }
-                  >
-                    {filters.sort === "price_high" ? (
-                      <Circle className="mr-2 text-primary" size={20} />
-                    ) : (
-                      <ArrowUp10 className="mr-2 text-secondary" size={20} />
-                    )}
-                    <Typography
-                      className={
-                        filters.sort === "price_high"
-                          ? "font-semibold text-primary"
-                          : "text-secondary"
-                      }
-                    >
-                      Price: High to Low
-                    </Typography>
-                  </div>
-                  <div
-                    className="flex items-center cursor-pointer"
-                    onClick={() =>
-                      handleFilterChange({
-                        target: { name: "sort", value: "price_low" },
-                      })
-                    }
-                  >
-                    {filters.sort === "price_low" ? (
-                      <Circle className="mr-2 text-primary" size={20} />
-                    ) : (
-                      <ArrowDown01 className="mr-2 text-secondary" size={20} />
-                    )}
-                    <Typography
-                      className={
-                        filters.sort === "price_low"
-                          ? "font-semibold text-primary"
-                          : "text-secondary"
-                      }
-                    >
-                      Price: Low to High
-                    </Typography>
-                  </div>
-                  <div
-                    className="flex items-center cursor-pointer"
-                    onClick={() =>
-                      handleFilterChange({
-                        target: { name: "sort", value: "name_asc" },
-                      })
-                    }
-                  >
-                    {filters.sort === "name_asc" ? (
-                      <Circle className="mr-2 text-primary" size={20} />
-                    ) : (
-                      <ArrowDownAZ className="mr-2 text-secondary" size={20} />
-                    )}
-                    <Typography
-                      className={
-                        filters.sort === "name_asc"
-                          ? "font-semibold text-primary"
-                          : "text-secondary"
-                      }
-                    >
-                      Name: A to Z
-                    </Typography>
-                  </div>
-                  <div
-                    className="flex items-center cursor-pointer"
-                    onClick={() =>
-                      handleFilterChange({
-                        target: { name: "sort", value: "name_desc" },
-                      })
-                    }
-                  >
-                    {filters.sort === "name_desc" ? (
-                      <Circle className="mr-2 text-primary" size={20} />
-                    ) : (
-                      <ArrowUpAZ className="mr-2 text-secondary" size={20} />
-                    )}
-                    <Typography
-                      className={
-                        filters.sort === "name_desc"
-                          ? "font-semibold text-primary"
-                          : "text-secondary"
-                      }
-                    >
-                      Name: Z to A
-                    </Typography>
-                  </div>
-                  <div
-                    className="flex items-center cursor-pointer"
-                    onClick={() =>
-                      handleFilterChange({
-                        target: { name: "sort", value: "latest" },
-                      })
-                    }
-                  >
-                    {filters.sort === "latest" ? (
-                      <Circle className="mr-2 text-primary" size={20} />
-                    ) : (
-                      <ArrowUpNarrowWide
-                        className="mr-2 text-secondary"
-                        size={20}
-                      />
-                    )}
-                    <Typography
-                      className={
-                        filters.sort === "latest"
-                          ? "font-semibold text-primary"
-                          : "text-secondary"
-                      }
-                    >
-                      Latest
-                    </Typography>
-                  </div>
-                  <div
-                    className="flex items-center cursor-pointer"
-                    onClick={() =>
-                      handleFilterChange({
-                        target: { name: "sort", value: "oldest" },
-                      })
-                    }
-                  >
-                    {filters.sort === "oldest" ? (
-                      <Circle className="mr-2 text-primary" size={20} />
-                    ) : (
-                      <ArrowDownNarrowWide
-                        className="mr-2 text-secondary"
-                        size={20}
-                      />
-                    )}
-                    <Typography
-                      className={
-                        filters.sort === "oldest"
-                          ? "font-semibold text-primary"
-                          : "text-secondary"
-                      }
-                    >
-                      Oldest
-                    </Typography>
-                  </div>
-                </div>
+                ))}
               </div>
             </div>
           </Drawer>
 
           {/* Desktop Filters */}
-          <div className="hidden md:block">
+          <div className="hidden md:block mb-6">
             <Grid container spacing={2}>
-              {/* Category Filter */}
               <Grid item xs={4} sm={4} md={3}>
                 <FormControl fullWidth>
                   <InputLabel>Category</InputLabel>
                   <Select
                     name="category"
-                    value={filters.category}
+                    value={currentFilters.category}
                     onChange={handleFilterChange}
                     label="Category"
                   >
@@ -459,13 +399,12 @@ const Product = () => {
                 </FormControl>
               </Grid>
 
-              {/* Flag Filter */}
               <Grid item xs={4} sm={4} md={3}>
                 <FormControl fullWidth>
                   <InputLabel>Flag</InputLabel>
                   <Select
                     name="flags"
-                    value={filters.flags}
+                    value={currentFilters.flags}
                     onChange={handleFilterChange}
                     label="Flag"
                   >
@@ -481,13 +420,12 @@ const Product = () => {
                 </FormControl>
               </Grid>
 
-              {/* Stock Filter */}
               <Grid item xs={4} sm={4} md={2}>
                 <FormControl fullWidth>
                   <InputLabel>Stock</InputLabel>
                   <Select
                     name="stock"
-                    value={filters.stock}
+                    value={currentFilters.stock}
                     onChange={handleFilterChange}
                     label="Stock"
                   >
@@ -500,13 +438,12 @@ const Product = () => {
                 </FormControl>
               </Grid>
 
-              {/* Sort Filter */}
               <Grid item xs={6} sm={6} md={2}>
                 <FormControl fullWidth>
                   <InputLabel>Sort</InputLabel>
                   <Select
                     name="sort"
-                    value={filters.sort}
+                    value={currentFilters.sort}
                     onChange={handleFilterChange}
                     label="Sort"
                   >
@@ -523,13 +460,11 @@ const Product = () => {
                 </FormControl>
               </Grid>
 
-              {/* Items per page */}
               <Grid item xs={6} sm={6} md={2}>
                 <FormControl fullWidth>
                   <InputLabel>Items per page</InputLabel>
                   <Select
-                    name="itemsPerPage"
-                    value={filters.limit}
+                    value={currentFilters.limit}
                     onChange={handleItemsPerPageChange}
                     label="Items per page"
                   >
@@ -544,50 +479,61 @@ const Product = () => {
             </Grid>
           </div>
 
-          {/* No Product Message */}
-          {products.length === 0 ? (
-            <Typography
-              variant="body1"
-              className="text-center text-gray-500 p-20 md:p-70 shadow rounded-lg"
-            >
-              No products found. Please check back later!
-            </Typography>
+          {/* Product List or No Results */}
+          {products.length === 0 && !loading ? (
+            <div className="text-center py-20">
+              <Typography variant="h6" className="text-gray-500 mb-4">
+                No products found
+              </Typography>
+              <Typography variant="body2" className="text-gray-400">
+                Try adjusting your filters or search criteria
+              </Typography>
+            </div>
           ) : (
             <ProductList products={products} />
           )}
 
           {/* Pagination Controls */}
-          <div className="flex justify-center items-center mt-6 gap-4">
-            <button
-              onClick={() => handlePageChange(currentPage - 1)}
-              disabled={currentPage === 1}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg border
-                ${currentPage === 1 ? "border-gray-300 text-gray-400 cursor-not-allowed" : "border-gray-500 hover:bg-gray-100"}`}
-            >
-              <ChevronLeft size={18} />
-              <span className="hidden md:block">Previous</span>
-            </button>
+          {totalPages > 0 && (
+            <div className="flex justify-center items-center mt-8 gap-4">
+              <button
+                onClick={() => handlePageChange(currentFilters.page - 1)}
+                disabled={currentFilters.page === 1 || loading}
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors
+                  ${
+                    currentFilters.page === 1 || loading
+                      ? "border-gray-300 text-gray-400 cursor-not-allowed"
+                      : "border-gray-500 hover:bg-gray-100"
+                  }`}
+              >
+                <ChevronLeft size={18} />
+                <span className="hidden md:block">Previous</span>
+              </button>
 
-            <p className={"flex"}>
-              <span>
-                Page {currentPage} of {totalPages}
-              </span>
+              <div className="flex items-center gap-2 text-sm">
+                <span>
+                  Page {currentFilters.page} of {totalPages}
+                </span>
+                <span className="hidden md:block text-gray-500">
+                  • {totalProducts} Products
+                </span>
+              </div>
 
-              <span className={"hidden md:block"}>
-                || Total Products {totalProducts}
-              </span>
-            </p>
-
-            <button
-              onClick={() => handlePageChange(currentPage + 1)}
-              disabled={currentPage >= totalPages}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg border
-                ${currentPage >= totalPages ? "border-gray-300 text-gray-400 cursor-not-allowed" : "border-gray-500 hover:bg-gray-100"}`}
-            >
-              <span className="hidden md:block">Next</span>
-              <ChevronRight size={18} />
-            </button>
-          </div>
+              <button
+                onClick={() => handlePageChange(currentFilters.page + 1)}
+                disabled={currentFilters.page >= totalPages || loading}
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors
+                  ${
+                    currentFilters.page >= totalPages || loading
+                      ? "border-gray-300 text-gray-400 cursor-not-allowed"
+                      : "border-gray-500 hover:bg-gray-100"
+                  }`}
+              >
+                <span className="hidden md:block">Next</span>
+                <ChevronRight size={18} />
+              </button>
+            </div>
+          )}
         </>
       )}
     </div>
