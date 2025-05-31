@@ -389,6 +389,7 @@ import ImageComponent from "./ImageComponent";
 import MenuBar from "./MenuBar";
 import MobileMenu from "./MobileMenu";
 import Cart from "./Cart";
+import HeaderSearch from "./HeaderSearch.jsx";
 
 const Headers = () => {
   const navigate = useNavigate();
@@ -564,16 +565,9 @@ const Headers = () => {
             />
           </Link>
 
-          <div className="flex-1 max-w-xl hidden lg:flex">
-            <input
-              type="text"
-              placeholder="Keyword here..."
-              className="px-3 py-2 w-full outline-none text-gray-700 border border-gray-200 rounded-l"
-            />
-            <button className="primaryBgColor p-3 rounded-r">
-              <CiSearch className="text-white w-5 h-5" />
-            </button>
-          </div>
+            <HeaderSearch />
+
+
 
           {/* Right Icons */}
           <div className="flex items-center justify-center gap-2 relative">

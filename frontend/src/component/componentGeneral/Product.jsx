@@ -18,6 +18,8 @@ import {
   Typography,
   Drawer,
   IconButton,
+  TextField,
+  InputAdornment,
 } from "@mui/material";
 import Skeleton from "react-loading-skeleton";
 import {
@@ -34,6 +36,7 @@ import {
   ArrowUpAZ,
   ArrowUpNarrowWide,
   ArrowDownNarrowWide,
+  Search,
 } from "lucide-react";
 import ProductList from "./ProductList.jsx";
 
@@ -56,11 +59,17 @@ const Product = () => {
   const [leftDrawerOpen, setLeftDrawerOpen] = useState(false);
   const [rightDrawerOpen, setRightDrawerOpen] = useState(false);
 
+  // Local state for search input (for debouncing)
+  const [searchInput, setSearchInput] = useState("");
+
   // URL search parameters
   const [searchParams, setSearchParams] = useSearchParams();
 
   // Ref to prevent initial fetch on mount
   const isInitialized = useRef(false);
+
+  // Ref for search debounce timer
+  const searchTimeoutRef = useRef(null);
 
   // Get current filters from URL params - single source of truth
   const currentFilters = useMemo(
@@ -73,9 +82,15 @@ const Product = () => {
       childCategory: searchParams.get("childCategory") || "",
       stock: searchParams.get("stock") || "",
       flags: searchParams.get("flags") || "",
+      search: searchParams.get("search") || "",
     }),
     [searchParams],
   );
+
+  // Initialize search input from URL on component mount
+  useEffect(() => {
+    setSearchInput(currentFilters.search);
+  }, [currentFilters.search]);
 
   // Function to update URL params
   const updateFilters = useCallback(
@@ -94,6 +109,42 @@ const Product = () => {
     },
     [searchParams, setSearchParams],
   );
+
+  // Handler for search input changes (with debouncing)
+  const handleSearchChange = useCallback(
+    (e) => {
+      const value = e.target.value;
+      setSearchInput(value);
+
+      // Clear existing timeout
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current);
+      }
+
+      // Set new timeout for debounced search
+      searchTimeoutRef.current = setTimeout(() => {
+        updateFilters({
+          ...currentFilters,
+          search: value,
+          page: 1, // Reset to first page when search changes
+        });
+      }, 500); // 500ms debounce delay
+    },
+    [currentFilters, updateFilters],
+  );
+
+  // Clear search handler
+  const handleClearSearch = useCallback(() => {
+    setSearchInput("");
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current);
+    }
+    updateFilters({
+      ...currentFilters,
+      search: "",
+      page: 1,
+    });
+  }, [currentFilters, updateFilters]);
 
   // Handler to change pages
   const handlePageChange = useCallback(
@@ -181,6 +232,15 @@ const Product = () => {
     }
   }, []); // Only run once on mount
 
+  // Cleanup search timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current);
+      }
+    };
+  }, []);
+
   // Show error if exists
   if (error) {
     return (
@@ -205,13 +265,16 @@ const Product = () => {
         </div>
       ) : (
         <>
+          {/* Search Bar - Always visible */}
+
           {/* Mobile Filter/Sort Buttons */}
-          <div className="md:hidden mb-4 flex justify-between">
+          <div className="md:hidden mb-4 flex items-center justify-between">
             <IconButton onClick={() => setLeftDrawerOpen(true)}>
-              <SlidersHorizontal size={25} className="primaryTextColor" />
+              <SlidersHorizontal size={20} className="primaryTextColor" />
             </IconButton>
+
             <IconButton onClick={() => setRightDrawerOpen(true)}>
-              <ArrowDownWideNarrow size={30} className="primaryTextColor" />
+              <ArrowDownWideNarrow size={25} className="primaryTextColor" />
             </IconButton>
           </div>
 
@@ -229,6 +292,32 @@ const Product = () => {
                 </IconButton>
               </div>
               <div className="flex flex-col gap-4">
+                {/* Search in mobile drawer */}
+                <TextField
+                  fullWidth
+                  placeholder="Search products..."
+                  value={searchInput}
+                  onChange={handleSearchChange}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <Search size={20} className="text-gray-400" />
+                      </InputAdornment>
+                    ),
+                    endAdornment: searchInput && (
+                      <InputAdornment position="end">
+                        <IconButton
+                          size="small"
+                          onClick={handleClearSearch}
+                          className="text-gray-400 hover:text-gray-600"
+                        >
+                          <CloseIcon size={16} />
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+
                 <FormControl fullWidth>
                   <InputLabel>Category</InputLabel>
                   <Select
@@ -479,14 +568,64 @@ const Product = () => {
             </Grid>
           </div>
 
+          {/* Active Search/Filter Indicators */}
+          {(currentFilters.search ||
+            currentFilters.category ||
+            currentFilters.flags ||
+            currentFilters.stock !== "" ||
+            currentFilters.sort) && (
+            <div className="mb-4 flex flex-wrap gap-2">
+              {currentFilters.search && (
+                <div className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm flex items-center gap-2">
+                  <Search size={14} />
+                  Search: "{currentFilters.search}"
+                  <button
+                    onClick={handleClearSearch}
+                    className="hover:bg-blue-200 rounded-full p-1"
+                  >
+                    <CloseIcon size={12} />
+                  </button>
+                </div>
+              )}
+              {currentFilters.category && (
+                <div className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm">
+                  Category: {currentFilters.category}
+                </div>
+              )}
+              {currentFilters.flags && (
+                <div className="bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-sm">
+                  Flag: {currentFilters.flags}
+                </div>
+              )}
+              {currentFilters.stock && (
+                <div className="bg-orange-100 text-orange-800 px-3 py-1 rounded-full text-sm">
+                  Stock:{" "}
+                  {currentFilters.stock === "in" ? "In Stock" : "Out of Stock"}
+                </div>
+              )}
+              {currentFilters.sort && (
+                <div className="bg-gray-100 text-gray-800 px-3 py-1 rounded-full text-sm">
+                  Sort:{" "}
+                  {currentFilters.sort
+                    .replace("_", " ")
+                    .replace(/\b\w/g, (l) => l.toUpperCase())}
+                </div>
+              )}
+            </div>
+          )}
+
           {/* Product List or No Results */}
           {products.length === 0 && !loading ? (
             <div className="text-center py-20">
               <Typography variant="h6" className="text-gray-500 mb-4">
-                No products found
+                {currentFilters.search
+                  ? `No products found for "${currentFilters.search}"`
+                  : "No products found"}
               </Typography>
               <Typography variant="body2" className="text-gray-400">
-                Try adjusting your filters or search criteria
+                {currentFilters.search
+                  ? "Try a different search term or adjust your filters"
+                  : "Try adjusting your filters or search criteria"}
               </Typography>
             </div>
           ) : (
@@ -516,6 +655,7 @@ const Product = () => {
                 </span>
                 <span className="hidden md:block text-gray-500">
                   • {totalProducts} Products
+                  {currentFilters.search && ` for "${currentFilters.search}"`}
                 </span>
               </div>
 
