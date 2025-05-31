@@ -58,7 +58,6 @@ const OrderStats = () => {
           totals[status] += amount;
         }
       });
-      console.log("Fetched orders:", res.data.orders.length);
 
       setAmountByStatus(totals);
     } catch (error) {
