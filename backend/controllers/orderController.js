@@ -51,35 +51,35 @@ const createOrder = async (req, res) => {
   }
 };
 
+
 const getAllOrders = async (req, res) => {
   try {
-    const { orderStatus, page , limit } = req.query;
+    const { orderStatus, page, limit, search } = req.query;
 
     const filter = {};
     if (orderStatus) {
       filter.orderStatus = orderStatus;
     }
 
-    const pageNum = parseInt(page);
-    const limitNum = parseInt(limit);
+    const usePagination = page && limit;
+    const pageNum = usePagination ? parseInt(page) : null;
+    const limitNum = usePagination ? parseInt(limit) : null;
 
-    const { totalOrders, orders } = await orderService.getAllOrders(
-      filter,
-      pageNum,
-      limitNum,
-    );
+    const { totalOrders, orders, totalPages, currentPage } =
+      await orderService.getAllOrders(filter, pageNum, limitNum, search);
 
     res.status(200).json({
       success: true,
       totalOrders,
-      totalPages: Math.ceil(totalOrders / limitNum),
-      currentPage: pageNum,
+      totalPages,
+      currentPage,
       orders,
     });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
 };
+
 
 // Get order by ID
 const getOrderById = async (req, res) => {

@@ -161,11 +161,22 @@ const createOrder = async (orderData, userId) => {
   }
 };
 
-const getAllOrders = async (filter = {}, page = 1, limit = 10) => {
+const getAllOrders = async (filter = {}, page, limit, search = '') => {
   try {
-    const skip = (page - 1) * limit;
+    let queryFilter = { ...filter };
 
-    const orders = await Order.find(filter)
+    if (search && search.trim()) {
+      const searchRegex = new RegExp(search.trim(), 'i');
+      queryFilter.$or = [
+        { orderNo: searchRegex },
+        { 'shippingInfo.fullName': searchRegex },
+        { 'shippingInfo.mobileNo': searchRegex },
+        { 'shippingInfo.email': searchRegex },
+        { 'shippingInfo.address': searchRegex },
+      ];
+    }
+
+    let query = Order.find(queryFilter)
       .populate("userId")
       .populate({
         path: "items.productId",
@@ -173,14 +184,34 @@ const getAllOrders = async (filter = {}, page = 1, limit = 10) => {
           "-sizeChart -longDesc -shortDesc -shippingReturn -videoUrl -flags -metaTitle -metaDescription -metaKeywords -searchTags",
       })
       .populate("items.variantId")
-      .sort({ createdAt: -1 }) // sort by newest first
-      .skip(skip)
-      .limit(limit);
+      .sort({ createdAt: -1 });
 
-    const totalOrders = await Order.countDocuments(filter);
+    // Only apply pagination if page and limit are valid
+    let totalOrders = await Order.countDocuments(queryFilter);
+    let orders;
+    let totalPages = null;
+    let currentPage = null;
 
-    return { totalOrders, orders };
+    if (page && limit) {
+      const validatedPage = Math.max(1, parseInt(page));
+      const validatedLimit = Math.max(1, parseInt(limit));
+      const skip = (validatedPage - 1) * validatedLimit;
+
+      orders = await query.skip(skip).limit(validatedLimit);
+      totalPages = Math.ceil(totalOrders / validatedLimit);
+      currentPage = validatedPage;
+    } else {
+      orders = await query;
+    }
+
+    return {
+      totalOrders,
+      orders,
+      totalPages,
+      currentPage,
+    };
   } catch (error) {
+    console.error('Error in getAllOrders:', error);
     throw new Error("Error fetching orders: " + error.message);
   }
 };

@@ -108,7 +108,8 @@ const useOrderStore = create((set) => ({
     }
   },
 
-	fetchAllOrdersWithoutPagination: async (status = "", page , limit ) => {
+
+  fetchAllOrdersWithoutPagination: async (status = "", page , limit ) => {
 		const token = useAuthAdminStore.getState().token;
 
 		set({

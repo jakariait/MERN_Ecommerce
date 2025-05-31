@@ -36,7 +36,6 @@ import useOrderStore from "../../store/useOrderStore.js";
 import OrderStatusSelector from "./OrderStatusSelector.jsx";
 import SendToCourierButton from "./SendToCourierButton.jsx";
 import CourierSummary from "../componentAdmin/CourierSummery.jsx";
-import PropTypes from "prop-types";
 import RequirePermission from "./RequirePermission.jsx";
 
 const AllOrders = ({ allOrders, orderListLoading, orderListError, title }) => {
@@ -175,6 +174,7 @@ const AllOrders = ({ allOrders, orderListLoading, orderListError, title }) => {
   const handleSuccess = () => {
     fetchAllOrders(); // Refetch orders on success
   };
+
   return (
     <div className="p-4 shadow rounded-lg">
       <h1 className="border-l-4 primaryBorderColor primaryTextColor mb-6 pl-2 text-lg font-semibold">
@@ -435,7 +435,10 @@ const AllOrders = ({ allOrders, orderListLoading, orderListError, title }) => {
                             <VisibilityIcon />
                           </IconButton>
                         </Tooltip>
-                        <RequirePermission permission="delete_orders" fallback={true}>
+                        <RequirePermission
+                          permission="delete_orders"
+                          fallback={true}
+                        >
                           <Tooltip title="Delete">
                             <IconButton
                               onClick={() => handleOpenDialog(order._id)}
@@ -509,13 +512,6 @@ const AllOrders = ({ allOrders, orderListLoading, orderListError, title }) => {
       </Snackbar>
     </div>
   );
-};
-
-AllOrders.propTypes = {
-  allOrders: PropTypes.array.isRequired,
-  orderListLoading: PropTypes.bool.isRequired,
-  orderListError: PropTypes.string,
-  title: PropTypes.string.isRequired,
 };
 
 export default AllOrders;
