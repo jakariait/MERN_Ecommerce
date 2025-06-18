@@ -163,11 +163,7 @@ function App() {
     }
   }, [colors]); // ✅ This effect will run only when colors change
 
-  useEffect(() => {
-    if (GeneralInfoList?.Favicon) {
-      setFaviconFromApi(GeneralInfoList.Favicon);
-    }
-  }, [GeneralInfoList]);
+  setFaviconFromApi(GeneralInfoList?.Favicon); // Favicon
 
 
   return (
