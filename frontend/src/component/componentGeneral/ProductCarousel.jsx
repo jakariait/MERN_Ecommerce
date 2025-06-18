@@ -6,10 +6,17 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import Skeleton from "react-loading-skeleton";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
-
+import GeneralInfoStore from "../../store/GeneralInfoStore.js";
 
 const ProductCarousel = () => {
-  const { CarouselStoreList, CarouselStoreListLoading, CarouselStoreListError } = CarouselStore();
+  const {
+    CarouselStoreList,
+    CarouselStoreListLoading,
+    CarouselStoreListError,
+  } = CarouselStore();
+
+  const { GeneralInfoList } = GeneralInfoStore();
+
   const [products, setProducts] = useState([]);
   const sliderRef = useRef(null);
 
@@ -42,7 +49,9 @@ const ProductCarousel = () => {
   if (CarouselStoreListError) {
     return (
       <div className="primaryTextColor  container md:mx-auto text-center p-3">
-        <h1 className={"p-44"}>Something went wrong! Please try again later.</h1>
+        <h1 className={"p-44"}>
+          Something went wrong! Please try again later.
+        </h1>
       </div>
     ); // Display error message
   }
@@ -61,6 +70,7 @@ const ProductCarousel = () => {
                   imageName={product.imgSrc}
                   className="w-full h-full object-cover"
                   skeletonHeight={400}
+                  altName={GeneralInfoList.CompanyEmail}
                 />
               </div>
             ))}

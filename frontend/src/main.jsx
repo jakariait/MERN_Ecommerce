@@ -8,6 +8,7 @@ import TagManager from "react-gtm-module";
 
 const API_BASE = import.meta.env.VITE_API_URL;
 
+
 const initializeApp = async () => {
   try {
     const res = await fetch(`${API_BASE}/getGTM`);

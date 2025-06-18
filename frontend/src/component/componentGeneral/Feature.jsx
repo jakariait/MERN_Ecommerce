@@ -38,6 +38,7 @@ const Feature = () => {
                   <ImageComponent
                     imageName={feature.imgSrc}
                     className="w-16 h-16 object-contain"
+                    altName={feature.title}
                   />
                 </div>
                 {/* Title */}

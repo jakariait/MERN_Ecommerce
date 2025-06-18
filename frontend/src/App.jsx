@@ -88,9 +88,12 @@ import TrackOrderPage from "./pagesUser/TrackOrderPage.jsx";
 import AdminListPage from "./pagesAdmin/AdminListPage.jsx";
 import CreateAdminPage from "./pagesAdmin/CreateAdminPage.jsx";
 import EditAdminPage from "./pagesAdmin/EditAdminPage.jsx";
+import { setFaviconFromApi } from "./utils/setFavicon.js";
+import CreateBlogPage from "./pagesAdmin/CreateBlogPage.jsx";
+import BlogsListPage from "./pagesAdmin/BlogsListPage.jsx";
 
 function App() {
-  const { GeneralInfoListRequest } = GeneralInfoStore();
+  const { GeneralInfoListRequest, GeneralInfoList } = GeneralInfoStore();
   const { CarouselStoreListRequest } = CarouselStore();
   const { FeatureStoreListRequest } = FeatureStore();
   const { fetchColors, colors } = useColorStore(); // ✅ Extract colors
@@ -160,6 +163,8 @@ function App() {
     }
   }, [colors]); // ✅ This effect will run only when colors change
 
+  setFaviconFromApi(GeneralInfoList?.Favicon); // Favicon
+
   return (
     <Router>
       <MetaProvider />
@@ -183,7 +188,6 @@ function App() {
         <Route path="/shippinpolicy" element={<ShippingPolicyPage />} />
         <Route path="/faqs" element={<FAQPage />} />
         <Route path="/track-order" element={<TrackOrderPage />} />
-
 
         {/*Admin Login Page*/}
         <Route path="/admin/login" element={<AdminLogin />} />
@@ -337,15 +341,22 @@ function App() {
           />
 
           <Route path="/admin/dashboard" element={<DashboardPage />} />
-          <Route path="/admin/adminlist" element={<AdminListPage/>} />
-          <Route path="/admin/createadmin" element={<CreateAdminPage/>} />
+          <Route path="/admin/adminlist" element={<AdminListPage />} />
+          <Route path="/admin/createadmin" element={<CreateAdminPage />} />
           <Route path="/admin/edit/:id" element={<EditAdminPage />} />
-
-
 
           <Route
             path="/admin/incomplete-order"
             element={<AbandonedCartPage />}
+          />
+          <Route
+            path="/admin/create-blog"
+            element={<CreateBlogPage />}
+          />
+
+          <Route
+            path="/admin/blogs"
+            element={<BlogsListPage />}
           />
         </Route>
 
