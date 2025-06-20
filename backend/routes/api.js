@@ -31,6 +31,8 @@ const abandonedCartController = require("../controllers/abandonedCartController"
 const GoogleTagManagerController = require("../controllers/GoogleTagManagerController");
 const bkashConfigController = require("../controllers/bkashConfigController");
 const SteadfastConfigController = require("../controllers/SteadfastConfigController");
+const blogController = require("../controllers/BlogController");
+
 
 const { handleCourierCheck } = require("../controllers/courierController");
 const {
@@ -685,5 +687,17 @@ router.patch(
   checkPermission("steadfast_api"),
   SteadfastConfigController.updateConfig,
 );
+
+
+// Routes for Blogs
+router.post("/blog", upload, adminProtect, blogController.createBlog);
+router.get("/blog", blogController.getAllBlogs);
+router.get("/activeblog", blogController.getActiveBlogs);
+router.get("/blog/slug/:slug", blogController.getBlogBySlug);
+router.get("/blog/:id", blogController.getBlogById);
+router.patch("/blog/:id", upload, adminProtect, blogController.updateBlog);
+router.delete("/blog/:id", adminProtect, blogController.deleteBlog);
+
+
 
 module.exports = router;
