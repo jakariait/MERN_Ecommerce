@@ -106,7 +106,6 @@ function App() {
   const { fetchProducts, fetchProductsAdmin, fetchHomeProducts } =
     useProductStore();
   const { initialize } = useAuthUserStore();
-  const { fetchAllOrders } = useOrderStore();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -125,13 +124,6 @@ function App() {
           fetchProducts(),
           fetchProductsAdmin(),
           initialize(),
-          fetchAllOrders(),
-          fetchAllOrders("pending"),
-          fetchAllOrders("approved"),
-          fetchAllOrders("intransit"),
-          fetchAllOrders("delivered"),
-          fetchAllOrders("returned"),
-          fetchAllOrders("cancelled"),
           fetchHomeProducts(),
         ]);
       } catch (error) {

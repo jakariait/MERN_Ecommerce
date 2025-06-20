@@ -70,7 +70,7 @@ const ProductCarousel = () => {
                   imageName={product.imgSrc}
                   className="w-full h-full object-cover"
                   skeletonHeight={400}
-                  altName={GeneralInfoList.CompanyEmail}
+                  altName={GeneralInfoList?.CompanyEmail}
                 />
               </div>
             ))}
