@@ -32,6 +32,8 @@ const GoogleTagManagerController = require("../controllers/GoogleTagManagerContr
 const bkashConfigController = require("../controllers/bkashConfigController");
 const SteadfastConfigController = require("../controllers/SteadfastConfigController");
 const blogController = require("../controllers/BlogController");
+const PassWordResetController = require("../controllers/PassWordResetController");
+
 
 const { handleCourierCheck } = require("../controllers/courierController");
 const {
@@ -713,5 +715,13 @@ router.get("/blog", blogController.getAllBlogs);
 router.get("/activeblog", blogController.getActiveBlogs);
 router.get("/blog/slug/:slug", blogController.getBlogBySlug);
 router.get("/blog/:id", blogController.getBlogById);
+
+
+
+// Password Reset Routes
+router.post("/request-reset", PassWordResetController.requestPasswordReset);
+router.post("/reset-password", PassWordResetController.resetPasswordWithOTP);
+
+
 
 module.exports = router;
