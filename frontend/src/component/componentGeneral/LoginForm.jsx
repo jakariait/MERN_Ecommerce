@@ -89,12 +89,12 @@ const LoginForm = () => {
 
           {/* Remember Me & Forgot */}
           <div className="flex justify-between items-center text-sm text-gray-600">
-            <a
-              href="#"
+            <Link
+              to="/forgot-password"
               className="primaryTextColor font-medium hover:underline"
             >
               Forgotten password?
-            </a>
+            </Link>
           </div>
 
           {/* Sign In Button */}

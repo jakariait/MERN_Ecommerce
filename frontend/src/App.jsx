@@ -94,6 +94,8 @@ import BlogsListPage from "./pagesAdmin/BlogsListPage.jsx";
 import EditBlogPage from "./pagesAdmin/EditBlogPage.jsx";
 import BlogsPage from "./pagesUser/BlogsPage.jsx";
 import BlogDetailsPage from "./pagesUser/BlogDetailsPage.jsx";
+import ForgetPasswordPage from "./pagesUser/ForgetPasswordPage.jsx";
+import ResetPasswordPage from "./pagesUser/ResetPasswordPage.jsx";
 
 function App() {
   const { GeneralInfoListRequest, GeneralInfoList } = GeneralInfoStore();
@@ -185,6 +187,10 @@ function App() {
         <Route path="/track-order" element={<TrackOrderPage />} />
         <Route path="/blog" element={<BlogsPage />} />
         <Route path="/blogs/:slug" element={<BlogDetailsPage />} />
+        <Route path="/forgot-password" element={<ForgetPasswordPage />} />
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
+
+
 
         {/*Admin Login Page*/}
         <Route path="/admin/login" element={<AdminLogin />} />
