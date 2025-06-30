@@ -265,7 +265,7 @@ const Footer = () => {
                   <Link to="/about" className={"hover:primaryTextColor"}>
                     <li>About</li>
                   </Link>
-                  <Link className={"hover:primaryTextColor"}>
+                  <Link to="/blog" className={"hover:primaryTextColor"}>
                     <li>Blog</li>
                   </Link>
                   <Link to="/contact-us" className={"hover:primaryTextColor"}>

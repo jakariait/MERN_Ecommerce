@@ -92,6 +92,8 @@ import { setFaviconFromApi } from "./utils/setFavicon.js";
 import CreateBlogPage from "./pagesAdmin/CreateBlogPage.jsx";
 import BlogsListPage from "./pagesAdmin/BlogsListPage.jsx";
 import EditBlogPage from "./pagesAdmin/EditBlogPage.jsx";
+import BlogsPage from "./pagesUser/BlogsPage.jsx";
+import BlogDetailsPage from "./pagesUser/BlogDetailsPage.jsx";
 
 function App() {
   const { GeneralInfoListRequest, GeneralInfoList } = GeneralInfoStore();
@@ -158,7 +160,6 @@ function App() {
 
   setFaviconFromApi(GeneralInfoList?.Favicon); // Favicon
 
-
   return (
     <Router>
       <MetaProvider />
@@ -182,6 +183,8 @@ function App() {
         <Route path="/shippinpolicy" element={<ShippingPolicyPage />} />
         <Route path="/faqs" element={<FAQPage />} />
         <Route path="/track-order" element={<TrackOrderPage />} />
+        <Route path="/blog" element={<BlogsPage />} />
+        <Route path="/blogs/:slug" element={<BlogDetailsPage />} />
 
         {/*Admin Login Page*/}
         <Route path="/admin/login" element={<AdminLogin />} />
@@ -343,21 +346,11 @@ function App() {
             path="/admin/incomplete-order"
             element={<AbandonedCartPage />}
           />
-          <Route
-            path="/admin/create-blog"
-            element={<CreateBlogPage />}
-          />
+          <Route path="/admin/create-blog" element={<CreateBlogPage />} />
 
-          <Route
-            path="/admin/blogs"
-            element={<BlogsListPage />}
-          />
+          <Route path="/admin/blogs" element={<BlogsListPage />} />
 
-          <Route
-            path="/admin/blogs/:id"
-            element={<EditBlogPage />}
-          />
-
+          <Route path="/admin/blogs/:id" element={<EditBlogPage />} />
         </Route>
 
         {/* Not Found */}
