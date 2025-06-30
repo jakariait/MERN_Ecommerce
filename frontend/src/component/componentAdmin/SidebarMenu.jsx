@@ -20,6 +20,7 @@ import {
   FaShoppingBag,
   FaInfo,
   FaClipboardList,
+  FaBlog
 } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import useAuthAdminStore from "../../store/AuthAdminStore.js";
@@ -647,6 +648,13 @@ export default function SidebarMenu() {
             <Link to="/admin/subscribed-users">
               <li className="flex items-center space-x-2 p-2 rounded-md cursor-pointer">
                 <FaUserFriends /> <span>Subscribed Users</span>
+              </li>
+            </Link>
+          </RequirePermission>
+          <RequirePermission permission="blogs" fallback={true}>
+            <Link to="/admin/blogs">
+              <li className="flex items-center space-x-2 p-2 rounded-md cursor-pointer">
+                <FaBlog /> <span>Blogs</span>
               </li>
             </Link>
           </RequirePermission>

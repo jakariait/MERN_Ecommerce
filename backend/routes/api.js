@@ -33,7 +33,6 @@ const bkashConfigController = require("../controllers/bkashConfigController");
 const SteadfastConfigController = require("../controllers/SteadfastConfigController");
 const blogController = require("../controllers/BlogController");
 
-
 const { handleCourierCheck } = require("../controllers/courierController");
 const {
   createSteadfastOrder,
@@ -247,7 +246,8 @@ router.get(
 );
 router.get(
   "/admin/:id",
-  adminProtect,checkPermission("admin-users"),
+  adminProtect,
+  checkPermission("admin-users"),
   AdminController.getAdminById,
 );
 router.put(
@@ -688,16 +688,30 @@ router.patch(
   SteadfastConfigController.updateConfig,
 );
 
-
 // Routes for Blogs
-router.post("/blog", upload, adminProtect, blogController.createBlog);
+router.post(
+  "/blog",
+  upload,
+  adminProtect,
+  checkPermission("blogs"),
+  blogController.createBlog,
+);
+router.patch(
+  "/blog/:id",
+  upload,
+  adminProtect,
+  checkPermission("blogs"),
+  blogController.updateBlog,
+);
+router.delete(
+  "/blog/:id",
+  adminProtect,
+  checkPermission("blogs"),
+  blogController.deleteBlog,
+);
 router.get("/blog", blogController.getAllBlogs);
 router.get("/activeblog", blogController.getActiveBlogs);
 router.get("/blog/slug/:slug", blogController.getBlogBySlug);
 router.get("/blog/:id", blogController.getBlogById);
-router.patch("/blog/:id", upload, adminProtect, blogController.updateBlog);
-router.delete("/blog/:id", adminProtect, blogController.deleteBlog);
-
-
 
 module.exports = router;

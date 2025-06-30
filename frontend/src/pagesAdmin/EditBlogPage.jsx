@@ -1,20 +1,20 @@
 import React from 'react';
 import LayoutAdmin from "../component/componentAdmin/LayoutAdmin.jsx";
 import Breadcrumb from "../component/componentAdmin/Breadcrumb.jsx";
-import BlogList from "../component/componentAdmin/BlogList.jsx";
 import RequirePermission from "../component/componentAdmin/RequirePermission.jsx";
+import EditBlog from "../component/componentAdmin/EditBlog.jsx";
 
-const BlogsListPage = () => {
+const EditBlogPage = () => {
   return (
     <LayoutAdmin>
       <div>
-        <Breadcrumb title={"Create a Blog"} pageDetails={"BLOGS"} />
+        <Breadcrumb title={"Edit Blog"} pageDetails={"BLOGS"} />
         <RequirePermission permission="blogs">
-          <BlogList/>
+          <EditBlog />
         </RequirePermission>
       </div>
     </LayoutAdmin>
   );
 };
 
-export default BlogsListPage;
+export default EditBlogPage;

@@ -25,6 +25,7 @@ import ProductGallery from "./ProductGallery.jsx";
 import ProductAddToCart from "./ProductAddToCart.jsx";
 import axios from "axios";
 import SimilarProducts from "./SimilarProducts.jsx";
+import YouTubeEmbed from "./YouTubeEmbed.jsx";
 
 const ProductDetails = () => {
   const { fetchProductBySlug, product, loading, error, resetProduct } =
@@ -236,6 +237,13 @@ const ProductDetails = () => {
               {product.shortDesc && <div>{product.shortDesc}</div>}
             </div>
           </div>
+
+          {/*YoutubeEmbed*/}
+          {product.videoUrl && (
+            <div className={"flex items-center justify-center pt-10 pb-10"}>
+              <YouTubeEmbed videoId={product.videoUrl} />
+            </div>
+          )}
 
           <div className={"xl:w-3/4 mx-auto shadow mt-4"}>
             {/*product Description*/}

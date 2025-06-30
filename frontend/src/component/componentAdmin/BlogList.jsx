@@ -70,7 +70,7 @@ const BlogList = () => {
   }, [currentPage]);
 
   const handleEdit = (id) => {
-    navigate(`/admin/dashboard/blogs/${id}`);
+    navigate(`/admin/blogs/${id}`);
   };
 
   const handleDeleteClick = (id) => {

@@ -319,12 +319,12 @@ const Footer = () => {
             >
               <p>{GeneralInfoList?.FooterCopyright}</p>
               <p>
-                Design and Deveoped by{" "}
+                Design and Developed by{" "}
                 <a
-                  href="https://buildwithjakaria.com/"
+                  href="https://www.digiweb.digital/"
                   className={"text-red-500 hover:underline"}
                 >
-                  Jakaria
+                  DigiWeb
                 </a>
               </p>
             </div>

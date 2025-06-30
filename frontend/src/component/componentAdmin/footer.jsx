@@ -20,7 +20,15 @@ const Footer = () => {
           {currentYear} © {GeneralInfoList?.CompanyName}
         </div>
         <div>
-          Designed and developed by Jakaria
+          <p>
+            Design and Developed by{" "}
+            <a
+              href="https://www.digiweb.digital/"
+              className={"text-red-500 hover:underline"}
+            >
+              DigiWeb
+            </a>
+          </p>
         </div>
       </div>
     </div>

@@ -48,6 +48,7 @@ const PermissionsCheckboxGroup = ({
     { value: "about_terms-policies", label: "About Us & Terms & Policies" },
     { value: "faqs", label: "FAQs" },
     { value: "admin-users", label: "Admin Users" },
+    { value: "blogs", label: "Blogs" },
   ];
 
   const handleChange = (value) => {

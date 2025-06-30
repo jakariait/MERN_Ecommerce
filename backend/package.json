@@ -4,7 +4,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "clean-unused-images": "node scripts/cleanUnusedImages.js"
+    "clean-unused-images": "node scripts/cleanUnusedImages.js",
+    "nodemon": "nodemon index.js"
   },
   "keywords": [],
   "author": "",

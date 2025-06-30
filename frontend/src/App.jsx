@@ -91,6 +91,7 @@ import EditAdminPage from "./pagesAdmin/EditAdminPage.jsx";
 import { setFaviconFromApi } from "./utils/setFavicon.js";
 import CreateBlogPage from "./pagesAdmin/CreateBlogPage.jsx";
 import BlogsListPage from "./pagesAdmin/BlogsListPage.jsx";
+import EditBlogPage from "./pagesAdmin/EditBlogPage.jsx";
 
 function App() {
   const { GeneralInfoListRequest, GeneralInfoList } = GeneralInfoStore();
@@ -351,6 +352,12 @@ function App() {
             path="/admin/blogs"
             element={<BlogsListPage />}
           />
+
+          <Route
+            path="/admin/blogs/:id"
+            element={<EditBlogPage />}
+          />
+
         </Route>
 
         {/* Not Found */}
