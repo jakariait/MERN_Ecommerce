@@ -200,15 +200,15 @@ const ViewAllProducts = () => {
                 <TableCell>
                   <div className="relative group">
                     <ImageComponent
-                      imageName={product.thumbnailImage}
-                      altName={product.name}
+                      imageName={product?.thumbnailImage}
+                      altName={product?.name}
                       skeletonHeight={30}
                       className="w-25 h-25 object-cover transform group-hover:scale-150 transition-transform duration-300"
                     />
                   </div>
                 </TableCell>
-                <TableCell>{product.name}</TableCell>
-                <TableCell>{product.category.name}</TableCell>
+                <TableCell>{product?.name}</TableCell>
+                <TableCell>{product.category?.name}</TableCell>
                 {/*Main Price*/}
                 <TableCell>
                   {product.variants?.length

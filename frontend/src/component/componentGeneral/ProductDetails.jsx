@@ -346,8 +346,8 @@ const ProductDetails = () => {
       )}
       <div>
         <SimilarProducts
-          categoryId={product.category._id}
-          productId={product._id}
+          categoryId={product?.category?._id}
+          productId={product?._id}
         />
       </div>
     </div>

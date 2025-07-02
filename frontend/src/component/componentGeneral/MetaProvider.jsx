@@ -5,7 +5,7 @@ import axios from "axios";
 import ReactGA from "react-ga4";
 
 // Initialize GA4 (once)
-ReactGA.initialize("G-GVD1LV60K0");
+// ReactGA.initialize("G-GVD1LV60K0");
 
 const MetaProvider = () => {
   const [meta, setMeta] = useState(null);
