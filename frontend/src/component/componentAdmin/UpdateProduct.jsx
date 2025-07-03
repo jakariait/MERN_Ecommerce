@@ -28,7 +28,6 @@ import {
   TableBody,
   TableRow,
   TableCell,
-  Switch,
   Snackbar,
   Alert,
 } from "@mui/material";
@@ -99,9 +98,7 @@ const UpdateProduct = () => {
   const fileInputRef = useRef(null);
   const imagesInputRef = useRef(null);
 
-  const imageUrl = "http://localhost:5050/uploads";
-
-  const [isThumbnailRemoved, setIsThumbnailRemoved] = useState(false);
+  const imageUrl = `${apiUrl.replace("/api", "")}/uploads`;
 
   // Load product data when component mounts or slug changes
   useEffect(() => {
@@ -187,21 +184,6 @@ const UpdateProduct = () => {
     }
   }, [product, subCategories, childCategories, apiUrl]);
 
-  const handleToggle = () => {
-    setHasVariant(!hasVariant);
-  };
-
-  const handleAddVariant = () => {
-    setVariants([
-      ...variants,
-      { size: "", stock: "", price: "", discount: "" },
-    ]);
-  };
-
-  const handleRemoveVariant = (index) => {
-    setVariants(variants.filter((_, i) => i !== index));
-  };
-
   const handleMultipleImagesChange = (event) => {
     const files = Array.from(event.target.files);
     const newImages = files.map((file) => file);
@@ -248,7 +230,6 @@ const UpdateProduct = () => {
   const handleRemoveImage = () => {
     setThumbnailImage(null);
     setImagePreview("");
-    setIsThumbnailRemoved(true); // indicate image was removed
     document.getElementById("thumbnail-upload").value = "";
   };
 
@@ -357,6 +338,9 @@ const UpdateProduct = () => {
   const handleSnackbarClose = () => {
     setSnackbarOpen(false);
   };
+
+
+
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -432,8 +416,9 @@ const UpdateProduct = () => {
     }
 
     // Append multiple images
+// 👇 Append existing image names as a *different* field
     existingImages.forEach((imageName) => {
-      formData.append("images", imageName);
+      formData.append("existingImages", imageName);
     });
 
     // Append new images
@@ -460,23 +445,19 @@ const UpdateProduct = () => {
       formData.append("variants", JSON.stringify([])); // Ensure it's an empty array
     }
 
-    // Log the FormData content to the console
-    // for (let [key, value] of formData.entries()) {
-    //   console.log(key, value);
-    // }
 
+    // for (let [key, value] of formData.entries()) {
+    //   console.log(`${key}:`, value);
+    // }
     try {
       // Send PATCH request to update the product
-      const response = await axios.put(
-        `${apiUrl}/products/${product.productId}`,
-        formData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "multipart/form-data",
-          },
+
+      await axios.put(`${apiUrl}/products/${product.productId}`, formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
         },
-      );
+      });
 
       // Success: show success Snackbar
       setSnackbarMessage("Product updated successfully!");
@@ -517,6 +498,19 @@ const UpdateProduct = () => {
       }
     }
   };
+
+  const handleAddVariant = () => {
+    setVariants([
+      ...variants,
+      { size: "", stock: "", price: "", discount: "" },
+    ]);
+  };
+
+  const handleRemoveVariant = (index) => {
+    setVariants(variants.filter((_, i) => i !== index));
+  };
+
+
   if (!product) {
     return (
       <div>

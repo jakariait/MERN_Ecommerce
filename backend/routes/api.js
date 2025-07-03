@@ -95,6 +95,7 @@ const upload = multer({ storage }).fields([
   },
   {
     name: "images",
+    maxCount: 10,
   },
   {
     name: "userImage",
@@ -425,6 +426,7 @@ router.post(
   upload,
   productController.createProduct,
 );
+
 router.put(
   "/products/:id",
   adminProtect,

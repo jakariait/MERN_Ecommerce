@@ -11,6 +11,8 @@ import FeatureImageModel from "../models/FeatureImageModel.js";
 import GeneralInfoModel from "../models/GeneralInfoModel.js";
 import ProductModel from "../models/ProductModel.js";
 import UserModel from "../models/UserModel.js";
+import BlogModel from "../models/BlogModel.js";
+
 
 // Setup __dirname for ES module
 const __filename = fileURLToPath(import.meta.url);
@@ -55,6 +57,9 @@ const collectUsedImages = async () => {
 
   const users = await UserModel.find({}, "userImage");
   users.forEach((user) => addImage(user.userImage));
+
+  const blogs = await BlogModel.find({}, "thumbnailImage");
+  blogs.forEach((user) => addImage(user.userImage));
 };
 
 await collectUsedImages();
