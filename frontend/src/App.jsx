@@ -188,8 +188,6 @@ function App() {
         <Route path="/forgot-password" element={<ForgetPasswordPage />} />
         <Route path="/reset-password" element={<ResetPasswordPage />} />
 
-
-
         {/*Admin Login Page*/}
         <Route path="/admin/login" element={<AdminLogin />} />
 
