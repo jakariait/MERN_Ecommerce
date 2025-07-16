@@ -9,7 +9,15 @@ collections.forEach((collName) => {
   const targetColl = db.getSiblingDB(targetDB).getCollection(collName);
 
   print(`Cloning ${collName}...`);
-  targetColl.insertMany(sourceColl.find().toArray());
+
+  const docs = sourceColl.find().toArray();
+
+  if (docs.length > 0) {
+    targetColl.insertMany(docs);
+    print(`→ Copied ${docs.length} documents.`);
+  } else {
+    print(`→ Skipped ${collName} (empty collection).`);
+  }
 });
 
 print('✅ Database duplication completed.');

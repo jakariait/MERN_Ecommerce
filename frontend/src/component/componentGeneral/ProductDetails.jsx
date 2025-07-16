@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, {useEffect, useRef, useState} from "react";
 import { Link as RouterLink, useLocation, useParams } from "react-router-dom";
 import useProductStore from "../../store/useProductStore.js";
 import GeneralInfoStore from "../../store/GeneralInfoStore.js";
@@ -28,6 +28,8 @@ import SimilarProducts from "./SimilarProducts.jsx";
 import YouTubeEmbed from "./YouTubeEmbed.jsx";
 
 const ProductDetails = () => {
+  const hasPushedRef = useRef(false);
+
   const { fetchProductBySlug, product, loading, error, resetProduct } =
     useProductStore();
 
@@ -78,6 +80,45 @@ const ProductDetails = () => {
 
     return doc.body.innerHTML;
   };
+
+  // Data layer for View Conttent
+
+  useEffect(() => {
+    if (!product || hasPushedRef.current) return;
+
+    const price =
+      product.finalDiscount > 0 ? product.finalDiscount : product.finalPrice;
+
+    const discount =
+      product.finalDiscount > 0
+        ? product.finalPrice - product.finalDiscount
+        : 0;
+
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({
+      event: "view_item",
+      ecommerce: {
+        currency: "BDT",
+        value: price,
+        items: [
+          {
+            item_id: product.productId,
+            item_name: product.name,
+            currency: "BDT",
+            discount,
+            item_variant: "Default",
+            price,
+            quantity: 1,
+          },
+        ],
+      },
+    });
+
+    hasPushedRef.current = true;
+  }, [product]);
+
+
+
 
   // If product is loading, show a loading screen
   if (loading || product?.slug !== slug) {

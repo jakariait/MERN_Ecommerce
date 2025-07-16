@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, {useEffect, useRef, useState} from "react";
 import { FaRegHeart } from "react-icons/fa";
 import { FaPlus } from "react-icons/fa6";
 import { FiMinus } from "react-icons/fi";
@@ -8,6 +8,7 @@ import useCartStore from "../../store/useCartStore.js";
 import LiveStatsNotification from "./LiveStatsNotification.jsx";
 
 const ProductAddToCart = ({ product }) => {
+
   const [quantity, setQuantity] = useState(1);
   const MAX_QUANTITY = 5; // Set the limit for Cart Quantity
   const { addToCart } = useCartStore();
@@ -46,8 +47,8 @@ const ProductAddToCart = ({ product }) => {
               selectedVariant?.discount > 0
                 ? selectedVariant.discount
                 : selectedVariant?.price ||
-                  product.finalDiscount ||
-                  product.finalPrice,
+                product.finalDiscount ||
+                product.finalPrice,
             quantity,
           },
         ],
@@ -82,50 +83,8 @@ const ProductAddToCart = ({ product }) => {
     setSelectedVariant(newVariant);
   };
 
-  // Data Layer for View Content
 
-  const [hasViewed, setHasViewed] = useState(false);
 
-  useEffect(() => {
-    if (!product || !selectedVariant || hasViewed) return;
-
-    window.dataLayer = window.dataLayer || [];
-    window.dataLayer.push({
-      event: "view_item",
-      ecommerce: {
-        currency: "BDT",
-        value:
-          selectedVariant?.discount > 0
-            ? selectedVariant.discount * quantity
-            : selectedVariant?.price
-              ? selectedVariant.price * quantity
-              : product.finalDiscount > 0
-                ? product.finalDiscount * quantity
-                : product.finalPrice * quantity,
-        items: [
-          {
-            item_id: product.productId,
-            item_name: product.name,
-            currency: "BDT",
-            discount:
-              selectedVariant.discount > 0
-                ? selectedVariant.price - selectedVariant.discount
-                : product.finalPrice - product.finalDiscount,
-            item_variant: selectedVariant.size?.name || "Default",
-            price:
-              selectedVariant.discount > 0
-                ? selectedVariant.discount
-                : selectedVariant.price ||
-                  product.finalDiscount ||
-                  product.finalPrice,
-            quantity: 1,
-          },
-        ],
-      },
-    });
-
-    setHasViewed(true);
-  }, [product, selectedVariant, hasViewed]);
 
   return (
     <div>
@@ -200,9 +159,7 @@ const ProductAddToCart = ({ product }) => {
                 Hurry up! Only {selectedVariant?.stock || product.finalStock}{" "}
                 left
               </span>
-            ) : (
-              <span>Stock: {selectedVariant?.stock || product.finalStock}</span>
-            )}
+            ) : null}
           </div>
 
           {/* With Variant Price Display */}

@@ -14,6 +14,8 @@ import useCartStore from "../../store/useCartStore.js"; // Import the cart store
 import Snackbar from "@mui/material/Snackbar";
 import Alert from "@mui/material/Alert";
 
+const apiUrl = import.meta.env.VITE_API_URL;
+
 const RegisterForm = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
@@ -53,7 +55,7 @@ const RegisterForm = () => {
     }
 
     try {
-      const res = await fetch("http://localhost:5050/api/register", {
+      const res = await fetch(`${apiUrl}/register`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
