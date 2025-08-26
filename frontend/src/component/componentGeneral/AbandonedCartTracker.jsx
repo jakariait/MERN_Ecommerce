@@ -2,22 +2,19 @@ import React, { useEffect, useCallback, useRef } from "react";
 import { useLocation } from "react-router-dom";
 
 const AbandonedCartTracker = ({
-  addressData,
-  cart,
-  totalAmount,
-  user,
-  apiUrl,
-  orderPlaced,
-}) => {
+                                addressData,
+                                cart,
+                                totalAmount,
+                                user,
+                                apiUrl,
+                                orderPlaced,
+                              }) => {
   const location = useLocation();
-  const prevPathRef = useRef(location.pathname);
-
-  // Ref to keep latest orderPlaced value
-  const orderPlacedRef = useRef(orderPlaced);
+  const latestProps = useRef();
+  latestProps.current = { addressData, cart, totalAmount, user, apiUrl, orderPlaced };
 
   useEffect(() => {
-    orderPlacedRef.current = orderPlaced;
-    if (orderPlaced) {
+    if (latestProps.current.orderPlaced) {
       sessionStorage.setItem("orderPlaced", "true");
       sessionStorage.removeItem("wasInCheckout");
       sessionStorage.removeItem("abandonedCartSent");
@@ -25,19 +22,21 @@ const AbandonedCartTracker = ({
   }, [orderPlaced]);
 
   const isOrderPlaced = useCallback(() => {
-    const refValue = orderPlacedRef.current;
+    const { orderPlaced } = latestProps.current;
     const storageValue = sessionStorage.getItem("orderPlaced") === "true";
-    return refValue || storageValue;
+    return orderPlaced || storageValue;
   }, []);
 
   const canSend = useCallback(() => {
+    const { addressData, cart } = latestProps.current;
     const phoneValid = addressData?.phone?.length === 11;
     const cartValid = cart?.length > 0;
     const notSentBefore = !sessionStorage.getItem("abandonedCartSent");
     return phoneValid && cartValid && notSentBefore;
-  }, [addressData?.phone, cart?.length, isOrderPlaced]);
+  }, []);
 
   const getPayload = useCallback(() => {
+    const { addressData, cart, totalAmount, user, orderPlaced } = latestProps.current;
     return {
       userId: user?._id || undefined,
       fullName: addressData?.fullName || undefined,
@@ -60,74 +59,74 @@ const AbandonedCartTracker = ({
       totalAmount,
       orderPlaced: orderPlaced,
     };
-  }, [addressData, cart, totalAmount, user]);
+  }, []);
 
   const sendAbandonedCart = useCallback(() => {
+    if (!canSend() || isOrderPlaced()) {
+      return false;
+    }
     const payload = getPayload();
+    const { apiUrl } = latestProps.current;
     try {
-      navigator.sendBeacon(
+      const beaconSent = navigator.sendBeacon(
         `${apiUrl}/abandoned-cart`,
         new Blob([JSON.stringify(payload)], { type: "application/json" }),
       );
-      sessionStorage.setItem("abandonedCartSent", "true");
-    } catch (error) {}
-  }, [apiUrl, canSend, getPayload]);
+      if (beaconSent) {
+        sessionStorage.setItem("abandonedCartSent", "true");
+      }
+      return beaconSent;
+    } catch (error) {
+      return false;
+    }
+  }, [canSend, getPayload, isOrderPlaced]);
 
+  // Handles SPA navigation away from checkout
   useEffect(() => {
-    const handleRouteChange = () => {
-      if (isOrderPlaced()) {
+    if (location.pathname.includes("/checkout")) {
+      // If a timer was set by a previous checkout page, cancel it.
+      if (window.abandonedCartTimer) {
+        clearTimeout(window.abandonedCartTimer);
+      }
+      sessionStorage.setItem("wasInCheckout", "true");
+      sessionStorage.removeItem("abandonedCartSent");
+    }
+
+    return () => {
+      // When component unmounts, set a timer to send the beacon.
+      const wasInCheckout = sessionStorage.getItem("wasInCheckout") === "true";
+      if (wasInCheckout) {
+        window.abandonedCartTimer = setTimeout(() => {
+          if (!isOrderPlaced()) {
+            sendAbandonedCart();
+          }
+          sessionStorage.removeItem("wasInCheckout");
+        }, 100);
+      }
+    };
+  }, [location.pathname, isOrderPlaced, sendAbandonedCart]);
+
+  // Handles closing tab or navigating to a different site
+  useEffect(() => {
+    const handlePotentialUnload = (event) => {
+      if (event.type === 'visibilitychange' && document.visibilityState !== 'hidden') {
         return;
       }
 
-      const currentPath = window.location.pathname;
       const wasInCheckout = sessionStorage.getItem("wasInCheckout") === "true";
-
-      if (currentPath.includes("/checkout")) {
-        sessionStorage.setItem("wasInCheckout", "true");
-        sessionStorage.removeItem("abandonedCartSent");
-      } else if (wasInCheckout) {
+      if (wasInCheckout && !isOrderPlaced()) {
         sendAbandonedCart();
-        sessionStorage.removeItem("wasInCheckout");
       }
     };
 
-    handleRouteChange(); // initial check
-
-    window.addEventListener("popstate", handleRouteChange);
-
-    const originalPushState = window.history.pushState;
-    const originalReplaceState = window.history.replaceState;
-
-    window.history.pushState = function () {
-      originalPushState.apply(this, arguments);
-      handleRouteChange();
-    };
-
-    window.history.replaceState = function () {
-      originalReplaceState.apply(this, arguments);
-      handleRouteChange();
-    };
+    window.addEventListener("visibilitychange", handlePotentialUnload);
+    window.addEventListener("pagehide", handlePotentialUnload);
 
     return () => {
-      window.removeEventListener("popstate", handleRouteChange);
-      window.history.pushState = originalPushState;
-      window.history.replaceState = originalReplaceState;
+      window.removeEventListener("visibilitychange", handlePotentialUnload);
+      window.removeEventListener("pagehide", handlePotentialUnload);
     };
-  }, [sendAbandonedCart, isOrderPlaced]);
-
-  useEffect(() => {
-    const handleUnload = () => {
-      if (
-        !isOrderPlaced() &&
-        sessionStorage.getItem("wasInCheckout") === "true"
-      ) {
-        sendAbandonedCart();
-      }
-    };
-
-    window.addEventListener("beforeunload", handleUnload);
-    return () => window.removeEventListener("beforeunload", handleUnload);
-  }, [sendAbandonedCart, isOrderPlaced]);
+  }, [isOrderPlaced, sendAbandonedCart]);
 
   return null;
 };
