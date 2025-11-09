@@ -143,7 +143,7 @@ const ProductDetails = () => {
       thumbnailImage: product.thumbnailImage,
     });
 
-    // Limit to 10 items
+    // Limit to 5 items
     viewed = viewed.slice(0, 5);
 
     // Save back
@@ -413,15 +413,15 @@ const ProductDetails = () => {
               </Accordion>
             )}
           </div>
+          <div>
+            <RecentlyViewedProducts currentProductId={product._id} />
+            <SimilarProducts
+              categoryId={product?.category?._id}
+              productId={product?._id}
+            />
+          </div>
         </div>
       )}
-      <div>
-        <RecentlyViewedProducts currentProductId={product.id} />
-        <SimilarProducts
-          categoryId={product?.category?._id}
-          productId={product?._id}
-        />
-      </div>
     </div>
   );
 };
