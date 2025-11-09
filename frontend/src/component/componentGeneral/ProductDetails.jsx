@@ -37,6 +37,7 @@ const ProductDetails = () => {
   const { slug } = useParams();
 
   const [currentProductSlug, setCurrentProductSlug] = useState(null);
+  const [recentlyViewed, setRecentlyViewed] = useState([]);
 
   useEffect(() => {
     if (slug !== currentProductSlug) {
@@ -148,6 +149,7 @@ const ProductDetails = () => {
 
     // Save back
     localStorage.setItem("recentlyViewed", JSON.stringify(viewed));
+    setRecentlyViewed(viewed);
   }, [product]);
 
   // If product is loading, show a loading screen
@@ -414,7 +416,10 @@ const ProductDetails = () => {
             )}
           </div>
           <div>
-            <RecentlyViewedProducts currentProductId={product._id} />
+            <RecentlyViewedProducts
+              currentProductId={product._id}
+              products={recentlyViewed}
+            />
             <SimilarProducts
               categoryId={product?.category?._id}
               productId={product?._id}
