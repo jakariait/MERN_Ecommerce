@@ -115,6 +115,30 @@ const useFlagStore = create((set) => ({
       });
     }
   },
+
+  // Update flag positions
+  updateFlagPositions: async (flagIds) => {
+    set({ loading: true, error: null });
+    try {
+      const token = useAuthStore.getState().token;
+      if (!token) throw new Error("Unauthorized: No token found");
+
+      await axios.put(
+        `${apiUrl}/flags/rearrange`,
+        { flagIds },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        },
+      );
+
+      set({ loading: false });
+    } catch (error) {
+      set({
+        error: error.response?.data?.message || "Failed to update flag positions",
+        loading: false,
+      });
+    }
+  },
 }));
 
 export default useFlagStore;

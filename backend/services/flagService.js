@@ -2,13 +2,15 @@ const FlagModel = require("../models/FlagModel");
 
 // Create a new flag
 const createFlag = async (data) => {
+  const count = await FlagModel.countDocuments();
+  data.position = count;
   return await FlagModel.create(data);
 };
 
 
 // Get all flags
 const getAllFlags = async () => {
-  return await FlagModel.find();
+  return await FlagModel.find().sort({ position: 1 });
 };
 
 // Get a flag by ID
@@ -23,7 +25,24 @@ const updateFlag = async (id, data) => {
 
 // Delete a flag by ID
 const deleteFlag = async (id) => {
-  return await FlagModel.findByIdAndDelete(id);
+  const deletedFlag = await FlagModel.findByIdAndDelete(id);
+  if (deletedFlag) {
+    await FlagModel.updateMany(
+      { position: { $gt: deletedFlag.position } },
+      { $inc: { position: -1 } },
+    );
+  }
+  return deletedFlag;
+};
+
+const updateFlagPositions = async (flagIds) => {
+  const updates = flagIds.map((id, index) => ({
+    updateOne: {
+      filter: { _id: id },
+      update: { $set: { position: index } },
+    },
+  }));
+  return await FlagModel.bulkWrite(updates);
 };
 
 module.exports = {
@@ -32,4 +51,5 @@ module.exports = {
   getFlagById,
   updateFlag,
   deleteFlag,
+  updateFlagPositions,
 };

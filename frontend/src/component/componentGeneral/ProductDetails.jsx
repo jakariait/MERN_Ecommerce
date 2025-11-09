@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState} from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Link as RouterLink, useLocation, useParams } from "react-router-dom";
 import useProductStore from "../../store/useProductStore.js";
 import GeneralInfoStore from "../../store/GeneralInfoStore.js";
@@ -26,6 +26,7 @@ import ProductAddToCart from "./ProductAddToCart.jsx";
 import axios from "axios";
 import SimilarProducts from "./SimilarProducts.jsx";
 import YouTubeEmbed from "./YouTubeEmbed.jsx";
+import RecentlyViewedProducts from "./RecentlyViewedProducts.jsx";
 
 const ProductDetails = () => {
   const hasPushedRef = useRef(false);
@@ -117,8 +118,38 @@ const ProductDetails = () => {
     hasPushedRef.current = true;
   }, [product]);
 
+  useEffect(() => {
+    if (!product?._id) return;
 
+    // Get existing list or empty array
+    let viewed = JSON.parse(localStorage.getItem("recentlyViewed") || "[]");
 
+    // Remove if already exists (avoid duplicates)
+    viewed = viewed.filter((item) => item._id !== product._id);
+
+    // Add new one at beginning
+    viewed.unshift({
+      _id: product._id,
+      name: product.name,
+      isActive: product.isActive,
+      category: product.category,
+      finalDiscount: product.finalDiscount,
+      finalPrice: product.finalPrice,
+      productId: product.productId,
+      slug: product.slug,
+      variants: product.variants,
+      finalStock: product.finalStock,
+      flags: product.flags,
+      images: product.images,
+      thumbnailImage: product.thumbnailImage,
+    });
+
+    // Limit to 10 items
+    viewed = viewed.slice(0, 4);
+
+    // Save back
+    localStorage.setItem("recentlyViewed", JSON.stringify(viewed));
+  }, [product]);
 
   // If product is loading, show a loading screen
   if (loading || product?.slug !== slug) {
@@ -386,6 +417,7 @@ const ProductDetails = () => {
         </div>
       )}
       <div>
+        <RecentlyViewedProducts currentProductId={product.id} />
         <SimilarProducts
           categoryId={product?.category?._id}
           productId={product?._id}

@@ -82,47 +82,6 @@ const Footer = () => {
                 </AccordionDetails>
               </Accordion>
 
-              {/* My Account */}
-              <Accordion
-                style={{
-                  background: "transparent",
-                  boxShadow: "none",
-                  width: "100%",
-                  color: "white",
-                }}
-              >
-                <AccordionSummary
-                  expandIcon={<ExpandMoreIcon className={"text-white"} />}
-                  aria-controls="panel2a-content"
-                >
-                  <Typography>My Account</Typography>
-                </AccordionSummary>
-                <AccordionDetails>
-                  <ul>
-                    <li className={"hover:primaryTextColor"}>My Account</li>
-                    <li className={"hover:primaryTextColor"}>My Orders</li>
-                    <li className={"hover:primaryTextColor"}>My Wishlist</li>
-                    <li className={"hover:primaryTextColor"}>
-                      Payment History
-                    </li>
-                    <li className={"hover:primaryTextColor"}>
-                      Support Tickets
-                    </li>
-                    <li className={"hover:primaryTextColor"}>Promo/Coupons</li>
-                    {user ? (
-                      <li
-                        className={"cursor-pointer hover:primaryTextColor"}
-                        onClick={handleLogout}
-                      >
-                        Logout
-                      </li>
-                    ) : (
-                      <li className={"hover:primaryTextColor"}>Login</li>
-                    )}
-                  </ul>
-                </AccordionDetails>
-              </Accordion>
-
               {/* Quick Links */}
               <Accordion
                 style={{
@@ -199,8 +158,7 @@ const Footer = () => {
                 to="/track-order"
                 className="flex items-center gap-2 ml-4 pt-2 pb-2 "
               >
-                <p>Track Your Order</p>
-              </Link>
+                <p>Track Your Order</p>              </Link>
             </div>
             {/*Desktop Footer*/}
             <div
@@ -208,7 +166,7 @@ const Footer = () => {
                 "xl:container xl:mx-auto lg:grid grid-cols-1 lg:grid-cols-12 gap-10 justify-between py-10 px-6  hidden"
               }
             >
-              <div className={"col-span-5 relative"}>
+              <div className={"col-span-6 relative"}>
                 <h1 className={"mb-3"}>
                   About Us
                   <span className="absolute left-0 top-6 w-15 border-b-2 border-gray-300 mt-1"></span>
@@ -218,45 +176,7 @@ const Footer = () => {
                 <SocialMedia />
               </div>
 
-              <div className={"col-span-2 relative"}>
-                <h1 className={"mb-3"}>
-                  My Account
-                  <span className="absolute left-0 top-6 w-15 border-b-2 border-gray-300 mt-1"></span>
-                </h1>
-                <ul>
-                  <Link className={"hover:primaryTextColor"}>
-                    <li>My Account</li>
-                  </Link>
-                  <Link className={"hover:primaryTextColor"}>
-                    <li>My Orders</li>
-                  </Link>
-                  <Link className={"hover:primaryTextColor"}>
-                    <li>My Wishlist</li>
-                  </Link>
-                  <Link className={"hover:primaryTextColor"}>
-                    <li>Payment History</li>
-                  </Link>
-                  <Link className={"hover:primaryTextColor"}>
-                    <li>Support Tickets</li>
-                  </Link>
-                  <Link className={"hover:primaryTextColor"}>
-                    <li>Promo/Coupons</li>
-                  </Link>
-                  <Link className={"hover:primaryTextColor"}>
-                    {user ? (
-                      <li
-                        className={"cursor-pointer hover:primaryTextColor"}
-                        onClick={handleLogout}
-                      >
-                        Logout
-                      </li>
-                    ) : (
-                      <li className={"hover:primaryTextColor"}>Login</li>
-                    )}
-                  </Link>
-                </ul>
-              </div>
-              <div className={"col-span-2 relative"}>
+              <div className={"col-span-3 relative"}>
                 <h1 className={"mb-3"}>
                   Quick Links
                   <span className="absolute left-0 top-6 w-15 border-b-2 border-gray-300 mt-1"></span>

@@ -13,7 +13,6 @@ const MobileMenu = () => {
   const { subCategories } = useSubCategoryStore();
   const { childCategories } = useChildCategoryStore();
 
-
   const toggleCategory = (categoryId) => {
     setExpandedCategory((prev) => (prev === categoryId ? null : categoryId));
     setExpandedSubCategory(null);
@@ -42,7 +41,6 @@ const MobileMenu = () => {
               Shop
             </Link>
           </li>
-
           {/* Categories */}
           {categories?.map((category) => {
             const hasSubs = subCategories?.some(
@@ -86,10 +84,13 @@ const MobileMenu = () => {
               </li>
             );
           })}
-
           {/* More Links */}
-          <li className="p-2 font-semibold">About</li>
-          <li className="p-2 font-semibold">Blog</li>
+          <li className="p-2 font-semibold">
+            <Link to="/about">About Us</Link>
+          </li>
+          <li className="p-2 font-semibold">
+            <Link to="/blog">Blog</Link>
+          </li>
           <li className="p-2 font-semibold">
             <Link to="/contact-us">Contact</Link>
           </li>

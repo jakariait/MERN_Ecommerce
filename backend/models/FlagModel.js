@@ -12,6 +12,10 @@ const DataSchema = mongoose.Schema(
         strength: 2, // Case-insensitive comparison
       },
     },
+    position: {
+      type: Number,
+      required: true,
+    },
     isActive: { type: Boolean, required: true, default: true },
   },
   {

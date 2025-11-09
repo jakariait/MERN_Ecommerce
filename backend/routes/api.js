@@ -400,11 +400,18 @@ router.post(
   flagController.createFlag,
 );
 router.put(
+  "/flags/rearrange",
+  adminProtect,
+  checkPermission("product_flag"),
+  flagController.updateFlagPositions,
+);
+router.put(
   "/flags/:id",
   adminProtect,
   checkPermission("product_flag"),
   flagController.updateFlag,
 );
+
 router.delete(
   "/flags/:id",
   adminProtect,

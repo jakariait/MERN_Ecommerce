@@ -59,10 +59,20 @@ const deleteFlag = async (req, res) => {
   }
 };
 
+const updateFlagPositions = async (req, res) => {
+  try {
+    await flagService.updateFlagPositions(req.body.flagIds);
+    res.status(200).json({ success: true, message: "Flag positions updated successfully" });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 module.exports = {
   createFlag,
   getAllFlags,
   getFlagById,
   updateFlag,
   deleteFlag,
+  updateFlagPositions,
 };
