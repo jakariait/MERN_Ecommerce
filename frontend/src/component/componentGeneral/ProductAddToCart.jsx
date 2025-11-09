@@ -1,5 +1,4 @@
-import React, {useEffect, useRef, useState} from "react";
-import { FaRegHeart } from "react-icons/fa";
+import React, { useEffect, useState } from "react";
 import { FaPlus } from "react-icons/fa6";
 import { FiMinus } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
@@ -8,7 +7,6 @@ import useCartStore from "../../store/useCartStore.js";
 import LiveStatsNotification from "./LiveStatsNotification.jsx";
 
 const ProductAddToCart = ({ product }) => {
-
   const [quantity, setQuantity] = useState(1);
   const MAX_QUANTITY = 5; // Set the limit for Cart Quantity
   const { addToCart } = useCartStore();
@@ -47,8 +45,8 @@ const ProductAddToCart = ({ product }) => {
               selectedVariant?.discount > 0
                 ? selectedVariant.discount
                 : selectedVariant?.price ||
-                product.finalDiscount ||
-                product.finalPrice,
+                  product.finalDiscount ||
+                  product.finalPrice,
             quantity,
           },
         ],
@@ -82,9 +80,6 @@ const ProductAddToCart = ({ product }) => {
     );
     setSelectedVariant(newVariant);
   };
-
-
-
 
   return (
     <div>
@@ -234,21 +229,23 @@ const ProductAddToCart = ({ product }) => {
             )}
           </div>
           {/*Cash On Delivery Order Button*/}
-          <motion.button
-            className="primaryBgColor accentTextColor px-2 py-1 md:py-2 rounded cursor-pointer"
-            animate={{ scale: [1, 1.05, 1] }} // Scale animation
-            transition={{
-              duration: 2.5,
-              repeat: Infinity,
-              ease: "easeInOut",
-            }}
-            onClick={() => {
-              addToCart(product, quantity, selectedVariant);
-              navigate("/checkout");
-            }}
-          >
-            Order with Cash on Delivery
-          </motion.button>
+          {selectedVariant?.stock === 0 || product.finalStock === 0 ? null : (
+            <motion.button
+              className="primaryBgColor accentTextColor px-2 py-1 md:py-2 rounded cursor-pointer"
+              animate={{ scale: [1, 1.05, 1] }} // Scale animation
+              transition={{
+                duration: 2.5,
+                repeat: Infinity,
+                ease: "easeInOut",
+              }}
+              onClick={() => {
+                addToCart(product, quantity, selectedVariant);
+                navigate("/checkout");
+              }}
+            >
+              Order with Cash on Delivery
+            </motion.button>
+          )}
         </div>
       </div>
     </div>

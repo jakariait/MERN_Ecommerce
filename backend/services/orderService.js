@@ -92,7 +92,9 @@ const createOrder = async (orderData, userId) => {
     const freeDeliveryThreshold = freeDelivery ? freeDelivery.value : 0;
 
     const deliveryCharge =
-      subtotal >= freeDeliveryThreshold ? 0 : shippingMethod.value;
+      freeDeliveryThreshold > 0 && subtotal >= freeDeliveryThreshold
+        ? 0
+        : shippingMethod.value;
 
     // ✅ Backend Coupon Validation
     let promoDiscount = 0;

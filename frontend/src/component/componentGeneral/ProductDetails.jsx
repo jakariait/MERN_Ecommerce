@@ -23,7 +23,6 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import AccordionDetails from "@mui/material/AccordionDetails";
 import ProductGallery from "./ProductGallery.jsx";
 import ProductAddToCart from "./ProductAddToCart.jsx";
-import axios from "axios";
 import SimilarProducts from "./SimilarProducts.jsx";
 import YouTubeEmbed from "./YouTubeEmbed.jsx";
 import RecentlyViewedProducts from "./RecentlyViewedProducts.jsx";

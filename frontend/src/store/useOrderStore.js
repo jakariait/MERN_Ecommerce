@@ -203,6 +203,41 @@ const useOrderStore = create((set, get) => ({
     }
   },
 
+  fetchStatusCount: async (status) => {
+    const token = useAuthAdminStore.getState().token;
+    try {
+      const res = await axios.get(`${apiUrl}/orders`, {
+        headers: { Authorization: `Bearer ${token}` },
+        params: { orderStatus: status, page: 1, limit: 1 }, // get only 1 to get the count
+      });
+
+      if (res.data.success) {
+        set((state) => ({
+          totalByStatus: {
+            ...state.totalByStatus,
+            [status]: res.data.totalOrders || 0,
+          },
+        }));
+      }
+    } catch (error) {
+      // Silently fail for background count fetching
+      console.error(`Failed to fetch count for status ${status}:`, error);
+    }
+  },
+
+  fetchAllStatusCounts: async () => {
+    const { fetchStatusCount } = get();
+    const statuses = [
+      "pending",
+      "approved",
+      "intransit",
+      "delivered",
+      "returned",
+      "cancelled",
+    ];
+    await Promise.all(statuses.map((status) => fetchStatusCount(status)));
+  },
+
   // Helper function to refresh current view
   refreshOrders: () => {
     const { currentStatus, currentPage, itemsPerPage } = get();

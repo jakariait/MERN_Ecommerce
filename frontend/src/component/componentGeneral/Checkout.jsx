@@ -49,6 +49,7 @@ const Checkout = () => {
   // Shipping Details Handler
   const [addressData, setAddressData] = useState({});
   const [orderPlaced, setOrderPlaced] = useState(false);
+  const [isProcessingOrder, setIsProcessingOrder] = useState(false);
 
   // Handle data received from AddressForm
   const handleAddressChange = (data) => {
@@ -157,6 +158,7 @@ const Checkout = () => {
 
   const handleOrderSubmit = async (e) => {
     e.preventDefault();
+    setIsProcessingOrder(true); // Disable button immediately
 
     const orderPayload = {
       shippingInfo: {
@@ -206,6 +208,8 @@ const Checkout = () => {
       } catch (err) {
         console.error(err);
         showSnackbar("bKash payment initialization failed", "error");
+      } finally {
+        setIsProcessingOrder(false); // Re-enable button
       }
       return;
     }
@@ -229,6 +233,8 @@ const Checkout = () => {
       }
     } catch {
       showSnackbar("Something went wrong. Please try again later.", "error");
+    } finally {
+      setIsProcessingOrder(false); // Re-enable button
     }
   };
 
@@ -299,6 +305,7 @@ const Checkout = () => {
               className={
                 "primaryBgColor accentTextColor px-4 py-2 w-full rounded-lg cursor-pointer"
               }
+              disabled={isProcessingOrder}
             >
               {paymentMethod === "cash_on_delivery"
                 ? "Place Order (Cash on Delivery)"
