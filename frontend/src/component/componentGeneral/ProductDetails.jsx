@@ -145,7 +145,7 @@ const ProductDetails = () => {
     });
 
     // Limit to 10 items
-    viewed = viewed.slice(0, 4);
+    viewed = viewed.slice(0, 5);
 
     // Save back
     localStorage.setItem("recentlyViewed", JSON.stringify(viewed));
