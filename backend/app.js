@@ -1,43 +1,43 @@
-require("dotenv").config(); // ✅ Load environment variables
+require("dotenv").config(); // Load environment variables
 
-// External dependencies
 const express = require("express");
 const rateLimit = require("express-rate-limit");
 const helmet = require("helmet");
-const mongoSanitize = require("express-mongo-sanitize");
-const xss = require("xss-clean");
 const hpp = require("hpp");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const mongoose = require("mongoose");
 const path = require("path");
 const compression = require("compression");
+const { xss } = require("express-xss-sanitizer");
+const mongoSanitize = require("./middlewares/mongoSanitize");
 
 // Routes
 const router = require("./routes/api");
 
-// Create the Express app
 const app = express();
 
-// MongoDB connection
-const URL = process.env.MONGO_URI; // Use environment variable for Mongo URI
+// ---------------------------
+// MongoDB Connection
+// ---------------------------
+const URL = process.env.MONGO_URI;
 if (!URL || !process.env.CLIENT_URL) {
   console.error("❌ Missing required environment variables");
   process.exit(1);
 }
 
 mongoose
-  .connect(URL, { autoIndex: true }) // Optional auto-indexing
+  .connect(URL, { autoIndex: true })
   .then(() => console.log("Database Connected"))
   .catch((err) => console.log("DB Connection Error:", err));
 
-// Client URL for CORS setup
+// ---------------------------
+// CORS Configuration
+// ---------------------------
 const clientUrl = process.env.CLIENT_URL
   ? process.env.CLIENT_URL.split(",").map((url) => url.replace(/\/$/, ""))
   : [];
 
-
-// CORS setup
 const corsOptions = {
   origin: clientUrl,
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
@@ -46,44 +46,55 @@ const corsOptions = {
   exposedHeaders: ["Content-Length", "X-Favicon"],
 };
 
-// Middleware setup
+// ---------------------------
+// Security Middlewares
+// ---------------------------
 
-// Trust proxy to handle X-Forwarded-For header in reverse proxies (e.g., Render)
-app.set("trust proxy", 1); // Trust first proxy
+// Trust proxy (needed for rate limiting behind proxies)
+app.set("trust proxy", 1);
 
-// Serve static files from the 'uploads' folder
+// Static file serving
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
-// Compression middleware for better performance
+// Compression
 app.use(compression());
 
-// Cookie parsing middleware
+// Cookie parser
 app.use(cookieParser());
 
-// CORS setup to allow cross-origin requests
+// Enable CORS
 app.use(cors(corsOptions));
 
-// Helmet for setting security-related HTTP headers
+// Sanitize MongoDB queries to prevent NoSQL injection
+app.use(mongoSanitize);
+
+// Set secure HTTP headers
 app.use(helmet());
 
-// Security middleware to sanitize data and prevent common attacks
-app.use(mongoSanitize()); // MongoDB query injection prevention
-app.use(xss()); // XSS (cross-site scripting) prevention
-app.use(hpp()); // HTTP Parameter Pollution protection
+// Prevent HTTP Parameter Pollution
+app.use(hpp());
 
-// Body parsers for handling large payloads and URL-encoded data
+// Sanitize user input to prevent XSS attacks
+app.use(xss());
+
+// ---------------------------
+// Body Parsers
+// ---------------------------
 app.use(express.json({ limit: "50mb" }));
-app.use(express.urlencoded({ extended: true }));
+app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 
-// Rate limiter setup
+// ---------------------------
+// Rate Limiting
+// ---------------------------
 const limiter = rateLimit({
   windowMs: 60 * 1000, // 1 minute
-  max: 2000, // Limit each IP to 2000 requests per window
+  max: 2000, // limit each IP
 });
 app.use(limiter);
 
-// Route handling
-app.use("/api/", router); // All routes under /api
+// ---------------------------
+// Routes
+// ---------------------------
+app.use("/api/", router);
 
-// Export the app for use in the server file
 module.exports = app;
