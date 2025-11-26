@@ -22,10 +22,6 @@ const Cart = ({ onCloseCartMenu }) => {
     return Number(amount).toLocaleString();
   };
 
-
-
-  // console.table(cart);
-
   return (
     <div className="py-3">
       {cart.length === 0 ? (
@@ -44,7 +40,7 @@ const Cart = ({ onCloseCartMenu }) => {
         </div>
       ) : (
         <div className="grid gap-4">
-          {cart.map((item) => (
+          {cart.map((item, index) => (
             <div
               key={`${item.id || item.productId || index}-${item.variant}`}
               className="grid grid-cols-2 gap-3 border-t border-dashed py-2"
