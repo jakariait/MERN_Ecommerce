@@ -38,8 +38,8 @@ const MenuBar = () => {
 
   return (
     <div className="lg:shadow lg:bg-white">
-      <nav className="p-3 xl:container xl:mx-auto">
-        <ul className="lg:flex space-x-3">
+      <nav className="xl:container xl:mx-auto">
+        <ul className="lg:flex items-center justify-center">
           <MenuItem
             label={
               <Link to="/" className="block">
@@ -194,7 +194,7 @@ const MenuItem = memo(({ label, children }) => {
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
-      <div className="px-4 py-2 text-gray-800 font-semibold cursor-pointer">
+      <div className="px-2 py-2 text-gray-800 font-semibold cursor-pointer">
         {label}
       </div>
 
