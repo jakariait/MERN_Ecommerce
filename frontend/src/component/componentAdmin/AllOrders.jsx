@@ -41,13 +41,7 @@ import SendToCourierButton from "./SendToCourierButton.jsx";
 import CourierSummary from "../componentAdmin/CourierSummery.jsx";
 import RequirePermission from "./RequirePermission.jsx";
 
-const AllOrders = ({
-  allOrders,
-  orderListLoading,
-  orderListError,
-  title,
-  status = "",
-}) => {
+const AllOrders = ({ title, status = "" }) => {
   const {
     fetchAllOrders,
     totalOrders,
@@ -58,8 +52,13 @@ const AllOrders = ({
     setItemsPerPage,
     searchQuery,
     setSearchQuery,
-    currentStatus,
+    orderListByStatus,
+    orderListLoading,
+    orderListError,
+    allOrders: allOrdersFromStore,
   } = useOrderStore();
+
+  const allOrders = (status ? orderListByStatus[status] : allOrdersFromStore) || [];
 
   // Local state for sorting and UI
   const [sortDirection, setSortDirection] = useState("desc");
@@ -77,15 +76,9 @@ const AllOrders = ({
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
 
-  // Only fetch when searchQuery (from store) changes, not searchInput
   useEffect(() => {
     fetchAllOrders(status, currentPage, itemsPerPage);
   }, [searchQuery, currentPage, itemsPerPage, status]);
-
-  // Initial load
-  useEffect(() => {
-    fetchAllOrders(status, 1, itemsPerPage);
-  }, []);
 
   const handleOpenDialog = (id) => {
     setDeleteId(id);
@@ -284,7 +277,7 @@ const AllOrders = ({
       )}
 
       {/* Loading and error states */}
-      {orderListLoading && (
+      {orderListLoading && allOrders.length === 0 && (
         <TableContainer component={Paper} sx={{ marginBottom: 2 }}>
           <Table>
             <TableHead>
@@ -329,14 +322,14 @@ const AllOrders = ({
         </TableContainer>
       )}
 
-      {orderListError && (
+      {orderListError && !orderListLoading && allOrders.length === 0 &&(
         <Typography color="error">{orderListError}</Typography>
       )}
 
-      {!orderListLoading && !orderListError && (
+      {(!orderListLoading || allOrders.length > 0) && (
         <>
           {/* No results message */}
-          {allOrders.length === 0 ? (
+          {allOrders.length === 0 && !orderListLoading ? (
             <Box sx={{ textAlign: "center", py: 4 }}>
               <Typography variant="h6" color="textSecondary">
                 {searchQuery
@@ -355,8 +348,28 @@ const AllOrders = ({
               )}
             </Box>
           ) : (
-            <>
-              <TableContainer component={Paper}>
+            <Box sx={{ position: "relative" }}>
+              {orderListLoading && (
+                <Box
+                  sx={{
+                    position: "absolute",
+                    top: 0,
+                    left: 0,
+                    width: "100%",
+                    height: "100%",
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    backgroundColor: "rgba(255, 255, 255, 0.5)",
+                    zIndex: 2,
+                  }}
+                >
+                </Box>
+              )}
+              <TableContainer
+                component={Paper}
+                sx={{ opacity: orderListLoading ? 0.6 : 1 }}
+              >
                 <Table>
                   <TableHead>
                     <TableRow>
@@ -584,7 +597,7 @@ const AllOrders = ({
                   color="primary"
                 />
               </Box>
-            </>
+            </Box>
           )}
         </>
       )}
