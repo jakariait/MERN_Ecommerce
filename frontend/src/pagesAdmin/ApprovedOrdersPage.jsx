@@ -29,6 +29,7 @@ const ApprovedOrdersPage = () => {
 				orderListLoading={orderListLoading}
 				orderListError={orderListError}
 				title={"Approved Orders"}
+        status={"approved"}
 			/>
 			</RequirePermission >
 

@@ -29,6 +29,7 @@ const DeliveredOrdersPage = () => {
 				orderListLoading={orderListLoading}
 				orderListError={orderListError}
 				title={"Delivered Orders"}
+        status={"delivered"}
 			/>
 			</RequirePermission >
 

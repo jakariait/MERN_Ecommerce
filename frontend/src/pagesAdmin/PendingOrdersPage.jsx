@@ -29,6 +29,7 @@ const PendingOrdersPage = () => {
 				orderListLoading={orderListLoading}
 				orderListError={orderListError}
 				title={"Pending Orders"}
+        status={"pending"}
 			/>
 			</RequirePermission >
 

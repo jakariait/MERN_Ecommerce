@@ -28,6 +28,7 @@ const CancelledOrdersPage = () => {
           orderListLoading={orderListLoading}
           orderListError={orderListError}
           title={"Cancelled Orders"}
+          status={"cancelled"}
         />
       </RequirePermission>
     </LayoutAdmin>

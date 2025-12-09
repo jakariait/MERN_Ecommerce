@@ -28,6 +28,7 @@ const InTransitOrdersPage = () => {
           orderListLoading={orderListLoading}
           orderListError={orderListError}
           title={"In Transit Orders"}
+          status={"intransit"}
         />
       </RequirePermission>
     </LayoutAdmin>

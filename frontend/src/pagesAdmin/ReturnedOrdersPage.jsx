@@ -28,6 +28,7 @@ const ReturnedOrdersPage = () => {
           orderListLoading={orderListLoading}
           orderListError={orderListError}
           title={"Returned Orders"}
+          status={"returned"}
         />
       </RequirePermission>
     </LayoutAdmin>
