@@ -24,6 +24,7 @@ import {
   Chip,
   InputAdornment,
   IconButton,
+  CircularProgress,
 } from "@mui/material";
 import { Skeleton } from "@mui/material";
 import VisibilityIcon from "@mui/icons-material/Visibility";
@@ -46,9 +47,7 @@ const AllOrders = ({ title, status = "" }) => {
     fetchAllOrders,
     totalOrders,
     totalPages,
-    currentPage,
     itemsPerPage,
-    setCurrentPage,
     setItemsPerPage,
     searchQuery,
     setSearchQuery,
@@ -68,6 +67,7 @@ const AllOrders = ({ title, status = "" }) => {
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState("success");
   const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1); // Local currentPage state
 
   // Local search input state (separate from the store's searchQuery)
   const [searchInput, setSearchInput] = useState("");
@@ -77,8 +77,16 @@ const AllOrders = ({ title, status = "" }) => {
   const token = localStorage.getItem("token");
 
   useEffect(() => {
+    // When the status prop changes (i.e., navigating between different order list pages),
+    // reset local pagination and search to ensure a fresh view.
+    setCurrentPage(1);
+    setSearchInput("");
+    setSearchQuery("");
+  }, [status, setCurrentPage, setSearchInput, setSearchQuery]);
+
+  useEffect(() => {
     fetchAllOrders(status, currentPage, itemsPerPage);
-  }, [searchQuery, currentPage, itemsPerPage, status]);
+  }, [searchQuery, currentPage, itemsPerPage, status, fetchAllOrders]);
 
   const handleOpenDialog = (id) => {
     setDeleteId(id);
@@ -185,7 +193,11 @@ const AllOrders = ({ title, status = "" }) => {
         setSnackbarMessage("Order deleted successfully");
         setSnackbarSeverity("success");
         setOpenSnackbar(true);
-        fetchAllOrders(status, currentPage, itemsPerPage);
+        if (currentPage === 1) {
+          fetchAllOrders(status, 1, itemsPerPage);
+        } else {
+          setCurrentPage(1);
+        }
       } else {
         setSnackbarMessage(response.data.message || "Failed to delete order");
         setSnackbarSeverity("error");
@@ -202,7 +214,11 @@ const AllOrders = ({ title, status = "" }) => {
   };
 
   const handleSuccess = () => {
-    fetchAllOrders(status, currentPage, itemsPerPage);
+    if (currentPage === 1) {
+      fetchAllOrders(status, 1, itemsPerPage);
+    } else {
+      setCurrentPage(1);
+    }
   };
 
   return (
@@ -219,6 +235,7 @@ const AllOrders = ({ title, status = "" }) => {
           onChange={handleSearchInputChange}
           onKeyPress={handleSearchKeyPress}
           placeholder="Search Orders..."
+          disabled={orderListLoading}
           InputProps={{
             endAdornment: (
               <InputAdornment position="end">
@@ -228,6 +245,7 @@ const AllOrders = ({ title, status = "" }) => {
                     onClick={handleClearSearch}
                     edge="end"
                     size="small"
+                    disabled={orderListLoading}
                   >
                     <ClearIcon />
                   </IconButton>
@@ -236,7 +254,7 @@ const AllOrders = ({ title, status = "" }) => {
                   aria-label="search"
                   onClick={handleSearchExecute}
                   edge="end"
-                  disabled={!searchInput.trim()}
+                  disabled={!searchInput.trim() || orderListLoading}
                 >
                   <SearchIcon />
                 </IconButton>
@@ -246,12 +264,13 @@ const AllOrders = ({ title, status = "" }) => {
         />
 
         {/* Items per page selector */}
-        <FormControl>
+        <FormControl disabled={orderListLoading}>
           <InputLabel>Items per Page</InputLabel>
           <Select
             value={itemsPerPage}
             onChange={handleItemsPerPageChange}
             label="Items per Page"
+            disabled={orderListLoading}
           >
             <MenuItem value={5}>5</MenuItem>
             <MenuItem value={10}>10</MenuItem>
@@ -364,6 +383,7 @@ const AllOrders = ({ title, status = "" }) => {
                     zIndex: 2,
                   }}
                 >
+                  <CircularProgress />
                 </Box>
               )}
               <TableContainer
@@ -379,7 +399,7 @@ const AllOrders = ({ title, status = "" }) => {
                           direction={
                             orderBy === "orderNo" ? sortDirection : "asc"
                           }
-                          onClick={() => handleSortRequest("orderNo")}
+                          onClick={() => !orderListLoading && handleSortRequest("orderNo")}
                         >
                           Order No
                         </TableSortLabel>
@@ -390,7 +410,7 @@ const AllOrders = ({ title, status = "" }) => {
                           direction={
                             orderBy === "orderDate" ? sortDirection : "asc"
                           }
-                          onClick={() => handleSortRequest("orderDate")}
+                          onClick={() => !orderListLoading && handleSortRequest("orderDate")}
                         >
                           Order Date & Time
                         </TableSortLabel>
@@ -404,7 +424,7 @@ const AllOrders = ({ title, status = "" }) => {
                               : "asc"
                           }
                           onClick={() =>
-                            handleSortRequest("shippingInfo.fullName")
+                            !orderListLoading && handleSortRequest("shippingInfo.fullName")
                           }
                         >
                           Customer
@@ -419,7 +439,7 @@ const AllOrders = ({ title, status = "" }) => {
                               : "asc"
                           }
                           onClick={() =>
-                            handleSortRequest("shippingInfo.mobileNo")
+                            !orderListLoading && handleSortRequest("shippingInfo.mobileNo")
                           }
                         >
                           Mobile No
@@ -433,7 +453,7 @@ const AllOrders = ({ title, status = "" }) => {
                           direction={
                             orderBy === "orderStatus" ? sortDirection : "asc"
                           }
-                          onClick={() => handleSortRequest("orderStatus")}
+                          onClick={() => !orderListLoading && handleSortRequest("orderStatus")}
                         >
                           Status
                         </TableSortLabel>
@@ -444,7 +464,7 @@ const AllOrders = ({ title, status = "" }) => {
                           direction={
                             orderBy === "paymentStatus" ? sortDirection : "asc"
                           }
-                          onClick={() => handleSortRequest("paymentStatus")}
+                          onClick={() => !orderListLoading && handleSortRequest("paymentStatus")}
                         >
                           Payment Status
                         </TableSortLabel>
@@ -455,7 +475,7 @@ const AllOrders = ({ title, status = "" }) => {
                           direction={
                             orderBy === "totalAmount" ? sortDirection : "asc"
                           }
-                          onClick={() => handleSortRequest("totalAmount")}
+                          onClick={() => !orderListLoading && handleSortRequest("totalAmount")}
                         >
                           Total Amount
                         </TableSortLabel>
@@ -503,9 +523,13 @@ const AllOrders = ({ title, status = "" }) => {
                         <TableCell>
                           <OrderStatusSelector
                             orderId={order._id}
-                            refetchOrders={() =>
-                              fetchAllOrders(status, currentPage, itemsPerPage)
-                            }
+                            refetchOrders={() => {
+                              if (currentPage === 1) {
+                                fetchAllOrders(status, 1, itemsPerPage);
+                              } else {
+                                setCurrentPage(1);
+                              }
+                            }}
                           />
                         </TableCell>
                         <TableCell>
@@ -595,6 +619,7 @@ const AllOrders = ({ title, status = "" }) => {
                   page={currentPage}
                   onChange={handlePageChange}
                   color="primary"
+                  disabled={orderListLoading}
                 />
               </Box>
             </Box>
