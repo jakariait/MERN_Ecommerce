@@ -24,7 +24,6 @@ const ImageComponent = ({
       {imageSrc && (
         <img
           src={imageSrc}
-          loading="lazy"
           alt={altName}
           className={className}
           style={{ display: isLoading ? "none" : "block" }}
