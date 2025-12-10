@@ -1,6 +1,8 @@
 const express = require("express");
 const multer = require("multer");
 const path = require("path");
+const fs = require("fs");
+const sharp = require("sharp");
 const generalInfoController = require("../controllers/GeneralInfoController");
 const newsletterController = require("../controllers/NewsLetterController");
 const CarouselController = require("../controllers/CarouselController");
@@ -33,7 +35,6 @@ const bkashConfigController = require("../controllers/bkashConfigController");
 const SteadfastConfigController = require("../controllers/SteadfastConfigController");
 const blogController = require("../controllers/BlogController");
 const PassWordResetController = require("../controllers/PassWordResetController");
-
 
 const { handleCourierCheck } = require("../controllers/courierController");
 const cacheMiddleware = require("../middlewares/redisCacheMiddleware");
@@ -104,8 +105,45 @@ const upload = multer({ storage }).fields([
   },
 ]);
 
-// Serve images from the 'uploads' folder as static files
-router.use("/uploads", express.static(path.join(__dirname, "uploads")));
+// Serve images from the 'uploads' folder with sharp compression
+router.get("/uploads/:filename", async (req, res) => {
+  try {
+    const { filename } = req.params;
+    const width = parseInt(req.query.width) || null;
+    const height = parseInt(req.query.height) || null;
+
+    const inputPath = path.join(__dirname, "../uploads", filename);
+
+    if (!fs.existsSync(inputPath)) {
+      return res.status(404).send("Image not found");
+    }
+
+    let transformer = sharp(inputPath);
+
+    if (width || height) {
+      transformer.resize(width, height);
+    }
+
+    // Determine the content type from the original file extension
+    const ext = path.extname(filename).toLowerCase();
+    if (ext === '.webp') {
+      res.type("image/webp");
+      transformer.webp({ quality: 80 }).pipe(res);
+    } else if (ext === '.jpeg' || ext === '.jpg') {
+      res.type("image/jpeg");
+      transformer.jpeg({ quality: 80 }).pipe(res);
+    } else if (ext === '.png') {
+      res.type("image/png");
+      transformer.png({ quality: 80 }).pipe(res);
+    } else {
+      // For other types, just pipe through without modification
+      fs.createReadStream(inputPath).pipe(res);
+    }
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Server error");
+  }
+});
 
 //   Routes for General Information
 router.get("/getGeneralInfo", generalInfoController.getGeneralInfo);
@@ -421,7 +459,7 @@ router.delete(
 );
 
 // Routes for Products
-router.get("/products",cacheMiddleware, productController.getProducts); // All Products Without Sorting
+router.get("/products", cacheMiddleware, productController.getProducts); // All Products Without Sorting
 router.get("/getAllProducts", productController.getAllProducts); // All Products With Sorting
 router.get("/getAllProductsAdmin", productController.getAllProductsAdmin);
 router.get("/products/:id", productController.getProductById);
@@ -726,12 +764,35 @@ router.get("/activeblog", blogController.getActiveBlogs);
 router.get("/blog/slug/:slug", blogController.getBlogBySlug);
 router.get("/blog/:id", blogController.getBlogById);
 
-
-
 // Password Reset Routes
 router.post("/request-reset", PassWordResetController.requestPasswordReset);
 router.post("/reset-password", PassWordResetController.resetPasswordWithOTP);
 
+// Example: /api/images/:filename?width=400&height=400
+router.get("/images/:filename", async (req, res) => {
+  try {
+    const { filename } = req.params;
+    const width = parseInt(req.query.width) || null;
+    const height = parseInt(req.query.height) || null;
 
+    const inputPath = path.join(__dirname, "../uploads", filename);
+
+    if (!fs.existsSync(inputPath)) {
+      return res.status(404).send("Image not found");
+    }
+
+    const transformer = sharp(inputPath).webp({ quality: 80 });
+
+    if (width || height) {
+      transformer.resize(width, height);
+    }
+
+    res.type("image/webp");
+    transformer.pipe(res);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Server error");
+  }
+});
 
 module.exports = router;
