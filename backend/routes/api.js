@@ -36,6 +36,7 @@ const PassWordResetController = require("../controllers/PassWordResetController"
 
 
 const { handleCourierCheck } = require("../controllers/courierController");
+const cacheMiddleware = require("../middlewares/redisCacheMiddleware");
 const {
   createSteadfastOrder,
   getSteadfastOrderStatusByInvoice,
@@ -420,7 +421,7 @@ router.delete(
 );
 
 // Routes for Products
-router.get("/products", productController.getProducts); // All Products Without Sorting
+router.get("/products",cacheMiddleware, productController.getProducts); // All Products Without Sorting
 router.get("/getAllProducts", productController.getAllProducts); // All Products With Sorting
 router.get("/getAllProductsAdmin", productController.getAllProductsAdmin);
 router.get("/products/:id", productController.getProductById);

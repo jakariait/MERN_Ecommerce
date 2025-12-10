@@ -1,5 +1,6 @@
 const productService = require("../services/productService");
 const mongoose = require("mongoose");
+const redisClient = require('../config/redisClient');
 
 // Create a product
 const createProduct = async (req, res) => {
@@ -19,6 +20,9 @@ const createProduct = async (req, res) => {
     }
 
     const product = await productService.createProduct(productData);
+
+    // Invalidate the cache
+    redisClient.del('/api/products');
 
     res.status(201).json({
       success: true,
@@ -132,6 +136,9 @@ const deleteProduct = async (req, res) => {
       });
     }
 
+    // Invalidate the cache
+    redisClient.del('/api/products');
+
     res.status(200).json({
       success: true,
       message: "✅ Product deleted successfully!",
@@ -200,6 +207,9 @@ const updateProduct = async (req, res) => {
       updatedData,
       files,
     );
+
+    // Invalidate the cache
+    redisClient.del('/api/products');
 
     return res.status(200).json({
       success: true,
