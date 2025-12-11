@@ -10,9 +10,6 @@ const Coupon = require("../models/CouponModel");
 const ProductSizeModel = require("../models/ProductSizeModel"); // Import the ProductSizeModel
 
 const createOrder = async (orderData, userId) => {
-  const session = await mongoose.startSession();
-  session.startTransaction();
-
   try {
     // Get user (optional for guests)
     let user = null;
@@ -25,7 +22,7 @@ const createOrder = async (orderData, userId) => {
     const counter = await OrderCounter.findOneAndUpdate(
       { id: "order" },
       { $inc: { seq: 1 } },
-      { new: true, upsert: true, session },
+      { new: true, upsert: true },
     );
     const orderNo = String(counter.seq).padStart(6, "0");
 
@@ -58,7 +55,6 @@ const createOrder = async (orderData, userId) => {
         await Product.updateOne(
           { _id: productId },
           { $inc: { finalStock: -quantity } },
-          { session },
         );
       } else {
         const variant = product.variants.find(
@@ -74,7 +70,6 @@ const createOrder = async (orderData, userId) => {
         await Product.updateOne(
           { _id: productId, "variants._id": variantId },
           { $inc: { "variants.$.stock": -quantity } },
-          { session },
         );
       }
 
@@ -150,15 +145,10 @@ const createOrder = async (orderData, userId) => {
       adminNote: "",
     });
 
-    const savedOrder = await newOrder.save({ session });
-
-    await session.commitTransaction();
-    session.endSession();
+    const savedOrder = await newOrder.save();
 
     return savedOrder;
   } catch (error) {
-    await session.abortTransaction();
-    session.endSession();
     throw new Error(error.message);
   }
 };
@@ -290,26 +280,18 @@ const getOrderById = async (orderId) => {
 };
 
 const updateOrder = async (orderId, updateData) => {
-  const session = await mongoose.startSession();
-  session.startTransaction();
-
   try {
     // Find the existing order to compare the status
-    const existingOrder = await Order.findById(orderId).session(session);
+    const existingOrder = await Order.findById(orderId);
     if (!existingOrder) {
-      await session.abortTransaction();
-      session.endSession();
       throw new Error("Order not found");
     }
 
     // Update the order data
     const updatedOrder = await Order.findByIdAndUpdate(orderId, updateData, {
       new: true,
-      session,
     });
     if (!updatedOrder) {
-      await session.abortTransaction();
-      session.endSession();
       throw new Error("Order not found after update"); // Added extra check
     }
 
@@ -326,14 +308,13 @@ const updateOrder = async (orderId, updateData) => {
       for (const item of updatedOrder.items) {
         const { productId, variantId, quantity } = item;
 
-        const product = await Product.findById(productId).session(session);
+        const product = await Product.findById(productId);
         if (!product) throw new Error(`Product not found for ID ${productId}`);
 
         if (!product.variants || product.variants.length === 0) {
           await Product.updateOne(
             { _id: productId },
             { $inc: { finalStock: quantity } },
-            { session },
           );
         } else {
           const variant = product.variants.find(
@@ -345,7 +326,6 @@ const updateOrder = async (orderId, updateData) => {
           await Product.updateOne(
             { _id: productId, "variants._id": variantId },
             { $inc: { "variants.$.stock": quantity } },
-            { session },
           );
         }
       }
@@ -364,14 +344,13 @@ const updateOrder = async (orderId, updateData) => {
       for (const item of updatedOrder.items) {
         const { productId, variantId, quantity } = item;
 
-        const product = await Product.findById(productId).session(session);
+        const product = await Product.findById(productId);
         if (!product) throw new Error(`Product not found for ID ${productId}`);
 
         if (!product.variants || product.variants.length === 0) {
           await Product.updateOne(
             { _id: productId },
             { $inc: { finalStock: -quantity } }, // Deduct stock
-            { session },
           );
         } else {
           const variant = product.variants.find(
@@ -383,7 +362,6 @@ const updateOrder = async (orderId, updateData) => {
           await Product.updateOne(
             { _id: productId, "variants._id": variantId },
             { $inc: { "variants.$.stock": -quantity } }, // Deduct stock
-            { session },
           );
         }
       }
@@ -392,12 +370,8 @@ const updateOrder = async (orderId, updateData) => {
     // If order is now marked as 'delivered', set paymentStatus to 'paid'
     if (updatedOrder.orderStatus === "delivered") {
       updatedOrder.paymentStatus = "paid";
-      await updatedOrder.save({ session });
+      await updatedOrder.save();
     }
-
-    // Commit the transaction to apply the changes
-    await session.commitTransaction();
-    session.endSession();
 
     return {
       success: true,
@@ -405,17 +379,12 @@ const updateOrder = async (orderId, updateData) => {
       updatedOrder,
     };
   } catch (error) {
-    await session.abortTransaction();
-    session.endSession();
     throw new Error("Error updating order: " + error.message);
   }
 };
 
 // Delete and order
 const deleteOrder = async (orderId) => {
-  const session = await mongoose.startSession();
-  session.startTransaction();
-
   try {
     // Find the order by ID
     const order = await Order.findById(orderId)
@@ -436,7 +405,6 @@ const deleteOrder = async (orderId) => {
         await Product.updateOne(
           { _id: productId },
           { $inc: { finalStock: quantity } },
-          { session },
         );
       } else {
         // If the product has variants, find the specific variant and restore the stock
@@ -449,23 +417,16 @@ const deleteOrder = async (orderId) => {
         await Product.updateOne(
           { _id: productId, "variants._id": variantId },
           { $inc: { "variants.$.stock": quantity } },
-          { session },
         );
       }
     }
 
     // Delete the order after updating stock
-    await Order.findByIdAndDelete(orderId, { session });
-
-    // Commit the transaction
-    await session.commitTransaction();
-    session.endSession();
+    await Order.findByIdAndDelete(orderId);
 
     return { message: "Order deleted successfully, stock updated" };
   } catch (error) {
     // Abort the transaction if there's an error
-    await session.abortTransaction();
-    session.endSession();
     throw new Error(
       "Error deleting order and updating stock: " + error.message,
     );
