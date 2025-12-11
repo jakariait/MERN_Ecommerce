@@ -5,7 +5,7 @@ import "lightgallery/css/lg-thumbnail.css";
 import "lightgallery/css/lg-zoom.css";
 import lgThumbnail from "lightgallery/plugins/thumbnail";
 import lgZoom from "lightgallery/plugins/zoom";
-import ImageComponent from "./ImageComponent.jsx";
+import ImageComponent from "./ImageComponentWithCompression.jsx";
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 import { BsArrowsFullscreen } from "react-icons/bs";
 
@@ -19,7 +19,7 @@ const ProductGallery = ({ images, discount, zoom = true }) => {
     if (images?.length > 0) {
       const apiUrl = import.meta.env.VITE_API_URL;
       const urls = images.map(
-        (imageName) => `${apiUrl.replace("/api", "")}/uploads/${imageName}`
+        (imageName) => `${apiUrl.replace("/api", "")}/uploads/${imageName}`,
       );
       setImageUrls(urls);
     }
@@ -95,6 +95,8 @@ const ProductGallery = ({ images, discount, zoom = true }) => {
                   alt="Main Image"
                   className="w-full h-auto object-cover cursor-pointer"
                   skeletonHeight={"400px"}
+                  width={1000}
+                  height={1000}
                 />
                 <button className="absolute md:bottom-4 bottom-1 left-1 p-3 md:left-3 bg-white rounded-full cursor-pointer">
                   <BsArrowsFullscreen />
@@ -109,6 +111,8 @@ const ProductGallery = ({ images, discount, zoom = true }) => {
               alt="Main Image"
               className="w-full h-auto object-cover"
               skeletonHeight={"200px"}
+              width={1000}
+              height={1000}
             />
           </div>
         )}
@@ -142,6 +146,8 @@ const ProductGallery = ({ images, discount, zoom = true }) => {
                     alt={`Thumbnail ${index}`}
                     className="w-full h-full object-cover"
                     skeletonHeight={"200px"}
+                    width={300}
+                    height={300}
                   />
                 </div>
               ))}

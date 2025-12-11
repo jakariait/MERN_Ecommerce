@@ -7,6 +7,7 @@ import Skeleton from "react-loading-skeleton";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import GeneralInfoStore from "../../store/GeneralInfoStore.js";
+import ImageComponentWithCompression from "./ImageComponentWithCompression.jsx";
 
 const ProductCarousel = () => {
   const {
@@ -66,11 +67,13 @@ const ProductCarousel = () => {
           <Slider ref={sliderRef} {...settings}>
             {products.map((product, index) => (
               <div key={index} className="relative">
-                <ImageComponent
+                <ImageComponentWithCompression
                   imageName={product.imgSrc}
                   className="w-full h-full object-cover"
                   skeletonHeight={400}
                   altName={GeneralInfoList?.CompanyEmail}
+                  width={1000}
+                  height={1000}
                 />
               </div>
             ))}
