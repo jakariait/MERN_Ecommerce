@@ -14,6 +14,7 @@ const mongoSanitize = require("./middlewares/mongoSanitize");
 
 // Routes
 const router = require("./routes/api");
+const image = require("./routes/image");
 
 const app = express();
 
@@ -96,5 +97,6 @@ app.use(limiter);
 // Routes
 // ---------------------------
 app.use("/api/", router);
+app.use("/api/", image);
 
 module.exports = app;
