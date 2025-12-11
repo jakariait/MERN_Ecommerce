@@ -60,7 +60,7 @@ const ImageComponentWithCompression = ({
         <img
           src={imageSrc}
           alt={altName}
-          className={`${className || "w-full h-auto"} object-cover`}
+          className={`${className || "w-full h-auto"} `}
           style={{ display: isLoading ? "none" : "block" }}
           onLoad={() => setIsLoading(false)}
           onError={() => {
