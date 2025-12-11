@@ -27,7 +27,6 @@ import ImageComponent from "../componentGeneral/ImageComponent.jsx";
 
 import { saveAs } from "file-saver";
 import RequirePermission from "./RequirePermission.jsx";
-import ExcelJS from "exceljs";
 
 
 const CustomerList = () => {
@@ -125,41 +124,52 @@ const CustomerList = () => {
     }
   };
 
-  const handleExportExcel = async () => {
-    const workbook = new ExcelJS.Workbook();
-    const worksheet = workbook.addWorksheet("Customers");
-
-    worksheet.columns = [
-      { header: "SL No", key: "sl", width: 8 },
-      { header: "Name", key: "name", width: 20 },
-      { header: "Email", key: "email", width: 25 },
-      { header: "Phone", key: "phone", width: 15 },
-      { header: "Joined Date", key: "joined", width: 15 },
-      { header: "Deletion Requested", key: "deletion", width: 18 },
-      { header: "Requested At", key: "requestedAt", width: 25 },
+  const handleExportExcel = () => {
+    const headers = [
+      "SL No",
+      "Name",
+      "Email",
+      "Phone",
+      "Joined Date",
+      "Deletion Requested",
+      "Requested At",
     ];
 
-    filteredCustomers.forEach((cus, index) => {
-      worksheet.addRow({
-        sl: index + 1,
-        name: cus.fullName || "N/A",
-        email: cus.email || "N/A",
-        phone: cus.phone || "N/A",
-        joined: cus.createdAt
+    const escapeCsv = (field) => {
+      if (field === null || field === undefined) {
+        return "";
+      }
+      let str = String(field);
+      // Escape quotes by doubling them
+      str = str.replace(/"/g, '""');
+      // If the field contains a comma, a quote, or a newline, wrap it in double quotes
+      if (str.search(/("|,|\n)/g) >= 0) {
+        str = `"${str}"`;
+      }
+      return str;
+    };
+
+    const csvHeader = headers.map(escapeCsv).join(",");
+    const csvRows = filteredCustomers.map((cus, index) => {
+      const row = [
+        index + 1,
+        cus.fullName || "N/A",
+        cus.email || "N/A",
+        cus.phone || "N/A",
+        cus.createdAt
           ? new Date(cus.createdAt).toLocaleDateString()
           : "N/A",
-        deletion: cus.accountDeletion?.requested ? "Yes" : "No",
-        requestedAt: cus.accountDeletion?.requestedAt
+        cus.accountDeletion?.requested ? "Yes" : "No",
+        cus.accountDeletion?.requestedAt
           ? new Date(cus.accountDeletion.requestedAt).toLocaleString()
           : "N/A",
-      });
+      ];
+      return row.map(escapeCsv).join(",");
     });
 
-    const buffer = await workbook.xlsx.writeBuffer();
-    const blob = new Blob([buffer], {
-      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-    });
-    saveAs(blob, "customers.xlsx");
+    const csvData = [csvHeader, ...csvRows].join("\n");
+    const blob = new Blob([csvData], { type: "text/csv;charset=utf-8;" });
+    saveAs(blob, "customers.csv");
   };
 
   const paginatedCustomers = filteredCustomers.slice(
