@@ -12,6 +12,7 @@ import { FaEye } from "react-icons/fa";
 import ProductGallery from "./ProductGallery.jsx";
 import ProductAddToCart from "./ProductAddToCart.jsx";
 import BuyNowButton from "./BuyNowButton.jsx";
+import ImageComponentWithCompression from "./ImageComponentWithCompression.jsx";
 
 // Memoize the formatted price function
 const formatPrice = (price) => {
@@ -60,10 +61,20 @@ const ProductList = ({ products }) => {
           {products.map((product) => (
             <div key={product.slug} className="relative">
               <Link to={`/product/${product.slug}`}>
-                <ImageComponent
+                {/*Without Compression*/}
+                {/*<ImageComponent*/}
+                {/*  imageName={product.thumbnailImage}*/}
+                {/*  altName={product.name}*/}
+                {/*  skeletonHeight={250}*/}
+                {/*/>*/}
+
+                {/*With Compression*/}
+                <ImageComponentWithCompression
                   imageName={product.thumbnailImage}
                   altName={product.name}
                   skeletonHeight={250}
+                  width={500}
+                  height={500}
                 />
               </Link>
               <Link to={`/product/${product.slug}`}>

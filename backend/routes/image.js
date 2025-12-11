@@ -69,11 +69,11 @@ router.get("/image/:filename", async (req, res) => {
     // Set content type and format options
     res.type(ext.substring(1));
     if (ext === ".webp") {
-      transformer = transformer.webp({ quality: 80 });
+      transformer = transformer.webp({ quality: 100 });
     } else if (ext === ".jpeg" || ext === ".jpg") {
-      transformer = transformer.jpeg({ quality: 80 });
+      transformer = transformer.jpeg({ quality: 100 });
     } else if (ext === ".png") {
-      transformer = transformer.png({ quality: 80, compressionLevel: 6 });
+      transformer = transformer.png({ quality: 100, compressionLevel: 6 });
     }
 
     // Save the processed image to the cache
