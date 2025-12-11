@@ -17,6 +17,7 @@ import MenuBar from "./MenuBar";
 import MobileMenu from "./MobileMenu";
 import Cart from "./Cart";
 import HeaderSearch from "./HeaderSearch.jsx";
+import ImageComponentWithCompression from "./ImageComponentWithCompression.jsx";
 
 const Headers = () => {
   const navigate = useNavigate();
@@ -186,9 +187,12 @@ const Headers = () => {
           </div>
 
           <Link to="/">
-            <ImageComponent
+            <ImageComponentWithCompression
               imageName={GeneralInfoList?.PrimaryLogo}
               className="w-30"
+              altName={GeneralInfoList?.CompanyName}
+              width={300}
+              height={300}
             />
           </Link>
 
@@ -304,9 +308,12 @@ const Headers = () => {
           <div className="p-4">
             <div className="flex items-center justify-between">
               <Link to="/">
-                <ImageComponent
+                <ImageComponentWithCompression
                   imageName={GeneralInfoList?.PrimaryLogo}
                   className="w-30"
+                  altName={GeneralInfoList?.CompanyName}
+                  width={300}
+                  height={300}
                 />
               </Link>
               <button onClick={() => setIsMenuOpen(false)}>

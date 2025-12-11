@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Skeleton from "react-loading-skeleton";
-import axios from 'axios';
+import axios from "axios";
 
 const ImageComponentWithCompression = ({
   imageName,
@@ -32,13 +32,14 @@ const ImageComponentWithCompression = ({
       }
 
       setIsLoading(true); // Ensure loading state is true before fetch
-      axios.get(imageUrl, { responseType: 'blob' })
-        .then(response => {
+      axios
+        .get(imageUrl, { responseType: "blob" })
+        .then((response) => {
           objectUrl = URL.createObjectURL(response.data);
           setImageSrc(objectUrl);
           setIsLoading(false);
         })
-        .catch(error => {
+        .catch((error) => {
           console.error("Error fetching image:", error);
           setIsLoading(false);
           setImageSrc(""); // Clear image on error

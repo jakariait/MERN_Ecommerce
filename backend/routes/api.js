@@ -1,5 +1,6 @@
 const express = require("express");
 const multer = require("multer");
+const path = require("path");
 
 const generalInfoController = require("../controllers/GeneralInfoController");
 const newsletterController = require("../controllers/NewsLetterController");
