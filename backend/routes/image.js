@@ -5,7 +5,19 @@ const path = require("path");
 
 const router = express.Router();
 
-// Serve images from the 'uploads' folder with sharp compression
+const cacheDir = path.join(__dirname, "../cache/images");
+
+// Function to ensure cache directory exists
+const ensureCacheDir = () => {
+  if (!fs.existsSync(cacheDir)) {
+    fs.mkdirSync(cacheDir, { recursive: true });
+  }
+};
+
+// Ensure cache directory exists on startup
+ensureCacheDir();
+
+// Serve images from the 'uploads' folder with sharp compression and caching
 // ?width=329&height=329
 router.get("/image/:filename", async (req, res) => {
   try {
@@ -19,47 +31,56 @@ router.get("/image/:filename", async (req, res) => {
       return res.status(404).send("Image not found");
     }
 
-    // Determine the content type from the original file extension
+    // Set client-side caching headers
+    res.set("Cache-Control", "public, max-age=31536000, immutable");
+
     const ext = path.extname(filename).toLowerCase();
 
-    // For non-image files, just stream them
+    // For non-image files, just stream them without caching
     if (![".webp", ".jpeg", ".jpg", ".png"].includes(ext)) {
       return fs.createReadStream(inputPath).pipe(res);
     }
 
-    // Create sharp transformer
+    // Generate a unique cache filename
+    const baseFilename = path.parse(filename).name;
+    const sizeSuffix =
+      width || height ? `-${width || "auto"}x${height || "auto"}` : "";
+    // Keep the original extension to determine content-type
+    const cacheFilename = `${baseFilename}${sizeSuffix}${ext}`;
+    const cachePath = path.join(cacheDir, cacheFilename);
+
+    // If cached file exists, serve it
+    if (fs.existsSync(cachePath)) {
+      res.type(ext.substring(1)); // e.g., 'jpeg', 'png'
+      return fs.createReadStream(cachePath).pipe(res);
+    }
+
+    // --- If not cached, process the image ---
+
     let transformer = sharp(inputPath);
 
-    // Apply resize if dimensions provided
     if (width || height) {
       transformer = transformer.resize(width, height, {
-        fit: "inside", // Maintains aspect ratio
-        withoutEnlargement: true, // Prevents upscaling
+        fit: "inside",
+        withoutEnlargement: true,
       });
     }
 
-    // Set content type and format
+    // Set content type and format options
+    res.type(ext.substring(1));
     if (ext === ".webp") {
-      res.type("image/webp");
       transformer = transformer.webp({ quality: 80 });
     } else if (ext === ".jpeg" || ext === ".jpg") {
-      res.type("image/jpeg");
       transformer = transformer.jpeg({ quality: 80 });
     } else if (ext === ".png") {
-      res.type("image/png");
       transformer = transformer.png({ quality: 80, compressionLevel: 6 });
     }
 
-    // Handle stream errors
-    transformer.on("error", (err) => {
-      console.error("Sharp error:", err);
-      if (!res.headersSent) {
-        res.status(500).send("Image processing error");
-      }
-    });
+    // Save the processed image to the cache
+    await transformer.toFile(cachePath);
 
-    // Pipe the transformed image to response
-    transformer.pipe(res);
+    // Stream the newly cached file to the response
+    fs.createReadStream(cachePath).pipe(res);
   } catch (err) {
     console.error("Route error:", err);
     if (!res.headersSent) {
