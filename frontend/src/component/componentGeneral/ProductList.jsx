@@ -71,6 +71,7 @@ const ProductList = ({ products }) => {
                 {/*With Compression*/}
                 <ImageComponentWithCompression
                   imageName={product.thumbnailImage}
+                  className={"aspect-square"}
                   altName={product.name}
                   skeletonHeight={250}
                   width={500}
