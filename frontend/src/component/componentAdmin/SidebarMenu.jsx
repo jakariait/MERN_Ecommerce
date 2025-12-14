@@ -20,7 +20,7 @@ import {
   FaShoppingBag,
   FaInfo,
   FaClipboardList,
-  FaBlog
+  FaBlog,
 } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import useAuthAdminStore from "../../store/AuthAdminStore.js";
@@ -616,6 +616,16 @@ export default function SidebarMenu() {
                           className={"flex items-center gap-2"}
                         >
                           <span>Steadfast</span>
+                        </Link>
+                      </li>
+                    </RequirePermission>
+                    <RequirePermission permission="pathao_api" fallback={true}>
+                      <li>
+                        <Link
+                          to="/admin/pathao-config"
+                          className={"flex items-center gap-2"}
+                        >
+                          <span>Pathao</span>
                         </Link>
                       </li>
                     </RequirePermission>

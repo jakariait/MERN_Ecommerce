@@ -153,14 +153,13 @@ const EditAdmin = () => {
         <button
           onClick={handleSubmit}
           disabled={updating}
-          className={"primaryBgColor accentTextColor px-4 py-2 rounded-md mt-4 w-44 cursor-pointer"}
+          className={
+            "primaryBgColor accentTextColor px-4 py-2 rounded-md mt-4 w-44 cursor-pointer"
+          }
         >
           {updating ? "Updating..." : "Update"}
         </button>
       </div>
-
-
-
 
       <Snackbar
         open={snackbar.open}
@@ -177,7 +176,7 @@ const EditAdmin = () => {
           {snackbar.message}
         </Alert>
       </Snackbar>
-    </div >
+    </div>
   );
 };
 

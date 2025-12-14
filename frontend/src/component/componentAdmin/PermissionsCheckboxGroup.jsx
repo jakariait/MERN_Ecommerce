@@ -32,7 +32,6 @@ const PermissionsCheckboxGroup = ({
     { value: "edit_orders", label: "Edit Orders" },
     { value: "delete_orders", label: "Delete Orders" },
 
-
     { value: "incomplete_orders", label: "Incomplete Orders" },
     { value: "delete_incomplete_orders", label: "Delete Incomplete Orders" },
 
@@ -49,6 +48,7 @@ const PermissionsCheckboxGroup = ({
     { value: "faqs", label: "FAQs" },
     { value: "admin-users", label: "Admin Users" },
     { value: "blogs", label: "Blogs" },
+    { value: "pathao_api", label: "Pathao API" },
   ];
 
   const handleChange = (value) => {

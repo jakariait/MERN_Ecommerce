@@ -703,13 +703,13 @@ router.patch(
 router.get(
   "/pathao-config",
   adminProtect,
-  // checkPermission("pathao_api"),
+  checkPermission("pathao_api"),
   pathaoConfigController.getPathaoConfigController,
 );
 router.patch(
   "/pathao-config",
   adminProtect,
-  // checkPermission("pathao_api"),
+  checkPermission("pathao_api"),
   pathaoConfigController.updatePathaoConfigController,
 );
 

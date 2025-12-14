@@ -94,6 +94,7 @@ import BlogsPage from "./pagesUser/BlogsPage.jsx";
 import BlogDetailsPage from "./pagesUser/BlogDetailsPage.jsx";
 import ForgetPasswordPage from "./pagesUser/ForgetPasswordPage.jsx";
 import ResetPasswordPage from "./pagesUser/ResetPasswordPage.jsx";
+import PathaoConfigPage from "./pagesAdmin/PathaoConfigPage.jsx";
 
 function App() {
   const { GeneralInfoListRequest, GeneralInfoList } = GeneralInfoStore();
@@ -338,6 +339,8 @@ function App() {
             path="/admin/steadfast-config"
             element={<SteadFastConfigPag />}
           />
+
+          <Route path="/admin/pathao-config" element={<PathaoConfigPage />} />
 
           <Route path="/admin/dashboard" element={<DashboardPage />} />
           <Route path="/admin/adminlist" element={<AdminListPage />} />
