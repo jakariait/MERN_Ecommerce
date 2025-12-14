@@ -34,6 +34,8 @@ const bkashConfigController = require("../controllers/bkashConfigController");
 const SteadfastConfigController = require("../controllers/SteadfastConfigController");
 const blogController = require("../controllers/BlogController");
 const PassWordResetController = require("../controllers/PassWordResetController");
+const pathaoController = require("../controllers/pathaoController");
+const pathaoConfigController = require("../controllers/pathaoConfigController");
 
 const { handleCourierCheck } = require("../controllers/courierController");
 const cacheMiddleware = require("../middlewares/redisCacheMiddleware");
@@ -695,6 +697,48 @@ router.patch(
   adminProtect,
   checkPermission("steadfast_api"),
   SteadfastConfigController.updateConfig,
+);
+
+// Pathao Config Routes
+router.get(
+  "/pathao-config",
+  // adminProtect,
+  // checkPermission("pathao_api"),
+  pathaoConfigController.getPathaoConfigController,
+);
+router.patch(
+  "/pathao-config",
+  // adminProtect,
+  // checkPermission("pathao_api"),
+  pathaoConfigController.updatePathaoConfigController,
+);
+
+// Pathao Courier Routes
+
+router.get("/pathao/cities", pathaoController.getCitiesController);
+router.get("/pathao/zones/:cityId", pathaoController.getZonesController);
+router.get("/pathao/areas/:zoneId", pathaoController.getAreasController);
+router.get("/pathao/stores", pathaoController.getStoresController);
+router.post("/pathao/stores", adminProtect, pathaoController.createStoreController);
+router.post(
+  "/pathao/orders",
+  // adminProtect,
+  pathaoController.createOrderController,
+);
+router.post(
+  "/pathao/orders/bulk",
+  adminProtect,
+  pathaoController.createBulkOrderController,
+);
+router.get(
+  "/pathao/orders/:consignmentId",
+  adminProtect,
+  pathaoController.getOrderInfoController,
+);
+router.post(
+  "/pathao/price-plan",
+  adminProtect,
+  pathaoController.calculatePriceController,
 );
 
 // Routes for Blogs
