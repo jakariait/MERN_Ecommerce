@@ -143,7 +143,8 @@ const ProductList = ({ products }) => {
                     )}
               </div>
 
-              <div className={"py-3"}>
+              <div className={"py-3 flex gap-2 justify-center items-center"}>
+                <BuyNowButton product={product} isAddToCart={true} />
                 <BuyNowButton product={product} />
               </div>
 

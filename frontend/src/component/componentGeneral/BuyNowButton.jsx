@@ -5,15 +5,14 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
-  IconButton,
 } from "@mui/material";
 import { FaPlus } from "react-icons/fa6";
 import { FiMinus } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import useCartStore from "../../store/useCartStore.js";
-import { FaCartArrowDown } from "react-icons/fa6";
+import { FaCartArrowDown, FaCreditCard } from "react-icons/fa";
 
-const BuyNowButton = ({ product }) => {
+const BuyNowButton = ({ product, isAddToCart = false }) => {
   const [open, setOpen] = useState(false);
   const [quantity, setQuantity] = useState(1);
   const [selectedVariant, setSelectedVariant] = useState(null);
@@ -47,9 +46,13 @@ const BuyNowButton = ({ product }) => {
     setSelectedVariant(newVariant);
   };
 
-  const handleProceedToCheckout = () => {
+  const handleConfirm = () => {
     addToCart(product, quantity, selectedVariant);
-    navigate("/checkout");
+    if (isAddToCart) {
+      handleClose();
+    } else {
+      navigate("/checkout");
+    }
   };
 
   const formatPrice = (price) => {
@@ -63,9 +66,9 @@ const BuyNowButton = ({ product }) => {
         onClick={handleOpen}
         className="primaryBgColor accentTextColor w-full px-1 py-1 md:py-1 rounded cursor-pointer"
       >
-        <div className={"flex items-center justify-center gap-4"}>
-          <FaCartArrowDown />
-          <span>Buy Now</span>
+        <div className="flex items-center justify-center gap-4">
+          {isAddToCart ? <FaCartArrowDown /> : <FaCreditCard />}
+          <span>{isAddToCart ? "Add to Cart" : "Buy Now"}</span>
         </div>
       </button>
       <Dialog open={open} onClose={handleClose} fullWidth maxWidth="xs">
@@ -114,7 +117,7 @@ const BuyNowButton = ({ product }) => {
           {/* Size Variants */}
           {product.variants?.length > 0 && (
             <div className="flex gap-4 items-center mt-4">
-              <h2 className="text-lg">Size</h2>
+              <h2 className="text-lg">Weight:</h2>
               <div className="flex gap-2 flex-wrap">
                 {product.variants.map((variant) => (
                   <button
@@ -168,12 +171,12 @@ const BuyNowButton = ({ product }) => {
         <DialogActions>
           <Button onClick={handleClose}>Cancel</Button>
           <Button
-            onClick={handleProceedToCheckout}
+            onClick={handleConfirm}
             disabled={selectedVariant?.stock === 0 || product.finalStock === 0}
             className="primaryBgColor"
             variant="contained"
           >
-            Proceed to Checkout
+            {isAddToCart ? "Add to Cart" : "Proceed to Checkout"}
           </Button>
         </DialogActions>
       </Dialog>
