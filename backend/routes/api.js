@@ -702,26 +702,46 @@ router.patch(
 // Pathao Config Routes
 router.get(
   "/pathao-config",
-  // adminProtect,
+  adminProtect,
   // checkPermission("pathao_api"),
   pathaoConfigController.getPathaoConfigController,
 );
 router.patch(
   "/pathao-config",
-  // adminProtect,
+  adminProtect,
   // checkPermission("pathao_api"),
   pathaoConfigController.updatePathaoConfigController,
 );
 
 // Pathao Courier Routes
-router.get("/pathao/cities", pathaoController.getCitiesController);
-router.get("/pathao/zones/:cityId", pathaoController.getZonesController);
-router.get("/pathao/areas/:zoneId", pathaoController.getAreasController);
-router.get("/pathao/stores", pathaoController.getStoresController);
-router.post("/pathao/stores", adminProtect, pathaoController.createStoreController);
+router.get(
+  "/pathao/cities",
+  adminProtect,
+  pathaoController.getCitiesController,
+);
+router.get(
+  "/pathao/zones/:cityId",
+  adminProtect,
+  pathaoController.getZonesController,
+);
+router.get(
+  "/pathao/areas/:zoneId",
+  adminProtect,
+  pathaoController.getAreasController,
+);
+router.get(
+  "/pathao/stores",
+  adminProtect,
+  pathaoController.getStoresController,
+);
+router.post(
+  "/pathao/stores",
+  adminProtect,
+  pathaoController.createStoreController,
+);
 router.post(
   "/pathao/orders",
-  // adminProtect,
+  adminProtect,
   pathaoController.createOrderController,
 );
 router.post(
@@ -731,7 +751,7 @@ router.post(
 );
 router.get(
   "/pathao/orders/:consignmentId",
-  // adminProtect,
+  adminProtect,
   pathaoController.getOrderInfoController,
 );
 router.post(
