@@ -714,7 +714,6 @@ router.patch(
 );
 
 // Pathao Courier Routes
-
 router.get("/pathao/cities", pathaoController.getCitiesController);
 router.get("/pathao/zones/:cityId", pathaoController.getZonesController);
 router.get("/pathao/areas/:zoneId", pathaoController.getAreasController);
@@ -732,7 +731,7 @@ router.post(
 );
 router.get(
   "/pathao/orders/:consignmentId",
-  adminProtect,
+  // adminProtect,
   pathaoController.getOrderInfoController,
 );
 router.post(
