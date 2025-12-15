@@ -481,6 +481,7 @@ const AllOrders = ({ title, status = "" }) => {
                               note: order.note || "",
                               order_id: order._id,
                               courier_status: order.sentToCourier,
+                              items: order.items.length,
                             }}
                             onSuccess={handleSuccess}
                           />

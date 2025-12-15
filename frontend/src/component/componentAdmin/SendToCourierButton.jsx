@@ -16,6 +16,8 @@ const SendToCourierButton = ({ orderData, onSuccess }) => {
   const [note, setNote] = useState(orderData.note || "");
   const [sent, setSent] = useState(orderData.courier_status || false);
   const [deliveryStatus, setDeliveryStatus] = useState(null);
+  const [selectedCourier, setSelectedCourier] = useState("steadfast");
+  const [pathaoStoreId, setPathaoStoreId] = useState(null);
 
   const [snackbar, setSnackbar] = useState({
     open: false,
@@ -25,6 +27,23 @@ const SendToCourierButton = ({ orderData, onSuccess }) => {
 
   const apiURL = import.meta.env.VITE_API_URL;
   const { token } = useAuthAdminStore();
+
+  useEffect(() => {
+    const fetchPathaoConfig = async () => {
+      if (!token) return;
+      try {
+        const response = await axios.get(`${apiURL}/pathao-config`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (response.data && response.data.data) {
+          setPathaoStoreId(response.data.data.storeId);
+        }
+      } catch (error) {
+        console.error("Failed to fetch Pathao config:", error);
+      }
+    };
+    fetchPathaoConfig();
+  }, [apiURL, token]);
 
   const sendToSteadfast = async () => {
     try {
@@ -50,7 +69,6 @@ const SendToCourierButton = ({ orderData, onSuccess }) => {
 
       if (result.status === "success") {
         if (statusCode === 200) {
-          // ✅ Update order in DB
           await axios.put(
             `${apiURL}/orders/${orderData.order_id}`,
             {
@@ -66,11 +84,11 @@ const SendToCourierButton = ({ orderData, onSuccess }) => {
 
           setSnackbar({
             open: true,
-            message: "✅ Consignment created & order updated successfully!",
+            message: `✅ Order sent to Steadfast! Consignment ID: ${result.data.consignment.consignment_id}`,
             severity: "success",
           });
 
-          setSent(true); // ✅ update local state to disable button
+          setSent(true);
           if (onSuccess) onSuccess();
           setOpen(false);
         } else if (statusCode === 400) {
@@ -114,13 +132,97 @@ const SendToCourierButton = ({ orderData, onSuccess }) => {
     }
   };
 
+  const sendToPathao = async () => {
+    try {
+      const payload = {
+        store_id: pathaoStoreId,
+        recipient_name: orderData.recipient_name,
+        recipient_phone: orderData.recipient_phone,
+        merchant_order_id: orderData.invoice,
+        recipient_address: orderData.recipient_address,
+        delivery_type: "48",
+        item_type: "2",
+        item_quantity: orderData.items,
+        item_weight: "0.5",
+        amount_to_collect: orderData.cod_amount,
+        special_instruction: note,
+      };
+
+      const response = await axios.post(`${apiURL}/pathao/orders`, payload, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      const result = response.data;
+      if (result.type === "success") {
+        await axios.put(
+          `${apiURL}/orders/${orderData.order_id}`,
+          {
+            sentToCourier: true,
+            orderStatus: "intransit",
+          },
+          { headers: { Authorization: `Bearer ${token}` } },
+        );
+
+        setSnackbar({
+          open: true,
+          message: `✅ Order sent to Pathao! Consignment ID: ${result.data.consignment_id}`,
+          severity: "success",
+        });
+
+        setSent(true);
+        if (onSuccess) onSuccess();
+        setOpen(false);
+      } else {
+        const errorMessage =
+          result.message || "Failed to create Pathao consignment.";
+        const errorDetails = result.errors
+          ? "\n" +
+            Object.entries(result.errors)
+              .map(([key, value]) => `${key}: ${value.join(", ")}`)
+              .join("\n")
+          : "";
+        setSnackbar({
+          open: true,
+          message: `❌ ${errorMessage}${errorDetails}`,
+          severity: "error",
+        });
+      }
+    } catch (err) {
+      const errorMessage =
+        err.response?.data?.message ||
+        "❌ Network error while sending order to Pathao.";
+      setSnackbar({
+        open: true,
+        message: errorMessage,
+        severity: "error",
+      });
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleSend = () => {
     setLoading(true);
-    sendToSteadfast();
+    if (selectedCourier === "steadfast") {
+      sendToSteadfast();
+    } else if (selectedCourier === "pathao") {
+      if (!pathaoStoreId) {
+        setSnackbar({
+          open: true,
+          message: "Pathao configuration is not loaded yet.",
+          severity: "error",
+        });
+        setLoading(false);
+        return;
+      }
+      sendToPathao();
+    }
   };
 
   useEffect(() => {
     const fetchOrderStatus = async () => {
+      if (selectedCourier !== "steadfast") return;
       try {
         const response = await axios.get(
           `${apiURL}/steadfast/get-order-status`,
@@ -145,11 +247,10 @@ const SendToCourierButton = ({ orderData, onSuccess }) => {
     if (sent) {
       fetchOrderStatus();
     }
-  }, [sent, orderData.invoice, apiURL, token]);
+  }, [sent, orderData.invoice, apiURL, token, selectedCourier]);
 
   return (
     <>
-      {/* ✅ Disable if already sent */}
       <button
         className={`primaryBgColor accentTextColor cursor-pointer px-4 py-2 w-34 rounded text-sm ${
           sent ? "opacity-50 cursor-not-allowed" : ""
@@ -159,14 +260,16 @@ const SendToCourierButton = ({ orderData, onSuccess }) => {
       >
         {sent ? (
           <>
-            Sent | <span className="font-semibold">{deliveryStatus}</span>
+            Sent
+            {deliveryStatus && (
+              <span className="font-semibold"> | {deliveryStatus}</span>
+            )}
           </>
         ) : (
           "Send to Courier"
         )}
       </button>
 
-      {/* MUI Dialog */}
       <Dialog
         open={open}
         onClose={() => setOpen(false)}
@@ -182,11 +285,12 @@ const SendToCourierButton = ({ orderData, onSuccess }) => {
               </label>
               <select
                 id="courier"
-                value="steadfast"
-                disabled
-                className="w-full px-3 py-2  rounded bg-gray-100"
+                value={selectedCourier}
+                onChange={(e) => setSelectedCourier(e.target.value)}
+                className="w-full px-3 py-2 border rounded"
               >
                 <option value="steadfast">Steadfast</option>
+                <option value="pathao">Pathao</option>
               </select>
             </div>
 
@@ -242,7 +346,9 @@ const SendToCourierButton = ({ orderData, onSuccess }) => {
           <button
             className="px-4 py-2  rounded primaryBgColor accentTextColor  cursor-pointer flex items-center gap-2"
             onClick={handleSend}
-            disabled={loading}
+            disabled={
+              loading || (selectedCourier === "pathao" && !pathaoStoreId)
+            }
           >
             {loading && (
               <span className="w-4 h-4 cursor-pointer border-2 border-white border-t-transparent rounded-full animate-spin"></span>
@@ -252,7 +358,6 @@ const SendToCourierButton = ({ orderData, onSuccess }) => {
         </DialogActions>
       </Dialog>
 
-      {/* MUI Snackbar */}
       <Snackbar
         open={snackbar.open}
         autoHideDuration={5000}

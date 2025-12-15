@@ -637,7 +637,7 @@ router.patch(
 router.post("/courier-check", handleCourierCheck);
 
 // Steadfast Courier Routes
-router.post("/steadfast/create-order", adminProtect, createSteadfastOrder);
+router.post("/steadfast/create-order",createSteadfastOrder);
 router.get(
   "/steadfast/get-order-status",
   adminProtect,
@@ -741,7 +741,7 @@ router.post(
 );
 router.post(
   "/pathao/orders",
-  adminProtect,
+  // adminProtect,
   pathaoController.createOrderController,
 );
 router.post(

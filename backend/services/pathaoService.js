@@ -135,6 +135,13 @@ const createOrder = async (orderData) => {
             "Content-Type": "application/json",
         },
     });
+
+    if (response.data.type === 'error') {
+        const error = new Error(response.data.message || 'Pathao API Error');
+        error.details = response.data.errors;
+        throw error;
+    }
+
     return response.data;
 };
 

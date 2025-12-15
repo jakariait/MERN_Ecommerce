@@ -7,7 +7,8 @@ const getCitiesController = async (req, res) => {
   } catch (err) {
     res.status(500).json({
       status: "error",
-      message: err.response?.data?.message || "Something went wrong",
+      message: err.message || err.response?.data?.message || "Something went wrong",
+      errors: err.details || null,
     });
   }
 };
@@ -19,8 +20,9 @@ const getZonesController = async (req, res) => {
         res.status(200).json({ status: "success", data });
     } catch (err) {
         res.status(500).json({
-        status: "error",
-        message: err.response?.data?.message || "Something went wrong",
+            status: "error",
+            message: err.message || err.response?.data?.message || "Something went wrong",
+            errors: err.details || null,
         });
     }
 };
@@ -32,8 +34,9 @@ const getAreasController = async (req, res) => {
         res.status(200).json({ status: "success", data });
     } catch (err) {
         res.status(500).json({
-        status: "error",
-        message: err.response?.data?.message || "Something went wrong",
+            status: "error",
+            message: err.message || err.response?.data?.message || "Something went wrong",
+            errors: err.details || null,
         });
     }
 };
@@ -44,8 +47,9 @@ const getStoresController = async (req, res) => {
         res.status(200).json({ status: "success", data });
     } catch (err) {
         res.status(500).json({
-        status: "error",
-        message: err.response?.data?.message || "Something went wrong",
+            status: "error",
+            message: err.message || err.response?.data?.message || "Something went wrong",
+            errors: err.details || null,
         });
     }
 };
@@ -56,8 +60,9 @@ const createStoreController = async (req, res) => {
         res.status(200).json({ status: "success", data });
     } catch (err) {
         res.status(500).json({
-        status: "error",
-        message: err.response?.data?.message || "Something went wrong",
+            status: "error",
+            message: err.message || err.response?.data?.message || "Something went wrong",
+            errors: err.details || null,
         });
     }
 };
@@ -65,11 +70,12 @@ const createStoreController = async (req, res) => {
 const createOrderController = async (req, res) => {
     try {
         const data = await pathaoService.createOrder(req.body);
-        res.status(200).json({ status: "success", data });
+        res.status(200).json(data);
     } catch (err) {
         res.status(500).json({
-        status: "error",
-        message: err.response?.data?.message || "Something went wrong",
+            status: "error",
+            message: err.message || err.response?.data?.message || "Something went wrong",
+            errors: err.details || null,
         });
     }
 };
@@ -80,8 +86,9 @@ const createBulkOrderController = async (req, res) => {
         res.status(200).json({ status: "success", data });
     } catch (err) {
         res.status(500).json({
-        status: "error",
-        message: err.response?.data?.message || "Something went wrong",
+            status: "error",
+            message: err.message || err.response?.data?.message || "Something went wrong",
+            errors: err.details || null,
         });
     }
 };
@@ -93,8 +100,9 @@ const getOrderInfoController = async (req, res) => {
         res.status(200).json({ status: "success", data });
     } catch (err) {
         res.status(500).json({
-        status: "error",
-        message: err.response?.data?.message || "Something went wrong",
+            status: "error",
+            message: err.message || err.response?.data?.message || "Something went wrong",
+            errors: err.details || null,
         });
     }
 };
@@ -105,8 +113,9 @@ const calculatePriceController = async (req, res) => {
         res.status(200).json({ status: "success", data });
     } catch (err) {
         res.status(500).json({
-        status: "error",
-        message: err.response?.data?.message || "Something went wrong",
+            status: "error",
+            message: err.message || err.response?.data?.message || "Something went wrong",
+            errors: err.details || null,
         });
     }
 };
