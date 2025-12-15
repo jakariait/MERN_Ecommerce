@@ -74,6 +74,8 @@ const SendToCourierButton = ({ orderData, onSuccess }) => {
             {
               sentToCourier: true,
               orderStatus: "intransit",
+              courierProvider: "steadfast",
+              courierConsignmentId: result.data.consignment.consignment_id,
             },
             {
               headers: {
@@ -159,6 +161,8 @@ const SendToCourierButton = ({ orderData, onSuccess }) => {
           {
             sentToCourier: true,
             orderStatus: "intransit",
+            courierProvider: "pathao",
+            courierConsignmentId: result.data.consignment_id,
           },
           { headers: { Authorization: `Bearer ${token}` } },
         );
@@ -222,12 +226,10 @@ const SendToCourierButton = ({ orderData, onSuccess }) => {
 
   useEffect(() => {
     const fetchOrderStatus = async () => {
-      if (selectedCourier !== "steadfast") return;
       try {
         const response = await axios.get(
-          `${apiURL}/steadfast/get-order-status`,
+          `${apiURL}/courier/status/${orderData.order_id}`,
           {
-            params: { invoice: orderData.invoice },
             headers: {
               Authorization: `Bearer ${token}`,
             },
@@ -235,7 +237,15 @@ const SendToCourierButton = ({ orderData, onSuccess }) => {
         );
 
         if (response.data.status === "success") {
-          setDeliveryStatus(response.data.data.delivery_status);
+          const statusData = response.data.data;
+          // Handle Steadfast response structure
+          if (statusData.delivery_status) {
+            setDeliveryStatus(statusData.delivery_status);
+          }
+          // Handle Pathao response structure
+          else if (statusData.data && statusData.data.order_status) {
+            setDeliveryStatus(statusData.data.order_status);
+          }
         } else {
           console.error("Unexpected response:", response.data);
         }
@@ -247,7 +257,7 @@ const SendToCourierButton = ({ orderData, onSuccess }) => {
     if (sent) {
       fetchOrderStatus();
     }
-  }, [sent, orderData.invoice, apiURL, token, selectedCourier]);
+  }, [sent, orderData.order_id, apiURL, token]);
 
   return (
     <>

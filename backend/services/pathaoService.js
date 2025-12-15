@@ -181,6 +181,11 @@ const calculatePrice = async (priceData) => {
     return response.data;
 };
 
+const getPathaoOrderStatus = async (consignmentId) => {
+    // This function can be expanded later to format or simplify the response
+    return await getOrderInfo(consignmentId);
+};
+
 module.exports = {
   issueToken,
   refreshToken,
@@ -194,4 +199,5 @@ module.exports = {
   createBulkOrder,
   getOrderInfo,
   calculatePrice,
+  getPathaoOrderStatus,
 };

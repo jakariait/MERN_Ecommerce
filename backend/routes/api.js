@@ -37,7 +37,7 @@ const PassWordResetController = require("../controllers/PassWordResetController"
 const pathaoController = require("../controllers/pathaoController");
 const pathaoConfigController = require("../controllers/pathaoConfigController");
 
-const { handleCourierCheck } = require("../controllers/courierController");
+const { handleCourierCheck, getDynamicCourierStatus } = require("../controllers/courierController");
 const cacheMiddleware = require("../middlewares/redisCacheMiddleware");
 const {
   createSteadfastOrder,
@@ -635,6 +635,7 @@ router.patch(
 
 // Courier Check Routs
 router.post("/courier-check", handleCourierCheck);
+router.get("/courier/status/:orderId", adminProtect, getDynamicCourierStatus);
 
 // Steadfast Courier Routes
 router.post("/steadfast/create-order",createSteadfastOrder);
