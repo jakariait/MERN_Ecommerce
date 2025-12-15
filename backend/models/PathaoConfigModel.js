@@ -21,6 +21,10 @@ const pathaoConfigSchema = new mongoose.Schema({
     type: String,
     default: "lovePathao",
   },
+  storeId:{
+    type: String,
+    default: "187785",
+  },
   accessToken: {
     type: String,
     default: "",
