@@ -482,6 +482,7 @@ const AllOrders = ({ title, status = "" }) => {
                               order_id: order._id,
                               courier_status: order.sentToCourier,
                               items: order.items.length,
+                              courierProvider: order.courierProvider,
                             }}
                             onSuccess={handleSuccess}
                           />

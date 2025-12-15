@@ -262,7 +262,7 @@ const SendToCourierButton = ({ orderData, onSuccess }) => {
   return (
     <>
       <button
-        className={`primaryBgColor accentTextColor cursor-pointer px-4 py-2 w-34 rounded text-sm ${
+        className={`primaryBgColor accentTextColor cursor-pointer px-4 py-2 w-48 rounded text-sm ${
           sent ? "opacity-50 cursor-not-allowed" : ""
         }`}
         onClick={() => setOpen(true)}
@@ -273,6 +273,12 @@ const SendToCourierButton = ({ orderData, onSuccess }) => {
             Sent
             {deliveryStatus && (
               <span className="font-semibold"> | {deliveryStatus}</span>
+            )}
+            {deliveryStatus && (
+              <span className="font-semibold">
+                {" "}
+                | {orderData.courierProvider}
+              </span>
             )}
           </>
         ) : (

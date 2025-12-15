@@ -121,16 +121,16 @@ const AdminSteadfastConfig = () => {
           />
         </label>
 
-        <label className="flex items-center gap-3">
-          <input
-            type="checkbox"
-            name="isActive"
-            checked={config.isActive}
-            onChange={handleChange}
-            className="w-5 h-5 rounded border-gray-300 focus:ring-2 focus:ring-blue-500"
-          />
-          <span className="text-gray-700 font-medium">Active</span>
-        </label>
+        {/*<label className="flex items-center gap-3">*/}
+        {/*  <input*/}
+        {/*    type="checkbox"*/}
+        {/*    name="isActive"*/}
+        {/*    checked={config.isActive}*/}
+        {/*    onChange={handleChange}*/}
+        {/*    className="w-5 h-5 rounded border-gray-300 focus:ring-2 focus:ring-blue-500"*/}
+        {/*  />*/}
+        {/*  <span className="text-gray-700 font-medium">Active</span>*/}
+        {/*</label>*/}
 
         <button
           type="submit"
