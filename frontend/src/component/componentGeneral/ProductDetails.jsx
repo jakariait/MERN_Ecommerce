@@ -14,7 +14,7 @@ import {
   WhatsappShareButton,
   WhatsappIcon,
 } from "react-share";
-import { Helmet } from "react-helmet";
+
 import { Breadcrumbs, Link, Typography } from "@mui/material";
 
 import Accordion from "@mui/material/Accordion";
@@ -193,28 +193,13 @@ const ProductDetails = () => {
       {product && (
         <div>
           {/*Seo Meta Data*/}
-          <Helmet titleTemplate={`%s | ${GeneralInfoList?.CompanyName}`}>
-            <html lang="en" />
-            <meta name="robots" content="index, follow" />
-            <title>{product?.name || product?.metaTitle}</title>
-            <meta charSet="utf-8" />
-            <meta name="description" content={product?.metaDescription} />
-            <meta name="keywords" content={product.metaKeywords.join(", ")} />
-            <meta
-              name="viewport"
-              content="width=device-width, initial-scale=1"
-            />
-            <meta
-              property="og:title"
-              content={product?.name || product?.metaTitle}
-            />
-            <meta
-              property="og:description"
-              content={product?.metaDescription}
-            />
-            <meta property="og:image" content={product?.thumbnailImage} />
-            <meta property="og:url" content={window.location.href} />
-          </Helmet>
+          <title>{`${product?.name || product?.metaTitle} | ${GeneralInfoList?.CompanyName}`}</title>
+          <meta name="description" content={product?.metaDescription} />
+          <meta name="keywords" content={product.metaKeywords.join(", ")} />
+          <meta property="og:title" content={`${product?.name || product?.metaTitle} | ${GeneralInfoList?.CompanyName}`} />
+          <meta property="og:description" content={product?.metaDescription} />
+          <meta property="og:image" content={product?.thumbnailImage} />
+          <meta property="og:url" content={window.location.href} />
           {/*BreadCrumbs*/}
           <div className={"md:p-3"}>
             <Breadcrumbs separator="/" aria-label="breadcrumb">
