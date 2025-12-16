@@ -8,6 +8,7 @@ import {
   Snackbar,
   Alert,
 } from "@mui/material";
+import useCourierStatus from "../../store/useCourierStatus.js";
 import useAuthAdminStore from "../../store/AuthAdminStore.js";
 
 const SendToCourierButton = ({ orderData, onSuccess }) => {
@@ -15,7 +16,7 @@ const SendToCourierButton = ({ orderData, onSuccess }) => {
   const [open, setOpen] = useState(false);
   const [note, setNote] = useState(orderData.note || "");
   const [sent, setSent] = useState(orderData.courier_status || false);
-  const [deliveryStatus, setDeliveryStatus] = useState(null);
+  const deliveryStatus = useCourierStatus(orderData, sent);
   const [selectedCourier, setSelectedCourier] = useState("steadfast");
   const [pathaoStoreId, setPathaoStoreId] = useState(null);
 
@@ -223,41 +224,6 @@ const SendToCourierButton = ({ orderData, onSuccess }) => {
       sendToPathao();
     }
   };
-
-  useEffect(() => {
-    const fetchOrderStatus = async () => {
-      try {
-        const response = await axios.get(
-          `${apiURL}/courier/status/${orderData.order_id}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          },
-        );
-
-        if (response.data.status === "success") {
-          const statusData = response.data.data;
-          // Handle Steadfast response structure
-          if (statusData.delivery_status) {
-            setDeliveryStatus(statusData.delivery_status);
-          }
-          // Handle Pathao response structure
-          else if (statusData.data && statusData.data.order_status) {
-            setDeliveryStatus(statusData.data.order_status);
-          }
-        } else {
-          console.error("Unexpected response:", response.data);
-        }
-      } catch (error) {
-        console.error("Error fetching order status:", error.message);
-      }
-    };
-
-    if (sent) {
-      fetchOrderStatus();
-    }
-  }, [sent, orderData.order_id, apiURL, token]);
 
   return (
     <>

@@ -199,6 +199,8 @@ const ViewOrder = () => {
   const orderStatusColor = getStatusColor(order.orderStatus);
   const paymentStatusColor = getPaymentStatusColor(order.paymentStatus);
 
+  console.log(order);
+
   return (
     <div>
       <div id="print-area" ref={printRef} className=" p-4 shadow rounded-lg">
