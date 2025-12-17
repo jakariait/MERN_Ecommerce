@@ -62,22 +62,22 @@ const ProductList = ({ products }) => {
             <div key={product.slug} className="relative">
               <Link to={`/product/${product.slug}`}>
                 {/*Without Compression*/}
-                <ImageComponent
-                  imageName={product.thumbnailImage}
-                  altName={product.name}
-                  skeletonHeight={250}
-                  className="w-full aspect-square object-cover"
-                />
-
-                {/*With Compression*/}
-                {/*<ImageComponentWithCompression*/}
+                {/*<ImageComponent*/}
                 {/*  imageName={product.thumbnailImage}*/}
-                {/*  className="w-full aspect-square object-cover"*/}
                 {/*  altName={product.name}*/}
                 {/*  skeletonHeight={250}*/}
-                {/*  width={500}*/}
-                {/*  height={500}*/}
+                {/*  className="w-full aspect-square object-cover"*/}
                 {/*/>*/}
+
+                {/*With Compression*/}
+                <ImageComponentWithCompression
+                  imageName={product.thumbnailImage}
+                  className="w-full aspect-square object-cover"
+                  altName={product.name}
+                  skeletonHeight={250}
+                  width={500}
+                  height={500}
+                />
               </Link>
               <Link to={`/product/${product.slug}`}>
                 <div className="text-center mt-2 mb-1 hover:underline truncate">
