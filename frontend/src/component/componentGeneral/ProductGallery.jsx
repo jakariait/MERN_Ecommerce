@@ -93,7 +93,7 @@ const ProductGallery = ({ images, discount, zoom = true }) => {
                 <ImageComponent
                   imageName={images[index]}
                   alt="Main Image"
-                  className="w-full h-auto object-cover cursor-pointer"
+                  className="w-full aspect-square object-cover"
                   skeletonHeight={"400px"}
                   width={1000}
                   height={1000}
@@ -109,7 +109,7 @@ const ProductGallery = ({ images, discount, zoom = true }) => {
             <ImageComponent
               imageName={images[activeIndex]}
               alt="Main Image"
-              className="w-full h-auto object-cover"
+              className="w-full aspect-square object-cover"
               skeletonHeight={"200px"}
               width={1000}
               height={1000}
@@ -144,7 +144,7 @@ const ProductGallery = ({ images, discount, zoom = true }) => {
                   <ImageComponent
                     imageName={images[index]}
                     alt={`Thumbnail ${index}`}
-                    className="w-full h-full object-cover"
+                    className="w-full aspect-square object-cover"
                     skeletonHeight={"200px"}
                     width={300}
                     height={300}

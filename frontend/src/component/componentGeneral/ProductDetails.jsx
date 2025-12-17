@@ -1,19 +1,10 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, lazy, Suspense } from "react";
 import { Link as RouterLink, useLocation, useParams } from "react-router-dom";
 import useProductStore from "../../store/useProductStore.js";
 import GeneralInfoStore from "../../store/GeneralInfoStore.js";
 import Skeleton from "react-loading-skeleton";
 
-import {
-  FacebookShareButton,
-  FacebookIcon,
-  TwitterShareButton,
-  TwitterIcon,
-  LinkedinShareButton,
-  LinkedinIcon,
-  WhatsappShareButton,
-  WhatsappIcon,
-} from "react-share";
+import LazySocialShareButtons from "./LazySocialShareButtons.jsx";
 
 import { Breadcrumbs, Link, Typography } from "@mui/material";
 
@@ -23,9 +14,11 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import AccordionDetails from "@mui/material/AccordionDetails";
 import ProductGallery from "./ProductGallery.jsx";
 import ProductAddToCart from "./ProductAddToCart.jsx";
-import SimilarProducts from "./SimilarProducts.jsx";
-import YouTubeEmbed from "./YouTubeEmbed.jsx";
-import RecentlyViewedProducts from "./RecentlyViewedProducts.jsx";
+const SimilarProducts = lazy(() => import("./SimilarProducts.jsx"));
+const YouTubeEmbed = lazy(() => import("./YouTubeEmbed.jsx"));
+const RecentlyViewedProducts = lazy(() =>
+  import("./RecentlyViewedProducts.jsx"),
+);
 
 const ProductDetails = () => {
   const hasPushedRef = useRef(false);
@@ -267,22 +260,9 @@ const ProductDetails = () => {
               <ProductAddToCart product={product} />
 
               {/*Social Share Buttons*/}
-              <div className="flex  items-center gap-2">
+              <div className="flex items-center gap-2">
                 <h1>Social Share:</h1>
-                <div className="flex gap-1">
-                  <FacebookShareButton url={url} quote={title}>
-                    <FacebookIcon size={28} round />
-                  </FacebookShareButton>
-                  <TwitterShareButton url={url} title={title}>
-                    <TwitterIcon size={28} round />
-                  </TwitterShareButton>
-                  <LinkedinShareButton url={url}>
-                    <LinkedinIcon size={28} round />
-                  </LinkedinShareButton>
-                  <WhatsappShareButton url={url} title={title} separator=" - ">
-                    <WhatsappIcon size={28} round />
-                  </WhatsappShareButton>
-                </div>
+                <LazySocialShareButtons url={url} title={title} />
               </div>
               {/*Product Code*/}
               {product.productCode && (
@@ -299,7 +279,9 @@ const ProductDetails = () => {
           {/*YoutubeEmbed*/}
           {product.videoUrl && (
             <div className={"flex items-center justify-center pt-10 pb-10"}>
-              <YouTubeEmbed videoId={product.videoUrl} />
+              <Suspense fallback={<Skeleton height={300} width={"100%"} />}>
+                <YouTubeEmbed videoId={product.videoUrl} />
+              </Suspense>
             </div>
           )}
 
@@ -401,14 +383,18 @@ const ProductDetails = () => {
             )}
           </div>
           <div>
-            <RecentlyViewedProducts
-              currentProductId={product._id}
-              products={recentlyViewed}
-            />
-            <SimilarProducts
-              categoryId={product?.category?._id}
-              productId={product?._id}
-            />
+            <Suspense fallback={<Skeleton height={200} width={"100%"} />}>
+              <RecentlyViewedProducts
+                currentProductId={product._id}
+                products={recentlyViewed}
+              />
+            </Suspense>
+            <Suspense fallback={<Skeleton height={200} width={"100%"} />}>
+              <SimilarProducts
+                categoryId={product?.category?._id}
+                productId={product?._id}
+              />
+            </Suspense>
           </div>
         </div>
       )}

@@ -2,11 +2,11 @@ import React, { useState, useEffect } from "react";
 import Skeleton from "react-loading-skeleton";
 
 const ImageComponent = ({
-                          imageName,
-                          className = "",
-                          altName,
-                          skeletonHeight,
-                        }) => {
+  imageName,
+  className = "",
+  altName,
+  skeletonHeight,
+}) => {
   const [imageSrc, setImageSrc] = useState("");
   const [isLoading, setIsLoading] = useState(true);
 
