@@ -67,6 +67,7 @@ const ImageComponentWithCompression = ({
             setIsLoading(false);
             setImageSrc(""); // Clear image on error
           }}
+          loading="lazy"
         />
       )}
     </div>
