@@ -52,6 +52,7 @@ const HeaderSearch = () => {
       <button
         onClick={handleSearch}
         className="primaryBgColor p-3 rounded-r hover:opacity-90 transition-opacity"
+        aria-label="Search"
       >
         <CiSearch className="text-white w-5 h-5" />
       </button>

@@ -154,6 +154,7 @@ const ProductList = ({ products }) => {
                 <button
                   onClick={() => handleOpen(product)} // Pass the product to set the state
                   className="p-2 cursor-pointer"
+                  aria-label="Open"
                 >
                   <FaEye />
                 </button>

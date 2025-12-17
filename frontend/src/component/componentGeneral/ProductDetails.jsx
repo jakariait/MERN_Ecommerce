@@ -254,6 +254,7 @@ const ProductDetails = () => {
               <ProductGallery
                 images={product.images}
                 discount={discountPercentage}
+                productName={product.name}
               />
             </div>
             <div className="flex flex-col gap-3 md:col-span-4 lg:col-span-3 xl:col-span-4 pt-4 md:pt-0">

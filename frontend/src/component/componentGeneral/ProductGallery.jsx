@@ -9,7 +9,7 @@ import ImageComponent from "./ImageComponentWithCompression.jsx";
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 import { BsArrowsFullscreen } from "react-icons/bs";
 
-const ProductGallery = ({ images, discount, zoom = true }) => {
+const ProductGallery = ({ images, discount, zoom = true, productName }) => {
   const [imageUrls, setImageUrls] = useState([]);
   const [activeIndex, setActiveIndex] = useState(0);
   const thumbnailRefs = useRef([]);
@@ -68,6 +68,7 @@ const ProductGallery = ({ images, discount, zoom = true }) => {
                 className="bg-white p-2 cursor-pointer"
                 onClick={() => changeImage("prev")}
                 disabled={activeIndex === 0}
+                aria-label="previous"
               >
                 <IoIosArrowBack />
               </button>
@@ -75,6 +76,7 @@ const ProductGallery = ({ images, discount, zoom = true }) => {
                 className="bg-white p-2 cursor-pointer"
                 onClick={() => changeImage("next")}
                 disabled={activeIndex === imageUrls.length - 1}
+                aria-label="next"
               >
                 <IoIosArrowForward />
               </button>
@@ -92,13 +94,16 @@ const ProductGallery = ({ images, discount, zoom = true }) => {
               >
                 <ImageComponent
                   imageName={images[index]}
-                  alt="Main Image"
+                  altName={productName}
                   className="w-full aspect-square object-cover"
                   skeletonHeight={"400px"}
                   width={1000}
                   height={1000}
                 />
-                <button className="absolute md:bottom-4 bottom-1 left-1 p-3 md:left-3 bg-white rounded-full cursor-pointer">
+                <button
+                  className="absolute md:bottom-4 bottom-1 left-1 p-3 md:left-3 bg-white rounded-full cursor-pointer"
+                  aria-label={"full screen"}
+                >
                   <BsArrowsFullscreen />
                 </button>
               </a>
@@ -108,7 +113,7 @@ const ProductGallery = ({ images, discount, zoom = true }) => {
           <div>
             <ImageComponent
               imageName={images[activeIndex]}
-              alt="Main Image"
+              altName={productName}
               className="w-full aspect-square object-cover"
               skeletonHeight={"200px"}
               width={1000}
@@ -124,6 +129,7 @@ const ProductGallery = ({ images, discount, zoom = true }) => {
             onClick={() => changeImage("prev")}
             className="text-xl hover:text-gray-500 transition-colors duration-150 cursor-pointer"
             disabled={activeIndex === 0}
+            aria-label="previous"
           >
             <IoIosArrowBack />
           </button>
@@ -143,7 +149,7 @@ const ProductGallery = ({ images, discount, zoom = true }) => {
                 >
                   <ImageComponent
                     imageName={images[index]}
-                    alt={`Thumbnail ${index}`}
+                    altName={productName}
                     className="w-full aspect-square object-cover"
                     skeletonHeight={"200px"}
                     width={300}
@@ -158,6 +164,7 @@ const ProductGallery = ({ images, discount, zoom = true }) => {
             onClick={() => changeImage("next")}
             className="text-xl hover:text-gray-500 transition-colors duration-150 cursor-pointer"
             disabled={activeIndex === imageUrls.length - 1}
+            aria-label="next"
           >
             <IoIosArrowForward />
           </button>

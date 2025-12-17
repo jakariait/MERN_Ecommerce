@@ -192,6 +192,7 @@ const ProductAddToCart = ({ product }) => {
                   "primaryBgColor accentTextColor px-2 py-2 md:py-3 rounded-l cursor-pointer"
                 }
                 onClick={() => handleQuantityChange("decrease")}
+                aria-label="Quantity decrease"
               >
                 <FiMinus />
               </button>
@@ -204,6 +205,7 @@ const ProductAddToCart = ({ product }) => {
                 }
                 onClick={() => handleQuantityChange("increase")}
                 disabled={quantity >= MAX_QUANTITY} // Disable when limit is reached
+                aria-label="Quantity increase"
               >
                 <FaPlus />
               </button>

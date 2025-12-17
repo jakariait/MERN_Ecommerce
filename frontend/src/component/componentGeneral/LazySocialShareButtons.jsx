@@ -46,16 +46,16 @@ const LazySocialShareButtons = ({ url, title }) => {
           }
         >
       <div className="flex gap-1">
-        <FacebookShareButton url={url} quote={title}>
+        <FacebookShareButton url={url} quote={title} aria-label="Share on Facebook">
           <FacebookIcon size={28} round />
         </FacebookShareButton>
-        <TwitterShareButton url={url} title={title}>
+        <TwitterShareButton url={url} title={title} aria-label="Share on Twitter">
           <TwitterIcon size={28} round />
         </TwitterShareButton>
-        <LinkedinShareButton url={url}>
+        <LinkedinShareButton url={url} aria-label="Share on LinkedIn">
           <LinkedinIcon size={28} round />
         </LinkedinShareButton>
-        <WhatsappShareButton url={url} title={title} separator=" - ">
+        <WhatsappShareButton url={url} title={title} separator=" - " aria-label="Share on WhatsApp">
           <WhatsappIcon size={28} round />
         </WhatsappShareButton>
       </div>
