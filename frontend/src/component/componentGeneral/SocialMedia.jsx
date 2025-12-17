@@ -26,6 +26,7 @@ const SocialMedia = () => {
             data-no-instant
             rel="noopener noreferrer"
             onClick={(e) => e.stopPropagation()}
+            aria-label="Facebook"
           >
             <FaFacebookF className="text-blue-600 bg-white p-1 rounded" />
           </a>
@@ -37,6 +38,7 @@ const SocialMedia = () => {
             data-no-instant
             rel="noopener noreferrer"
             onClick={(e) => e.stopPropagation()}
+            aria-label="Instagram"
           >
             <CiInstagram className="text-[#833AB4] bg-white p-1 rounded" />
           </a>
@@ -48,6 +50,7 @@ const SocialMedia = () => {
             data-no-instant
             rel="noopener noreferrer"
             onClick={(e) => e.stopPropagation()}
+            aria-label="TikTok"
           >
             <FaTiktok className={"text-[#00F2EA] bg-white p-1 rounded"} />
           </a>
@@ -59,6 +62,7 @@ const SocialMedia = () => {
             data-no-instant
             rel="noopener noreferrer"
             onClick={(e) => e.stopPropagation()}
+            aria-label="Twitter"
           >
             <FaXTwitter className={"text-black bg-white p-1 rounded"} />
           </a>
@@ -70,6 +74,7 @@ const SocialMedia = () => {
             data-no-instant
             rel="noopener noreferrer"
             onClick={(e) => e.stopPropagation()}
+            aria-label="WhatsApp"
           >
             <FaWhatsapp className="text-green-500 bg-white p-1 rounded" />
           </a>
@@ -81,6 +86,7 @@ const SocialMedia = () => {
             data-no-instant
             rel="noopener noreferrer"
             onClick={(e) => e.stopPropagation()}
+            aria-label="Messenger"
           >
             <FaFacebookMessenger className="text-blue-500 bg-white p-1 rounded" />
           </a>
@@ -92,6 +98,7 @@ const SocialMedia = () => {
             data-no-instant
             rel="noopener noreferrer"
             onClick={(e) => e.stopPropagation()}
+            aria-label="YouTube"
           >
             <FaYoutube className="text-red-600 bg-white p-1 rounded" />
           </a>
@@ -103,6 +110,7 @@ const SocialMedia = () => {
             data-no-instant
             rel="noopener noreferrer"
             onClick={(e) => e.stopPropagation()}
+            aria-label="LinkedIn"
           >
             <FaLinkedin className="text-blue-700 bg-white p-1 rounded" />
           </a>
@@ -115,6 +123,7 @@ const SocialMedia = () => {
             data-no-instant
             rel="noopener noreferrer"
             onClick={(e) => e.stopPropagation()}
+            aria-label="Pinterest"
           >
             <FaPinterest className="text-red-600 bg-white p-1 rounded" />
           </a>
@@ -126,6 +135,7 @@ const SocialMedia = () => {
             data-no-instant
             rel="noopener noreferrer"
             onClick={(e) => e.stopPropagation()}
+            aria-label="Telegram"
           >
             <FaTelegramPlane className="text-blue-400 bg-white p-1 rounded" />
           </a>
@@ -138,6 +148,7 @@ const SocialMedia = () => {
             data-no-instant
             rel="noopener noreferrer"
             onClick={(e) => e.stopPropagation()}
+            aria-label="Viber"
           >
             <FaViber className="text-purple-600 bg-white p-1 rounded" />
           </a>

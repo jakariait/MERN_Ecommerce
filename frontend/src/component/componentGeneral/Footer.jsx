@@ -102,7 +102,9 @@ const Footer = () => {
                     <li className={"hover:primaryTextColor"}>
                       <Link to="/about">About</Link>
                     </li>
-                    <li className={"hover:primaryTextColor"}>Blog</li>
+                    <li className={"hover:primaryTextColor"}>
+                      <Link to="/blog">Blog</Link>
+                    </li>
                     <li className={"hover:primaryTextColor"}>
                       <Link
                         to="/contact-us"
@@ -182,36 +184,27 @@ const Footer = () => {
                   <span className="absolute left-0 top-6 w-15 border-b-2 border-gray-300 mt-1"></span>
                 </h1>
                 <ul>
-                  <Link to="/about" className={"hover:primaryTextColor"}>
-                    <li>About</li>
-                  </Link>
-                  <Link to="/blog" className={"hover:primaryTextColor"}>
-                    <li>Blog</li>
-                  </Link>
-                  <Link to="/contact-us" className={"hover:primaryTextColor"}>
-                    <li>Contact</li>
-                  </Link>
-                  <Link
-                    to="/termofservice"
-                    className={"hover:primaryTextColor"}
-                  >
-                    <li>Terms of Services</li>
-                  </Link>
-                  <Link
-                    to="/privacypolicy"
-                    className={"hover:primaryTextColor"}
-                  >
-                    <li>Privacy Policy</li>
-                  </Link>
-                  <Link to="/refundpolicy" className={"hover:primaryTextColor"}>
-                    <li>Refund Policy</li>
-                  </Link>
-                  <Link
-                    to="/shippinpolicy"
-                    className={"hover:primaryTextColor"}
-                  >
-                    <li>Shipping Policy</li>
-                  </Link>
+                  <li className={"hover:primaryTextColor"}>
+                    <Link to="/about">About</Link>
+                  </li>
+                  <li className={"hover:primaryTextColor"}>
+                    <Link to="/blog">Blog</Link>
+                  </li>
+                  <li className={"hover:primaryTextColor"}>
+                    <Link to="/contact-us">Contact</Link>
+                  </li>
+                  <li className={"hover:primaryTextColor"}>
+                    <Link to="/termofservice">Terms of Services</Link>
+                  </li>
+                  <li className={"hover:primaryTextColor"}>
+                    <Link to="/privacypolicy">Privacy Policy</Link>
+                  </li>
+                  <li className={"hover:primaryTextColor"}>
+                    <Link to="/refundpolicy">Refund Policy</Link>
+                  </li>
+                  <li className={"hover:primaryTextColor"}>
+                    <Link to="/shippinpolicy">Shipping Policy</Link>
+                  </li>
                   <li className={"hover:primaryTextColor"}>
                     <Link to="/faqs">FAQ</Link>
                   </li>
