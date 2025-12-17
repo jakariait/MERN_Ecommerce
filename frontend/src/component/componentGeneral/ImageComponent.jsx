@@ -15,22 +15,46 @@ const ImageComponent = ({
       const apiUrl = import.meta.env.VITE_API_URL;
       const imageUrl = `${apiUrl.replace("/api", "")}/uploads/${imageName}`;
       setImageSrc(imageUrl);
+    } else {
+      setImageSrc("");
     }
+    setIsLoading(true);
   }, [imageName]);
 
   return (
-    <div>
-      {isLoading && <Skeleton height={skeletonHeight} width={"100%"} />}
+    <div
+      style={{
+        position: "relative",
+        height: skeletonHeight,
+        width: "100%",
+        display: "inline-block",
+      }}
+    >
+      {isLoading && (
+        <Skeleton
+          height={skeletonHeight}
+          width={"100%"}
+          style={{ position: "absolute", top: 0, left: 0 }}
+        />
+      )}
       {imageSrc && (
         <img
           src={imageSrc}
           alt={altName}
           className={className}
-          style={{ display: isLoading ? "none" : "block" }}
+          loading="lazy"
+          decoding="async"
+          style={{
+            opacity: isLoading ? 0 : 1,
+            transition: "opacity 0.3s ease-in-out",
+            height: "100%",
+            width: "100%",
+            objectFit: "cover",
+          }}
           onLoad={() => setIsLoading(false)}
           onError={() => {
             setIsLoading(false);
-            setImageSrc(); // or keep blank
+            setImageSrc(""); // or keep blank
           }}
         />
       )}
