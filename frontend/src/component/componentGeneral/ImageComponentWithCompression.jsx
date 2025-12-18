@@ -8,8 +8,8 @@ const ImageComponentWithCompression = ({
   skeletonHeight,
   width,
   height,
-  responsive = true,
-  imageSizes = [480, 768, 1024, 1440], // Default sizes for srcset
+  loadingStrategy = "lazy", // New prop: "lazy", "eager", or "auto"
+  fetchPriority = "auto", // New prop: "high", "low", or "auto"
 }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
@@ -29,22 +29,12 @@ const ImageComponentWithCompression = ({
   if (height) {
     defaultParams.append("height", height);
   }
-  const defaultImageUrl = defaultParams.toString() ? `${baseUrl}?${defaultParams.toString()}` : baseUrl;
+  const defaultImageUrl = defaultParams.toString()
+    ? `${baseUrl}?${defaultParams.toString()}`
+    : baseUrl;
 
-  // Generate srcset if responsive is true
-  const srcSet = responsive
-    ? imageSizes
-        .map((size) => {
-          const params = new URLSearchParams();
-          params.append("width", size);
-          // Optionally add height if aspect ratio needs to be maintained differently
-          // For now, assuming backend handles aspect ratio with just width
-          return `${baseUrl}?${params.toString()} ${size}w`;
-        })
-        .join(", ")
-    : undefined;
-
-  const sizes = responsive ? "100vw" : undefined; // Simple sizes for now, can be made dynamic via prop
+  const srcSet = undefined;
+  let sizesAttribute = undefined;
 
   return (
     <div className="relative overflow-hidden">
@@ -56,7 +46,7 @@ const ImageComponentWithCompression = ({
       <img
         src={defaultImageUrl}
         srcSet={srcSet}
-        sizes={sizes}
+        sizes={sizesAttribute}
         alt={altName || "Image"}
         className={`${className || "w-full h-auto"} transition-opacity duration-300 ${
           isLoading ? "opacity-0" : "opacity-100"
@@ -66,7 +56,8 @@ const ImageComponentWithCompression = ({
           setIsLoading(false);
           setHasError(true);
         }}
-        loading="lazy"
+        loading={loadingStrategy}
+        fetchPriority={fetchPriority}
         decoding="async"
       />
     </div>

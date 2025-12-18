@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useState } from "react";
 import {
   Button,
   Dialog,
@@ -7,7 +7,6 @@ import {
   Typography,
 } from "@mui/material";
 import { Link } from "react-router-dom";
-import ImageComponent from "./ImageComponent.jsx";
 import { FaEye } from "react-icons/fa";
 import ProductGallery from "./ProductGallery.jsx";
 import ProductAddToCart from "./ProductAddToCart.jsx";
@@ -61,14 +60,6 @@ const ProductList = ({ products }) => {
           {products.map((product) => (
             <div key={product.slug} className="relative">
               <Link to={`/product/${product.slug}`}>
-                {/*Without Compression*/}
-                {/*<ImageComponent*/}
-                {/*  imageName={product.thumbnailImage}*/}
-                {/*  altName={product.name}*/}
-                {/*  skeletonHeight={250}*/}
-                {/*  className="w-full aspect-square object-cover"*/}
-                {/*/>*/}
-
                 {/*With Compression*/}
                 <ImageComponentWithCompression
                   imageName={product.thumbnailImage}
@@ -77,6 +68,7 @@ const ProductList = ({ products }) => {
                   skeletonHeight={250}
                   width={500}
                   height={500}
+
                 />
               </Link>
               <Link to={`/product/${product.slug}`}>

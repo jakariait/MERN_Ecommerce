@@ -193,6 +193,8 @@ const Headers = () => {
               altName={GeneralInfoList?.CompanyName}
               width={200}
               height={200}
+              loadingStrategy={"eager"}
+              fetchPriority={"high"}
             />
           </Link>
 

@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import Slider from "react-slick";
 import CarouselStore from "../../store/CarouselStore.js";
-import ImageComponent from "./ImageComponent.jsx";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import Skeleton from "react-loading-skeleton";
 import "slick-carousel/slick/slick.css";
@@ -74,6 +73,8 @@ const ProductCarousel = () => {
                   altName={GeneralInfoList?.CompanyEmail}
                   width={1000}
                   height={1000}
+                  loadingStrategy="eager"
+                  fetchPriority="high"
                 />
               </div>
             ))}
