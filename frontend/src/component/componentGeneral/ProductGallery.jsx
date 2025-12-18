@@ -97,10 +97,10 @@ const ProductGallery = ({ images, discount, zoom = true, productName }) => {
                   altName={productName}
                   className="w-full aspect-square object-cover"
                   skeletonHeight={"400px"}
-                  width={500}
-                  height={500}
-                  loading="eager"
-                  fetchpriority="high"
+                  width={800}
+                  height={800}
+                  loadingStrategy="eager"
+                  fetchPriority="high"
                 />
                 <button
                   className="absolute md:bottom-4 bottom-1 left-1 p-3 md:left-3 bg-white rounded-full cursor-pointer"
@@ -118,10 +118,10 @@ const ProductGallery = ({ images, discount, zoom = true, productName }) => {
               altName={productName}
               className="w-full aspect-square object-cover"
               skeletonHeight={"200px"}
-              width={500}
-              height={500}
-              loading="eager"
-              fetchpriority="high"
+              width={800}
+              height={800}
+              loadingStrategy="eager"
+              fetchPriority="high"
             />
           </div>
         )}
@@ -156,10 +156,10 @@ const ProductGallery = ({ images, discount, zoom = true, productName }) => {
                     altName={productName}
                     className="w-full aspect-square object-cover"
                     skeletonHeight={"200px"}
-                    width={200}
-                    height={200}
-                    loading="eager"
-                    fetchpriority="high"
+                    width={300}
+                    height={300}
+                    loadingStrategy="eager"
+                    fetchPriority="high"
                   />
                 </div>
               ))}
