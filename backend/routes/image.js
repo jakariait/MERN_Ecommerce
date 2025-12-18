@@ -76,7 +76,6 @@ router.get("/image/:filename", async (req, res) => {
       transformer = transformer.png({ quality: 100, compressionLevel: 6 });
     }
 
-
     // Save the processed image to the cache
     await transformer.toFile(cachePath);
 

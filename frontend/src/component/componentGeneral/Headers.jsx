@@ -189,10 +189,10 @@ const Headers = () => {
           <Link to="/">
             <ImageComponentWithCompression
               imageName={GeneralInfoList?.PrimaryLogo}
-              className="w-30"
+              className="w-30 h-auto"
               altName={GeneralInfoList?.CompanyName}
-              width={300}
-              height={300}
+              width={200}
+              height={200}
             />
           </Link>
 
