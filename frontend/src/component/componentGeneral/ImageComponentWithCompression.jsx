@@ -50,6 +50,7 @@ const ImageComponentWithCompression = ({
           setHasError(true);
         }}
         loading="lazy"
+        decoding="async"
       />
     </div>
   );
