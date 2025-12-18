@@ -14,7 +14,7 @@ const mongoSanitize = require("./middlewares/mongoSanitize");
 
 // Routes
 const router = require("./routes/api");
-const image = require("./routes/image");
+const imageMiddleware = require("./middlewares/imageMiddleware");
 
 const app = express();
 
@@ -54,8 +54,14 @@ const corsOptions = {
 // Trust proxy (needed for rate limiting behind proxies)
 app.set("trust proxy", 1);
 
+
+// Apply Sharp middleware BEFORE static serving
+app.use("/uploads", imageMiddleware);
+
+
 // Static file serving
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+
 
 // Compression
 app.use(compression());
@@ -97,6 +103,5 @@ app.use(limiter);
 // Routes
 // ---------------------------
 app.use("/api/", router);
-app.use("/api/", image);
 
 module.exports = app;
