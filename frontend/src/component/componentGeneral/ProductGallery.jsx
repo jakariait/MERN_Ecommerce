@@ -99,6 +99,8 @@ const ProductGallery = ({ images, discount, zoom = true, productName }) => {
                   skeletonHeight={"400px"}
                   width={1000}
                   height={1000}
+                  loading="eager"
+                  fetchpriority="high"
                 />
                 <button
                   className="absolute md:bottom-4 bottom-1 left-1 p-3 md:left-3 bg-white rounded-full cursor-pointer"
@@ -118,6 +120,8 @@ const ProductGallery = ({ images, discount, zoom = true, productName }) => {
               skeletonHeight={"200px"}
               width={1000}
               height={1000}
+              loading="eager"
+              fetchpriority="high"
             />
           </div>
         )}
@@ -154,6 +158,8 @@ const ProductGallery = ({ images, discount, zoom = true, productName }) => {
                     skeletonHeight={"200px"}
                     width={300}
                     height={300}
+                    loading="eager"
+                    fetchpriority="high"
                   />
                 </div>
               ))}

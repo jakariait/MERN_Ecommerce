@@ -16,8 +16,8 @@ import ProductGallery from "./ProductGallery.jsx";
 import ProductAddToCart from "./ProductAddToCart.jsx";
 const SimilarProducts = lazy(() => import("./SimilarProducts.jsx"));
 const YouTubeEmbed = lazy(() => import("./YouTubeEmbed.jsx"));
-const RecentlyViewedProducts = lazy(() =>
-  import("./RecentlyViewedProducts.jsx"),
+const RecentlyViewedProducts = lazy(
+  () => import("./RecentlyViewedProducts.jsx"),
 );
 
 const ProductDetails = () => {
@@ -189,7 +189,10 @@ const ProductDetails = () => {
           <title>{`${product?.name || product?.metaTitle} | ${GeneralInfoList?.CompanyName}`}</title>
           <meta name="description" content={product?.metaDescription} />
           <meta name="keywords" content={product.metaKeywords.join(", ")} />
-          <meta property="og:title" content={`${product?.name || product?.metaTitle} | ${GeneralInfoList?.CompanyName}`} />
+          <meta
+            property="og:title"
+            content={`${product?.name || product?.metaTitle} | ${GeneralInfoList?.CompanyName}`}
+          />
           <meta property="og:description" content={product?.metaDescription} />
           <meta property="og:image" content={product?.thumbnailImage} />
           <meta property="og:url" content={window.location.href} />
