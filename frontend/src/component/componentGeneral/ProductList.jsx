@@ -68,7 +68,6 @@ const ProductList = ({ products }) => {
                   skeletonHeight={250}
                   width={500}
                   height={500}
-
                 />
               </Link>
               <Link to={`/product/${product.slug}`}>
@@ -137,7 +136,7 @@ const ProductList = ({ products }) => {
               </div>
 
               <div className={"py-3 flex gap-2 justify-center items-center"}>
-                <BuyNowButton product={product} isAddToCart={true} />
+                {/*<BuyNowButton product={product} isAddToCart={true} />*/}
                 <BuyNowButton product={product} />
               </div>
 
