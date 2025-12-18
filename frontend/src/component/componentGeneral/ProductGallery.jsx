@@ -97,8 +97,8 @@ const ProductGallery = ({ images, discount, zoom = true, productName }) => {
                   altName={productName}
                   className="w-full aspect-square object-cover"
                   skeletonHeight={"400px"}
-                  width={1000}
-                  height={1000}
+                  width={500}
+                  height={500}
                   loading="eager"
                   fetchpriority="high"
                 />
@@ -118,8 +118,8 @@ const ProductGallery = ({ images, discount, zoom = true, productName }) => {
               altName={productName}
               className="w-full aspect-square object-cover"
               skeletonHeight={"200px"}
-              width={1000}
-              height={1000}
+              width={500}
+              height={500}
               loading="eager"
               fetchpriority="high"
             />
@@ -156,8 +156,8 @@ const ProductGallery = ({ images, discount, zoom = true, productName }) => {
                     altName={productName}
                     className="w-full aspect-square object-cover"
                     skeletonHeight={"200px"}
-                    width={300}
-                    height={300}
+                    width={200}
+                    height={200}
                     loading="eager"
                     fetchpriority="high"
                   />
