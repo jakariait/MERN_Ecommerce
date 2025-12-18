@@ -8,6 +8,8 @@ const ImageComponentWithCompression = ({
   skeletonHeight,
   width,
   height,
+  responsive = true,
+  imageSizes = [480, 768, 1024, 1440], // Default sizes for srcset
 }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
@@ -17,19 +19,32 @@ const ImageComponentWithCompression = ({
   }
 
   const apiUrl = import.meta.env.VITE_API_URL;
-  let imageUrl = `${apiUrl.replace("/api", "")}/uploads/${imageName}`;
+  const baseUrl = `${apiUrl.replace("/api", "")}/uploads/${imageName}`;
 
-  const params = new URLSearchParams();
+  // Generate src for fallback or non-responsive images
+  const defaultParams = new URLSearchParams();
   if (width) {
-    params.append("width", width);
+    defaultParams.append("width", width);
   }
   if (height) {
-    params.append("height", height);
+    defaultParams.append("height", height);
   }
+  const defaultImageUrl = defaultParams.toString() ? `${baseUrl}?${defaultParams.toString()}` : baseUrl;
 
-  if (params.toString()) {
-    imageUrl += `?${params.toString()}`;
-  }
+  // Generate srcset if responsive is true
+  const srcSet = responsive
+    ? imageSizes
+        .map((size) => {
+          const params = new URLSearchParams();
+          params.append("width", size);
+          // Optionally add height if aspect ratio needs to be maintained differently
+          // For now, assuming backend handles aspect ratio with just width
+          return `${baseUrl}?${params.toString()} ${size}w`;
+        })
+        .join(", ")
+    : undefined;
+
+  const sizes = responsive ? "100vw" : undefined; // Simple sizes for now, can be made dynamic via prop
 
   return (
     <div className="relative overflow-hidden">
@@ -39,7 +54,9 @@ const ImageComponentWithCompression = ({
         </div>
       )}
       <img
-        src={imageUrl}
+        src={defaultImageUrl}
+        srcSet={srcSet}
+        sizes={sizes}
         alt={altName || "Image"}
         className={`${className || "w-full h-auto"} transition-opacity duration-300 ${
           isLoading ? "opacity-0" : "opacity-100"
