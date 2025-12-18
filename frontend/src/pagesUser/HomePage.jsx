@@ -9,7 +9,7 @@ const HomePage = () => {
     <Layout>
       <ProductCarousel />
       <Feature />
-      <ProductByFlag/>
+      <ProductByFlag />
     </Layout>
   );
 };
