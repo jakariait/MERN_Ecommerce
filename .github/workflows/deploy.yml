@@ -1,0 +1,86 @@
+name: Deploy to VPS
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20' # Specify the Node.js version you are using
+          cache: 'npm'
+          cache-dependency-path: |
+            backend/package-lock.json
+            frontend/package-lock.json
+
+      - name: Install backend dependencies
+        run: npm ci
+        working-directory: ./backend
+
+      - name: Install frontend dependencies
+        run: npm ci
+        working-directory: ./frontend
+
+      - name: Build frontend
+        run: npm run build
+        working-directory: ./frontend
+
+      - name: Prepare deployment package
+        run: |
+          mkdir deployment
+          # Copy all backend files except node_modules
+          rsync -av --progress backend/ deployment/backend --exclude node_modules
+          # Copy frontend build output
+          cp -r frontend/dist/ deployment/frontend_dist
+          # Create a tarball
+          tar -czf deployment.tar.gz deployment
+
+      - name: Copy package to VPS
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USERNAME }}
+          key: ${{ secrets.VPS_KEY }}
+          port: ${{ secrets.VPS_PORT }}
+          source: "deployment.tar.gz"
+          # Set this to the directory on your VPS where you want to deploy
+          target: "/var/www/ClothingEcommerce"
+
+      - name: Deploy and Restart Server
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USERNAME }}
+          key: ${{ secrets.VPS_KEY }}
+          port: ${{ secrets.VPS_PORT }}
+          script: |
+            # Navigate to the deployment directory on your VPS
+            cd /var/www/ClothingEcommerce
+            
+            # Extract the deployment package
+            tar -xzf deployment.tar.gz
+            rm deployment.tar.gz
+            
+            # Install/update backend dependencies
+            cd deployment/backend
+            npm install --production
+            
+            # Restart the application using PM2
+            # Make sure PM2 is installed globally on your server (npm install pm2 -g)
+            # You might need to configure PM2 for your app first.
+            # Replace 'your-app-name' with your PM2 app name or ID.
+            pm2 restart your-app-name --update-env
+            
+            # Save the PM2 process list
+            pm2 save
+            
+            echo "Deployment successful!"
