@@ -180,10 +180,6 @@ const PathaoConfigPage = lazy(
   () => import("./pagesAdmin/PathaoConfigPage.jsx"),
 );
 
-const LoadingLottie = lazy(
-  () => import("./component/skeleton/LoadingLottie.jsx"),
-);
-
 function App() {
   const { GeneralInfoListRequest, GeneralInfoList } = GeneralInfoStore();
   const { CarouselStoreListRequest } = CarouselStore();
