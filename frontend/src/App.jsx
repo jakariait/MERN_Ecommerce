@@ -19,7 +19,6 @@ import ScrollToTop from "./component/componentGeneral/ScrollToTop.jsx";
 import MetaProvider from "./component/componentGeneral/MetaProvider.jsx";
 import ScrollToTopButton from "./component/componentGeneral/ScrollToTopButton.jsx";
 import { setFaviconFromApi } from "./utils/setFavicon.js";
-import LoadingLottie from "./component/skeleton/LoadingLottie.jsx";
 
 const GeneralInfoPage = lazy(() => import("./pagesAdmin/GeneralInfoPage.jsx"));
 const HomePage = lazy(() => import("./pagesUser/HomePage.jsx"));
@@ -100,6 +99,9 @@ const ResetPasswordPage = lazy(() => import("./pagesUser/ResetPasswordPage.jsx")
 const PathaoConfigPage = lazy(() => import("./pagesAdmin/PathaoConfigPage.jsx"));
 
 
+const LoadingLottie = lazy(() =>
+  import("./component/skeleton/LoadingLottie.jsx")
+);
 
 function App() {
   const { GeneralInfoListRequest, GeneralInfoList } = GeneralInfoStore();
