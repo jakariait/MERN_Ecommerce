@@ -8,7 +8,6 @@ import AuthAdminStore from "../../store/AuthAdminStore.js";
 import { Editor } from "primereact/editor";
 import { useNavigate } from "react-router-dom";
 
-
 import {
   Box,
   MenuItem,
@@ -46,7 +45,6 @@ const AddProduct = () => {
   const apiUrl = import.meta.env.VITE_API_URL;
   const { token } = AuthAdminStore();
   const navigate = useNavigate();
-
 
   // Local state for selected category, subcategory, and child category
   const [name, setName] = useState("");
@@ -419,7 +417,6 @@ const AddProduct = () => {
       setTimeout(() => {
         navigate("/admin/viewallproducts");
       }, 3000);
-
     } catch (error) {
       // Error handling: show error Snackbar
       setSnackbarMessage("Failed to create product. Please try again.");
