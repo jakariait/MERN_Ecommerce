@@ -327,7 +327,7 @@ const ProductDetails = () => {
                     </div>
                   </Typography>
                 </AccordionSummary>
-                <AccordionDetails>
+                <AccordionDetails style={{ minHeight: "20rem" }}>
                   <div
                     className="rendered-html"
                     dangerouslySetInnerHTML={{
@@ -358,7 +358,7 @@ const ProductDetails = () => {
                     </div>
                   </Typography>
                 </AccordionSummary>
-                <AccordionDetails>
+                <AccordionDetails style={{ minHeight: "20rem" }}>
                   <div
                     className="rendered-html"
                     dangerouslySetInnerHTML={{
@@ -390,7 +390,7 @@ const ProductDetails = () => {
                     </div>
                   </Typography>
                 </AccordionSummary>
-                <AccordionDetails>
+                <AccordionDetails style={{ minHeight: "20rem" }}>
                   <div
                     className="rendered-html"
                     dangerouslySetInnerHTML={{
