@@ -66,8 +66,8 @@ const ProductList = ({ products }) => {
                   className="w-full aspect-square object-cover"
                   altName={product.name}
                   skeletonHeight={250}
-                  width={500}
-                  height={500}
+                  width={300}
+                  height={300}
                 />
               </Link>
               <Link to={`/product/${product.slug}`}>

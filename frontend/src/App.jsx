@@ -22,69 +22,145 @@ import { setFaviconFromApi } from "./utils/setFavicon.js";
 
 const GeneralInfoPage = lazy(() => import("./pagesAdmin/GeneralInfoPage.jsx"));
 const HomePage = lazy(() => import("./pagesUser/HomePage.jsx"));
-const SubscribedUsersPage = lazy(() => import("./pagesAdmin/SubscribedUsersPage.jsx"));
-const SliderBannerPage = lazy(() => import("./pagesAdmin/SliderBannerPage.jsx"));
-const ColorUpdaterPage = lazy(() => import("./pagesAdmin/ColorUpdaterPage.jsx"));
-const SocialLinkUpdaterPage = lazy(() => import("./pagesAdmin/SocialLinkUpdaterPage.jsx"));
+const SubscribedUsersPage = lazy(
+  () => import("./pagesAdmin/SubscribedUsersPage.jsx"),
+);
+const SliderBannerPage = lazy(
+  () => import("./pagesAdmin/SliderBannerPage.jsx"),
+);
+const ColorUpdaterPage = lazy(
+  () => import("./pagesAdmin/ColorUpdaterPage.jsx"),
+);
+const SocialLinkUpdaterPage = lazy(
+  () => import("./pagesAdmin/SocialLinkUpdaterPage.jsx"),
+);
 const ContactUsPage = lazy(() => import("./pagesUser/ContactUsPage.jsx"));
-const ContactRequestPage = lazy(() => import("./pagesAdmin/ContactRequestPage.jsx"));
-const AdminLogin = lazy(() => import("./component/componentAdmin/AdminLogin.jsx"));
+const ContactRequestPage = lazy(
+  () => import("./pagesAdmin/ContactRequestPage.jsx"),
+);
+const AdminLogin = lazy(
+  () => import("./component/componentAdmin/AdminLogin.jsx"),
+);
 const NotFoundPage = lazy(() => import("./pagesUser/NotFoundPage.jsx"));
-const AddNewCategoryPage = lazy(() => import("./pagesAdmin/AddNewCategoryPage.jsx"));
-const CategoryListPage = lazy(() => import("./pagesAdmin/CategoryListPage.jsx"));
-const EditCategoryPage = lazy(() => import("./pagesAdmin/EditCategoryPage.jsx"));
-const AddNewSubCategoryPage = lazy(() => import("./pagesAdmin/AddNewSubCategoryPage.jsx"));
-const SubCategoryListPage = lazy(() => import("./pagesAdmin/SubCategoryListPage.jsx"));
-const EditSubCategoryPage = lazy(() => import("./pagesAdmin/EditSubCategoryPage.jsx"));
-const ChildCategoryListPage = lazy(() => import("./pagesAdmin/ChildCategoryListPage.jsx"));
-const AddNewChildCategoryPage = lazy(() => import("./pagesAdmin/AddNewChildCategoryPage.jsx"));
-const EditChildCategoryPage = lazy(() => import("./pagesAdmin/EditChildCategoryPage.jsx"));
-const AddNewProductSizePage = lazy(() => import("./pagesAdmin/AddNewProductSizePage.jsx"));
-const ProductSizeListPage = lazy(() => import("./pagesAdmin/ProductSizeListPage.jsx"));
-const EditProductSizePage = lazy(() => import("./pagesAdmin/EditProductSizePage.jsx"));
+const AddNewCategoryPage = lazy(
+  () => import("./pagesAdmin/AddNewCategoryPage.jsx"),
+);
+const CategoryListPage = lazy(
+  () => import("./pagesAdmin/CategoryListPage.jsx"),
+);
+const EditCategoryPage = lazy(
+  () => import("./pagesAdmin/EditCategoryPage.jsx"),
+);
+const AddNewSubCategoryPage = lazy(
+  () => import("./pagesAdmin/AddNewSubCategoryPage.jsx"),
+);
+const SubCategoryListPage = lazy(
+  () => import("./pagesAdmin/SubCategoryListPage.jsx"),
+);
+const EditSubCategoryPage = lazy(
+  () => import("./pagesAdmin/EditSubCategoryPage.jsx"),
+);
+const ChildCategoryListPage = lazy(
+  () => import("./pagesAdmin/ChildCategoryListPage.jsx"),
+);
+const AddNewChildCategoryPage = lazy(
+  () => import("./pagesAdmin/AddNewChildCategoryPage.jsx"),
+);
+const EditChildCategoryPage = lazy(
+  () => import("./pagesAdmin/EditChildCategoryPage.jsx"),
+);
+const AddNewProductSizePage = lazy(
+  () => import("./pagesAdmin/AddNewProductSizePage.jsx"),
+);
+const ProductSizeListPage = lazy(
+  () => import("./pagesAdmin/ProductSizeListPage.jsx"),
+);
+const EditProductSizePage = lazy(
+  () => import("./pagesAdmin/EditProductSizePage.jsx"),
+);
 const ProductFlagPage = lazy(() => import("./pagesAdmin/ProductFlagPage.jsx"));
 const ShopPage = lazy(() => import("./pagesUser/ShopPage.jsx"));
-const AddNewProductPage = lazy(() => import("./pagesAdmin/AddNewProductPage.jsx"));
-const ProductDetailsPage = lazy(() => import("./pagesUser/ProductDetailsPage.jsx"));
-const ViewAllProductPage = lazy(() => import("./pagesAdmin/ViewAllProductPage.jsx"));
+const AddNewProductPage = lazy(
+  () => import("./pagesAdmin/AddNewProductPage.jsx"),
+);
+const ProductDetailsPage = lazy(
+  () => import("./pagesUser/ProductDetailsPage.jsx"),
+);
+const ViewAllProductPage = lazy(
+  () => import("./pagesAdmin/ViewAllProductPage.jsx"),
+);
 const EditProductPage = lazy(() => import("./pagesAdmin/EditProductPage.jsx"));
 const LoginPage = lazy(() => import("./pagesUser/LoginPage.jsx"));
 const RegisterPage = lazy(() => import("./pagesUser/RegisterPage.jsx"));
-const CustomerListPage = lazy(() => import("./pagesAdmin/CustomerListPage.jsx"));
+const CustomerListPage = lazy(
+  () => import("./pagesAdmin/CustomerListPage.jsx"),
+);
 const UserHomePage = lazy(() => import("./pagesUser/UserHomePage.jsx"));
 const CheckoutPage = lazy(() => import("./pagesUser/CheckoutPage.jsx"));
-const DeliveryChargePage = lazy(() => import("./pagesAdmin/DeliveryChargePage.jsx"));
+const DeliveryChargePage = lazy(
+  () => import("./pagesAdmin/DeliveryChargePage.jsx"),
+);
 const ConfigSetupPage = lazy(() => import("./pagesAdmin/ConfigSetupPage.jsx"));
 const ThankYouPage = lazy(() => import("./pagesUser/ThankYouPage.jsx"));
 const AllOrdersPage = lazy(() => import("./pagesAdmin/AllOrdersPage.jsx"));
-const PendingOrdersPage = lazy(() => import("./pagesAdmin/PendingOrdersPage.jsx"));
-const ApprovedOrdersPage = lazy(() => import("./pagesAdmin/ApprovedOrdersPage.jsx"));
-const InTransitOrdersPage = lazy(() => import("./pagesAdmin/InTransitOrdersPage.jsx"));
-const DeliveredOrdersPage = lazy(() => import("./pagesAdmin/DeliveredOrdersPage.jsx"));
-const ReturnedOrdersPage = lazy(() => import("./pagesAdmin/ReturnedOrdersPage.jsx"));
-const CancelledOrdersPage = lazy(() => import("./pagesAdmin/CancelledOrdersPage.jsx"));
+const PendingOrdersPage = lazy(
+  () => import("./pagesAdmin/PendingOrdersPage.jsx"),
+);
+const ApprovedOrdersPage = lazy(
+  () => import("./pagesAdmin/ApprovedOrdersPage.jsx"),
+);
+const InTransitOrdersPage = lazy(
+  () => import("./pagesAdmin/InTransitOrdersPage.jsx"),
+);
+const DeliveredOrdersPage = lazy(
+  () => import("./pagesAdmin/DeliveredOrdersPage.jsx"),
+);
+const ReturnedOrdersPage = lazy(
+  () => import("./pagesAdmin/ReturnedOrdersPage.jsx"),
+);
+const CancelledOrdersPage = lazy(
+  () => import("./pagesAdmin/CancelledOrdersPage.jsx"),
+);
 const ViewOrderPage = lazy(() => import("./pagesAdmin/ViewOrderPage.jsx"));
-const BkashCallbackPage = lazy(() => import("./pagesUser/BkashCallbackPage.jsx"));
+const BkashCallbackPage = lazy(
+  () => import("./pagesUser/BkashCallbackPage.jsx"),
+);
 const CouponPage = lazy(() => import("./pagesAdmin/CouponPage.jsx"));
 const AboutUsPage = lazy(() => import("./pagesAdmin/AboutUsPage.jsx"));
 const TermsPage = lazy(() => import("./pagesAdmin/TermsPage.jsx"));
 const AboutUsPageUser = lazy(() => import("./pagesUser/AboutUsPageUser.jsx"));
 const TosPage = lazy(() => import("./pagesUser/TosPage.jsx"));
-const PrivacyPolicyPage = lazy(() => import("./pagesUser/PrivacyPolicyPage.jsx"));
+const PrivacyPolicyPage = lazy(
+  () => import("./pagesUser/PrivacyPolicyPage.jsx"),
+);
 const RefundPolicyPage = lazy(() => import("./pagesUser/RefundPolicyPage.jsx"));
-const ShippingPolicyPage = lazy(() => import("./pagesUser/ShippingPolicyPage.jsx"));
+const ShippingPolicyPage = lazy(
+  () => import("./pagesUser/ShippingPolicyPage.jsx"),
+);
 const FAQPage = lazy(() => import("./pagesUser/FAQPage.jsx"));
 const AdminFAQSPage = lazy(() => import("./pagesAdmin/AdminFAQSPage.jsx"));
-const MarqueeAdminPage = lazy(() => import("./pagesAdmin/MarqueeAdminPage.jsx"));
+const MarqueeAdminPage = lazy(
+  () => import("./pagesAdmin/MarqueeAdminPage.jsx"),
+);
 const AdminMetaPage = lazy(() => import("./pagesAdmin/AdminMetaPage.jsx"));
 const BKashConfigPage = lazy(() => import("./pagesAdmin/BKashConfigPage.jsx"));
-const SteadFastConfigPag = lazy(() => import("./pagesAdmin/SteadFastConfigPag.jsx"));
+const SteadFastConfigPag = lazy(
+  () => import("./pagesAdmin/SteadFastConfigPag.jsx"),
+);
 const DashboardPage = lazy(() => import("./pagesAdmin/DashboardPage.jsx"));
-const UserAllOrdersPage = lazy(() => import("./pagesUser/UserAllOrdersPage.jsx"));
-const UserOrderDetailsPage = lazy(() => import("./pagesUser/UserOrderDetailsPage.jsx"));
+const UserAllOrdersPage = lazy(
+  () => import("./pagesUser/UserAllOrdersPage.jsx"),
+);
+const UserOrderDetailsPage = lazy(
+  () => import("./pagesUser/UserOrderDetailsPage.jsx"),
+);
 const UpdateUserPage = lazy(() => import("./pagesUser/UpdateUserPage.jsx"));
-const ChangePasswordPage = lazy(() => import("./pagesUser/ChangePasswordPage.jsx"));
-const AbandonedCartPage = lazy(() => import("./pagesAdmin/AbandonedCartPage.jsx"));
+const ChangePasswordPage = lazy(
+  () => import("./pagesUser/ChangePasswordPage.jsx"),
+);
+const AbandonedCartPage = lazy(
+  () => import("./pagesAdmin/AbandonedCartPage.jsx"),
+);
 const TrackOrderPage = lazy(() => import("./pagesUser/TrackOrderPage.jsx"));
 const AdminListPage = lazy(() => import("./pagesAdmin/AdminListPage.jsx"));
 const CreateAdminPage = lazy(() => import("./pagesAdmin/CreateAdminPage.jsx"));
@@ -94,13 +170,18 @@ const BlogsListPage = lazy(() => import("./pagesAdmin/BlogsListPage.jsx"));
 const EditBlogPage = lazy(() => import("./pagesAdmin/EditBlogPage.jsx"));
 const BlogsPage = lazy(() => import("./pagesUser/BlogsPage.jsx"));
 const BlogDetailsPage = lazy(() => import("./pagesUser/BlogDetailsPage.jsx"));
-const ForgetPasswordPage = lazy(() => import("./pagesUser/ForgetPasswordPage.jsx"));
-const ResetPasswordPage = lazy(() => import("./pagesUser/ResetPasswordPage.jsx"));
-const PathaoConfigPage = lazy(() => import("./pagesAdmin/PathaoConfigPage.jsx"));
+const ForgetPasswordPage = lazy(
+  () => import("./pagesUser/ForgetPasswordPage.jsx"),
+);
+const ResetPasswordPage = lazy(
+  () => import("./pagesUser/ResetPasswordPage.jsx"),
+);
+const PathaoConfigPage = lazy(
+  () => import("./pagesAdmin/PathaoConfigPage.jsx"),
+);
 
-
-const LoadingLottie = lazy(() =>
-  import("./component/skeleton/LoadingLottie.jsx")
+const LoadingLottie = lazy(
+  () => import("./component/skeleton/LoadingLottie.jsx"),
 );
 
 function App() {
@@ -173,7 +254,7 @@ function App() {
       <MetaProvider />
       <ScrollToTop />
       <ScrollToTopButton />
-      <Suspense fallback={<LoadingLottie/>}>
+      <Suspense fallback={<LoadingLottie />}>
         <Routes>
           {/* General User Routes */}
           <Route path="/" element={<HomePage />} />
