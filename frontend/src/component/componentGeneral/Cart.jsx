@@ -27,7 +27,7 @@ const Cart = ({ onCloseCartMenu }) => {
       {cart.length === 0 ? (
         <div className="flex items-center justify-center h-[800px] p-4">
           <div className="flex flex-col items-center text-center">
-            <img src={emptyCart} alt="Empty Cart" className="w-48 h-auto" />
+            <img src={emptyCart} alt="Empty Cart" className="w-48 h-50" />
             <p>There are no more items in your cart!</p>
 
             <button

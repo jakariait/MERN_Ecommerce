@@ -149,11 +149,17 @@ const ProductDetails = () => {
   if (loading || product?.slug !== slug) {
     return (
       <div className="xl:container xl:mx-auto p-3">
+        {/* Skeleton for Breadcrumbs */}
+        <div className="md:p-3">
+          <Skeleton height={24} width={"70%"} />
+        </div>
+
         <div className={"grid md:grid-cols-2 gap-4"}>
           <div>
             <Skeleton height={650} width={"100%"} />
           </div>
           <div>
+            {/* Skeletons for ProductAddToCart */}
             <Skeleton height={50} width={"90%"} />
             <Skeleton height={50} width={"80%"} />
             <Skeleton height={50} width={"90%"} />
@@ -163,11 +169,12 @@ const ProductDetails = () => {
               <Skeleton height={50} width={"90%"} />
             </div>
             <Skeleton height={50} width={"90%"} />
-            <Skeleton height={50} width={"50%"} />
-            <Skeleton height={50} width={"40%"} />
-            <div className={"grid grid-cols-2 gap-1"}>
-              <Skeleton height={50} width={"100%"} />
-              <Skeleton height={50} width={"100%"} />
+            
+            {/* Skeleton for Social Share, Product Code, Short Desc */}
+            <div className="flex flex-col gap-3 pt-4">
+              <Skeleton height={24} width={"60%"} />
+              <Skeleton height={20} width={"40%"} />
+              <Skeleton count={2} height={18} width={"90%"} />
             </div>
           </div>
         </div>
@@ -283,7 +290,15 @@ const ProductDetails = () => {
           {/*YoutubeEmbed*/}
           {product.videoUrl && (
             <div className={"flex items-center justify-center pt-10 pb-10"}>
-              <Suspense fallback={<Skeleton height={300} width={"100%"} />}>
+              <Suspense
+                fallback={
+                  <div className="w-full sm:w-[560px]">
+                    <div className="aspect-video">
+                      <Skeleton className="w-full h-full" />
+                    </div>
+                  </div>
+                }
+              >
                 <YouTubeEmbed videoId={product.videoUrl} />
               </Suspense>
             </div>
