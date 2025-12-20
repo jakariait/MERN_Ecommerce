@@ -85,7 +85,7 @@ const ProductAddToCart = ({ product }) => {
     <div>
       <div>
         <div className="flex flex-col gap-3 md:col-span-4 lg:col-span-3 xl:col-span-4 pt-4 md:pt-0">
-          <LiveStatsNotification />
+          {/*<LiveStatsNotification />*/}
           <h2 className="text-xl">{product.name}</h2>
 
           {/* Without Variant Price Display */}
@@ -218,7 +218,7 @@ const ProductAddToCart = ({ product }) => {
             ) : (
               <motion.button
                 className="primaryBgColor accentTextColor px-2 py-1 md:py-2 rounded flex-grow cursor-pointer"
-                animate={{ scale: [1, 1.08, 1] }} // Scale animation
+                // animate={{ scale: [1, 1.08, 1] }} // Scale animation
                 transition={{
                   duration: 2.5,
                   repeat: Infinity,
@@ -234,7 +234,7 @@ const ProductAddToCart = ({ product }) => {
           {selectedVariant?.stock === 0 || product.finalStock === 0 ? null : (
             <motion.button
               className="primaryBgColor accentTextColor px-2 py-1 md:py-2 rounded cursor-pointer"
-              animate={{ scale: [1, 1.05, 1] }} // Scale animation
+              // animate={{ scale: [1, 1.05, 1] }} // Scale animation
               transition={{
                 duration: 2.5,
                 repeat: Infinity,
