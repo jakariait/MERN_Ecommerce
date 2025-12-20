@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import useGeneralInfoStore from '../../store/GeneralInfoStore';
 
 const Footer = () => {
-  const { GeneralInfoList, GeneralInfoListRequest } = useGeneralInfoStore();
+  const { GeneralInfoList, GeneralInfoListRequest, GeneralInfoListLoading } = useGeneralInfoStore();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -17,7 +17,7 @@ const Footer = () => {
     <div className="shadow rounded-lg mt-6 p-4">
       <div className="flex justify-between items-center">
         <div>
-          {currentYear} © {GeneralInfoList?.CompanyName}
+          {currentYear} © {GeneralInfoListLoading || !GeneralInfoList ? "Loading..." : GeneralInfoList?.CompanyName}
         </div>
         <div>
           <p>
