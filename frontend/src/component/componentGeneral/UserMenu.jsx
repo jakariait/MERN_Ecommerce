@@ -31,7 +31,6 @@ const menuItems = [
     label: "My orders",
     path: "/user/orders",
   },
-  { icon: <FaTicketAlt />, label: "Promo/ Coupon", path: "/coupons" },
   {
     icon: <FaUserCog />,
     label: "Manage profile",
