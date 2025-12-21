@@ -183,7 +183,7 @@ const ProductDetails = () => {
         </div>
         <div className="flex flex-col gap-3 pt-4">
           <Skeleton height={40} width={"100%"} />
-          <div className={"grid grid-cols-4 gap-4"}>
+          <div className={"grid grid-cols-2 md:grid-cols-4 gap-4"}>
             <Skeleton height={300} width={"100%"} />
             <Skeleton height={300} width={"100%"} />
             <Skeleton height={300} width={"100%"} />
@@ -192,7 +192,7 @@ const ProductDetails = () => {
         </div>
         <div className="flex flex-col gap-3 pt-4">
           <Skeleton height={40} width={"100%"} />
-          <div className={"grid grid-cols-4 gap-4"}>
+          <div className={"grid grid-cols-2 md:grid-cols-4 gap-4"}>
             <Skeleton height={300} width={"100%"} />
             <Skeleton height={300} width={"100%"} />
             <Skeleton height={300} width={"100%"} />
