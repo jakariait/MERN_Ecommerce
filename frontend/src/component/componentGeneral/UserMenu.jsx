@@ -8,12 +8,6 @@ import {
   FaSignOutAlt,
   FaTachometerAlt,
   FaShoppingCart,
-  FaHeart,
-  FaTicketAlt,
-  FaMapMarkedAlt,
-  FaCreditCard,
-  FaStar,
-  FaLifeRing,
   FaUserCog,
   FaKey,
 } from "react-icons/fa";
