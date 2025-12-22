@@ -65,9 +65,6 @@ const Product = () => {
   // URL search parameters
   const [searchParams, setSearchParams] = useSearchParams();
 
-  // Ref to prevent initial fetch on mount
-  const isInitialized = useRef(false);
-
   // Ref for search debounce timer
   const searchTimeoutRef = useRef(null);
 
@@ -202,35 +199,10 @@ const Product = () => {
     [flags],
   );
 
-  // Single effect to fetch products when filters change
+  // Effect to fetch products whenever filters change
   useEffect(() => {
-    // Skip initial render to prevent double fetch
-    if (!isInitialized.current) {
-      isInitialized.current = true;
-      return;
-    }
-
-    // Create a stable reference for the filters
-    const filtersToFetch = { ...currentFilters };
-
-    // Only fetch if we have valid filters
-    const hasValidFilters =
-      Object.values(filtersToFetch).some(
-        (value) => value !== "" && value !== null && value !== undefined,
-      ) || filtersToFetch.page === 1;
-
-    if (hasValidFilters) {
-      fetchProducts(filtersToFetch);
-    }
+    fetchProducts(currentFilters);
   }, [currentFilters, fetchProducts]);
-
-  // Initial fetch on component mount
-  useEffect(() => {
-    if (isInitialized.current === false) {
-      fetchProducts(currentFilters);
-      isInitialized.current = true;
-    }
-  }, []); // Only run once on mount
 
   // Cleanup search timeout on unmount
   useEffect(() => {
