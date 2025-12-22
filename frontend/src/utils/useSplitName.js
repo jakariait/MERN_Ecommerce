@@ -15,5 +15,4 @@ function splitName(fullName) {
 // const { firstName, lastName } = splitName("Jakaria Ahmed Jakaria");
 // console.log(firstName, lastName);
 
-
 export default splitName;
