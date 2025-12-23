@@ -1,5 +1,5 @@
 const AdminModel = require("../models/AdminModel");
-const bcrypt = require("bcryptjs");
+const bcrypt = require("bcrypt");
 
 const adminService = {
   getAllAdmins: async () => {
