@@ -1,12 +1,12 @@
 import React, { useEffect, useRef, useState, lazy, Suspense } from "react";
-import { Link as RouterLink, useLocation, useParams } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 import useProductStore from "../../store/useProductStore.js";
 import GeneralInfoStore from "../../store/GeneralInfoStore.js";
 import Skeleton from "react-loading-skeleton";
 
 import LazySocialShareButtons from "./LazySocialShareButtons.jsx";
 
-import { Breadcrumbs, Link, Typography } from "@mui/material";
+import { Typography } from "@mui/material";
 
 import Accordion from "@mui/material/Accordion";
 import AccordionSummary from "@mui/material/AccordionSummary";
@@ -14,6 +14,8 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import AccordionDetails from "@mui/material/AccordionDetails";
 import ProductGallery from "./ProductGallery.jsx";
 import ProductAddToCart from "./ProductAddToCart.jsx";
+import ProductBreadcrumbs from "./ProductBreadcrumbs.jsx";
+import ProductDetailsSkeleton from "../skeleton/ProductDetailsSkeleton.jsx";
 const SimilarProducts = lazy(() => import("./SimilarProducts.jsx"));
 const YouTubeEmbed = lazy(() => import("./YouTubeEmbed.jsx"));
 const RecentlyViewedProducts = lazy(
@@ -75,7 +77,7 @@ const ProductDetails = () => {
     return doc.body.innerHTML;
   };
 
-  // Data layer for View Conttent
+  // Data layer for View Content
 
   useEffect(() => {
     if (!product || hasPushedRef.current) return;
@@ -146,65 +148,7 @@ const ProductDetails = () => {
   }, [product]);
 
   if (loading || product?.slug !== slug) {
-    return (
-      <div className="xl:container xl:mx-auto p-3">
-        {/* Skeleton for Breadcrumbs */}
-        <div className="md:p-3">
-          <Skeleton height={24} width={"70%"} />
-        </div>
-
-        <div className={"grid md:grid-cols-2 gap-4"}>
-          <div>
-            <Skeleton height={650} width={"100%"} />
-          </div>
-          <div>
-            {/* Skeletons for ProductAddToCart */}
-            <Skeleton height={50} width={"90%"} />
-            <Skeleton height={50} width={"80%"} />
-            <Skeleton height={50} width={"90%"} />
-            <div className={"grid grid-cols-3 gap-1"}>
-              <Skeleton height={50} width={"90%"} />
-              <Skeleton height={50} width={"80%"} />
-              <Skeleton height={50} width={"90%"} />
-            </div>
-            <Skeleton height={50} width={"90%"} />
-
-            {/* Skeleton for Social Share, Product Code, Short Desc */}
-            <div className="flex flex-col gap-3 pt-4">
-              <Skeleton height={24} width={"60%"} />
-              <Skeleton height={20} width={"40%"} />
-              <Skeleton count={2} height={18} width={"90%"} />
-            </div>
-          </div>
-        </div>
-        <div className="flex flex-col gap-3 pt-4">
-          <Skeleton height={400} width={"100%"} />
-          <Skeleton count={2} height={60} width={"100%"} />
-        </div>
-        <div className="flex flex-col gap-3 pt-4">
-          <Skeleton height={40} width={"100%"} />
-          <div className={"grid grid-cols-2 md:grid-cols-4 gap-4"}>
-            <Skeleton height={300} width={"100%"} />
-            <Skeleton height={300} width={"100%"} />
-            <Skeleton height={300} width={"100%"} />
-            <Skeleton height={300} width={"100%"} />
-          </div>
-        </div>
-        <div className="flex flex-col gap-3 pt-4">
-          <Skeleton height={40} width={"100%"} />
-          <div className={"grid grid-cols-2 md:grid-cols-4 gap-4"}>
-            <Skeleton height={300} width={"100%"} />
-            <Skeleton height={300} width={"100%"} />
-            <Skeleton height={300} width={"100%"} />
-            <Skeleton height={300} width={"100%"} />
-            <Skeleton height={300} width={"100%"} />
-            <Skeleton height={300} width={"100%"} />
-            <Skeleton height={300} width={"100%"} />
-            <Skeleton height={300} width={"100%"} />
-          </div>
-        </div>
-      </div>
-    ); // Loading message while new product data is being fetched
+    return <ProductDetailsSkeleton />; // Loading message while new product data is being fetched
   }
 
   return (
@@ -228,61 +172,9 @@ const ProductDetails = () => {
           <meta property="og:description" content={product?.metaDescription} />
           <meta property="og:image" content={product?.thumbnailImage} />
           <meta property="og:url" content={window.location.href} />
+
           {/*BreadCrumbs*/}
-          <div className={"md:p-3"}>
-            <Breadcrumbs separator="/" aria-label="breadcrumb">
-              {/* Home */}
-              <Link
-                component={RouterLink}
-                to="/"
-                color="inherit"
-                sx={{ textDecoration: "none" }} // Removes the underline
-              >
-                Home
-              </Link>
-
-              {/* Category */}
-              {product?.category?.name && (
-                <Link
-                  component={RouterLink}
-                  to={`/shop?category=${product.category.name}`}
-                  color="inherit"
-                  sx={{ textDecoration: "none" }}
-                >
-                  {product.category.name}
-                </Link>
-              )}
-
-              {/* Subcategory */}
-              {product?.subCategory?.name && (
-                <Link
-                  component={RouterLink}
-                  to={`/shop?subcategory=${product.subCategory.slug}`}
-                  color="inherit"
-                  sx={{ textDecoration: "none" }}
-                >
-                  {product.subCategory.name}
-                </Link>
-              )}
-
-              {/* Child Category */}
-              {product?.childCategory?.name && (
-                <Link
-                  component={RouterLink}
-                  to={`/shop?childCategory=${product.childCategory.slug}`}
-                  color="inherit"
-                  sx={{ textDecoration: "none" }}
-                >
-                  {product.childCategory.name}
-                </Link>
-              )}
-
-              {/* Product Name */}
-              {product?.name && (
-                <Typography color="text.primary">{product.name}</Typography>
-              )}
-            </Breadcrumbs>
-          </div>
+          <ProductBreadcrumbs product={product} />
 
           <div className="md:grid md:grid-cols-8 lg:grid-cols-9 xl:grid-cols-9 gap-8">
             <div className="md:col-span-4 lg:col-span-6 xl:col-span-5 relative">

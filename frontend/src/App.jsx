@@ -251,7 +251,7 @@ function App() {
       <MetaProvider />
       <ScrollToTop />
       <ScrollToTopButton />
-      <Suspense fallback={<Loading/>}>
+      <Suspense fallback={<Loading />}>
         <Routes>
           {/* General User Routes */}
           <Route path="/" element={<HomePage />} />
