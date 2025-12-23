@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { Editor } from "primereact/editor";
+import React, { Suspense, lazy, useEffect, useState } from "react";
+const Editor = lazy(() => import("primereact/editor").then(module => ({ default: module.Editor })));
 import axios from "axios";
 import Snackbar from "@mui/material/Snackbar";
 import MuiAlert from "@mui/material/Alert";
@@ -76,12 +76,14 @@ const PageEditor = ({ title, endpoint }) => {
       <h1 className="border-l-4 primaryBorderColor primaryTextColor mb-6 pl-2 text-lg font-semibold">
         Edit {title}
       </h1>
-      <Editor
-        value={content}
-        onTextChange={(e) => setContent(e.htmlValue)}
-        style={{ height: "500px" }}
-        readOnly={loading}
-      />
+      <Suspense fallback={<div>Loading Editor...</div>}>
+        <Editor
+          value={content}
+          onTextChange={(e) => setContent(e.htmlValue)}
+          style={{ height: "500px" }}
+          readOnly={loading}
+        />
+      </Suspense>
       <div className={"flex justify-center items-center"}>
         <button
           onClick={handleSave}

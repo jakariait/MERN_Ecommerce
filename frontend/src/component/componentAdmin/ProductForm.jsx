@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from "react";
+import React, { useRef, useState, useEffect, lazy, Suspense } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import useCategoryStore from "../../store/useCategoryStore.js";
 import useSubCategoryStore from "../../store/useSubCategoryStore.js";
@@ -7,7 +7,9 @@ import useFlagStore from "../../store/useFlagStore.js";
 import useProductSizeStore from "../../store/useProductSizeStore.js";
 import AuthAdminStore from "../../store/AuthAdminStore.js";
 import useProductStore from "../../store/useProductStore.js";
-import { Editor } from "primereact/editor";
+const Editor = lazy(() =>
+  import("primereact/editor").then((module) => ({ default: module.Editor })),
+);
 import {
   Box,
   MenuItem,
@@ -542,26 +544,32 @@ const ProductForm = ({ isEdit: isEditMode }) => {
               rows={3}
             />
             <h1 className={"py-3 pl-1"}>Long Description</h1>
-            <Editor
-              value={longDesc}
-              onTextChange={(e) => setLongDesc(e.htmlValue)}
-              style={{ height: "260px" }}
-            />
-            <div>
-              <h1 className={"py-3 pl-1"}>Size Chart</h1>
+            <Suspense fallback={<Skeleton height={260} />}>
               <Editor
-                value={sizeChart}
-                onTextChange={(e) => setSizeChart(e.htmlValue)}
+                value={longDesc}
+                onTextChange={(e) => setLongDesc(e.htmlValue)}
                 style={{ height: "260px" }}
               />
+            </Suspense>
+            <div>
+              <h1 className={"py-3 pl-1"}>Size Chart</h1>
+              <Suspense fallback={<Skeleton height={260} />}>
+                <Editor
+                  value={sizeChart}
+                  onTextChange={(e) => setSizeChart(e.htmlValue)}
+                  style={{ height: "260px" }}
+                />
+              </Suspense>
             </div>
             <div>
               <h1 className={"py-3 pl-1"}>Shipping and Return</h1>
-              <Editor
-                value={shippingReturn}
-                onTextChange={(e) => setShippingReturn(e.htmlValue)}
-                style={{ height: "260px" }}
-              />
+              <Suspense fallback={<Skeleton height={260} />}>
+                <Editor
+                  value={shippingReturn}
+                  onTextChange={(e) => setShippingReturn(e.htmlValue)}
+                  style={{ height: "260px" }}
+                />
+              </Suspense>
             </div>
             <Box mb={2}>
               <Box

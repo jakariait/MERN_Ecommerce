@@ -1,6 +1,6 @@
-import React, { useRef, useState } from "react";
+import React, { lazy, Suspense, useRef, useState } from "react";
 import AuthAdminStore from "../../store/AuthAdminStore.js";
-import { Editor } from "primereact/editor";
+const Editor = lazy(() => import("primereact/editor").then(module => ({ default: module.Editor })));
 import {
   Box,
   Typography,
@@ -161,11 +161,13 @@ const AddBlog = () => {
             />
 
             <h1 className="py-3 pl-1">Blog Content</h1>
-            <Editor
-              value={longDesc}
-              onTextChange={(e) => setLongDesc(e.htmlValue)}
-              style={{ height: "260px" }}
-            />
+            <Suspense fallback={<div>Loading Editor...</div>}>
+              <Editor
+                value={longDesc}
+                onTextChange={(e) => setLongDesc(e.htmlValue)}
+                style={{ height: "260px" }}
+              />
+            </Suspense>
 
             <Box mb={2}>
               <Box

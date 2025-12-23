@@ -1,6 +1,6 @@
-import React, { useEffect, useRef, useState, useCallback } from "react";
+import React, { lazy, Suspense, useEffect, useRef, useState, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Editor } from "primereact/editor";
+const Editor = lazy(() => import("primereact/editor").then(module => ({ default: module.Editor })));
 import {
   Box,
   Typography,
@@ -302,12 +302,14 @@ const EditBlog = () => {
 
       <Box my={2}>
         <Typography variant="subtitle1">Blog Content</Typography>
-        <Editor
-          ref={editorRef}
-          value={formData.longDesc}
-          onTextChange={handleEditorChange}
-          style={{ height: "660px" }}
-        />
+        <Suspense fallback={<div>Loading Editor...</div>}>
+          <Editor
+            ref={editorRef}
+            value={formData.longDesc}
+            onTextChange={handleEditorChange}
+            style={{ height: "660px" }}
+          />
+        </Suspense>
       </Box>
 
       <div className="grid grid-cols-3 gap-4">

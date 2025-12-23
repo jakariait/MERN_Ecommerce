@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { CircularProgress, Skeleton, Typography } from "@mui/material";
+import { Skeleton, Typography } from "@mui/material";
 import axios from "axios";
 
 const PublicContentViewer = ({ title, endpoint }) => {
