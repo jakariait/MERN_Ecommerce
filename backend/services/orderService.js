@@ -301,102 +301,157 @@ const getOrderById = async (orderId) => {
 
 const updateOrder = async (orderId, updateData) => {
   try {
-    // Find the existing order to compare the status
     const existingOrder = await Order.findById(orderId);
     if (!existingOrder) {
       throw new Error("Order not found");
     }
 
-    // Update the order data
-    const updatedOrder = await Order.findByIdAndUpdate(orderId, updateData, {
+    const finalUpdate = { ...updateData };
+
+    // If items are being updated, adjust stock and recalculate subtotal
+    if (finalUpdate.items) {
+      let subtotal = 0;
+      const stockAdjustments = [];
+
+      const newItemsMap = new Map(
+        finalUpdate.items.map((item) => [
+          (item.variantId || item.productId).toString(),
+          item,
+        ]),
+      );
+      const oldItemsMap = new Map(
+        existingOrder.items.map((item) => [
+          (item.variantId || item.productId).toString(),
+          item,
+        ]),
+      );
+      const allItemKeys = new Set([
+        ...newItemsMap.keys(),
+        ...oldItemsMap.keys(),
+      ]);
+
+      for (const itemKey of allItemKeys) {
+        const oldItem = oldItemsMap.get(itemKey);
+        const newItem = newItemsMap.get(itemKey);
+        const oldQuantity = oldItem ? oldItem.quantity : 0;
+        const newQuantity = newItem ? newItem.quantity : 0;
+        const quantityChange = oldQuantity - newQuantity;
+
+        if (quantityChange === 0 && newItem) {
+          subtotal += newItem.price * newQuantity;
+          continue;
+        }
+
+        if (quantityChange !== 0) {
+          const itemForStock = oldItem || newItem;
+          const product = await Product.findById(itemForStock.productId);
+          if (!product) throw new Error("Product not found");
+
+          if (itemForStock.variantId) {
+            const variant = product.variants.find(
+              (v) => v._id.toString() === itemForStock.variantId.toString(),
+            );
+            if (!variant) throw new Error("Variant not found");
+
+            if (quantityChange < 0 && variant.stock < -quantityChange) {
+              throw new Error(`Not enough stock for variant ${variant.name}`);
+            }
+            stockAdjustments.push(
+              Product.updateOne(
+                {
+                  _id: itemForStock.productId,
+                  "variants._id": itemForStock.variantId,
+                },
+                { $inc: { "variants.$.stock": quantityChange } },
+              ),
+            );
+          } else {
+            if (quantityChange < 0 && product.finalStock < -quantityChange) {
+              throw new Error(`Not enough stock for product ${product.name}`);
+            }
+            stockAdjustments.push(
+              Product.updateOne(
+                { _id: itemForStock.productId },
+                { $inc: { finalStock: quantityChange } },
+              ),
+            );
+          }
+        }
+
+        if (newItem) {
+          subtotal += newItem.price * newQuantity;
+        }
+      }
+
+      await Promise.all(stockAdjustments);
+      finalUpdate.subtotalAmount = subtotal;
+    }
+
+    // Update the order
+    const updatedOrder = await Order.findByIdAndUpdate(orderId, finalUpdate, {
       new: true,
     });
     if (!updatedOrder) {
-      throw new Error("Order not found after update"); // Added extra check
+      throw new Error("Order not found after update");
     }
 
-    // Check if the status has changed to 'Returned' or 'Cancelled'
-    const isNowReturnedOrCancelled =
-      updatedOrder.orderStatus === "returned" ||
-      updatedOrder.orderStatus === "cancelled";
-    const wasNotReturnedOrCancelled =
-      existingOrder.orderStatus !== "returned" &&
-      existingOrder.orderStatus !== "cancelled";
+    // Stock adjustment for status changes (only if items were not updated in this call)
+    if (!finalUpdate.items && finalUpdate.orderStatus) {
+      const isNowReturnedOrCancelled =
+        updatedOrder.orderStatus === "returned" ||
+        updatedOrder.orderStatus === "cancelled";
+      const wasNotReturnedOrCancelled =
+        existingOrder.orderStatus !== "returned" &&
+        existingOrder.orderStatus !== "cancelled";
 
-    if (isNowReturnedOrCancelled && wasNotReturnedOrCancelled) {
-      // Restore stock for each item in the order
-      for (const item of updatedOrder.items) {
-        const { productId, variantId, quantity } = item;
+      if (isNowReturnedOrCancelled && wasNotReturnedOrCancelled) {
+        for (const item of updatedOrder.items) {
+          const { productId, variantId, quantity } = item;
+          const update = variantId
+            ? { "variants.$.stock": quantity }
+            : { finalStock: quantity };
+          const filter = variantId
+            ? { _id: productId, "variants._id": variantId }
+            : { _id: productId };
+          await Product.updateOne(filter, { $inc: update });
+        }
+      }
 
-        const product = await Product.findById(productId);
-        if (!product) throw new Error(`Product not found for ID ${productId}`);
+      const isRevertingToActiveStatus =
+        (existingOrder.orderStatus === "returned" ||
+          existingOrder.orderStatus === "cancelled") &&
+        ["pending", "approved", "intransit", "delivered"].includes(
+          updatedOrder.orderStatus,
+        );
 
-        if (!product.variants || product.variants.length === 0) {
-          await Product.updateOne(
-            { _id: productId },
-            { $inc: { finalStock: quantity } },
-          );
-        } else {
-          const variant = product.variants.find(
-            (v) => v._id.toString() === variantId.toString(),
-          );
-          if (!variant)
-            throw new Error(`Variant not found for ID ${variantId}`);
-
-          await Product.updateOne(
-            { _id: productId, "variants._id": variantId },
-            { $inc: { "variants.$.stock": quantity } },
-          );
+      if (isRevertingToActiveStatus) {
+        for (const item of updatedOrder.items) {
+          const { productId, variantId, quantity } = item;
+          const update = variantId
+            ? { "variants.$.stock": -quantity }
+            : { finalStock: -quantity };
+          const filter = variantId
+            ? { _id: productId, "variants._id": variantId }
+            : { _id: productId };
+          await Product.updateOne(filter, { $inc: update });
         }
       }
     }
 
-    // Check if the status is changing from 'returned' or 'cancelled' to any of the following statuses
-    const isRevertingToActiveStatus =
-      (existingOrder.orderStatus === "returned" ||
-        existingOrder.orderStatus === "cancelled") &&
-      ["pending", "approved", "intransit", "delivered"].includes(
-        updatedOrder.orderStatus,
-      );
-
-    if (isRevertingToActiveStatus) {
-      // Deduct stock for each item in the order
-      for (const item of updatedOrder.items) {
-        const { productId, variantId, quantity } = item;
-
-        const product = await Product.findById(productId);
-        if (!product) throw new Error(`Product not found for ID ${productId}`);
-
-        if (!product.variants || product.variants.length === 0) {
-          await Product.updateOne(
-            { _id: productId },
-            { $inc: { finalStock: -quantity } }, // Deduct stock
-          );
-        } else {
-          const variant = product.variants.find(
-            (v) => v._id.toString() === variantId.toString(),
-          );
-          if (!variant)
-            throw new Error(`Variant not found for ID ${variantId}`);
-
-          await Product.updateOne(
-            { _id: productId, "variants._id": variantId },
-            { $inc: { "variants.$.stock": -quantity } }, // Deduct stock
-          );
-        }
-      }
-    }
-
-    // If order is now marked as 'delivered', set paymentStatus to 'paid'
-    if (updatedOrder.orderStatus === "delivered") {
+    if (
+      updatedOrder.orderStatus === "delivered" &&
+      existingOrder.orderStatus !== "delivered"
+    ) {
       updatedOrder.paymentStatus = "paid";
       await updatedOrder.save();
     }
 
+    const result = await getOrderById(orderId);
+
     return {
       success: true,
       message: `Order updated successfully`,
-      updatedOrder,
+      updatedOrder: result,
     };
   } catch (error) {
     throw new Error("Error updating order: " + error.message);
