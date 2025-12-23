@@ -43,6 +43,7 @@ const ViewOrder = () => {
   const [productSearchQuery, setProductSearchQuery] = useState("");
   const [searchedProducts, setSearchedProducts] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(null);
+  const [sizeNameCache, setSizeNameCache] = useState({});
 
   const handlePrint = () => {
     const content = document.getElementById("print-area");
@@ -196,16 +197,39 @@ const ViewOrder = () => {
     return () => debouncedProductSearch.cancel();
   }, [productSearchQuery, debouncedProductSearch, isAddProductModalOpen]);
 
-  const handleAddProduct = (product, variant = null) => {
+  const handleAddProduct = async (product, variant = null) => {
     const price = variant
       ? variant.discount || variant.price
       : product.finalDiscount > 0
         ? product.finalDiscount
         : product.finalPrice;
 
+    let processedVariant = variant;
+    if (variant && variant.size) {
+      let sizeName = sizeNameCache[variant.size];
+      if (!sizeName) {
+        try {
+          const res = await axios.get(
+            `${apiUrl}/product-sizes/${variant.size}`,
+          );
+          if (res.data.productSize) {
+            sizeName = res.data.productSize.name;
+            setSizeNameCache((prev) => ({
+              ...prev,
+              [variant.size]: sizeName,
+            }));
+          }
+        } catch (error) {
+          console.error("Failed to fetch size name:", error);
+          sizeName = "N/A"; // Fallback
+        }
+      }
+      processedVariant = { ...variant, sizeName: sizeName || "N/A" };
+    }
+
     const newItem = {
       productId: product._id,
-      variantId: variant ? variant._id : undefined,
+      variantId: processedVariant ? processedVariant._id : undefined,
       quantity: 1,
       price: price,
       // For display purposes
@@ -214,7 +238,7 @@ const ViewOrder = () => {
         name: product.name,
         productCode: product.productCode,
         category: { name: product.category?.name },
-        variants: variant ? [variant] : [],
+        variants: processedVariant ? [processedVariant] : [],
       },
     };
 
@@ -223,7 +247,6 @@ const ViewOrder = () => {
     setProductSearchQuery("");
     setSearchedProducts([]);
   };
-
   const handleSave = async () => {
     try {
       const token = localStorage.getItem("token");
@@ -402,7 +425,7 @@ const ViewOrder = () => {
               </TableHead>
               <TableBody>
                 {currentOrderData.items.map((item, index) => {
-                  const product = item.productId || item.product;
+                  const product = item.product || item.productId;
                   const variant = product.variants?.[0];
                   const totalPrice = item.price * item.quantity;
 

@@ -63,6 +63,12 @@ const orderSchema = new mongoose.Schema(
       email: { type: String },
       address: { type: String, required: true },
     },
+
+    billingInfo: {
+      fullName: { type: String },
+      address: { type: String },
+    },
+    
     paymentId: {
       type: String,
     },
