@@ -34,6 +34,10 @@ const useOrderStore = create((set, get) => ({
   // Search functionality
   searchQuery: "",
 
+  // Date range
+  startDate: null,
+  endDate: null,
+
   // Common loading/error state
   orderListLoading: false,
   orderListError: null,
@@ -50,13 +54,17 @@ const useOrderStore = create((set, get) => ({
     set({ searchQuery: query, currentPage: 1 });
   },
 
+  setDateRange: (startDate, endDate) => {
+    set({ startDate, endDate, currentPage: 1 });
+  },
+
   clearSearch: () => {
     set({ searchQuery: "", currentPage: 1 });
   },
 
   fetchAllOrders: async (status = "", page = 1, limit = 10) => {
     const token = useAuthAdminStore.getState().token;
-    const { searchQuery } = get(); // Get the current search query
+    const { searchQuery, startDate, endDate } = get(); // Get the current search query
 
     set({
       orderListLoading: true,
@@ -78,6 +86,14 @@ const useOrderStore = create((set, get) => ({
       // Add search query if provided
       if (searchQuery && searchQuery.trim()) {
         params.search = searchQuery.trim();
+      }
+
+      // Add date range if provided
+      if (startDate) {
+        params.startDate = startDate;
+      }
+      if (endDate) {
+        params.endDate = endDate;
       }
 
       const res = await axios.get(`${apiUrl}/orders`, {

@@ -153,47 +153,67 @@ const createOrder = async (orderData, userId) => {
   }
 };
 
-const getAllOrders = async (filter = {}, page, limit, search = '') => {
+const getAllOrders = async (
+  filter = {},
+  page,
+  limit,
+  search = "",
+  startDate,
+  endDate,
+) => {
   try {
     let queryFilter = { ...filter };
 
+    // Add date range filtering if startDate and/or endDate are provided
+    if (startDate || endDate) {
+      queryFilter.createdAt = {};
+      if (startDate) {
+        queryFilter.createdAt.$gte = new Date(startDate);
+      }
+      if (endDate) {
+        // To include the entire end day, set the end of the day
+        const endOfDay = new Date(endDate);
+        endOfDay.setHours(23, 59, 59, 999);
+        queryFilter.createdAt.$lte = endOfDay;
+      }
+    }
+
     if (search && search.trim()) {
-      const searchRegex = new RegExp(search.trim(), 'i');
+      const searchRegex = new RegExp(search.trim(), "i");
       queryFilter.$or = [
         { orderNo: searchRegex },
-        { 'shippingInfo.fullName': searchRegex },
-        { 'shippingInfo.mobileNo': searchRegex },
-        { 'shippingInfo.email': searchRegex },
-        { 'shippingInfo.address': searchRegex },
+        { "shippingInfo.fullName": searchRegex },
+        { "shippingInfo.mobileNo": searchRegex },
+        { "shippingInfo.email": searchRegex },
+        { "shippingInfo.address": searchRegex },
       ];
     }
 
-    let query = Order.find(queryFilter)
-      .populate("userId")
-      .populate({
-        path: "items.productId",
-        select:
-          "-sizeChart -longDesc -shortDesc -shippingReturn -videoUrl -flags -metaTitle -metaDescription -metaKeywords -searchTags",
-      })
-      .populate("items.variantId")
-      .sort({ createdAt: -1 });
+    // 1. Create count query
+    const countQuery = Order.countDocuments(queryFilter);
 
-    // Only apply pagination if page and limit are valid
-    let totalOrders = await Order.countDocuments(queryFilter);
-    let orders;
-    let totalPages = null;
-    let currentPage = null;
+    // 2. Create find query without populates and with .lean() for performance
+    let findQuery = Order.find(queryFilter).sort({ createdAt: -1 }).lean();
 
+    // 3. Apply pagination to the find query
     if (page && limit) {
       const validatedPage = Math.max(1, parseInt(page));
       const validatedLimit = Math.max(1, parseInt(limit));
       const skip = (validatedPage - 1) * validatedLimit;
+      findQuery = findQuery.skip(skip).limit(validatedLimit);
+    }
 
-      orders = await query.skip(skip).limit(validatedLimit);
+    // 4. Execute both count and find queries in parallel
+    const [totalOrders, orders] = await Promise.all([countQuery, findQuery]);
+
+    // 5. Calculate pagination details
+    let totalPages = null;
+    let currentPage = null;
+    if (page && limit) {
+      const validatedPage = Math.max(1, parseInt(page));
+      const validatedLimit = Math.max(1, parseInt(limit));
       totalPages = Math.ceil(totalOrders / validatedLimit);
       currentPage = validatedPage;
-    } else {
-      orders = await query;
     }
 
     return {
@@ -203,7 +223,7 @@ const getAllOrders = async (filter = {}, page, limit, search = '') => {
       currentPage,
     };
   } catch (error) {
-    console.error('Error in getAllOrders:', error);
+    console.error("Error in getAllOrders:", error);
     throw new Error("Error fetching orders: " + error.message);
   }
 };
@@ -607,7 +627,8 @@ const trackOrderByOrderNoAndPhone = async (orderNo, phone) => {
   const storedPhone =
     order.userId?.phone || order.shippingInfo?.mobileNo || order.phone;
 
-  const normalize = (num) => (num || "").replace(/[^0-9]/g, "").replace(/^88/, "");
+  const normalize = (num) =>
+    (num || "").replace(/[^0-9]/g, "").replace(/^88/, "");
 
   if (normalize(storedPhone) !== normalize(phone)) {
     throw new Error("Phone number does not match order");
@@ -618,7 +639,7 @@ const trackOrderByOrderNoAndPhone = async (orderNo, phone) => {
   order.items.forEach((item) => {
     if (item.productId?.variants?.length > 0) {
       const matchedVariant = item.productId.variants.find(
-        (variant) => variant._id.toString() === item.variantId.toString()
+        (variant) => variant._id.toString() === item.variantId.toString(),
       );
       if (matchedVariant?.size) {
         sizeIds.add(matchedVariant.size);
@@ -632,12 +653,14 @@ const trackOrderByOrderNoAndPhone = async (orderNo, phone) => {
     .select("name")
     .lean();
 
-  const sizeMap = new Map(sizes.map((size) => [size._id.toString(), size.name]));
+  const sizeMap = new Map(
+    sizes.map((size) => [size._id.toString(), size.name]),
+  );
 
   order.items = order.items.map((item) => {
     if (item.productId?.variants) {
       item.productId.variants = item.productId.variants.filter(
-        (variant) => variant._id.toString() === item.variantId.toString()
+        (variant) => variant._id.toString() === item.variantId.toString(),
       );
 
       if (item.productId.variants.length > 0) {
@@ -651,9 +674,6 @@ const trackOrderByOrderNoAndPhone = async (orderNo, phone) => {
 
   return order;
 };
-
-
-
 
 // Export the functions as an object
 module.exports = {

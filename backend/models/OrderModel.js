@@ -234,4 +234,10 @@ orderSchema.pre("findOneAndUpdate", async function (next) {
   }
 });
 
+// Add indexes for fields frequently queried
+orderSchema.index({ orderStatus: 1 });
+orderSchema.index({ "shippingInfo.fullName": 1 });
+orderSchema.index({ "shippingInfo.mobileNo": 1 });
+orderSchema.index({ "shippingInfo.email": 1 });
+
 module.exports = mongoose.model("Order", orderSchema);

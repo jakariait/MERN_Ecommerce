@@ -55,11 +55,14 @@ const AllOrders = ({ title, status = "" }) => {
     orderListLoading,
     orderListError,
     allOrders: allOrdersFromStore,
+    startDate: startDateFromStore,
+    endDate: endDateFromStore,
+    setDateRange,
   } = useOrderStore();
 
-  const allOrders = useMemo(() =>
-      (status ? orderListByStatus[status] : allOrdersFromStore) || [],
-    [status, orderListByStatus, allOrdersFromStore]
+  const allOrders = useMemo(
+    () => (status ? orderListByStatus[status] : allOrdersFromStore) || [],
+    [status, orderListByStatus, allOrdersFromStore],
   );
 
   // Local state for sorting and UI
@@ -72,6 +75,10 @@ const AllOrders = ({ title, status = "" }) => {
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchInput, setSearchInput] = useState("");
+  const [localStartDate, setLocalStartDate] = useState(
+    startDateFromStore || "",
+  );
+  const [localEndDate, setLocalEndDate] = useState(endDateFromStore || "");
 
   const apiUrl = import.meta.env.VITE_API_URL;
   const navigate = useNavigate();
@@ -82,7 +89,10 @@ const AllOrders = ({ title, status = "" }) => {
     setCurrentPage(1);
     setSearchInput("");
     setSearchQuery("");
-  }, [status]);
+    setLocalStartDate("");
+    setLocalEndDate("");
+    setDateRange(null, null);
+  }, [status, setSearchQuery, setDateRange]);
 
   // Fetch orders - memoized to prevent unnecessary recreations
   const fetchOrders = useCallback(() => {
@@ -92,7 +102,14 @@ const AllOrders = ({ title, status = "" }) => {
   // Only fetch when dependencies actually change
   useEffect(() => {
     fetchOrders();
-  }, [searchQuery, currentPage, itemsPerPage, status]);
+  }, [
+    searchQuery,
+    currentPage,
+    itemsPerPage,
+    status,
+    startDateFromStore,
+    endDateFromStore,
+  ]);
 
   const handleOpenDialog = useCallback((id) => {
     setDeleteId(id);
@@ -117,12 +134,25 @@ const AllOrders = ({ title, status = "" }) => {
     }
   }, [searchInput, searchQuery, setSearchQuery]);
 
-  const handleSearchKeyPress = useCallback((event) => {
-    if (event.key === "Enter") {
-      event.preventDefault();
-      handleSearchExecute();
-    }
-  }, [handleSearchExecute]);
+  const handleDateFilter = () => {
+    setDateRange(localStartDate, localEndDate);
+  };
+
+  const handleClearDateFilter = () => {
+    setLocalStartDate("");
+    setLocalEndDate("");
+    setDateRange(null, null);
+  };
+
+  const handleSearchKeyPress = useCallback(
+    (event) => {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        handleSearchExecute();
+      }
+    },
+    [handleSearchExecute],
+  );
 
   const handleClearSearch = useCallback(() => {
     setSearchInput("");
@@ -134,26 +164,32 @@ const AllOrders = ({ title, status = "" }) => {
     setCurrentPage(value);
   }, []);
 
-  const handleItemsPerPageChange = useCallback((event) => {
-    const newLimit = event.target.value;
-    setItemsPerPage(newLimit);
-    setCurrentPage(1); // Reset to first page
-  }, [setItemsPerPage]);
+  const handleItemsPerPageChange = useCallback(
+    (event) => {
+      const newLimit = event.target.value;
+      setItemsPerPage(newLimit);
+      setCurrentPage(1); // Reset to first page
+    },
+    [setItemsPerPage],
+  );
 
-  const handleSortRequest = useCallback((property) => {
-    setSortDirection(prev => {
-      const isAsc = orderBy === property && prev === "asc";
-      return isAsc ? "desc" : "asc";
-    });
-    setOrderBy(property);
-  }, [orderBy]);
+  const handleSortRequest = useCallback(
+    (property) => {
+      setSortDirection((prev) => {
+        const isAsc = orderBy === property && prev === "asc";
+        return isAsc ? "desc" : "asc";
+      });
+      setOrderBy(property);
+    },
+    [orderBy],
+  );
 
   // Memoized sorting function
   const sortedOrders = useMemo(() => {
     const compare = (a, b) => {
       let aVal, bVal;
 
-      switch(orderBy) {
+      switch (orderBy) {
         case "orderNo":
           aVal = a.orderNo;
           bVal = b.orderNo;
@@ -195,14 +231,20 @@ const AllOrders = ({ title, status = "" }) => {
   }, [allOrders, orderBy, sortDirection]);
 
   // Calculate pagination info
-  const { startEntry, endEntry } = useMemo(() => ({
-    startEntry: (currentPage - 1) * itemsPerPage + 1,
-    endEntry: Math.min(currentPage * itemsPerPage, totalOrders)
-  }), [currentPage, itemsPerPage, totalOrders]);
+  const { startEntry, endEntry } = useMemo(
+    () => ({
+      startEntry: (currentPage - 1) * itemsPerPage + 1,
+      endEntry: Math.min(currentPage * itemsPerPage, totalOrders),
+    }),
+    [currentPage, itemsPerPage, totalOrders],
+  );
 
-  const handleView = useCallback((orderId) => {
-    navigate(`/admin/orders/${orderId}`);
-  }, [navigate]);
+  const handleView = useCallback(
+    (orderId) => {
+      navigate(`/admin/orders/${orderId}`);
+    },
+    [navigate],
+  );
 
   const handleConfirmDelete = useCallback(async () => {
     try {
@@ -237,43 +279,48 @@ const AllOrders = ({ title, status = "" }) => {
   }, [fetchOrders]);
 
   // Memoize the loading skeleton
-  const LoadingSkeleton = useMemo(() => (
-    <TableContainer component={Paper} sx={{ marginBottom: 2 }}>
-      <Table>
-        <TableHead>
-          <TableRow>
-            {[
-              "Order No",
-              "Order Date & Time",
-              "Customer",
-              "Mobile No",
-              "Courier",
-              "Courier Status",
-              "Status",
-              "Payment Status",
-              "Total Amount",
-              "Actions",
-            ].map((header, i) => (
-              <TableCell key={i}>
-                <Skeleton variant="text" width={120} height={30} />
-              </TableCell>
-            ))}
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {[...Array(itemsPerPage)].map((_, index) => (
-            <TableRow key={index}>
-              {Array(10).fill().map((_, cellIndex) => (
-                <TableCell key={cellIndex}>
-                  <Skeleton variant="text" width="100%" height={20} />
+  const LoadingSkeleton = useMemo(
+    () => (
+      <TableContainer component={Paper} sx={{ marginBottom: 2 }}>
+        <Table>
+          <TableHead>
+            <TableRow>
+              {[
+                "Order No",
+                "Order Date & Time",
+                "Customer",
+                "Mobile No",
+                "Courier",
+                "Courier Status",
+                "Status",
+                "Payment Status",
+                "Total Amount",
+                "Actions",
+              ].map((header, i) => (
+                <TableCell key={i}>
+                  <Skeleton variant="text" width={120} height={30} />
                 </TableCell>
               ))}
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </TableContainer>
-  ), [itemsPerPage]);
+          </TableHead>
+          <TableBody>
+            {[...Array(itemsPerPage)].map((_, index) => (
+              <TableRow key={index}>
+                {Array(10)
+                  .fill()
+                  .map((_, cellIndex) => (
+                    <TableCell key={cellIndex}>
+                      <Skeleton variant="text" width="100%" height={20} />
+                    </TableCell>
+                  ))}
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+    ),
+    [itemsPerPage],
+  );
 
   return (
     <div className="p-4 shadow rounded-lg">
@@ -332,10 +379,46 @@ const AllOrders = ({ title, status = "" }) => {
         </FormControl>
       </div>
 
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 shadow rounded-lg p-4 items-center mb-6">
+        <TextField
+          label="Start Date"
+          type="date"
+          value={localStartDate}
+          onChange={(e) => setLocalStartDate(e.target.value)}
+          InputLabelProps={{ shrink: true }}
+          fullWidth
+        />
+        <TextField
+          label="End Date"
+          type="date"
+          value={localEndDate}
+          onChange={(e) => setLocalEndDate(e.target.value)}
+          InputLabelProps={{ shrink: true }}
+          fullWidth
+        />
+
+        <Button
+          variant="contained"
+          onClick={handleDateFilter}
+          disabled={!localStartDate && !localEndDate}
+        >
+          Filter by Date
+        </Button>
+        <Button
+          variant="outlined"
+          onClick={handleClearDateFilter}
+          disabled={!localStartDate && !localEndDate}
+        >
+          Clear Dates
+        </Button>
+      </div>
+
       {searchQuery && (
         <Box sx={{ mb: 2, display: "flex", alignItems: "center", gap: 1 }}>
           <Typography variant="body2" color="textSecondary">
-            {orderListLoading ? "Searching..." : `Search results for: "${searchQuery}"`}
+            {orderListLoading
+              ? "Searching..."
+              : `Search results for: "${searchQuery}"`}
           </Typography>
           <Button size="small" variant="outlined" onClick={handleClearSearch}>
             Clear Search
@@ -343,51 +426,37 @@ const AllOrders = ({ title, status = "" }) => {
         </Box>
       )}
 
-      {orderListLoading && allOrders.length === 0 && LoadingSkeleton}
-
-      {orderListError && !orderListLoading && allOrders.length === 0 && (
+      {orderListLoading ? (
+        LoadingSkeleton
+      ) : orderListError ? (
         <Typography color="error">{orderListError}</Typography>
-      )}
-
-      {(!orderListLoading || allOrders.length > 0) && (
+      ) : (
         <>
-          {allOrders.length === 0 && !orderListLoading ? (
+          {allOrders.length === 0 ? (
             <Box sx={{ textAlign: "center", py: 4 }}>
               <Typography variant="h6" color="textSecondary">
-                {searchQuery ? "No orders found matching your search." : "No orders found."}
+                {searchQuery
+                  ? "No orders found matching your search."
+                  : "No orders found."}
               </Typography>
               {searchQuery && (
-                <Typography variant="body2" color="textSecondary" sx={{ mt: 1 }}>
-                  Try adjusting your search terms or clear the search to see all orders.
+                <Typography
+                  variant="body2"
+                  color="textSecondary"
+                  sx={{ mt: 1 }}
+                >
+                  Try adjusting your search terms or clear the search to see all
+                  orders.
                 </Typography>
               )}
             </Box>
           ) : (
             <Box sx={{ position: "relative" }}>
-              {orderListLoading && (
-                <Box
-                  sx={{
-                    position: "absolute",
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    bottom: 0,
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    backgroundColor: "rgba(255, 255, 255, 0.7)",
-                    zIndex: 10,
-                    borderRadius: 1,
-                  }}
-                >
-                  <CircularProgress />
-                </Box>
-              )}
               <TableContainer
                 component={Paper}
                 sx={{
                   opacity: orderListLoading ? 0.6 : 1,
-                  transition: 'opacity 0.2s ease-in-out'
+                  transition: "opacity 0.2s ease-in-out",
                 }}
               >
                 <Table>
@@ -396,7 +465,9 @@ const AllOrders = ({ title, status = "" }) => {
                       <TableCell>
                         <TableSortLabel
                           active={orderBy === "orderNo"}
-                          direction={orderBy === "orderNo" ? sortDirection : "asc"}
+                          direction={
+                            orderBy === "orderNo" ? sortDirection : "asc"
+                          }
                           onClick={() => handleSortRequest("orderNo")}
                         >
                           Order No
@@ -405,7 +476,9 @@ const AllOrders = ({ title, status = "" }) => {
                       <TableCell>
                         <TableSortLabel
                           active={orderBy === "orderDate"}
-                          direction={orderBy === "orderDate" ? sortDirection : "asc"}
+                          direction={
+                            orderBy === "orderDate" ? sortDirection : "asc"
+                          }
                           onClick={() => handleSortRequest("orderDate")}
                         >
                           Order Date & Time
@@ -414,8 +487,14 @@ const AllOrders = ({ title, status = "" }) => {
                       <TableCell>
                         <TableSortLabel
                           active={orderBy === "shippingInfo.fullName"}
-                          direction={orderBy === "shippingInfo.fullName" ? sortDirection : "asc"}
-                          onClick={() => handleSortRequest("shippingInfo.fullName")}
+                          direction={
+                            orderBy === "shippingInfo.fullName"
+                              ? sortDirection
+                              : "asc"
+                          }
+                          onClick={() =>
+                            handleSortRequest("shippingInfo.fullName")
+                          }
                         >
                           Customer
                         </TableSortLabel>
@@ -423,8 +502,14 @@ const AllOrders = ({ title, status = "" }) => {
                       <TableCell>
                         <TableSortLabel
                           active={orderBy === "shippingInfo.mobileNo"}
-                          direction={orderBy === "shippingInfo.mobileNo" ? sortDirection : "asc"}
-                          onClick={() => handleSortRequest("shippingInfo.mobileNo")}
+                          direction={
+                            orderBy === "shippingInfo.mobileNo"
+                              ? sortDirection
+                              : "asc"
+                          }
+                          onClick={() =>
+                            handleSortRequest("shippingInfo.mobileNo")
+                          }
                         >
                           Mobile No
                         </TableSortLabel>
@@ -434,7 +519,9 @@ const AllOrders = ({ title, status = "" }) => {
                       <TableCell>
                         <TableSortLabel
                           active={orderBy === "orderStatus"}
-                          direction={orderBy === "orderStatus" ? sortDirection : "asc"}
+                          direction={
+                            orderBy === "orderStatus" ? sortDirection : "asc"
+                          }
                           onClick={() => handleSortRequest("orderStatus")}
                         >
                           Status
@@ -443,7 +530,9 @@ const AllOrders = ({ title, status = "" }) => {
                       <TableCell>
                         <TableSortLabel
                           active={orderBy === "paymentStatus"}
-                          direction={orderBy === "paymentStatus" ? sortDirection : "asc"}
+                          direction={
+                            orderBy === "paymentStatus" ? sortDirection : "asc"
+                          }
                           onClick={() => handleSortRequest("paymentStatus")}
                         >
                           Payment Status
@@ -452,7 +541,9 @@ const AllOrders = ({ title, status = "" }) => {
                       <TableCell>
                         <TableSortLabel
                           active={orderBy === "totalAmount"}
-                          direction={orderBy === "totalAmount" ? sortDirection : "asc"}
+                          direction={
+                            orderBy === "totalAmount" ? sortDirection : "asc"
+                          }
                           onClick={() => handleSortRequest("totalAmount")}
                         >
                           Total Amount
@@ -488,7 +579,9 @@ const AllOrders = ({ title, status = "" }) => {
                           />
                         </TableCell>
                         <TableCell>
-                          <CourierSummary phone={order.shippingInfo?.mobileNo} />
+                          <CourierSummary
+                            phone={order.shippingInfo?.mobileNo}
+                          />
                         </TableCell>
                         <TableCell>
                           <OrderStatusSelector
@@ -502,7 +595,11 @@ const AllOrders = ({ title, status = "" }) => {
                               order.paymentStatus.charAt(0).toUpperCase() +
                               order.paymentStatus.slice(1)
                             }
-                            color={order.paymentStatus === "paid" ? "success" : "error"}
+                            color={
+                              order.paymentStatus === "paid"
+                                ? "success"
+                                : "error"
+                            }
                             variant="filled"
                             sx={{
                               fontWeight: "bold",
@@ -512,17 +609,28 @@ const AllOrders = ({ title, status = "" }) => {
                             }}
                           />
                         </TableCell>
-                        <TableCell>Tk. {order.totalAmount?.toFixed(2)}</TableCell>
+                        <TableCell>
+                          Tk. {order.totalAmount?.toFixed(2)}
+                        </TableCell>
                         <TableCell>
                           <Box sx={{ display: "flex", gap: 1 }}>
                             <Tooltip title="View">
-                              <IconButton onClick={() => handleView(order._id)} color="primary">
+                              <IconButton
+                                onClick={() => handleView(order._id)}
+                                color="primary"
+                              >
                                 <VisibilityIcon />
                               </IconButton>
                             </Tooltip>
-                            <RequirePermission permission="delete_orders" fallback={true}>
+                            <RequirePermission
+                              permission="delete_orders"
+                              fallback={true}
+                            >
                               <Tooltip title="Delete">
-                                <IconButton onClick={() => handleOpenDialog(order._id)} color="error">
+                                <IconButton
+                                  onClick={() => handleOpenDialog(order._id)}
+                                  color="error"
+                                >
                                   <DeleteIcon />
                                 </IconButton>
                               </Tooltip>
@@ -564,12 +672,15 @@ const AllOrders = ({ title, status = "" }) => {
         <DialogTitle>Confirm Delete</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            Are you sure you want to delete this order? This action cannot be undone.
+            Are you sure you want to delete this order? This action cannot be
+            undone.
           </DialogContentText>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseDialog}>Cancel</Button>
-          <Button onClick={handleConfirmDelete} color="error">Delete</Button>
+          <Button onClick={handleConfirmDelete} color="error">
+            Delete
+          </Button>
         </DialogActions>
       </Dialog>
 
