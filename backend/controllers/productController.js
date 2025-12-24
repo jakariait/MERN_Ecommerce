@@ -270,6 +270,7 @@ const getAllProductsAdmin = async (req, res) => {
       childCategory,
       stock,
       flags,
+      search,
     } = req.query;
 
     // Call the service without the isActive filter (to get all products)
@@ -282,6 +283,7 @@ const getAllProductsAdmin = async (req, res) => {
       childCategory,
       stock,
       flags,
+      search,
       // Don't pass isActive filter here, meaning it will return all products
     });
 
