@@ -439,6 +439,8 @@ const ViewOrder = () => {
                       </TableCell>
                       <TableCell>
                         {variant ? variant.sizeName : "N/A"}
+
+                        {isEditMode && <div>{variant.size.name}</div>}
                       </TableCell>
                       <TableCell>
                         {isEditMode ? (
