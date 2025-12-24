@@ -233,7 +233,12 @@ const ViewOrder = () => {
           }));
         }
       }
-      processedVariant = { ...variant, sizeName: sizeName || "N/A" };
+      if (sizeName) {
+        processedVariant.size = {
+          ...(variant.size || {}),
+          name: sizeName,
+        };
+      }
     }
 
     const newItem = {
