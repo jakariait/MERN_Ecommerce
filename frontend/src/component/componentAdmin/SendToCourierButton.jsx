@@ -16,7 +16,12 @@ const SendToCourierButton = ({ orderData, onSuccess }) => {
   const [open, setOpen] = useState(false);
   const [note, setNote] = useState(orderData.note || "");
   const [sent, setSent] = useState(orderData.courier_status || false);
-  const deliveryStatus = useCourierStatus(orderData, sent);
+  const [showDeliveryStatus, setShowDeliveryStatus] = useState(false); // New state variable
+  const {
+    status: deliveryStatus,
+    loading: statusLoading,
+    refetch,
+  } = useCourierStatus(orderData, sent, !sent);
   const [selectedCourier, setSelectedCourier] = useState("steadfast");
   const [pathaoStoreId, setPathaoStoreId] = useState(null);
 
@@ -45,6 +50,15 @@ const SendToCourierButton = ({ orderData, onSuccess }) => {
     };
     fetchPathaoConfig();
   }, [apiURL, token]);
+
+  const handleButtonClick = () => {
+    if (sent) {
+      setShowDeliveryStatus(true); // Set to true on click
+      refetch();
+    } else {
+      setOpen(true);
+    }
+  };
 
   const sendToSteadfast = async () => {
     try {
@@ -202,7 +216,8 @@ const SendToCourierButton = ({ orderData, onSuccess }) => {
         severity: "error",
       });
       console.error(err);
-    } finally {
+    }
+    finally {
       setLoading(false);
     }
   };
@@ -229,22 +244,30 @@ const SendToCourierButton = ({ orderData, onSuccess }) => {
     <>
       <button
         className={`primaryBgColor accentTextColor cursor-pointer px-4 py-2 w-48 rounded text-sm ${
-          sent ? "opacity-50 cursor-not-allowed" : ""
+          sent ? "opacity-50" : ""
         }`}
-        onClick={() => setOpen(true)}
-        disabled={sent}
+        onClick={handleButtonClick}
+        disabled={statusLoading}
       >
         {sent ? (
           <>
-            Sent
-            {deliveryStatus && (
-              <span className="font-semibold"> | {deliveryStatus}</span>
-            )}
-            {deliveryStatus && (
-              <span className="font-semibold">
-                {" "}
-                | {orderData.courierProvider}
+            {statusLoading ? (
+              <span className="flex items-center justify-center">
+                <span className="w-4 h-4 cursor-pointer border-2 border-white border-t-transparent rounded-full animate-spin"></span>
               </span>
+            ) : (
+              <>
+                {showDeliveryStatus && deliveryStatus ? (
+                  <>
+                    <span className="font-semibold">{deliveryStatus} {" "}</span>
+                    <span className="font-semibold">
+                      | {orderData.courierProvider}
+                    </span>
+                  </>
+                ) : (
+                  "Sent | Click to show status"
+                )}
+              </>
             )}
           </>
         ) : (
