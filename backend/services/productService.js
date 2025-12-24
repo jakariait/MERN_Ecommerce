@@ -377,7 +377,7 @@ const getAllProducts = async ({
       .skip((page - 1) * limit)
       .limit(limit)
       .select(
-        "name slug finalDiscount finalPrice finalStock thumbnailImage isActive images productId category variants flags",
+        "name slug finalDiscount finalPrice finalStock thumbnailImage isActive images productId category variants flags productCode",
       )
       .populate([
         { path: "category", select: "-createdAt -updatedAt" },

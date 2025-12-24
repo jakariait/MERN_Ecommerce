@@ -206,22 +206,31 @@ const ViewOrder = () => {
 
     let processedVariant = variant;
     if (variant && variant.size) {
-      let sizeName = sizeNameCache[variant.size];
+      const sizeId = variant.size._id || variant.size;
+      let sizeName = sizeNameCache[sizeId];
+
       if (!sizeName) {
-        try {
-          const res = await axios.get(
-            `${apiUrl}/product-sizes/${variant.size}`,
-          );
-          if (res.data.productSize) {
-            sizeName = res.data.productSize.name;
-            setSizeNameCache((prev) => ({
-              ...prev,
-              [variant.size]: sizeName,
-            }));
+        // Use existing name if available, otherwise fetch
+        if (variant.size.name) {
+          sizeName = variant.size.name;
+        } else {
+          try {
+            const res = await axios.get(`${apiUrl}/product-sizes/${sizeId}`);
+            if (res.data.productSize) {
+              sizeName = res.data.productSize.name;
+            }
+          } catch (error) {
+            console.error("Failed to fetch size name:", error);
+            sizeName = "N/A"; // Fallback
           }
-        } catch (error) {
-          console.error("Failed to fetch size name:", error);
-          sizeName = "N/A"; // Fallback
+        }
+
+        // Cache the fetched/found name
+        if (sizeName) {
+          setSizeNameCache((prev) => ({
+            ...prev,
+            [sizeId]: sizeName,
+          }));
         }
       }
       processedVariant = { ...variant, sizeName: sizeName || "N/A" };
@@ -236,7 +245,7 @@ const ViewOrder = () => {
       product: {
         _id: product._id,
         name: product.name,
-        productCode: product.productCode,
+        productCode: product.productCode || product.code,
         category: { name: product.category?.name },
         variants: processedVariant ? [processedVariant] : [],
       },
@@ -435,12 +444,12 @@ const ViewOrder = () => {
                       <TableCell>
                         <div>{product.name}</div>
                         <div>Category: {product.category?.name}</div>
-                        <div>Code: {product.productCode}</div>
+                        <div>Code: {product.productCode || "N/A"}</div>
                       </TableCell>
                       <TableCell>
-                        {variant ? variant.sizeName : "N/A"}
-
-                        {isEditMode && <div>{variant.size.name}</div>}
+                        {variant
+                          ? variant.sizeName || variant.size?.name
+                          : "N/A"}
                       </TableCell>
                       <TableCell>
                         {isEditMode ? (
@@ -609,6 +618,7 @@ const ViewOrder = () => {
                   searchedProducts.map((product) => (
                     <TableRow key={product._id}>
                       <TableCell>{product.name}</TableCell>
+
                       <TableCell>
                         {product.variants && product.variants.length > 0
                           ? "Multiple Variants"
