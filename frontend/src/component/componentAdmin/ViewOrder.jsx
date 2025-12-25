@@ -273,7 +273,10 @@ const ViewOrder = () => {
           ({ productId, variantId, quantity, price }) => ({
             productId:
               typeof productId === "object" ? productId._id : productId,
-            variantId,
+            variantId:
+              typeof variantId === "object" && variantId !== null
+                ? variantId._id
+                : variantId,
             quantity,
             price,
           }),

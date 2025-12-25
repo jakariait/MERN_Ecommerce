@@ -52,10 +52,8 @@ const createOrder = async (orderData, userId) => {
         if (stock < quantity)
           throw new Error(`Not enough stock for product ${productId}`);
 
-        await Product.updateOne(
-          { _id: productId },
-          { $inc: { finalStock: -quantity } },
-        );
+        product.finalStock -= quantity;
+        await product.save();
       } else {
         const variant = product.variants.find(
           (v) => v._id.toString() === variantId,
@@ -67,10 +65,8 @@ const createOrder = async (orderData, userId) => {
 
         price = variant.discount || variant.price;
 
-        await Product.updateOne(
-          { _id: productId, "variants._id": variantId },
-          { $inc: { "variants.$.stock": -quantity } },
-        );
+        variant.stock -= quantity;
+        await product.save();
       }
 
       subtotal += price * quantity;
@@ -311,8 +307,9 @@ const updateOrder = async (orderId, updateData) => {
     // If items are being updated, adjust stock and recalculate subtotal
     if (finalUpdate.items) {
       let subtotal = 0;
-      const stockAdjustments = [];
+      const productsToUpdate = new Map(); // Map<string, MongooseDocument>
 
+      // Create maps for old and new items for efficient lookup
       const newItemsMap = new Map(
         finalUpdate.items.map((item) => [
           (item.variantId || item.productId).toString(),
@@ -330,60 +327,72 @@ const updateOrder = async (orderId, updateData) => {
         ...oldItemsMap.keys(),
       ]);
 
+      // First pass: Fetch all products and run checks against in-memory state
       for (const itemKey of allItemKeys) {
         const oldItem = oldItemsMap.get(itemKey);
         const newItem = newItemsMap.get(itemKey);
-        const oldQuantity = oldItem ? oldItem.quantity : 0;
-        const newQuantity = newItem ? newItem.quantity : 0;
-        const quantityChange = oldQuantity - newQuantity;
+        const quantityChange =
+          (oldItem ? oldItem.quantity : 0) - (newItem ? newItem.quantity : 0);
 
-        if (quantityChange === 0 && newItem) {
-          subtotal += newItem.price * newQuantity;
+        if (quantityChange === 0) {
+          if (newItem) subtotal += newItem.price * newItem.quantity;
           continue;
         }
 
-        if (quantityChange !== 0) {
-          const itemForStock = oldItem || newItem;
-          const product = await Product.findById(itemForStock.productId);
+        const itemForStock = oldItem || newItem;
+        const productIdStr = itemForStock.productId.toString();
+
+        let product = productsToUpdate.get(productIdStr);
+        if (!product) {
+          product = await Product.findById(itemForStock.productId);
           if (!product) throw new Error("Product not found");
+          productsToUpdate.set(productIdStr, product);
+        }
 
-          if (itemForStock.variantId) {
-            const variant = product.variants.find(
-              (v) => v._id.toString() === itemForStock.variantId.toString(),
-            );
-            if (!variant) throw new Error("Variant not found");
+        const hasVariants = product.variants && product.variants.length > 0;
 
-            if (quantityChange < 0 && variant.stock < -quantityChange) {
-              throw new Error(`Not enough stock for variant ${variant.name}`);
-            }
-            stockAdjustments.push(
-              Product.updateOne(
-                {
-                  _id: itemForStock.productId,
-                  "variants._id": itemForStock.variantId,
-                },
-                { $inc: { "variants.$.stock": quantityChange } },
-              ),
-            );
-          } else {
-            if (quantityChange < 0 && product.finalStock < -quantityChange) {
-              throw new Error(`Not enough stock for product ${product.name}`);
-            }
-            stockAdjustments.push(
-              Product.updateOne(
-                { _id: itemForStock.productId },
-                { $inc: { finalStock: quantityChange } },
-              ),
+        if (hasVariants) {
+          if (!itemForStock.variantId) {
+            throw new Error(
+              `Product ${product.name} has variants, but variantId is missing.`,
             );
           }
+          const variant = product.variants.find(
+            (v) => v._id.toString() === itemForStock.variantId.toString(),
+          );
+          if (!variant)
+            throw new Error(`Variant not found for id ${itemForStock.variantId}`);
+
+          if (quantityChange < 0 && variant.stock < -quantityChange) {
+            throw new Error(`Not enough stock for variant ${variant.name}`);
+          }
+          // Apply change to in-memory document
+          variant.stock += quantityChange;
+        } else {
+          if (itemForStock.variantId) {
+            throw new Error(
+              `Product ${product.name} has no variants, but variantId was provided.`,
+            );
+          }
+          if (quantityChange < 0 && product.finalStock < -quantityChange) {
+            throw new Error(`Not enough stock for product ${product.name}`);
+          }
+          // Apply change to in-memory document
+          product.finalStock += quantityChange;
         }
 
         if (newItem) {
-          subtotal += newItem.price * newQuantity;
+          subtotal += newItem.price * newItem.quantity;
         }
       }
 
-      await Promise.all(stockAdjustments);
+      // Second pass: If all checks passed, save all modified products
+      const savePromises = [];
+      for (const product of productsToUpdate.values()) {
+        savePromises.push(product.save());
+      }
+      await Promise.all(savePromises);
+
       finalUpdate.subtotalAmount = subtotal;
     }
 
@@ -407,13 +416,20 @@ const updateOrder = async (orderId, updateData) => {
       if (isNowReturnedOrCancelled && wasNotReturnedOrCancelled) {
         for (const item of updatedOrder.items) {
           const { productId, variantId, quantity } = item;
-          const update = variantId
-            ? { "variants.$.stock": quantity }
-            : { finalStock: quantity };
-          const filter = variantId
-            ? { _id: productId, "variants._id": variantId }
-            : { _id: productId };
-          await Product.updateOne(filter, { $inc: update });
+          const product = await Product.findById(productId);
+          if (!product) continue; // Or throw an error
+
+          if (variantId) {
+            const variant = product.variants.find(
+              (v) => v._id.toString() === variantId.toString(),
+            );
+            if (variant) {
+              variant.stock += quantity;
+            }
+          } else {
+            product.finalStock += quantity;
+          }
+          await product.save();
         }
       }
 
@@ -427,13 +443,20 @@ const updateOrder = async (orderId, updateData) => {
       if (isRevertingToActiveStatus) {
         for (const item of updatedOrder.items) {
           const { productId, variantId, quantity } = item;
-          const update = variantId
-            ? { "variants.$.stock": -quantity }
-            : { finalStock: -quantity };
-          const filter = variantId
-            ? { _id: productId, "variants._id": variantId }
-            : { _id: productId };
-          await Product.updateOne(filter, { $inc: update });
+          const product = await Product.findById(productId);
+          if (!product) continue; // Or throw an error
+
+          if (variantId) {
+            const variant = product.variants.find(
+              (v) => v._id.toString() === variantId.toString(),
+            );
+            if (variant) {
+              variant.stock -= quantity;
+            }
+          } else {
+            product.finalStock -= quantity;
+          }
+          await product.save();
         }
       }
     }
@@ -477,10 +500,8 @@ const deleteOrder = async (orderId) => {
 
       if (product.variants.length === 0) {
         // If the product doesn't have variants, restore the stock to the product
-        await Product.updateOne(
-          { _id: productId },
-          { $inc: { finalStock: quantity } },
-        );
+        product.finalStock += quantity;
+        await product.save();
       } else {
         // If the product has variants, find the specific variant and restore the stock
         const variant = product.variants.find(
@@ -489,10 +510,8 @@ const deleteOrder = async (orderId) => {
         if (!variant)
           throw new Error(`Variant not found for product ${productId}`);
 
-        await Product.updateOne(
-          { _id: productId, "variants._id": variantId },
-          { $inc: { "variants.$.stock": quantity } },
-        );
+        variant.stock += quantity;
+        await product.save();
       }
     }
 
