@@ -271,23 +271,45 @@ const getOrderById = async (orderId) => {
       sizes.map((size) => [size._id.toString(), size.name]),
     );
 
-    // Iterate through items and remove non-matched variants, set size name for the matched variant only
-    order.items = order.items.map((item) => {
-      if (item.productId && item.productId.variants) {
-        // Filter variants to keep only the matched variant
-        item.productId.variants = item.productId.variants.filter(
-          (variant) => variant._id.toString() === item.variantId.toString(),
-        );
-
-        // If a matched variant is found, set its size name
-        if (item.productId.variants.length > 0) {
-          const variant = item.productId.variants[0]; // The matched variant
-          const sizeId = variant.size;
-          variant.sizeName = sizeMap.get(sizeId.toString()) || "N/A"; // Set size name for the matched variant
-        }
+    // Create a new items array with correctly structured variants to avoid mutation issues
+    const finalItems = order.items.map(item => {
+      if (!item.productId || !item.productId.variants || !item.variantId) {
+        return item;
       }
-      return item;
+
+      const matchedVariant = item.productId.variants.find(
+        variant => variant._id.toString() === item.variantId.toString()
+      );
+
+      if (matchedVariant) {
+        const sizeId = matchedVariant.size;
+        // Create an enriched variant object with the size name
+        const enrichedVariant = {
+          ...matchedVariant,
+          sizeName: sizeMap.get(sizeId.toString()) || 'N/A'
+        };
+
+        // Return a new item object with a new product object containing only the enriched, matched variant
+        return {
+          ...item,
+          productId: {
+            ...item.productId,
+            variants: [enrichedVariant]
+          }
+        };
+      }
+
+      // If no variant matched, return the item with an empty variants array for consistency
+      return {
+        ...item,
+        productId: {
+          ...item.productId,
+          variants: []
+        }
+      };
     });
+
+    order.items = finalItems;
 
     return order;
   } catch (error) {
@@ -573,21 +595,26 @@ const getOrderByOrderNo = async (orderNo) => {
       sizes.map((size) => [size._id.toString(), size.name]),
     );
 
-    // Clean up and assign size names
-    order.items = order.items.map((item) => {
-      if (item.productId && item.productId.variants) {
-        item.productId.variants = item.productId.variants.filter(
-          (variant) => variant._id.toString() === item.variantId.toString(),
-        );
-
-        if (item.productId.variants.length > 0) {
-          const variant = item.productId.variants[0];
-          const sizeId = variant.size;
-          variant.sizeName = sizeMap.get(sizeId.toString()) || "N/A";
-        }
+    // Create a new items array with correctly structured variants to avoid mutation issues
+    const finalItems = order.items.map(item => {
+      if (!item.productId || !item.productId.variants || !item.variantId) {
+        return item;
       }
-      return item;
+      const matchedVariant = item.productId.variants.find(
+        variant => variant._id.toString() === item.variantId.toString()
+      );
+
+      if (matchedVariant) {
+        const sizeId = matchedVariant.size;
+        const enrichedVariant = {
+          ...matchedVariant,
+          sizeName: sizeMap.get(sizeId.toString()) || 'N/A'
+        };
+        return { ...item, productId: { ...item.productId, variants: [enrichedVariant] } };
+      }
+      return { ...item, productId: { ...item.productId, variants: [] } };
     });
+    order.items = finalItems;
 
     return order;
   } catch (error) {
@@ -650,22 +677,25 @@ const getOrdersByUserId = async (userId) => {
 
     // Clean up and assign size names to all orders
     const updatedOrders = orders.map((order) => {
-      order.items = order.items.map((item) => {
-        if (item?.productId?.variants?.length > 0 && item?.variantId) {
-          item.productId.variants = item.productId.variants.filter(
-            (variant) =>
-              variant?._id?.toString() === item.variantId?.toString(),
-          );
-
-          if (item.productId.variants.length > 0) {
-            const variant = item.productId.variants[0];
-            const sizeId = variant.size;
-            variant.sizeName = sizeMap.get(sizeId?.toString()) || "N/A";
-          }
+      const finalItems = order.items.map(item => {
+        if (!item.productId || !item.productId.variants || !item.variantId) {
+          return item;
         }
-        return item;
-      });
+        const matchedVariant = item.productId.variants.find(
+          variant => variant._id.toString() === item.variantId.toString()
+        );
 
+        if (matchedVariant) {
+          const sizeId = matchedVariant.size;
+          const enrichedVariant = {
+            ...matchedVariant,
+            sizeName: sizeMap.get(sizeId.toString()) || 'N/A'
+          };
+          return { ...item, productId: { ...item.productId, variants: [enrichedVariant] } };
+        }
+        return { ...item, productId: { ...item.productId, variants: [] } };
+      });
+      order.items = finalItems;
       return order;
     });
 
@@ -732,16 +762,23 @@ const trackOrderByOrderNoAndPhone = async (orderNo, phone) => {
   );
 
   order.items = order.items.map((item) => {
-    if (item.productId?.variants) {
-      item.productId.variants = item.productId.variants.filter(
+    if (item.productId?.variants && item.variantId) {
+      const matchedVariant = item.productId.variants.find(
         (variant) => variant._id.toString() === item.variantId.toString(),
       );
 
-      if (item.productId.variants.length > 0) {
-        const variant = item.productId.variants[0];
-        const sizeId = variant.size;
-        variant.sizeName = sizeMap.get(sizeId.toString()) || "N/A";
+      if (matchedVariant) {
+        const sizeId = matchedVariant.size;
+        const enrichedVariant = {
+          ...matchedVariant,
+          sizeName: sizeMap.get(sizeId.toString()) || 'N/A',
+        };
+        return {
+          ...item,
+          productId: { ...item.productId, variants: [enrichedVariant] },
+        };
       }
+      return { ...item, productId: { ...item.productId, variants: [] } };
     }
     return item;
   });
