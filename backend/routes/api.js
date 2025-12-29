@@ -37,7 +37,10 @@ const PassWordResetController = require("../controllers/PassWordResetController"
 const pathaoController = require("../controllers/pathaoController");
 const pathaoConfigController = require("../controllers/pathaoConfigController");
 
-const { handleCourierCheck, getDynamicCourierStatus } = require("../controllers/courierController");
+const {
+  handleCourierCheck,
+  getDynamicCourierStatus,
+} = require("../controllers/courierController");
 const cacheMiddleware = require("../middlewares/redisCacheMiddleware");
 const {
   createSteadfastOrder,
@@ -71,11 +74,15 @@ const fileFilter = (req, file, cb) => {
   if (
     file.mimetype === "image/jpeg" ||
     file.mimetype === "image/png" ||
-    file.mimetype === "image/webp"
+    file.mimetype === "image/webp" ||
+    file.mimetype === "image/jpg"
   ) {
     cb(null, true);
   } else {
-    cb(new Error("Invalid file type. Only JPEG, PNG, and WebP are allowed."), false);
+    cb(
+      new Error("Invalid file type. Only JPEG, PNG, jpg and WebP are allowed."),
+      false,
+    );
   }
 };
 
@@ -650,7 +657,7 @@ router.post("/courier-check", handleCourierCheck);
 router.get("/courier/status/:orderId", adminProtect, getDynamicCourierStatus);
 
 // Steadfast Courier Routes
-router.post("/steadfast/create-order",createSteadfastOrder);
+router.post("/steadfast/create-order", createSteadfastOrder);
 router.get(
   "/steadfast/get-order-status",
   adminProtect,
