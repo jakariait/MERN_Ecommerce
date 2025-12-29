@@ -107,7 +107,7 @@ const updateUser = asyncHandler(async (req, res) => {
       req.body.userImage = req.files.userImage[0].filename;
     }
 
-    const user = await userService.updateUser(req.params.id, req.body);
+    const user = await userService.updateUser(req.user._id, req.body);
 
     if (!user) {
       return res.status(404).json({ message: "User not found" });

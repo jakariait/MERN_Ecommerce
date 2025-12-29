@@ -274,7 +274,7 @@ router.post("/register", userController.createUser); // Create a new user
 
 // 🚀 Protected Routes (Requires Authentication)
 router.get("/profile", userProtect, userController.getLoggedInUser); // Get logged-in user's profile
-router.put("/updateUser/:id", upload, userController.updateUser);
+router.put("/updateUser/:id", userProtect, upload, userController.updateUser);
 router.put(
   "/request-deletion",
   userProtect,
