@@ -41,7 +41,7 @@ const BuyNowButton = ({ product, isAddToCart = false }) => {
 
   const handleSizeChange = (sizeName) => {
     const newVariant = product.variants.find(
-      (variant) => variant.size.name === sizeName,
+      (variant) => variant?.size?.name === sizeName,
     );
     setSelectedVariant(newVariant);
   };
@@ -119,19 +119,21 @@ const BuyNowButton = ({ product, isAddToCart = false }) => {
             <div className="flex gap-4 items-center mt-4">
               <h2 className="text-lg">Weight:</h2>
               <div className="flex gap-2 flex-wrap">
-                {product.variants.map((variant) => (
-                  <button
-                    key={variant.size.name}
-                    onClick={() => handleSizeChange(variant.size.name)}
-                    className={`px-2 py-1 rounded transition-all cursor-pointer ${
-                      selectedVariant?.size.name === variant.size.name
-                        ? "primaryBgColor text-white"
-                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                    }`}
-                  >
-                    {variant.size.name}
-                  </button>
-                ))}
+                {product.variants
+                  .filter((variant) => variant && variant.size)
+                  .map((variant) => (
+                    <button
+                      key={variant.size.name}
+                      onClick={() => handleSizeChange(variant.size.name)}
+                      className={`px-2 py-1 rounded transition-all cursor-pointer ${
+                        selectedVariant?.size.name === variant.size.name
+                          ? "primaryBgColor text-white"
+                          : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                      }`}
+                    >
+                      {variant.size.name}
+                    </button>
+                  ))}
               </div>
             </div>
           )}
