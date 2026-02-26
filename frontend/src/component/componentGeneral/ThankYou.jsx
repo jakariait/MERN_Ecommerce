@@ -24,6 +24,14 @@ const ThankYou = () => {
           setTimeout(() => {
             window.dataLayer.push({
               event: "purchase",
+
+              user: {
+                name: order.shippingInfo.fullName || "",
+                email: order.shippingInfo.email || "",
+                phone: order.shippingInfo.mobileNo || "",
+                address: order.shippingInfo.address || "", // Optional – if you have this field
+              },
+
               ecommerce: {
                 transaction_id: order.orderNo,
                 currency: "BDT",
