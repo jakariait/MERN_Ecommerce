@@ -86,6 +86,8 @@ const AllOrders = ({ title, status = "" }) => {
   const [bulkUpdateDialog, setBulkUpdateDialog] = useState(false);
   const [bulkNewStatus, setBulkNewStatus] = useState("");
   const [bulkUpdating, setBulkUpdating] = useState(false);
+  const [bulkDeleteDialog, setBulkDeleteDialog] = useState(false);
+  const [bulkDeleting, setBulkDeleting] = useState(false);
 
   const apiUrl = import.meta.env.VITE_API_URL;
   const navigate = useNavigate();
@@ -351,6 +353,50 @@ const AllOrders = ({ title, status = "" }) => {
     }
   }, [bulkNewStatus, selectedOrders, apiUrl, token, fetchOrders, handleBulkUpdateClose]);
 
+  // Bulk delete handlers
+  const handleBulkDeleteOpen = useCallback(() => {
+    setBulkDeleteDialog(true);
+  }, []);
+
+  const handleBulkDeleteClose = useCallback(() => {
+    setBulkDeleteDialog(false);
+  }, []);
+
+  const handleBulkDelete = useCallback(async () => {
+    if (selectedOrders.length === 0) return;
+
+    setBulkDeleting(true);
+    try {
+      const response = await axios.delete(`${apiUrl}/orders/bulk-delete`, {
+        headers: { Authorization: `Bearer ${token}` },
+        data: { orderIds: selectedOrders },
+      });
+
+      if (response.data.success) {
+        setSnackbarMessage(
+          `${response.data.totalDeleted} orders deleted successfully`
+        );
+        setSnackbarSeverity("success");
+        setOpenSnackbar(true);
+        setSelectedOrders([]);
+        fetchOrders();
+      } else {
+        setSnackbarMessage(response.data.message || "Failed to delete orders");
+        setSnackbarSeverity("error");
+        setOpenSnackbar(true);
+      }
+    } catch (error) {
+      setSnackbarMessage(
+        error.response?.data?.message || "Error deleting orders"
+      );
+      setSnackbarSeverity("error");
+      setOpenSnackbar(true);
+    } finally {
+      setBulkDeleting(false);
+      handleBulkDeleteClose();
+    }
+  }, [selectedOrders, apiUrl, token, fetchOrders, handleBulkDeleteClose]);
+
   // Memoize the loading skeleton
   const LoadingSkeleton = useMemo(
     () => (
@@ -546,6 +592,13 @@ const AllOrders = ({ title, status = "" }) => {
                     onClick={handleBulkUpdateOpen}
                   >
                     Bulk Update Status
+                  </Button>
+                  <Button
+                    variant="contained"
+                    color="error"
+                    onClick={handleBulkDeleteOpen}
+                  >
+                    Bulk Delete
                   </Button>
                   <Button
                     variant="outlined"
@@ -832,6 +885,24 @@ const AllOrders = ({ title, status = "" }) => {
             disabled={!bulkNewStatus || bulkUpdating}
           >
             {bulkUpdating ? "Updating..." : "Update"}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog open={bulkDeleteDialog} onClose={handleBulkDeleteClose}>
+        <DialogTitle>Confirm Bulk Delete</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Are you sure you want to delete {selectedOrders.length} order(s)? 
+            This action cannot be undone and will restore stock for each order.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleBulkDeleteClose} disabled={bulkDeleting}>
+            Cancel
+          </Button>
+          <Button onClick={handleBulkDelete} color="error" disabled={bulkDeleting}>
+            {bulkDeleting ? "Deleting..." : "Delete"}
           </Button>
         </DialogActions>
       </Dialog>

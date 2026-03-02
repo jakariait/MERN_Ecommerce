@@ -577,6 +577,14 @@ router.put(
   orderController.updateMultipleOrderStatuses,
 );
 
+// Bulk delete orders
+router.delete(
+  "/orders/bulk-delete",
+  adminProtect,
+  checkPermission("delete_orders"),
+  orderController.bulkDeleteOrders,
+);
+
 router.get(
   "/orders/:orderId",
   adminProtect,

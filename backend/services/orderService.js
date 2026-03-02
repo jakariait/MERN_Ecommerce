@@ -814,6 +814,26 @@ const updateMultipleOrderStatuses = async (orderIds, orderStatus) => {
   };
 };
 
+const bulkDeleteOrders = async (orderIds) => {
+  const results = [];
+  const errors = [];
+  for (const orderId of orderIds) {
+    try {
+      const result = await deleteOrder(orderId);
+      results.push(result);
+    } catch (error) {
+      errors.push({ orderId, error: error.message });
+    }
+  }
+  return {
+    success: errors.length === 0,
+    totalDeleted: results.length,
+    totalErrors: errors.length,
+    results,
+    errors,
+  };
+};
+
 // Export the functions as an object
 module.exports = {
   createOrder,
@@ -825,4 +845,5 @@ module.exports = {
   getOrdersByUserId,
   trackOrderByOrderNoAndPhone,
   updateMultipleOrderStatuses,
+  bulkDeleteOrders,
 };

@@ -258,6 +258,31 @@ const updateMultipleOrderStatuses = async (req, res) => {
   }
 };
 
+// Bulk delete orders
+const bulkDeleteOrders = async (req, res) => {
+  const { orderIds } = req.body;
+  if (!orderIds || !Array.isArray(orderIds) || orderIds.length === 0) {
+    return res
+      .status(400)
+      .json({
+        success: false,
+        message: "Order IDs are required and must be an array.",
+      });
+  }
+  try {
+    const result = await orderService.bulkDeleteOrders(orderIds);
+    res
+      .status(200)
+      .json({
+        success: true,
+        message: `${result.totalDeleted} orders deleted successfully.`,
+        ...result,
+      });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 // Exporting the controller functions
 module.exports = {
   createOrder,
@@ -269,4 +294,5 @@ module.exports = {
   getOrdersForUser,
   trackOrderByOrderNoAndPhone,
   updateMultipleOrderStatuses,
+  bulkDeleteOrders,
 };
