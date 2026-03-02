@@ -25,6 +25,7 @@ import {
   InputAdornment,
   IconButton,
   CircularProgress,
+  Checkbox,
 } from "@mui/material";
 import { Skeleton } from "@mui/material";
 import VisibilityIcon from "@mui/icons-material/Visibility";
@@ -80,6 +81,12 @@ const AllOrders = ({ title, status = "" }) => {
   );
   const [localEndDate, setLocalEndDate] = useState(endDateFromStore || "");
 
+  // Bulk selection state
+  const [selectedOrders, setSelectedOrders] = useState([]);
+  const [bulkUpdateDialog, setBulkUpdateDialog] = useState(false);
+  const [bulkNewStatus, setBulkNewStatus] = useState("");
+  const [bulkUpdating, setBulkUpdating] = useState(false);
+
   const apiUrl = import.meta.env.VITE_API_URL;
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
@@ -92,6 +99,7 @@ const AllOrders = ({ title, status = "" }) => {
     setLocalStartDate("");
     setLocalEndDate("");
     setDateRange(null, null);
+    setSelectedOrders([]);
   }, [status, setSearchQuery, setDateRange]);
 
   // Fetch orders - memoized to prevent unnecessary recreations
@@ -278,6 +286,71 @@ const AllOrders = ({ title, status = "" }) => {
     fetchOrders();
   }, [fetchOrders]);
 
+  // Bulk selection handlers
+  const handleSelectAll = useCallback((event) => {
+    if (event.target.checked) {
+      setSelectedOrders(allOrders.map((order) => order._id));
+    } else {
+      setSelectedOrders([]);
+    }
+  }, [allOrders]);
+
+  const handleSelectOrder = useCallback((orderId) => {
+    setSelectedOrders((prev) => {
+      if (prev.includes(orderId)) {
+        return prev.filter((id) => id !== orderId);
+      } else {
+        return [...prev, orderId];
+      }
+    });
+  }, []);
+
+  const handleBulkUpdateOpen = useCallback(() => {
+    setBulkNewStatus("");
+    setBulkUpdateDialog(true);
+  }, []);
+
+  const handleBulkUpdateClose = useCallback(() => {
+    setBulkUpdateDialog(false);
+    setBulkNewStatus("");
+  }, []);
+
+  const handleBulkUpdate = useCallback(async () => {
+    if (!bulkNewStatus || selectedOrders.length === 0) return;
+
+    setBulkUpdating(true);
+    try {
+      const response = await axios.put(
+        `${apiUrl}/orders/bulk-update-status`,
+        { orderIds: selectedOrders, orderStatus: bulkNewStatus },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      if (response.data.success) {
+        setSnackbarMessage(
+          `${response.data.totalUpdated} orders updated successfully`
+        );
+        setSnackbarSeverity("success");
+        setOpenSnackbar(true);
+        setSelectedOrders([]);
+        fetchOrders();
+      } else {
+        setSnackbarMessage(response.data.message || "Failed to update orders");
+        setSnackbarSeverity("error");
+        setOpenSnackbar(true);
+      }
+    } catch (error) {
+      setSnackbarMessage(
+        error.response?.data?.message || "Error updating orders"
+      );
+      setSnackbarSeverity("error");
+      setOpenSnackbar(true);
+    } finally {
+      setBulkUpdating(false);
+      handleBulkUpdateClose();
+    }
+  }, [bulkNewStatus, selectedOrders, apiUrl, token, fetchOrders, handleBulkUpdateClose]);
+
   // Memoize the loading skeleton
   const LoadingSkeleton = useMemo(
     () => (
@@ -452,6 +525,36 @@ const AllOrders = ({ title, status = "" }) => {
             </Box>
           ) : (
             <Box sx={{ position: "relative" }}>
+              {selectedOrders.length > 0 && (
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 2,
+                    mb: 2,
+                    p: 2,
+                    bgcolor: "primary.light",
+                    borderRadius: 1,
+                  }}
+                >
+                  <Typography variant="body1">
+                    {selectedOrders.length} order(s) selected
+                  </Typography>
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={handleBulkUpdateOpen}
+                  >
+                    Bulk Update Status
+                  </Button>
+                  <Button
+                    variant="outlined"
+                    onClick={() => setSelectedOrders([])}
+                  >
+                    Clear Selection
+                  </Button>
+                </Box>
+              )}
               <TableContainer
                 component={Paper}
                 sx={{
@@ -462,6 +565,13 @@ const AllOrders = ({ title, status = "" }) => {
                 <Table>
                   <TableHead>
                     <TableRow>
+                      <TableCell padding="checkbox">
+                        <Checkbox
+                          checked={allOrders.length > 0 && selectedOrders.length === allOrders.length}
+                          indeterminate={selectedOrders.length > 0 && selectedOrders.length < allOrders.length}
+                          onChange={handleSelectAll}
+                        />
+                      </TableCell>
                       <TableCell>
                         <TableSortLabel
                           active={orderBy === "orderNo"}
@@ -555,6 +665,12 @@ const AllOrders = ({ title, status = "" }) => {
                   <TableBody>
                     {sortedOrders.map((order) => (
                       <TableRow key={order._id} hover>
+                        <TableCell padding="checkbox">
+                          <Checkbox
+                            checked={selectedOrders.includes(order._id)}
+                            onChange={() => handleSelectOrder(order._id)}
+                          />
+                        </TableCell>
                         <TableCell>{order.orderNo}</TableCell>
                         <TableCell>
                           {new Date(order.createdAt).toLocaleString()}
@@ -680,6 +796,42 @@ const AllOrders = ({ title, status = "" }) => {
           <Button onClick={handleCloseDialog}>Cancel</Button>
           <Button onClick={handleConfirmDelete} color="error">
             Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog open={bulkUpdateDialog} onClose={handleBulkUpdateClose}>
+        <DialogTitle>Bulk Update Order Status</DialogTitle>
+        <DialogContent>
+          <DialogContentText sx={{ mb: 2 }}>
+            You are about to update {selectedOrders.length} order(s) to a new status.
+          </DialogContentText>
+          <FormControl fullWidth>
+            <InputLabel>New Status</InputLabel>
+            <Select
+              value={bulkNewStatus}
+              label="New Status"
+              onChange={(e) => setBulkNewStatus(e.target.value)}
+            >
+              <MenuItem value="pending">Pending</MenuItem>
+              <MenuItem value="approved">Approved</MenuItem>
+              <MenuItem value="intransit">In Transit</MenuItem>
+              <MenuItem value="delivered">Delivered</MenuItem>
+              <MenuItem value="returned">Returned</MenuItem>
+              <MenuItem value="cancelled">Cancelled</MenuItem>
+            </Select>
+          </FormControl>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleBulkUpdateClose} disabled={bulkUpdating}>
+            Cancel
+          </Button>
+          <Button
+            onClick={handleBulkUpdate}
+            color="primary"
+            disabled={!bulkNewStatus || bulkUpdating}
+          >
+            {bulkUpdating ? "Updating..." : "Update"}
           </Button>
         </DialogActions>
       </Dialog>

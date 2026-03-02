@@ -568,6 +568,15 @@ router.get(
   checkPermission("view_orders"),
   orderController.getAllOrders,
 );
+
+// Bulk update status - must be BEFORE :orderId route
+router.put(
+  "/orders/bulk-update-status",
+  adminProtect,
+  checkPermission("edit_orders"),
+  orderController.updateMultipleOrderStatuses,
+);
+
 router.get(
   "/orders/:orderId",
   adminProtect,
@@ -593,13 +602,6 @@ router.get(
   "/ordersbyUser/:userId",
   userProtect,
   orderController.getOrdersForUser,
-);
-
-router.put(
-  "/bulk-update-status",
-  adminProtect,
-  checkPermission("edit_orders"),
-  orderController.updateMultipleOrderStatuses,
 );
 
 // // Order Tracking
