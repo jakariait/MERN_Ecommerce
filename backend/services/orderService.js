@@ -272,13 +272,13 @@ const getOrderById = async (orderId) => {
     );
 
     // Create a new items array with correctly structured variants to avoid mutation issues
-    const finalItems = order.items.map(item => {
+    const finalItems = order.items.map((item) => {
       if (!item.productId || !item.productId.variants || !item.variantId) {
         return item;
       }
 
       const matchedVariant = item.productId.variants.find(
-        variant => variant._id.toString() === item.variantId.toString()
+        (variant) => variant._id.toString() === item.variantId.toString(),
       );
 
       if (matchedVariant) {
@@ -286,7 +286,7 @@ const getOrderById = async (orderId) => {
         // Create an enriched variant object with the size name
         const enrichedVariant = {
           ...matchedVariant,
-          sizeName: sizeMap.get(sizeId.toString()) || 'N/A'
+          sizeName: sizeMap.get(sizeId.toString()) || "N/A",
         };
 
         // Return a new item object with a new product object containing only the enriched, matched variant
@@ -294,8 +294,8 @@ const getOrderById = async (orderId) => {
           ...item,
           productId: {
             ...item.productId,
-            variants: [enrichedVariant]
-          }
+            variants: [enrichedVariant],
+          },
         };
       }
 
@@ -304,8 +304,8 @@ const getOrderById = async (orderId) => {
         ...item,
         productId: {
           ...item.productId,
-          variants: []
-        }
+          variants: [],
+        },
       };
     });
 
@@ -383,7 +383,9 @@ const updateOrder = async (orderId, updateData) => {
             (v) => v._id.toString() === itemForStock.variantId.toString(),
           );
           if (!variant)
-            throw new Error(`Variant not found for id ${itemForStock.variantId}`);
+            throw new Error(
+              `Variant not found for id ${itemForStock.variantId}`,
+            );
 
           if (quantityChange < 0 && variant.stock < -quantityChange) {
             throw new Error(`Not enough stock for variant ${variant.name}`);
@@ -596,21 +598,24 @@ const getOrderByOrderNo = async (orderNo) => {
     );
 
     // Create a new items array with correctly structured variants to avoid mutation issues
-    const finalItems = order.items.map(item => {
+    const finalItems = order.items.map((item) => {
       if (!item.productId || !item.productId.variants || !item.variantId) {
         return item;
       }
       const matchedVariant = item.productId.variants.find(
-        variant => variant._id.toString() === item.variantId.toString()
+        (variant) => variant._id.toString() === item.variantId.toString(),
       );
 
       if (matchedVariant) {
         const sizeId = matchedVariant.size;
         const enrichedVariant = {
           ...matchedVariant,
-          sizeName: sizeMap.get(sizeId.toString()) || 'N/A'
+          sizeName: sizeMap.get(sizeId.toString()) || "N/A",
         };
-        return { ...item, productId: { ...item.productId, variants: [enrichedVariant] } };
+        return {
+          ...item,
+          productId: { ...item.productId, variants: [enrichedVariant] },
+        };
       }
       return { ...item, productId: { ...item.productId, variants: [] } };
     });
@@ -677,21 +682,24 @@ const getOrdersByUserId = async (userId) => {
 
     // Clean up and assign size names to all orders
     const updatedOrders = orders.map((order) => {
-      const finalItems = order.items.map(item => {
+      const finalItems = order.items.map((item) => {
         if (!item.productId || !item.productId.variants || !item.variantId) {
           return item;
         }
         const matchedVariant = item.productId.variants.find(
-          variant => variant._id.toString() === item.variantId.toString()
+          (variant) => variant._id.toString() === item.variantId.toString(),
         );
 
         if (matchedVariant) {
           const sizeId = matchedVariant.size;
           const enrichedVariant = {
             ...matchedVariant,
-            sizeName: sizeMap.get(sizeId.toString()) || 'N/A'
+            sizeName: sizeMap.get(sizeId.toString()) || "N/A",
           };
-          return { ...item, productId: { ...item.productId, variants: [enrichedVariant] } };
+          return {
+            ...item,
+            productId: { ...item.productId, variants: [enrichedVariant] },
+          };
         }
         return { ...item, productId: { ...item.productId, variants: [] } };
       });
@@ -771,7 +779,7 @@ const trackOrderByOrderNoAndPhone = async (orderNo, phone) => {
         const sizeId = matchedVariant.size;
         const enrichedVariant = {
           ...matchedVariant,
-          sizeName: sizeMap.get(sizeId.toString()) || 'N/A',
+          sizeName: sizeMap.get(sizeId.toString()) || "N/A",
         };
         return {
           ...item,
@@ -786,6 +794,26 @@ const trackOrderByOrderNoAndPhone = async (orderNo, phone) => {
   return order;
 };
 
+const updateMultipleOrderStatuses = async (orderIds, orderStatus) => {
+  const results = [];
+  const errors = [];
+  for (const orderId of orderIds) {
+    try {
+      const result = await updateOrder(orderId, { orderStatus });
+      results.push(result.updatedOrder);
+    } catch (error) {
+      errors.push({ orderId, error: error.message });
+    }
+  }
+  return {
+    success: errors.length === 0,
+    totalUpdated: results.length,
+    totalErrors: errors.length,
+    results,
+    errors,
+  };
+};
+
 // Export the functions as an object
 module.exports = {
   createOrder,
@@ -796,4 +824,5 @@ module.exports = {
   getOrderByOrderNo,
   getOrdersByUserId,
   trackOrderByOrderNoAndPhone,
+  updateMultipleOrderStatuses,
 };

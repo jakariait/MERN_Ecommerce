@@ -595,6 +595,13 @@ router.get(
   orderController.getOrdersForUser,
 );
 
+router.put(
+  "/bulk-update-status",
+  adminProtect,
+  checkPermission("edit_orders"),
+  orderController.updateMultipleOrderStatuses,
+);
+
 // // Order Tracking
 router.post("/track-order", orderController.trackOrderByOrderNoAndPhone);
 

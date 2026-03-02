@@ -51,7 +51,6 @@ const createOrder = async (req, res) => {
   }
 };
 
-
 const getAllOrders = async (req, res) => {
   try {
     const { orderStatus, page, limit, search, startDate, endDate } = req.query;
@@ -66,7 +65,14 @@ const getAllOrders = async (req, res) => {
     const limitNum = usePagination ? parseInt(limit) : null;
 
     const { totalOrders, orders, totalPages, currentPage } =
-      await orderService.getAllOrders(filter, pageNum, limitNum, search, startDate, endDate);
+      await orderService.getAllOrders(
+        filter,
+        pageNum,
+        limitNum,
+        search,
+        startDate,
+        endDate,
+      );
 
     res.status(200).json({
       success: true,
@@ -79,7 +85,6 @@ const getAllOrders = async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
-
 
 // Get order by ID
 const getOrderById = async (req, res) => {
@@ -185,17 +190,23 @@ const getOrdersForUser = async (req, res) => {
   }
 };
 
-
-
 const trackOrderByOrderNoAndPhone = async (req, res) => {
   try {
     const { orderNo, phone } = req.body;
 
     if (!orderNo || !phone) {
-      return res.status(400).json({ success: false, message: "Order number and phone are required" });
+      return res
+        .status(400)
+        .json({
+          success: false,
+          message: "Order number and phone are required",
+        });
     }
 
-    const order = await orderService.trackOrderByOrderNoAndPhone(orderNo, phone);
+    const order = await orderService.trackOrderByOrderNoAndPhone(
+      orderNo,
+      phone,
+    );
 
     return res.status(200).json({ success: true, order });
   } catch (error) {
@@ -213,6 +224,40 @@ const trackOrderByOrderNoAndPhone = async (req, res) => {
 
 
 
+
+// Update multiple order statuses
+const updateMultipleOrderStatuses = async (req, res) => {
+  const { orderIds, orderStatus } = req.body;
+  if (!orderIds || !Array.isArray(orderIds) || orderIds.length === 0) {
+    return res
+      .status(400)
+      .json({
+        success: false,
+        message: "Order IDs are required and must be an array.",
+      });
+  }
+  if (!orderStatus) {
+    return res
+      .status(400)
+      .json({ success: false, message: "Order status is required." });
+  }
+  try {
+    const result = await orderService.updateMultipleOrderStatuses(
+      orderIds,
+      orderStatus,
+    );
+    res
+      .status(200)
+      .json({
+        success: true,
+        message: `${result.totalUpdated} orders updated successfully.`,
+        ...result,
+      });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 // Exporting the controller functions
 module.exports = {
   createOrder,
@@ -222,5 +267,6 @@ module.exports = {
   deleteOrder,
   getOrderByOrderNo,
   getOrdersForUser,
-  trackOrderByOrderNoAndPhone
+  trackOrderByOrderNoAndPhone,
+  updateMultipleOrderStatuses,
 };
