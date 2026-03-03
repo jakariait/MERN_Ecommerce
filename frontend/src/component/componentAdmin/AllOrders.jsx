@@ -88,6 +88,9 @@ const AllOrders = ({ title, status = "" }) => {
   const [bulkUpdating, setBulkUpdating] = useState(false);
   const [bulkDeleteDialog, setBulkDeleteDialog] = useState(false);
   const [bulkDeleting, setBulkDeleting] = useState(false);
+  const [bulkCourierDialog, setBulkCourierDialog] = useState(false);
+  const [selectedCourier, setSelectedCourier] = useState("");
+  const [sendingToCourier, setSendingToCourier] = useState(false);
 
   const apiUrl = import.meta.env.VITE_API_URL;
   const navigate = useNavigate();
@@ -397,6 +400,75 @@ const AllOrders = ({ title, status = "" }) => {
     }
   }, [selectedOrders, apiUrl, token, fetchOrders, handleBulkDeleteClose]);
 
+  const handleBulkCourierOpen = useCallback(() => {
+    setSelectedCourier("");
+    setBulkCourierDialog(true);
+  }, []);
+
+  const handleBulkCourierClose = useCallback(() => {
+    setBulkCourierDialog(false);
+    setSelectedCourier("");
+  }, []);
+
+  const handleBulkSendToCourier = useCallback(async () => {
+    if (!selectedCourier || selectedOrders.length === 0) return;
+
+    setSendingToCourier(true);
+    try {
+      const ordersToSend = allOrders
+        .filter((order) => selectedOrders.includes(order._id))
+        .map((order) => ({
+          invoice: order.orderNo,
+          recipient_name: order.shippingInfo?.fullName || "N/A",
+          recipient_phone: order.shippingInfo?.mobileNo || "",
+          recipient_address: order.shippingInfo?.address || "N/A",
+          cod_amount: order.dueAmount?.toString() || "0",
+          note: order.note || "",
+        }));
+
+      let response;
+      if (selectedCourier === "steadfast") {
+        response = await axios.post(
+          `${apiUrl}/steadfast/bulk-order`,
+          { data: ordersToSend },
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+      } else if (selectedCourier === "pathao") {
+        response = await axios.post(
+          `${apiUrl}/pathao/orders/bulk`,
+          { data: ordersToSend },
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+      }
+
+      if (response.data.status === "success") {
+        const successCount = response.data.data.filter((r) => r.status === "success").length;
+        const errorCount = response.data.data.filter((r) => r.status === "error").length;
+        
+        setSnackbarMessage(
+          `${successCount} orders sent to ${selectedCourier} successfully${errorCount > 0 ? `, ${errorCount} failed` : ""}`
+        );
+        setSnackbarSeverity(errorCount > 0 ? "warning" : "success");
+        setOpenSnackbar(true);
+        setSelectedOrders([]);
+        fetchOrders();
+      } else {
+        setSnackbarMessage(response.data.message || "Failed to send orders to courier");
+        setSnackbarSeverity("error");
+        setOpenSnackbar(true);
+      }
+    } catch (error) {
+      setSnackbarMessage(
+        error.response?.data?.message || "Error sending orders to courier"
+      );
+      setSnackbarSeverity("error");
+      setOpenSnackbar(true);
+    } finally {
+      setSendingToCourier(false);
+      handleBulkCourierClose();
+    }
+  }, [selectedCourier, selectedOrders, allOrders, apiUrl, token, fetchOrders, handleBulkCourierClose]);
+
   // Memoize the loading skeleton
   const LoadingSkeleton = useMemo(
     () => (
@@ -599,6 +671,13 @@ const AllOrders = ({ title, status = "" }) => {
                     onClick={handleBulkDeleteOpen}
                   >
                     Bulk Delete
+                  </Button>
+                  <Button
+                    variant="contained"
+                    color="secondary"
+                    onClick={handleBulkCourierOpen}
+                  >
+                    Send to Courier
                   </Button>
                   <Button
                     variant="outlined"
@@ -903,6 +982,38 @@ const AllOrders = ({ title, status = "" }) => {
           </Button>
           <Button onClick={handleBulkDelete} color="error" disabled={bulkDeleting}>
             {bulkDeleting ? "Deleting..." : "Delete"}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog open={bulkCourierDialog} onClose={handleBulkCourierClose}>
+        <DialogTitle>Send to Courier</DialogTitle>
+        <DialogContent>
+          <DialogContentText sx={{ mb: 2 }}>
+            You are about to send {selectedOrders.length} order(s) to a courier service.
+          </DialogContentText>
+          <FormControl fullWidth>
+            <InputLabel>Select Courier</InputLabel>
+            <Select
+              value={selectedCourier}
+              label="Select Courier"
+              onChange={(e) => setSelectedCourier(e.target.value)}
+            >
+              <MenuItem value="steadfast">Steadfast</MenuItem>
+              <MenuItem value="pathao">Pathao</MenuItem>
+            </Select>
+          </FormControl>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleBulkCourierClose} disabled={sendingToCourier}>
+            Cancel
+          </Button>
+          <Button
+            onClick={handleBulkSendToCourier}
+            color="primary"
+            disabled={!selectedCourier || sendingToCourier}
+          >
+            {sendingToCourier ? "Sending..." : "Send"}
           </Button>
         </DialogActions>
       </Dialog>

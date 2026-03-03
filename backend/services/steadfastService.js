@@ -76,7 +76,38 @@ const getSteadfastOrderStatusByInvoiceService = async (invoiceId) => {
   return response.data;
 };
 
+const bulkCreateSteadfastOrderService = async (orders) => {
+  const config = await getSteadfastConfig();
+
+  if (!Array.isArray(orders) || orders.length === 0) {
+    throw new Error("Orders must be a non-empty array");
+  }
+
+  if (orders.length > 500) {
+    throw new Error("Maximum 500 items allowed");
+  }
+
+  const payload = {
+    data: orders,
+  };
+
+  const response = await axios.post(
+    `${config.baseUrl}/create_order/bulk-order`,
+    payload,
+    {
+      headers: {
+        "Api-Key": config.apiKey,
+        "Secret-Key": config.secretKey,
+        "Content-Type": "application/json",
+      },
+    }
+  );
+
+  return response.data;
+};
+
 module.exports = {
   createSteadfastOrderService,
   getSteadfastOrderStatusByInvoiceService,
+  bulkCreateSteadfastOrderService,
 };

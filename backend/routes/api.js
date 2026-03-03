@@ -45,6 +45,7 @@ const cacheMiddleware = require("../middlewares/redisCacheMiddleware");
 const {
   createSteadfastOrder,
   getSteadfastOrderStatusByInvoice,
+  bulkCreateSteadfastOrder,
 } = require("../controllers/steadfastController");
 
 // Admin
@@ -675,6 +676,7 @@ router.get("/courier/status/:orderId", adminProtect, getDynamicCourierStatus);
 
 // Steadfast Courier Routes
 router.post("/steadfast/create-order", createSteadfastOrder);
+router.post("/steadfast/bulk-order", bulkCreateSteadfastOrder);
 router.get(
   "/steadfast/get-order-status",
   adminProtect,

@@ -2,6 +2,7 @@
 const {
   createSteadfastOrderService,
   getSteadfastOrderStatusByInvoiceService,
+  bulkCreateSteadfastOrderService,
 } = require("../services/steadfastService");
 
 const createSteadfastOrder = async (req, res) => {
@@ -35,7 +36,37 @@ const getSteadfastOrderStatusByInvoice = async (req, res) => {
   }
 };
 
+const bulkCreateSteadfastOrder = async (req, res) => {
+  try {
+    const { data } = req.body;
+
+    if (!data || !Array.isArray(data)) {
+      return res.status(400).json({
+        status: "error",
+        message: "Invalid request. 'data' must be a JSON encoded array",
+      });
+    }
+
+    if (data.length > 500) {
+      return res.status(400).json({
+        status: "error",
+        message: "Maximum 500 items are allowed",
+      });
+    }
+
+    const response = await bulkCreateSteadfastOrderService(data);
+    res.status(200).json({ status: "success", data: response });
+  } catch (err) {
+    console.error("Steadfast bulk order error:", err.response?.data || err.message);
+    res.status(500).json({
+      status: "error",
+      message: err.response?.data?.message || "Something went wrong",
+    });
+  }
+};
+
 module.exports = {
   createSteadfastOrder,
-  getSteadfastOrderStatusByInvoice
+  getSteadfastOrderStatusByInvoice,
+  bulkCreateSteadfastOrder,
 };
