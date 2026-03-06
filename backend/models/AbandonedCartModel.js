@@ -15,7 +15,16 @@ const abandonedCartSchema = new mongoose.Schema(
         quantity: { type: Number, required: true },
       },
     ],
-    totalAmount: { type: Number }
+    totalAmount: { type: Number },
+    status: {
+      type: String,
+      enum: ["abandoned", "converted"],
+      default: "abandoned",
+    },
+    convertedToOrderId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Order",
+    },
   },
   { timestamps: true, versionKey: false }
 );

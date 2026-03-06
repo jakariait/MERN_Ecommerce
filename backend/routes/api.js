@@ -692,6 +692,35 @@ router.get(
   checkPermission("incomplete_orders"),
   abandonedCartController.getAllAbandonedCarts,
 );
+
+router.get(
+  "/abandoned-cart/stats",
+  adminProtect,
+  checkPermission("incomplete_orders"),
+  abandonedCartController.getAbandonedCartStats,
+);
+
+router.put(
+  "/abandoned-cart/:id",
+  adminProtect,
+  checkPermission("edit_incomplete_orders"),
+  abandonedCartController.updateAbandonedCart,
+);
+
+router.delete(
+  "/abandoned-cart/bulk-delete",
+  adminProtect,
+  checkPermission("delete_incomplete_orders"),
+  abandonedCartController.bulkDeleteAbandonedCarts,
+);
+
+router.post(
+  "/abandoned-cart/:id/convert-to-order",
+  adminProtect,
+  checkPermission("edit_incomplete_orders"),
+  abandonedCartController.convertToOrder,
+);
+
 router.delete(
   "/abandoned-cart/:id",
   adminProtect,

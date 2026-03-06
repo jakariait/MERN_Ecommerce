@@ -34,6 +34,7 @@ const PermissionsCheckboxGroup = ({
 
     { value: "incomplete_orders", label: "Incomplete Orders" },
     { value: "delete_incomplete_orders", label: "Delete Incomplete Orders" },
+    { value: "edit_incomplete_orders", label: "Edit Incomplete Orders" },
 
     { value: "bkash_api", label: "bKash API" },
     { value: "steadfast_api", label: "Steadfast API" },

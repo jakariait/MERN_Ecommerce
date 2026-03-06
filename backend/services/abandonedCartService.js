@@ -1,6 +1,11 @@
 const AbandonedCart = require("../models/AbandonedCartModel");
 const Product = require("../models/ProductModel");
-const ProductSizeModel = require("../models/ProductSizeModel"); // Import the ProductSizeModel
+const ProductSizeModel = require("../models/ProductSizeModel");
+const Order = require("../models/OrderModel");
+const OrderCounter = require("../models/OrderCounterModel");
+const VatPercentage = require("../models/VatPercentage");
+const Shipping = require("../models/ShippingModel");
+const FreeDeliveryAmount = require("../models/FreeDeliveryAmount");
 
 const createAbandonedCart = async (cartData) => {
   try {
@@ -23,16 +28,44 @@ const deleteAbandonedCartById = async (cartId) => {
 };
 
 
-const getAllAbandonedCarts = async (page = 1, limit = 10) => {
+const getAllAbandonedCarts = async (page = 1, limit = 10, sort = "desc", status = "all", search = "", startDate = null, endDate = null) => {
   try {
     const skip = (page - 1) * limit;
 
-    // Get total count of abandoned carts
-    const totalCount = await AbandonedCart.countDocuments();
+    let filter = {};
+    
+    // Status filter
+    if (status && status !== "all") {
+      if (status === "abandoned") {
+        filter = { $or: [{ status: "abandoned" }, { status: { $exists: false } }] };
+      } else {
+        filter.status = status;
+      }
+    }
 
-    // Fetch abandoned carts with sorting and pagination
-    const carts = await AbandonedCart.find()
-      .sort({ createdAt: -1 })
+    // Search by number
+    if (search) {
+      filter.number = { $regex: search, $options: "i" };
+    }
+
+    // Date range filter
+    if (startDate && endDate) {
+      filter.createdAt = {
+        $gte: new Date(startDate),
+        $lte: new Date(endDate)
+      };
+    } else if (startDate) {
+      filter.createdAt = { $gte: new Date(startDate) };
+    } else if (endDate) {
+      filter.createdAt = { $lte: new Date(endDate) };
+    }
+
+    const totalCount = await AbandonedCart.countDocuments(filter);
+
+    const sortOrder = sort === "asc" ? 1 : -1;
+
+    const carts = await AbandonedCart.find(filter)
+      .sort({ createdAt: sortOrder })
       .skip(skip)
       .limit(limit)
       .lean();
@@ -119,10 +152,173 @@ const getAllAbandonedCarts = async (page = 1, limit = 10) => {
   }
 };
 
+const updateAbandonedCart = async (cartId, updateData) => {
+  try {
+    const updatedCart = await AbandonedCart.findByIdAndUpdate(
+      cartId,
+      updateData,
+      { new: true }
+    );
+    return updatedCart;
+  } catch (error) {
+    throw new Error("Error updating abandoned cart: " + error.message);
+  }
+};
+
+const bulkDeleteAbandonedCarts = async (cartIds) => {
+  try {
+    const result = await AbandonedCart.deleteMany({ _id: { $in: cartIds } });
+    return result;
+  } catch (error) {
+    throw new Error("Error bulk deleting abandoned carts: " + error.message);
+  }
+};
+
+const convertToOrder = async (cartId, orderData) => {
+  try {
+    const cart = await AbandonedCart.findById(cartId);
+    if (!cart) {
+      throw new Error("Abandoned cart not found");
+    }
+
+    if (cart.status === "converted") {
+      throw new Error("This cart has already been converted to an order");
+    }
+
+    const counter = await OrderCounter.findOneAndUpdate(
+      { id: "order" },
+      { $inc: { seq: 1 } },
+      { new: true, upsert: true }
+    );
+    const orderNo = String(counter.seq).padStart(6, "0");
+
+    const vatEntry = await VatPercentage.findOne().sort({ createdAt: -1 });
+    const vatPercent = vatEntry ? vatEntry.value : 0;
+
+    let subtotal = 0;
+    const updatedItems = [];
+
+    for (const item of cart.cartItems) {
+      const { productId, variantId, quantity, price } = item;
+
+      const product = await Product.findById(productId);
+      if (!product) throw new Error(`Product not found: ${productId}`);
+
+      let currentPrice = price;
+      let stock;
+
+      if (product.variants.length === 0) {
+        stock = product.finalStock;
+        if (stock < quantity) {
+          throw new Error(`Not enough stock for product ${product.name}`);
+        }
+        product.finalStock -= quantity;
+        await product.save();
+      } else {
+        const variant = product.variants.find(
+          (v) => v._id.toString() === variantId?.toString()
+        );
+        if (!variant) throw new Error("Variant not found");
+
+        if (variant.stock < quantity) {
+          throw new Error(`Not enough stock for variant`);
+        }
+        currentPrice = variant.discount || variant.price;
+        variant.stock -= quantity;
+        await product.save();
+      }
+
+      subtotal += currentPrice * quantity;
+      updatedItems.push({ productId, variantId, quantity, price: currentPrice });
+    }
+
+    const shippingMethod = await Shipping.findById(orderData.shippingId);
+    if (!shippingMethod) throw new Error("Invalid shipping method");
+
+    const freeDelivery = await FreeDeliveryAmount.findOne().sort({
+      createdAt: -1,
+    });
+    const freeDeliveryThreshold = freeDelivery ? freeDelivery.value : 0;
+
+    const deliveryCharge =
+      freeDeliveryThreshold > 0 && subtotal >= freeDeliveryThreshold
+        ? 0
+        : shippingMethod.value;
+
+    const vat = (subtotal * vatPercent) / 100;
+    const totalAmount = subtotal + vat + deliveryCharge;
+
+    const newOrder = new Order({
+      orderNo,
+      userId: cart.userId,
+      items: updatedItems,
+      subtotalAmount: subtotal,
+      deliveryCharge,
+      vat,
+      totalAmount,
+      deliveryMethod: "home_delivery",
+      paymentMethod: orderData.paymentMethod || "cash_on_delivery",
+      paymentStatus: "unpaid",
+      orderStatus: "pending",
+      shippingInfo: {
+        fullName: orderData.fullName || cart.fullName,
+        mobileNo: orderData.number || cart.number,
+        email: orderData.email || cart.email,
+        address: orderData.address || cart.address,
+      },
+      billingInfo: {
+        fullName: orderData.fullName || cart.fullName,
+        address: orderData.address || cart.address,
+      },
+      shippingId: orderData.shippingId,
+      promoDiscount: 0,
+      specialDiscount: orderData.specialDiscount || 0,
+      rewardPointsUsed: 0,
+      rewardPointsEarned: 0,
+      adminNote: "",
+    });
+
+    const savedOrder = await newOrder.save();
+
+    await AbandonedCart.findByIdAndUpdate(cartId, {
+      status: "converted",
+      convertedToOrderId: savedOrder._id,
+    });
+
+    return savedOrder;
+  } catch (error) {
+    throw new Error("Error converting to order: " + error.message);
+  }
+};
+
+const getAbandonedCartStats = async () => {
+  try {
+    const totalCount = await AbandonedCart.countDocuments();
+    const abandonedCount = await AbandonedCart.countDocuments({
+      $or: [{ status: "abandoned" }, { status: { $exists: false } }]
+    });
+    const convertedCount = await AbandonedCart.countDocuments({ status: "converted" });
+
+    const ratio = totalCount > 0 ? ((convertedCount / totalCount) * 100).toFixed(1) : 0;
+
+    return {
+      totalCount,
+      abandonedCount,
+      convertedCount,
+      ratio: parseFloat(ratio),
+    };
+  } catch (error) {
+    throw new Error("Error fetching abandoned cart stats: " + error.message);
+  }
+};
 
 
 module.exports = {
   createAbandonedCart,
   getAllAbandonedCarts,
   deleteAbandonedCartById,
+  updateAbandonedCart,
+  bulkDeleteAbandonedCarts,
+  convertToOrder,
+  getAbandonedCartStats,
 };
