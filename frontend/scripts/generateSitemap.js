@@ -10,7 +10,18 @@ const __dirname = path.dirname(__filename);
 dotenv.config({ path: path.join(__dirname, "..", ".env") });
 
 const API_URL = process.env.VITE_API_URL;
-const FRONTEND_URL = process.env.FRONTEND_URL;
+const FRONTEND_URL = process.env.FRONTEND_URL || "https://your-domain.com";
+
+const generateRobotsTxt = () => {
+  const robotsTxt = `User-agent: *
+Allow: /
+Disallow: /admin/
+Sitemap: ${FRONTEND_URL}/sitemap.xml
+`;
+  const publicDir = path.join(__dirname, "..", "public");
+  fs.writeFileSync(path.join(publicDir, "robots.txt"), robotsTxt);
+  console.log("✅ robots.txt generated");
+};
 
 const generateSitemap = async () => {
   let products = [];
@@ -135,4 +146,5 @@ const generateSitemap = async () => {
   );
 };
 
+generateRobotsTxt();
 generateSitemap();

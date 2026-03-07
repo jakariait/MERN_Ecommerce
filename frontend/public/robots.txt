@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 Disallow: /admin/
-Sitemap: https://ecommerce.digiweb.digital/sitemap.xml
+Sitemap: http://localhost:5173/sitemap.xml
