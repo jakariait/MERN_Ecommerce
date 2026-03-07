@@ -76,7 +76,7 @@ const Footer = () => {
                 <AccordionDetails>
                   <div>
                     <p>{GeneralInfoList?.ShortDescription}</p>
-                    <h1 className={"mb-3 mt-3"}>Follow Us</h1>
+                    <h2 className={"mb-3 mt-3"}>Follow Us</h2>
                     <SocialMedia />
                   </div>
                 </AccordionDetails>
@@ -98,34 +98,34 @@ const Footer = () => {
                   <Typography>Quick Links</Typography>
                 </AccordionSummary>
                 <AccordionDetails>
-                  <ul>
-                    <li className={"hover:primaryTextColor"}>
+                  <ul className="text-white">
+                    <li className={"hover:text-gray-300"}>
                       <Link to="/about">About</Link>
                     </li>
-                    <li className={"hover:primaryTextColor"}>
+                    <li className={"hover:text-gray-300"}>
                       <Link to="/blog">Blog</Link>
                     </li>
-                    <li className={"hover:primaryTextColor"}>
+                    <li className={"hover:text-gray-300"}>
                       <Link
                         to="/contact-us"
-                        className={"hover:primaryTextColor"}
+                        className={"hover:text-gray-300"}
                       >
                         Contact
                       </Link>
                     </li>
-                    <li className={"hover:primaryTextColor"}>
+                    <li className={"hover:text-gray-300"}>
                       <Link to="/termofservice">Terms of Services</Link>
                     </li>
-                    <li className={"hover:primaryTextColor"}>
+                    <li className={"hover:text-gray-300"}>
                       <Link to="/privacypolicy">Privacy Policy</Link>
                     </li>
-                    <li className={"hover:primaryTextColor"}>
+                    <li className={"hover:text-gray-300"}>
                       <Link to="/refundpolicy">Refund Policy</Link>
                     </li>
-                    <li className={"hover:primaryTextColor"}>
+                    <li className={"hover:text-gray-300"}>
                       <Link to="/shippinpolicy">Shipping Policy</Link>
                     </li>
-                    <li className={"hover:primaryTextColor"}>
+                    <li className={"hover:text-gray-300"}>
                       <Link to="/faqs">FAQ</Link>
                     </li>
                   </ul>
@@ -148,10 +148,10 @@ const Footer = () => {
                   <Typography>Newsletter</Typography>
                 </AccordionSummary>
                 <AccordionDetails>
-                  <h1>
+                  <h2>
                     Take advantage of our special offer. Do not worry, we would
                     not spam you.
-                  </h1>
+                  </h2>
                   <NewsletterForm />
                 </AccordionDetails>
               </Accordion>
@@ -169,53 +169,53 @@ const Footer = () => {
               }
             >
               <div className={"col-span-6 relative"}>
-                <h1 className={"mb-3"}>
+                <h2 className={"mb-3"}>
                   About Us
                   <span className="absolute left-0 top-6 w-15 border-b-2 border-gray-300 mt-1"></span>
-                </h1>
+                </h2>
                 <p>{GeneralInfoList?.ShortDescription}</p>
-                <h1 className={"mb-3 mt-3"}>Follow Us</h1>
+                <h2 className={"mb-3 mt-3"}>Follow Us</h2>
                 <SocialMedia />
               </div>
 
               <div className={"col-span-3 relative"}>
-                <h1 className={"mb-3"}>
+                <h2 className={"mb-3"}>
                   Quick Links
                   <span className="absolute left-0 top-6 w-15 border-b-2 border-gray-300 mt-1"></span>
-                </h1>
-                <ul>
-                  <li className={"hover:primaryTextColor"}>
+                </h2>
+                <ul className="text-white">
+                  <li className={"hover:text-gray-300"}>
                     <Link to="/about">About</Link>
                   </li>
-                  <li className={"hover:primaryTextColor"}>
+                  <li className={"hover:text-gray-300"}>
                     <Link to="/blog">Blog</Link>
                   </li>
-                  <li className={"hover:primaryTextColor"}>
+                  <li className={"hover:text-gray-300"}>
                     <Link to="/contact-us">Contact</Link>
                   </li>
-                  <li className={"hover:primaryTextColor"}>
+                  <li className={"hover:text-gray-300"}>
                     <Link to="/termofservice">Terms of Services</Link>
                   </li>
-                  <li className={"hover:primaryTextColor"}>
+                  <li className={"hover:text-gray-300"}>
                     <Link to="/privacypolicy">Privacy Policy</Link>
                   </li>
-                  <li className={"hover:primaryTextColor"}>
+                  <li className={"hover:text-gray-300"}>
                     <Link to="/refundpolicy">Refund Policy</Link>
                   </li>
-                  <li className={"hover:primaryTextColor"}>
+                  <li className={"hover:text-gray-300"}>
                     <Link to="/shippinpolicy">Shipping Policy</Link>
                   </li>
-                  <li className={"hover:primaryTextColor"}>
+                  <li className={"hover:text-gray-300"}>
                     <Link to="/faqs">FAQ</Link>
                   </li>
                 </ul>
               </div>
               {/*Newsletters*/}
               <div className={"col-span-3 relative "}>
-                <h1 className={"mb-3"}>
+                <h2 className={"mb-3"}>
                   Newsletters
                   <span className="absolute left-0 top-6 w-15 border-b-2 border-gray-200 mt-1"></span>
-                </h1>
+                </h2>
 
                 <p>
                   Take advantage of our special offer. Do not worry, we would

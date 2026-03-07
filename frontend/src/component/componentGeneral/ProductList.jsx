@@ -143,11 +143,11 @@ const ProductList = ({ products }) => {
               {/* Quick View Button */}
               <div className="absolute top-1 right-0 z-10 bg-white rounded-full flex justify-center items-center">
                 <button
-                  onClick={() => handleOpen(product)} // Pass the product to set the state
+                  onClick={() => handleOpen(product)}
                   className="p-2 cursor-pointer"
-                  aria-label="Open"
+                  aria-label={`Quick view ${product.name}`}
                 >
-                  <FaEye />
+                  <FaEye aria-hidden="true" />
                 </button>
               </div>
             </div>

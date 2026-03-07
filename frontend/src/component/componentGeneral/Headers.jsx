@@ -154,15 +154,15 @@ const Headers = () => {
             Welcome to {GeneralInfoList?.CompanyName}
           </h1>
           <div className="items-center gap-2 border-r-1 px-4 hidden md:flex">
-            <Link to="/track-order" className="flex items-center gap-2 ">
-              <TfiTruck />
+            <Link to="/track-order" className="flex items-center gap-2" aria-label="Track your order">
+              <TfiTruck aria-hidden="true" />
               <p>Track Your Order</p>
             </Link>
           </div>
           <div className="items-center gap-2 hidden md:flex">
-            <MdEmail className="text-2xl" />
+            <MdEmail className="text-2xl" aria-hidden="true" />
             {GeneralInfoList?.CompanyEmail.map((email, index) => (
-              <a key={index} href={`mailto:${email}`} className="mr-2">
+              <a key={index} href={`mailto:${email}`} className="mr-2" aria-label={`Email: ${email}`}>
                 {email}
               </a>
             ))}
@@ -182,6 +182,9 @@ const Headers = () => {
             ref={hamburgerRef}
             onClick={() => setIsMenuOpen(!isMenuOpen)}
             className="text-2xl cursor-pointer lg:hidden"
+            role="button"
+            aria-label="Toggle menu"
+            aria-expanded={isMenuOpen}
           >
             <GiHamburgerMenu />
           </div>
@@ -206,7 +209,10 @@ const Headers = () => {
             <div
               ref={cartButtonRef}
               onClick={() => setIsCartMenuOpen(!isCartMenuOpen)}
-              className="relative  "
+              className="relative"
+              role="button"
+              aria-label="Shopping cart"
+              aria-expanded={isCartMenuOpen}
             >
               <div className={"flex flex-col justify-center items-center"}>
                 {/* Shopping Cart Icon */}
@@ -231,6 +237,8 @@ const Headers = () => {
                   ref={buttonRef}
                   onClick={() => setIsDropdownOpen((prev) => !prev)}
                   className="flex items-center gap-2 cursor-pointer"
+                  aria-label="User menu"
+                  aria-expanded={isDropdownOpen}
                 >
                   {user?.userImage &&
                   typeof user.userImage === "string" &&
@@ -266,8 +274,9 @@ const Headers = () => {
                       <button
                         onClick={handleLogout}
                         className="bg-red-500 w-42 text-white px-2 py-2 cursor-pointer rounded flex items-center gap-2"
+                        aria-label="Log out"
                       >
-                        <IoIosLogOut className="text-2xl" />
+                        <IoIosLogOut className="text-2xl" aria-hidden="true" />
                         Log Out
                       </button>
                     </div>
@@ -275,9 +284,9 @@ const Headers = () => {
                 )}
               </div>
             ) : (
-              <Link to="/login">
+              <Link to="/login" aria-label="Login or register">
                 <div className="flex items-center gap-2 flex-col">
-                  <IoPersonOutline className="w-6 h-6" />
+                  <IoPersonOutline className="w-6 h-6" aria-hidden="true" />
                   <span className="text-sm hidden lg:block">
                     Login / Register
                   </span>
@@ -307,21 +316,21 @@ const Headers = () => {
             transform: isMenuOpen ? "translateX(0)" : "translateX(-100%)",
           }}
         >
-          <div className="p-4">
-            <div className="flex items-center justify-between">
-              <Link to="/">
-                <ImageComponentWithCompression
-                  imageName={GeneralInfoList?.PrimaryLogo}
-                  className="w-30"
-                  altName={GeneralInfoList?.CompanyName}
-                  width={300}
-                  height={300}
-                />
-              </Link>
-              <button onClick={() => setIsMenuOpen(false)}>
-                <MdClose className="text-3xl" />
-              </button>
-            </div>
+            <div className="p-4">
+              <div className="flex items-center justify-between">
+                <Link to="/" aria-label="Home">
+                  <ImageComponentWithCompression
+                    imageName={GeneralInfoList?.PrimaryLogo}
+                    className="w-30"
+                    altName={GeneralInfoList?.CompanyName}
+                    width={300}
+                    height={300}
+                  />
+                </Link>
+                <button onClick={() => setIsMenuOpen(false)} aria-label="Close menu">
+                  <MdClose className="text-3xl" />
+                </button>
+              </div>
             <div className="space-y-2">
               <MobileMenu />
             </div>
@@ -330,13 +339,14 @@ const Headers = () => {
                 <button
                   onClick={handleLogout}
                   className="primaryBgColor accentTextColor px-4 py-2 rounded-lg w-full"
+                  aria-label="Log out"
                 >
                   Log Out
                 </button>
               ) : (
-                <Link to="/login">
+                <Link to="/login" aria-label="Login or register">
                   <div className="inline-flex items-center gap-3">
-                    <IoPersonOutline className="w-10 h-10 primaryBgColor rounded-full text-white p-2" />
+                    <IoPersonOutline className="w-10 h-10 primaryBgColor rounded-full text-white p-2" aria-hidden="true" />
                     <span className="text-sm">Login / Register</span>
                   </div>
                 </Link>
@@ -377,6 +387,7 @@ const Headers = () => {
               <button
                 onClick={() => setIsCartMenuOpen(false)}
                 className={"cursor-pointer"}
+                aria-label="Close cart"
               >
                 <MdClose className="text-2xl" />
               </button>

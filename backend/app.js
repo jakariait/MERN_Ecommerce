@@ -19,6 +19,42 @@ const imageMiddleware = require("./middlewares/imageMiddleware");
 const app = express();
 
 // ---------------------------
+// Security Headers Configuration
+// ---------------------------
+const securityHeaders = {
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+      fontSrc: ["'self'", "https://fonts.gstatic.com"],
+      imgSrc: ["'self'", "data:", "https:", "http:"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "https://www.googletagmanager.com"],
+      connectSrc: ["'self'", "https://www.google-analytics.com", "https://analytics.google.com"],
+      frameSrc: ["'self'", "https://www.youtube.com", "https://youtube.com"],
+    },
+  },
+  hsts: {
+    maxAge: 31536000,
+    includeSubDomains: true,
+    preload: true,
+  },
+  crossOriginOpenerPolicy: {
+    policy: "same-origin",
+  },
+  crossOriginResourcePolicy: {
+    policy: "same-origin",
+  },
+  XFrameOptions: "DENY",
+  XContentTypeOptions: "nosniff",
+  ReferrerPolicy: "strict-origin-when-cross-origin",
+  PermissionsPolicy: {
+    geolocation: [],
+    microphone: [],
+    camera: [],
+  },
+};
+
+// ---------------------------
 // MongoDB Connection
 // ---------------------------
 const URL = process.env.MONGO_URI;
@@ -62,6 +98,9 @@ app.use("/uploads", imageMiddleware);
 // Static file serving
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
+// Serve robots.txt
+app.use(express.static(path.join(__dirname, ".")));
+
 
 // Compression
 app.use(compression());
@@ -76,7 +115,7 @@ app.use(cors(corsOptions));
 app.use(mongoSanitize);
 
 // Set secure HTTP headers
-app.use(helmet());
+app.use(helmet(securityHeaders));
 
 // Prevent HTTP Parameter Pollution
 app.use(hpp());

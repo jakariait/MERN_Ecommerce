@@ -16,6 +16,7 @@ const Feature = () => {
   }
   return (
     <div className="xl:container xl:mx-auto pb-6 px-3">
+      <h2 className="sr-only">Our Features</h2>
       {FeatureStoreListLoading ? (
         <>
           <div className={"grid grid-cols-2 md:grid-cols-4 gap-6 mb-6"}>
@@ -42,9 +43,9 @@ const Feature = () => {
                   />
                 </div>
                 {/* Title */}
-                <h3 className="mt-6 text-gray-700 text-sm ">
+                <h2 className="mt-6 text-gray-700 text-sm ">
                   {feature.title}
-                </h3>
+                </h2>
               </div>
             ))}
           </div>

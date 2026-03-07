@@ -1,6 +1,7 @@
 const express = require("express");
 const multer = require("multer");
 const path = require("path");
+const mongoose = require("mongoose");
 
 const generalInfoController = require("../controllers/GeneralInfoController");
 const newsletterController = require("../controllers/NewsLetterController");
@@ -47,6 +48,11 @@ const {
   getSteadfastOrderStatusByInvoice,
   bulkCreateSteadfastOrder,
 } = require("../controllers/steadfastController");
+
+// Models
+const ProductModel = require("../models/ProductModel");
+const CategoryModel = require("../models/CategoryModel");
+const BlogModel = require("../models/BlogModel");
 
 // Admin
 const { adminProtect } = require("../middlewares/authAdminMiddleware");
@@ -857,5 +863,87 @@ router.get("/blog/:id", blogController.getBlogById);
 // Password Reset Routes
 router.post("/request-reset", PassWordResetController.requestPasswordReset);
 router.post("/reset-password", PassWordResetController.resetPasswordWithOTP);
+
+// Sitemap Route
+router.get("/sitemap.xml", async (req, res) => {
+  try {
+    const baseUrl = process.env.CLIENT_URL?.split(",")[0] || "https://ecommerce-server.digiweb.digital";
+    
+    const today = new Date().toISOString().split("T")[0];
+
+    const staticPages = [
+      { loc: "/", changefreq: "daily", priority: 1.0 },
+      { loc: "/shop", changefreq: "daily", priority: 0.9 },
+      { loc: "/contact-us", changefreq: "monthly", priority: 0.7 },
+      { loc: "/about", changefreq: "monthly", priority: 0.7 },
+      { loc: "/faqs", changefreq: "monthly", priority: 0.6 },
+      { loc: "/track-order", changefreq: "monthly", priority: 0.5 },
+      { loc: "/login", changefreq: "monthly", priority: 0.5 },
+      { loc: "/register", changefreq: "monthly", priority: 0.5 },
+    ];
+
+    const categories = await CategoryModel.find({ isActive: true }).select("name").limit(100);
+    const products = await ProductModel.find({ isActive: true }).select("slug updatedAt").limit(1000);
+    const blogs = await BlogModel.find({ isActive: true }).select("slug updatedAt").limit(100);
+
+    let sitemap = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+`;
+
+    // Static pages
+    staticPages.forEach((page) => {
+      sitemap += `  <url>
+    <loc>${baseUrl}${page.loc}</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>${page.changefreq}</changefreq>
+    <priority>${page.priority}</priority>
+  </url>
+`;
+    });
+
+    // Categories
+    categories.forEach((cat) => {
+      sitemap += `  <url>
+    <loc>${baseUrl}/shop?category=${encodeURIComponent(cat.name)}</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+`;
+    });
+
+    // Products
+    products.forEach((product) => {
+      const updatedAt = product.updatedAt ? product.updatedAt.toISOString().split("T")[0] : today;
+      sitemap += `  <url>
+    <loc>${baseUrl}/product/${product.slug}</loc>
+    <lastmod>${updatedAt}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+`;
+    });
+
+    // Blogs
+    blogs.forEach((blog) => {
+      const updatedAt = blog.updatedAt ? blog.updatedAt.toISOString().split("T")[0] : today;
+      sitemap += `  <url>
+    <loc>${baseUrl}/blogs/${blog.slug}</loc>
+    <lastmod>${updatedAt}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+`;
+    });
+
+    sitemap += `</urlset>`;
+
+    res.header("Content-Type", "application/xml");
+    res.send(sitemap);
+  } catch (error) {
+    console.error("Sitemap error:", error);
+    res.status(500).send("Error generating sitemap");
+  }
+});
 
 module.exports = router;

@@ -40,6 +40,7 @@ const ProductByFlag = () => {
 
   return (
     <div className="xl:container xl:mx-auto p-4 justify-center md:justify-start">
+      <h2 className="sr-only">Featured Products</h2>
       {flags.map((flag) => {
         const products = homeProducts[flag.name] || [];
         if (products.length === 0) return null; // Skip if no products for this flag

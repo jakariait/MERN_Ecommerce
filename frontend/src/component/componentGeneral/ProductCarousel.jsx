@@ -70,7 +70,7 @@ const ProductCarousel = () => {
                   imageName={product.imgSrc}
                   className="w-full h-full object-cover"
                   skeletonHeight={400}
-                  altName={GeneralInfoList?.CompanyEmail}
+                  altName={`Banner ${index + 1}`}
                   width={1000}
                   height={1000}
                   loadingStrategy="eager"
@@ -90,6 +90,7 @@ const CustomPrevArrow = ({ onClick }) => (
   <button
     onClick={onClick}
     className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-black/50 hover:bg-black text-white p-2 rounded-full z-10"
+    aria-label="Previous slide"
   >
     <ChevronLeft size={30} />
   </button>
@@ -99,6 +100,7 @@ const CustomNextArrow = ({ onClick }) => (
   <button
     onClick={onClick}
     className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-black/50 hover:bg-black text-white p-2 rounded-full z-10"
+    aria-label="Next slide"
   >
     <ChevronRight size={30} />
   </button>

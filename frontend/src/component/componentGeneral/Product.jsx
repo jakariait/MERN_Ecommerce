@@ -241,11 +241,11 @@ const Product = () => {
 
           {/* Mobile Filter/Sort Buttons */}
           <div className="md:hidden mb-4 flex items-center justify-between">
-            <IconButton onClick={() => setLeftDrawerOpen(true)}>
+            <IconButton onClick={() => setLeftDrawerOpen(true)} aria-label="Open filters">
               <SlidersHorizontal size={20} className="primaryTextColor" />
             </IconButton>
 
-            <IconButton onClick={() => setRightDrawerOpen(true)}>
+            <IconButton onClick={() => setRightDrawerOpen(true)} aria-label="Open sort options">
               <ArrowDownWideNarrow size={25} className="primaryTextColor" />
             </IconButton>
           </div>
@@ -255,11 +255,12 @@ const Product = () => {
             anchor="left"
             open={leftDrawerOpen}
             onClose={() => setLeftDrawerOpen(false)}
+            aria-label="Filter options"
           >
             <div className="w-[300px] p-4">
               <div className="flex justify-between items-center mb-4">
                 <Typography variant="h6">Filters</Typography>
-                <IconButton onClick={() => setLeftDrawerOpen(false)}>
+                <IconButton onClick={() => setLeftDrawerOpen(false)} aria-label="Close filters">
                   <CloseIcon />
                 </IconButton>
               </div>
@@ -282,6 +283,7 @@ const Product = () => {
                           size="small"
                           onClick={handleClearSearch}
                           className="text-gray-400 hover:text-gray-600"
+                          aria-label="Clear search"
                         >
                           <CloseIcon size={16} />
                         </IconButton>
@@ -372,11 +374,12 @@ const Product = () => {
             anchor="bottom"
             open={rightDrawerOpen}
             onClose={() => setRightDrawerOpen(false)}
+            aria-label="Sort options"
           >
             <div className="p-4">
               <div className="flex justify-between items-center mb-4">
                 <Typography variant="h6">Sort Options</Typography>
-                <IconButton onClick={() => setRightDrawerOpen(false)}>
+                <IconButton onClick={() => setRightDrawerOpen(false)} aria-label="Close sort options">
                   <CloseIcon />
                 </IconButton>
               </div>
@@ -549,11 +552,12 @@ const Product = () => {
             <div className="mb-4 flex flex-wrap gap-2">
               {currentFilters.search && (
                 <div className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm flex items-center gap-2">
-                  <Search size={14} />
+                  <Search size={14} aria-hidden="true" />
                   Search: "{currentFilters.search}"
                   <button
                     onClick={handleClearSearch}
                     className="hover:bg-blue-200 rounded-full p-1"
+                    aria-label="Clear search filter"
                   >
                     <CloseIcon size={12} />
                   </button>
@@ -616,8 +620,9 @@ const Product = () => {
                       ? "border-gray-300 text-gray-400 cursor-not-allowed"
                       : "border-gray-500 hover:bg-gray-100"
                   }`}
+                aria-label="Previous page"
               >
-                <ChevronLeft size={18} />
+                <ChevronLeft size={18} aria-hidden="true" />
                 <span className="hidden md:block">Previous</span>
               </button>
 
@@ -640,9 +645,10 @@ const Product = () => {
                       ? "border-gray-300 text-gray-400 cursor-not-allowed"
                       : "border-gray-500 hover:bg-gray-100"
                   }`}
+                aria-label="Next page"
               >
                 <span className="hidden md:block">Next</span>
-                <ChevronRight size={18} />
+                <ChevronRight size={18} aria-hidden="true" />
               </button>
             </div>
           )}

@@ -54,6 +54,8 @@ const ImageComponentWithCompression = ({
       <img
         src={imageUrl}
         alt={altName || "Image"}
+        width={finalWidth}
+        height={finalHeight}
         className={`${className || "w-full h-auto"} transition-opacity duration-300 ${
           isLoading ? "opacity-0" : "opacity-100"
         }`}

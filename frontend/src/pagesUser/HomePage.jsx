@@ -7,6 +7,7 @@ import ProductByFlag from "../component/componentGeneral/ProductByFlag.jsx";
 const HomePage = () => {
   return (
     <Layout>
+      <h1 className="sr-only">Welcome to Our Store</h1>
       <ProductCarousel />
       <Feature />
       <ProductByFlag />
