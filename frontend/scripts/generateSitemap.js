@@ -7,7 +7,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const API_URL = process.env.VITE_API_URL || "https://ecommerce-server.digiweb.digital/api";
-const FRONTEND_URL = "https://ecommerce.digiweb.digital";
+const FRONTEND_URL = process.env.FRONTEND_URL;
 
 const generateSitemap = async () => {
   try {
@@ -19,8 +19,8 @@ const generateSitemap = async () => {
       axios.get(`${API_URL}/activeblog`),
     ]);
 
-    const products = productsRes.data?.data?.products || productsRes.data?.data || productsRes.data || [];
-    const categories = categoriesRes.data?.data || categoriesRes.data || [];
+    const products = productsRes.data?.products || productsRes.data?.data || productsRes.data || [];
+    const categories = categoriesRes.data?.categories || categoriesRes.data?.data || categoriesRes.data || [];
     const blogs = blogsRes.data?.data || blogsRes.data || [];
 
     console.log(`Found ${products.length} products, ${categories.length} categories, ${blogs.length} blogs`);
