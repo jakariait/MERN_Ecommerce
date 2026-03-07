@@ -1,12 +1,15 @@
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
+import dotenv from "dotenv";
 import axios from "axios";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const API_URL = process.env.VITE_API_URL || "https://ecommerce-server.digiweb.digital/api";
+dotenv.config({ path: path.join(__dirname, "..", ".env") });
+
+const API_URL = process.env.VITE_API_URL;
 const FRONTEND_URL = process.env.FRONTEND_URL;
 
 const generateSitemap = async () => {
@@ -23,14 +26,26 @@ const generateSitemap = async () => {
       axios.get(`${API_URL}/activeblog`),
     ]);
 
-    products = productsRes.data?.products || productsRes.data?.data || productsRes.data || [];
-    categories = categoriesRes.data?.categories || categoriesRes.data?.data || categoriesRes.data || [];
+    products =
+      productsRes.data?.products ||
+      productsRes.data?.data ||
+      productsRes.data ||
+      [];
+    categories =
+      categoriesRes.data?.categories ||
+      categoriesRes.data?.data ||
+      categoriesRes.data ||
+      [];
     blogs = blogsRes.data?.data || blogsRes.data || [];
   } catch (error) {
-    console.warn(`Warning: Could not fetch from API (${error.message}). Generating sitemap with static pages only.`);
+    console.warn(
+      `Warning: Could not fetch from API (${error.message}). Generating sitemap with static pages only.`,
+    );
   }
 
-  console.log(`Found ${products.length} products, ${categories.length} categories, ${blogs.length} blogs`);
+  console.log(
+    `Found ${products.length} products, ${categories.length} categories, ${blogs.length} blogs`,
+  );
 
   const today = new Date().toISOString().split("T")[0];
 
@@ -78,7 +93,9 @@ const generateSitemap = async () => {
 
   products.forEach((product) => {
     if (product.isActive !== false) {
-      const updatedAt = product.updatedAt ? new Date(product.updatedAt).toISOString().split("T")[0] : today;
+      const updatedAt = product.updatedAt
+        ? new Date(product.updatedAt).toISOString().split("T")[0]
+        : today;
       sitemap += `  <url>
     <loc>${FRONTEND_URL}/product/${product.slug}</loc>
     <lastmod>${updatedAt}</lastmod>
@@ -91,7 +108,9 @@ const generateSitemap = async () => {
 
   blogs.forEach((blog) => {
     if (blog.isActive !== false) {
-      const updatedAt = blog.updatedAt ? new Date(blog.updatedAt).toISOString().split("T")[0] : today;
+      const updatedAt = blog.updatedAt
+        ? new Date(blog.updatedAt).toISOString().split("T")[0]
+        : today;
       sitemap += `  <url>
     <loc>${FRONTEND_URL}/blogs/${blog.slug}</loc>
     <lastmod>${updatedAt}</lastmod>
@@ -111,7 +130,9 @@ const generateSitemap = async () => {
 
   fs.writeFileSync(path.join(publicDir, "sitemap.xml"), sitemap);
   console.log(`✅ Sitemap generated at public/sitemap.xml`);
-  console.log(`   Total URLs: ${staticPages.length + categories.length + products.length + blogs.length}`);
+  console.log(
+    `   Total URLs: ${staticPages.length + categories.length + products.length + blogs.length}`,
+  );
 };
 
 generateSitemap();
