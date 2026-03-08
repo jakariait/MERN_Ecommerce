@@ -76,12 +76,13 @@ const fileFilter = (req, file, cb) => {
     file.mimetype === "image/jpeg" ||
     file.mimetype === "image/png" ||
     file.mimetype === "image/webp" ||
-    file.mimetype === "image/jpg"
+    file.mimetype === "image/jpg" ||
+    file.mimetype === "image/svg+xml"
   ) {
     cb(null, true);
   } else {
     cb(
-      new Error("Invalid file type. Only JPEG, PNG, jpg and WebP are allowed."),
+      new Error("Invalid file type. Only JPEG, PNG, JPG, WebP and SVG are allowed."),
       false,
     );
   }

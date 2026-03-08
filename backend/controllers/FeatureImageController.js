@@ -74,7 +74,12 @@ const getFeatureImageById = async (req, res) => {
 const updateFeatureImage = async (req, res) => {
   try {
     const { id } = req.params;
-    const { title, imgSrc } = req.body;
+    const { title } = req.body;
+
+    let imgSrc = null;
+    if (req.files && req.files.imgSrc) {
+      imgSrc = req.files.imgSrc[0].filename;
+    }
 
     // Call the service function to update a feature image
     const updatedFeatureImage = await featureImageService.updateFeatureImage(id, title, imgSrc);

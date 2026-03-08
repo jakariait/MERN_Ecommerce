@@ -1,4 +1,17 @@
+const fs = require("fs");
+const path = require("path");
 const BlogModel = require("../models/BlogModel");
+
+const uploadsDir = path.join(__dirname, "../uploads");
+
+const deleteOldFile = (filename) => {
+  if (filename) {
+    const filePath = path.join(uploadsDir, filename);
+    if (fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath);
+    }
+  }
+};
 
 // Create a new blog
 const createBlog = (data) => {
@@ -50,12 +63,22 @@ const getBlogById = (id) => {
 };
 
 // Update blog by ID
-const updateBlog = (id, updates) => {
+const updateBlog = async (id, updates) => {
+  if (updates.thumbnailImage) {
+    const existingBlog = await BlogModel.findById(id);
+    if (existingBlog && existingBlog.thumbnailImage) {
+      deleteOldFile(existingBlog.thumbnailImage);
+    }
+  }
   return BlogModel.findByIdAndUpdate(id, updates, { new: true });
 };
 
 // Delete blog by ID
-const deleteBlog = (id) => {
+const deleteBlog = async (id) => {
+  const blog = await BlogModel.findById(id);
+  if (blog && blog.thumbnailImage) {
+    deleteOldFile(blog.thumbnailImage);
+  }
   return BlogModel.findByIdAndDelete(id);
 };
 

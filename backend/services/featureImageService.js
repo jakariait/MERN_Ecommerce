@@ -1,4 +1,17 @@
+const fs = require("fs");
+const path = require("path");
 const FeatureImageModel = require("../models/FeatureImageModel");
+
+const uploadsDir = path.join(__dirname, "../uploads");
+
+const deleteOldFile = (filename) => {
+  if (filename) {
+    const filePath = path.join(uploadsDir, filename);
+    if (fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath);
+    }
+  }
+};
 
 // Create a new feature image
 const createFeatureImage = async (title, imgSrc) => {
@@ -24,6 +37,12 @@ const updateFeatureImage = async (id, title, imgSrc) => {
   // Prepare the update data
   const updateData = {};
 
+  // Get existing feature image to check for old file
+  const existingFeatureImage = await FeatureImageModel.findById(id);
+  if (!existingFeatureImage) {
+    throw new Error("Feature image not found");
+  }
+
   // Update the title if provided
   if (title) {
     updateData.title = title;
@@ -31,6 +50,7 @@ const updateFeatureImage = async (id, title, imgSrc) => {
 
   // Update the image source if provided
   if (imgSrc) {
+    deleteOldFile(existingFeatureImage.imgSrc);
     updateData.imgSrc = imgSrc; // Store only the filename
   }
 
@@ -60,10 +80,12 @@ const updateFeatureImage = async (id, title, imgSrc) => {
 
 // Delete a feature image
 const deleteFeatureImage = async (id) => {
-  const deletedFeatureImage = await FeatureImageModel.findByIdAndDelete(id);
+  const deletedFeatureImage = await FeatureImageModel.findById(id);
   if (!deletedFeatureImage) {
     throw new Error("Feature image not found");
   }
+  deleteOldFile(deletedFeatureImage.imgSrc);
+  await FeatureImageModel.findByIdAndDelete(id);
   return deletedFeatureImage;
 };
 
