@@ -20,10 +20,26 @@ const Feature = () => {
       {FeatureStoreListLoading ? (
         <>
           <div className={"grid grid-cols-2 md:grid-cols-4 gap-6 mb-6"}>
-            <Skeleton height={200} width={"100%"} />
-            <Skeleton height={200} width={"100%"} />
-            <Skeleton height={200} width={"100%"} />
-            <Skeleton height={200} width={"100%"} />
+            <Skeleton
+              height={100}
+              width={"100%"}
+              style={{ minHeight: "100px" }}
+            />
+            <Skeleton
+              height={100}
+              width={"100%"}
+              style={{ minHeight: "100px" }}
+            />
+            <Skeleton
+              height={100}
+              width={"100%"}
+              style={{ minHeight: "100px" }}
+            />
+            <Skeleton
+              height={100}
+              width={"100%"}
+              style={{ minHeight: "100px" }}
+            />
           </div>
         </>
       ) : (
@@ -32,20 +48,19 @@ const Feature = () => {
             {FeatureStoreList.map((feature) => (
               <div
                 key={feature._id}
-                className="bg-white border border-gray-300 rounded-xl shadow-md py-3 flex flex-col items-center text-center hover:-translate-y-1 transition-all duration-300"
+                className="bg-white border border-gray-300 rounded-xl shadow-md py-3 flex flex-col items-center text-center hover:-translate-y-1 transition-all duration-300 min-h-[100px]"
               >
                 {/* Centering the Image */}
-                <div className="flex justify-center items-center">
+                <div className="flex justify-center items-center w-16 h-16">
                   <ImageComponent
                     imageName={feature.imgSrc}
                     className="w-16 h-16 object-contain"
                     altName={feature.title}
+                    skeletonHeight={64}
                   />
                 </div>
                 {/* Title */}
-                <h2 className="mt-6 text-gray-700 text-sm ">
-                  {feature.title}
-                </h2>
+                <h2 className="mt-6 text-gray-700 text-sm ">{feature.title}</h2>
               </div>
             ))}
           </div>
