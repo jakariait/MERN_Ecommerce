@@ -11,8 +11,9 @@ const ImageComponentWithCompression = ({
   height,
   loadingStrategy = "lazy",
   fetchPriority = "auto",
+  hideSkeleton = false,
 }) => {
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(!hideSkeleton);
   const [hasError, setHasError] = useState(false);
 
   const isMobile = useIsMobile();
@@ -45,7 +46,7 @@ const ImageComponentWithCompression = ({
 
   return (
     <div className="relative overflow-hidden">
-      {isLoading && !hasError && (
+      {isLoading && !hasError && !hideSkeleton && (
         <div className="absolute inset-0 z-10">
           <Skeleton height={skeletonHeight} width="100%" />
         </div>

@@ -5,7 +5,6 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import Skeleton from "react-loading-skeleton";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
-import GeneralInfoStore from "../../store/GeneralInfoStore.js";
 import ImageComponentWithCompression from "./ImageComponentWithCompression.jsx";
 
 const ProductCarousel = () => {
@@ -14,8 +13,6 @@ const ProductCarousel = () => {
     CarouselStoreListLoading,
     CarouselStoreListError,
   } = CarouselStore();
-
-  const { GeneralInfoList } = GeneralInfoStore();
 
   const [products, setProducts] = useState([]);
   const sliderRef = useRef(null);
@@ -75,6 +72,7 @@ const ProductCarousel = () => {
                   height={1000}
                   loadingStrategy="eager"
                   fetchPriority="high"
+                  hideSkeleton={index === 0}
                 />
               </div>
             ))}
