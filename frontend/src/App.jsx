@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { useEffect, lazy, Suspense } from "react";
+import TagManager from "react-gtm-module";
 
 import useColorStore from "./store/ColorStore.js";
 import GeneralInfoStore from "./store/GeneralInfoStore.js";
@@ -222,6 +223,23 @@ function App() {
 
     fetchData();
   }, []); // ✅ Empty dependency array to prevent unnecessary re-renders
+
+  useEffect(() => {
+    const initGTM = async () => {
+      try {
+        const API_BASE = import.meta.env.VITE_API_URL;
+        const res = await fetch(`${API_BASE}/getGTM`);
+        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+        const data = await res.json();
+        if (data?.isActive && data?.googleTagManagerId) {
+          TagManager.initialize({ gtmId: data.googleTagManagerId });
+        }
+      } catch {
+        // fail silently
+      }
+    };
+    initGTM();
+  }, []);
 
   useEffect(() => {
     if (colors) {
