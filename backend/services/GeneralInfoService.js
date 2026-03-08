@@ -1,6 +1,18 @@
+const fs = require("fs");
 const GeneralInfoModel = require("../models/GeneralInfoModel");
 const mongoose = require("mongoose");
 const path = require("path");
+
+const uploadsDir = path.join(__dirname, "../uploads");
+
+const deleteOldFile = (filename) => {
+  if (filename) {
+    const filePath = path.join(uploadsDir, filename);
+    if (fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath);
+    }
+  }
+};
 
 // Get General Info (Only One Entry)
 const getGeneralInfo = async (req, res) => {
@@ -16,6 +28,18 @@ const updateGeneralInfo = async (data, files) => {
     const PrimaryLogo = files?.PrimaryLogo?.[0]?.filename || generalInfo?.PrimaryLogo;
     const SecondaryLogo = files?.SecondaryLogo?.[0]?.filename || generalInfo?.SecondaryLogo;
     const Favicon = files?.Favicon?.[0]?.filename || generalInfo?.Favicon;
+
+    if (generalInfo) {
+      if (files?.PrimaryLogo?.[0]?.filename && generalInfo?.PrimaryLogo) {
+        deleteOldFile(generalInfo.PrimaryLogo);
+      }
+      if (files?.SecondaryLogo?.[0]?.filename && generalInfo?.SecondaryLogo) {
+        deleteOldFile(generalInfo.SecondaryLogo);
+      }
+      if (files?.Favicon?.[0]?.filename && generalInfo?.Favicon) {
+        deleteOldFile(generalInfo.Favicon);
+      }
+    }
 
     if (!generalInfo) {
       generalInfo = new GeneralInfoModel({
