@@ -68,7 +68,7 @@ const ProductCarousel = () => {
               <div key={index} className="relative">
                 <ImageComponentWithCompression
                   imageName={product.imgSrc}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-contain"
                   skeletonHeight={400}
                   altName={`Banner ${index + 1}`}
                   width={1000}

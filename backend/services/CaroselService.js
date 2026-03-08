@@ -1,4 +1,17 @@
+const fs = require("fs");
+const path = require("path");
 const CarouselModel = require("../models/CarouselModel");
+
+const uploadsDir = path.join(__dirname, "../uploads");
+
+const deleteOldFile = (filename) => {
+  if (filename) {
+    const filePath = path.join(uploadsDir, filename);
+    if (fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath);
+    }
+  }
+};
 
 // Create Carousel
 
@@ -15,6 +28,10 @@ const getAllCarousels = async () => {
 // Delete Carousel
 
 const deleteCarousel = async (id) => {
+  const carousel = await CarouselModel.findById(id);
+  if (carousel && carousel.imgSrc) {
+    deleteOldFile(carousel.imgSrc);
+  }
   return await CarouselModel.findByIdAndDelete(id);
 };
 
