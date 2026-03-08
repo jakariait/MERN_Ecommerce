@@ -1,9 +1,28 @@
+const fs = require("fs");
+const path = require("path");
 const ProductModel = require("../models/ProductModel");
 const FlagModel = require("../models/FlagModel");
 const CategoryModel = require("../models/CategoryModel");
 const SubCategoryModel = require("../models/SubCategoryModel");
 const ChildCategoryModel = require("../models/ChildCategoryModel");
 const mongoose = require("mongoose");
+
+const uploadsDir = path.join(__dirname, "../uploads");
+
+const deleteOldFile = (filename) => {
+  if (filename) {
+    const filePath = path.join(uploadsDir, filename);
+    if (fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath);
+    }
+  }
+};
+
+const deleteOldFiles = (filenames) => {
+  if (Array.isArray(filenames)) {
+    filenames.forEach(deleteOldFile);
+  }
+};
 
 // Create a new product
 const createProduct = async (data) => {
@@ -87,6 +106,14 @@ const deleteProduct = async (productId) => {
   try {
     const deletedProduct = await ProductModel.findOneAndDelete({ productId });
     if (!deletedProduct) throw new Error("Product not found");
+    
+    if (deletedProduct.thumbnailImage) {
+      deleteOldFile(deletedProduct.thumbnailImage);
+    }
+    if (deletedProduct.images && deletedProduct.images.length > 0) {
+      deleteOldFiles(deletedProduct.images);
+    }
+    
     return deletedProduct;
   } catch (error) {
     throw new Error(error.message);
@@ -407,6 +434,9 @@ const updateProduct = async (productId, updatedData, files) => {
     // --- IMAGE HANDLING START ---
     // Handle thumbnail image update (only if a new file is uploaded)
     if (files && files.thumbnailImage && files.thumbnailImage.length > 0) {
+      if (product.thumbnailImage) {
+        deleteOldFile(product.thumbnailImage);
+      }
       product.thumbnailImage = files.thumbnailImage[0].filename;
     }
     // If no new thumbnail uploaded, keep the old one (do nothing)
@@ -430,6 +460,8 @@ const updateProduct = async (productId, updatedData, files) => {
       const toDelete = Array.isArray(updatedData.imagesToDelete)
         ? updatedData.imagesToDelete
         : [updatedData.imagesToDelete];
+      
+      toDelete.forEach(deleteOldFile);
       images = images.filter((img) => !toDelete.includes(img));
     }
 

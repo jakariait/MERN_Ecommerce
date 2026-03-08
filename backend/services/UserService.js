@@ -1,4 +1,17 @@
+const fs = require("fs");
+const path = require("path");
 const UserModel = require("../models/UserModel");
+
+const uploadsDir = path.join(__dirname, "../uploads");
+
+const deleteOldFile = (filename) => {
+  if (filename) {
+    const filePath = path.join(uploadsDir, filename);
+    if (fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath);
+    }
+  }
+};
 
 const userService = {
   getAllUsers: async () => await UserModel.find(),
@@ -7,13 +20,26 @@ const userService = {
 
   createUser: async (userData) => await UserModel.create(userData),
 
-  updateUser: async (id, userData) =>
-    await UserModel.findByIdAndUpdate(id, userData, {
+  updateUser: async (id, userData) => {
+    if (userData.userImage) {
+      const existingUser = await UserModel.findById(id);
+      if (existingUser && existingUser.userImage) {
+        deleteOldFile(existingUser.userImage);
+      }
+    }
+    return UserModel.findByIdAndUpdate(id, userData, {
       new: true,
       runValidators: true,
-    }),
+    });
+  },
 
-  deleteUser: async (id) => await UserModel.findByIdAndDelete(id),
+  deleteUser: async (id) => {
+    const user = await UserModel.findById(id);
+    if (user && user.userImage) {
+      deleteOldFile(user.userImage);
+    }
+    return UserModel.findByIdAndDelete(id);
+  },
 
 
   changePassword: async (userId, currentPassword, newPassword) => {
