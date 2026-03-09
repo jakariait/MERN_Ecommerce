@@ -2,11 +2,28 @@ const mongoose = require("mongoose");
 const CounterModel = require("./CounterModel");
 const slugify = require("slugify");
 
-const productSizeSchema = new mongoose.Schema({
-  size: {
+const attributeSchema = new mongoose.Schema({
+  option: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "ProductSize",
+    ref: "ProductOption",
     required: true,
+  },
+  value: {
+    type: String,
+    required: true,
+  },
+}, { _id: false });
+
+const productVariantSchema = new mongoose.Schema({
+  attributes: {
+    type: [attributeSchema],
+    required: true,
+    validate: {
+      validator: function(value) {
+        return value.length > 0;
+      },
+      message: "At least one attribute is required",
+    },
   },
   stock: {
     type: Number,
@@ -15,7 +32,7 @@ const productSizeSchema = new mongoose.Schema({
     min: 0,
     validate: {
       validator: function (value) {
-        return value >= 0; // Ensure the value is greater than or equal to 0
+        return value >= 0;
       },
       message: "Stock cannot be negative",
     },
@@ -26,7 +43,7 @@ const productSizeSchema = new mongoose.Schema({
     min: 0,
     validate: {
       validator: function (value) {
-        return value >= 0; // Ensure the value is greater than or equal to 0
+        return value >= 0;
       },
       message: "Price cannot be negative",
     },
@@ -36,7 +53,7 @@ const productSizeSchema = new mongoose.Schema({
     min: 0,
     validate: {
       validator: function (value) {
-        return value >= 0; // Ensure the value is greater than or equal to 0
+        return value >= 0;
       },
       message: "Discount cannot be negative",
     },
@@ -50,8 +67,6 @@ const productSchema = new mongoose.Schema(
     slug: { type: String, trim: true, unique: true }, // Auto-generated
     shortDesc: { type: String, trim: true },
     longDesc: { type: String, trim: true },
-    sizeChart: { type: String, trim: true },
-    shippingReturn: { type: String, trim: true },
     productCode: { type: String, trim: true },
 
     rewardPoints: {
@@ -87,7 +102,7 @@ const productSchema = new mongoose.Schema(
     thumbnailImage: { type: String, trim: true, required: true },
     images: [{ type: String, trim: true, required: true }],
 
-    variants: { type: [productSizeSchema], default: [] },
+    variants: { type: [productVariantSchema], default: [] },
 
     finalPrice: {
       type: Number,

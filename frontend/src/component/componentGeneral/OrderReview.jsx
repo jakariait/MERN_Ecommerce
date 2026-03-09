@@ -39,7 +39,7 @@ const OrderReview = ({ cart, removeFromCart, updateQuantity, formattedTotalAmoun
                   {item.name}
                 </h3>
               </Link>
-              {item.variant !== "Default" && <p>Size: {item.variant}</p>}
+              {item.variant !== "Default" && <p>Variant: {item.variant}</p>}
             </div>
             <div className="flex flex-col items-center justify-baseline gap-4">
               <div>

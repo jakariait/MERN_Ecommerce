@@ -10,6 +10,27 @@ const TrackOrder = () => {
   const [order, setOrder] = useState(null);
   const [error, setError] = useState("");
 
+  // Helper function to get variant display name from attributes
+  const getVariantDisplayName = (variant) => {
+    if (!variant) return "N/A";
+    if (variant.attributes && Array.isArray(variant.attributes)) {
+      const attributeValues = variant.attributes
+        .map((attr) => attr.value)
+        .filter((val) => val);
+      if (attributeValues.length > 0) {
+        return attributeValues.join(" / ");
+      }
+    }
+    // Fallback for old structure
+    if (variant.size?.name) {
+      return variant.size.name;
+    }
+    if (variant.sizeName) {
+      return variant.sizeName;
+    }
+    return "N/A";
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -146,7 +167,7 @@ const TrackOrder = () => {
                       {item.productId?.name}
                     </p>
                     <p className="text-sm text-gray-500">
-                      Size: {item.productId?.variants?.[0]?.sizeName}
+                      Size: {getVariantDisplayName(item.productId?.variants?.[0])}
                     </p>
                     <div className="flex justify-between text-sm text-gray-600">
                       <span>Qty: {item.quantity}</span>

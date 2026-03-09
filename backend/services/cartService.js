@@ -6,8 +6,8 @@ const getCart = async (userId) => {
 };
 
 const addToCart = async (userId, item) => {
-  if (!item.productId || !item.variant || !item.quantity) {
-    throw new Error("Missing productId, variant, or quantity");
+  if (!item.productId || !item.quantity) {
+    throw new Error("Missing productId or quantity");
   }
 
   let cart = await CartModel.findOne({ user: userId });
@@ -15,10 +15,12 @@ const addToCart = async (userId, item) => {
   if (!cart) {
     cart = new CartModel({ user: userId, items: [item] });
   } else {
+    // Match by variantId if available, otherwise by variant field for backward compatibility
+    const matchKey = item.variantId || item.variant;
     const index = cart.items.findIndex(
       (i) =>
         i.productId?.toString() === item.productId?.toString() &&
-        i.variant === item.variant
+        (i.variantId === matchKey || i.variant === matchKey)
     );
 
     if (index > -1) {
@@ -39,10 +41,11 @@ const updateCartItem = async (userId, productId, variant, quantity) => {
   const cart = await CartModel.findOne({ user: userId });
   if (!cart) throw new Error("Cart not found");
 
+  // Match by variantId or variant field for backward compatibility
   const index = cart.items.findIndex(
     (item) =>
       item.productId.toString() === productId &&
-      item.variant === variant
+      (item.variantId === variant || item.variant === variant)
   );
 
   if (index > -1) {
@@ -58,9 +61,11 @@ const removeCartItem = async (userId, productId, variant) => {
   const cart = await CartModel.findOne({ user: userId });
   if (!cart) throw new Error("Cart not found");
 
+  // Match by variantId or variant field for backward compatibility
   cart.items = cart.items.filter(
     (item) =>
-      !(item.productId.toString() === productId && item.variant === variant)
+      !(item.productId.toString() === productId &&
+        (item.variantId === variant || item.variant === variant))
   );
   await cart.save();
   return cart;

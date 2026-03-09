@@ -1,11 +1,32 @@
 const AbandonedCart = require("../models/AbandonedCartModel");
 const Product = require("../models/ProductModel");
-const ProductSizeModel = require("../models/ProductSizeModel");
 const Order = require("../models/OrderModel");
 const OrderCounter = require("../models/OrderCounterModel");
 const VatPercentage = require("../models/VatPercentage");
 const Shipping = require("../models/ShippingModel");
 const FreeDeliveryAmount = require("../models/FreeDeliveryAmount");
+
+// Helper function to get variant display name from attributes
+const getVariantDisplayName = (variant) => {
+  if (!variant) return "N/A";
+
+  // Handle new variant structure with attributes
+  if (variant.attributes && Array.isArray(variant.attributes)) {
+    const attributeValues = variant.attributes
+      .map((attr) => attr.value)
+      .filter((val) => val);
+    if (attributeValues.length > 0) {
+      return attributeValues.join(" / ");
+    }
+  }
+
+  // Fallback for old structure (if any legacy data exists)
+  if (variant.size?.name) {
+    return variant.size.name;
+  }
+
+  return "N/A";
+};
 
 const createAbandonedCart = async (cartData) => {
   try {
@@ -78,11 +99,10 @@ const getAllAbandonedCarts = async (page = 1, limit = 10, sort = "desc", status 
 
     const products = await Product.find({ _id: { $in: allProductIds } })
       .populate("category", "name")
+      .populate("variants.attributes.option", "name")
       .lean();
 
     const productMap = new Map(products.map((p) => [p._id.toString(), p]));
-
-    const sizeIds = new Set();
 
     carts.forEach((cart) => {
       cart.cartItems = cart.cartItems.map((item) => {
@@ -94,13 +114,10 @@ const getAllAbandonedCarts = async (page = 1, limit = 10, sort = "desc", status 
           );
 
           if (matchedVariant) {
-            if (matchedVariant.size) {
-              sizeIds.add(matchedVariant.size.toString());
-            }
-
             item.variant = {
               ...matchedVariant,
-              size: matchedVariant.size?.toString(), // normalize
+              // Add display name for easy rendering in frontend
+              displayName: getVariantDisplayName(matchedVariant),
             };
           }
 
@@ -121,22 +138,6 @@ const getAllAbandonedCarts = async (page = 1, limit = 10, sort = "desc", status 
         }
 
         return item;
-      });
-    });
-
-    const sizes = await ProductSizeModel.find({
-      _id: { $in: Array.from(sizeIds) },
-    })
-      .select("name")
-      .lean();
-
-    const sizeMap = new Map(sizes.map((s) => [s._id.toString(), s.name]));
-
-    carts.forEach((cart) => {
-      cart.cartItems.forEach((item) => {
-        if (item.variant?.size) {
-          item.variant.sizeName = sizeMap.get(item.variant.size) || "N/A";
-        }
       });
     });
 

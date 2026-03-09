@@ -7,7 +7,6 @@ const Shipping = require("../models/ShippingModel");
 const FreeDeliveryAmount = require("../models/FreeDeliveryAmount");
 const User = require("../models/UserModel");
 const Coupon = require("../models/CouponModel");
-const ProductSizeModel = require("../models/ProductSizeModel"); // Import the ProductSizeModel
 
 const createOrder = async (orderData, userId) => {
   try {
@@ -233,10 +232,16 @@ const getOrderById = async (orderId) => {
         path: "items.productId",
         select:
           "-sizeChart -longDesc -shortDesc -shippingReturn -videoUrl -flags -metaTitle -metaDescription -metaKeywords -searchTags",
-        populate: {
-          path: "category",
-          select: "name", // Only bring category name
-        },
+        populate: [
+          {
+            path: "category",
+            select: "name", // Only bring category name
+          },
+          {
+            path: "variants.attributes.option",
+            select: "name",
+          }
+        ],
       })
       .populate({
         path: "items.variantId",
@@ -248,30 +253,7 @@ const getOrderById = async (orderId) => {
       throw new Error("Order not found");
     }
 
-    // Collect all unique size IDs for the selected variants
-    const sizeIds = new Set();
-    order.items.forEach((item) => {
-      if (item.productId && item.productId.variants.length > 0) {
-        const matchedVariant = item.productId.variants.find(
-          (variant) => variant._id.toString() === item.variantId.toString(),
-        );
-        if (matchedVariant && matchedVariant.size) {
-          sizeIds.add(matchedVariant.size); // Add the size ID of the matched variant
-        }
-      }
-    });
-
-    // Fetch all size names in one query
-    const sizes = await ProductSizeModel.find({
-      _id: { $in: Array.from(sizeIds) },
-    })
-      .select("name")
-      .lean();
-    const sizeMap = new Map(
-      sizes.map((size) => [size._id.toString(), size.name]),
-    );
-
-    // Create a new items array with correctly structured variants to avoid mutation issues
+    // Filter and structure variants for each item
     const finalItems = order.items.map((item) => {
       if (!item.productId || !item.productId.variants || !item.variantId) {
         return item;
@@ -281,30 +263,11 @@ const getOrderById = async (orderId) => {
         (variant) => variant._id.toString() === item.variantId.toString(),
       );
 
-      if (matchedVariant) {
-        const sizeId = matchedVariant.size;
-        // Create an enriched variant object with the size name
-        const enrichedVariant = {
-          ...matchedVariant,
-          sizeName: sizeMap.get(sizeId.toString()) || "N/A",
-        };
-
-        // Return a new item object with a new product object containing only the enriched, matched variant
-        return {
-          ...item,
-          productId: {
-            ...item.productId,
-            variants: [enrichedVariant],
-          },
-        };
-      }
-
-      // If no variant matched, return the item with an empty variants array for consistency
       return {
         ...item,
         productId: {
           ...item.productId,
-          variants: [],
+          variants: matchedVariant ? [matchedVariant] : [],
         },
       };
     });
@@ -559,10 +522,16 @@ const getOrderByOrderNo = async (orderNo) => {
         path: "items.productId",
         select:
           "-sizeChart -longDesc -shortDesc -shippingReturn -videoUrl -flags -metaTitle -metaDescription -metaKeywords -searchTags",
-        populate: {
-          path: "category",
-          select: "name",
-        },
+        populate: [
+          {
+            path: "category",
+            select: "name",
+          },
+          {
+            path: "variants.attributes.option",
+            select: "name",
+          },
+        ],
       })
       .populate({
         path: "items.variantId",
@@ -574,30 +543,7 @@ const getOrderByOrderNo = async (orderNo) => {
       throw new Error("Order not found");
     }
 
-    // Collect all unique size IDs for the selected variants
-    const sizeIds = new Set();
-    order.items.forEach((item) => {
-      if (item.productId && item.productId.variants.length > 0) {
-        const matchedVariant = item.productId.variants.find(
-          (variant) => variant._id.toString() === item.variantId.toString(),
-        );
-        if (matchedVariant && matchedVariant.size) {
-          sizeIds.add(matchedVariant.size);
-        }
-      }
-    });
-
-    // Fetch all size names in one query
-    const sizes = await ProductSizeModel.find({
-      _id: { $in: Array.from(sizeIds) },
-    })
-      .select("name")
-      .lean();
-    const sizeMap = new Map(
-      sizes.map((size) => [size._id.toString(), size.name]),
-    );
-
-    // Create a new items array with correctly structured variants to avoid mutation issues
+    // Filter and structure variants for each item
     const finalItems = order.items.map((item) => {
       if (!item.productId || !item.productId.variants || !item.variantId) {
         return item;
@@ -606,18 +552,13 @@ const getOrderByOrderNo = async (orderNo) => {
         (variant) => variant._id.toString() === item.variantId.toString(),
       );
 
-      if (matchedVariant) {
-        const sizeId = matchedVariant.size;
-        const enrichedVariant = {
-          ...matchedVariant,
-          sizeName: sizeMap.get(sizeId.toString()) || "N/A",
-        };
-        return {
-          ...item,
-          productId: { ...item.productId, variants: [enrichedVariant] },
-        };
-      }
-      return { ...item, productId: { ...item.productId, variants: [] } };
+      return {
+        ...item,
+        productId: {
+          ...item.productId,
+          variants: matchedVariant ? [matchedVariant] : [],
+        },
+      };
     });
     order.items = finalItems;
 
@@ -634,10 +575,16 @@ const getOrdersByUserId = async (userId) => {
         path: "items.productId",
         select:
           "-sizeChart -longDesc -shortDesc -shippingReturn -videoUrl -flags -metaTitle -metaDescription -metaKeywords -searchTags",
-        populate: {
-          path: "category",
-          select: "name",
-        },
+        populate: [
+          {
+            path: "category",
+            select: "name",
+          },
+          {
+            path: "variants.attributes.option",
+            select: "name",
+          },
+        ],
       })
       .populate({
         path: "items.variantId",
@@ -651,36 +598,7 @@ const getOrdersByUserId = async (userId) => {
       throw new Error("No orders found for this user");
     }
 
-    // Collect all unique size IDs from all orders
-    const sizeIds = new Set();
-
-    orders.forEach((order) => {
-      order.items?.forEach((item) => {
-        if (item?.productId?.variants?.length > 0 && item?.variantId) {
-          const matchedVariant = item.productId.variants.find(
-            (variant) =>
-              variant?._id?.toString() === item.variantId?.toString(),
-          );
-
-          if (matchedVariant?.size) {
-            sizeIds.add(matchedVariant.size);
-          }
-        }
-      });
-    });
-
-    // Fetch all size names in one query
-    const sizes = await ProductSizeModel.find({
-      _id: { $in: Array.from(sizeIds) },
-    })
-      .select("name")
-      .lean();
-
-    const sizeMap = new Map(
-      sizes.map((size) => [size._id.toString(), size.name]),
-    );
-
-    // Clean up and assign size names to all orders
+    // Clean up and structure variants for all orders
     const updatedOrders = orders.map((order) => {
       const finalItems = order.items.map((item) => {
         if (!item.productId || !item.productId.variants || !item.variantId) {
@@ -690,18 +608,13 @@ const getOrdersByUserId = async (userId) => {
           (variant) => variant._id.toString() === item.variantId.toString(),
         );
 
-        if (matchedVariant) {
-          const sizeId = matchedVariant.size;
-          const enrichedVariant = {
-            ...matchedVariant,
-            sizeName: sizeMap.get(sizeId.toString()) || "N/A",
-          };
-          return {
-            ...item,
-            productId: { ...item.productId, variants: [enrichedVariant] },
-          };
-        }
-        return { ...item, productId: { ...item.productId, variants: [] } };
+        return {
+          ...item,
+          productId: {
+            ...item.productId,
+            variants: matchedVariant ? [matchedVariant] : [],
+          },
+        };
       });
       order.items = finalItems;
       return order;
@@ -723,10 +636,16 @@ const trackOrderByOrderNoAndPhone = async (orderNo, phone) => {
       path: "items.productId",
       select:
         "-sizeChart -longDesc -shortDesc -shippingReturn -videoUrl -flags -metaTitle -metaDescription -metaKeywords -searchTags",
-      populate: {
-        path: "category",
-        select: "name",
-      },
+      populate: [
+        {
+          path: "category",
+          select: "name",
+        },
+        {
+          path: "variants.attributes.option",
+          select: "name",
+        },
+      ],
     })
     .populate("items.variantId")
     .lean();
@@ -746,47 +665,20 @@ const trackOrderByOrderNoAndPhone = async (orderNo, phone) => {
     throw new Error("Phone number does not match order");
   }
 
-  // --- Size logic (no change) ---
-  const sizeIds = new Set();
-  order.items.forEach((item) => {
-    if (item.productId?.variants?.length > 0) {
-      const matchedVariant = item.productId.variants.find(
-        (variant) => variant._id.toString() === item.variantId.toString(),
-      );
-      if (matchedVariant?.size) {
-        sizeIds.add(matchedVariant.size);
-      }
-    }
-  });
-
-  const sizes = await ProductSizeModel.find({
-    _id: { $in: Array.from(sizeIds) },
-  })
-    .select("name")
-    .lean();
-
-  const sizeMap = new Map(
-    sizes.map((size) => [size._id.toString(), size.name]),
-  );
-
+  // Structure variants for each item
   order.items = order.items.map((item) => {
     if (item.productId?.variants && item.variantId) {
       const matchedVariant = item.productId.variants.find(
         (variant) => variant._id.toString() === item.variantId.toString(),
       );
 
-      if (matchedVariant) {
-        const sizeId = matchedVariant.size;
-        const enrichedVariant = {
-          ...matchedVariant,
-          sizeName: sizeMap.get(sizeId.toString()) || "N/A",
-        };
-        return {
-          ...item,
-          productId: { ...item.productId, variants: [enrichedVariant] },
-        };
-      }
-      return { ...item, productId: { ...item.productId, variants: [] } };
+      return {
+        ...item,
+        productId: {
+          ...item.productId,
+          variants: matchedVariant ? [matchedVariant] : [],
+        },
+      };
     }
     return item;
   });

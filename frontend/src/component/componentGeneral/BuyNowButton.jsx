@@ -39,9 +39,28 @@ const BuyNowButton = ({ product, isAddToCart = false }) => {
     }
   };
 
-  const handleSizeChange = (sizeName) => {
+  // Helper to get variant display name from attributes
+  const getVariantDisplayName = (variant) => {
+    if (!variant) return "N/A";
+    if (variant.attributes && Array.isArray(variant.attributes)) {
+      const attributeValues = variant.attributes
+        .map((attr) => attr.value)
+        .filter((val) => val);
+      if (attributeValues.length > 0) {
+        return attributeValues.join(" / ");
+      }
+    }
+    // Fallback for old structure
+    if (variant.size?.name) {
+      return variant.size.name;
+    }
+    return "N/A";
+  };
+
+  // Handle variant selection by its display name
+  const handleVariantChange = (displayName) => {
     const newVariant = product.variants.find(
-      (variant) => variant?.size?.name === sizeName,
+      (variant) => getVariantDisplayName(variant) === displayName,
     );
     setSelectedVariant(newVariant);
   };
@@ -114,26 +133,29 @@ const BuyNowButton = ({ product, isAddToCart = false }) => {
             </div>
           )}
 
-          {/* Size Variants */}
+          {/* Attribute Variants */}
           {product.variants?.length > 0 && (
             <div className="flex gap-4 items-center mt-4">
-              <h2 className="text-lg">Weight:</h2>
+              <h2 className="text-lg">Options:</h2>
               <div className="flex gap-2 flex-wrap">
-                {product.variants
-                  .filter((variant) => variant && variant.size)
-                  .map((variant) => (
+                {product.variants.map((variant) => {
+                  const variantDisplayName = getVariantDisplayName(variant);
+                  const isSelected =
+                    getVariantDisplayName(selectedVariant) === variantDisplayName;
+                  return (
                     <button
-                      key={variant.size.name}
-                      onClick={() => handleSizeChange(variant.size.name)}
+                      key={variant._id}
+                      onClick={() => handleVariantChange(variantDisplayName)}
                       className={`px-2 py-1 rounded transition-all cursor-pointer ${
-                        selectedVariant?.size.name === variant.size.name
+                        isSelected
                           ? "primaryBgColor text-white"
                           : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                       }`}
                     >
-                      {variant.size.name}
+                      {variantDisplayName}
                     </button>
-                  ))}
+                  );
+                })}
               </div>
             </div>
           )}

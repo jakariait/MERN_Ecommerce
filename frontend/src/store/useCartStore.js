@@ -41,7 +41,12 @@ const useCartStore = create((set, get) => ({
   },
 
   addToCart: async (product, quantity, selectedVariant) => {
-    const variant = selectedVariant?.size?.name || "Default";
+    // Extract variant name from attributes (e.g., "Size: L, Color: Red")
+    const variant = selectedVariant?.attributes
+      ? selectedVariant.attributes
+          .map((attr) => `${attr.value}`)
+          .join(" / ")
+      : "Default";
     const variantId = selectedVariant?._id || "Default";
     const token = localStorage.getItem("user_token");
 

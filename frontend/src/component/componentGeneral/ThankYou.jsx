@@ -8,6 +8,27 @@ const ThankYou = () => {
   const [order, setOrder] = useState(null);
   const apiUrl = import.meta.env.VITE_API_URL;
 
+  // Helper function to get variant display name from attributes
+  const getVariantDisplayName = (variant) => {
+    if (!variant) return "N/A";
+    if (variant.attributes && Array.isArray(variant.attributes)) {
+      const attributeValues = variant.attributes
+        .map((attr) => attr.value)
+        .filter((val) => val);
+      if (attributeValues.length > 0) {
+        return attributeValues.join(" / ");
+      }
+    }
+    // Fallback for old structure
+    if (variant.size?.name) {
+      return variant.size.name;
+    }
+    if (variant.sizeName) {
+      return variant.sizeName;
+    }
+    return "N/A";
+  };
+
   useEffect(() => {
     if (!orderId) return;
 
@@ -48,9 +69,11 @@ const ThankYou = () => {
                   item_category: item.productId?.category?.name || "N/A",
                   item_image: item.productId?.thumbnailImage || "",
                   item_size:
-                    item.productId?.variants?.find(
-                      (variant) => variant._id === item.variantId,
-                    )?.sizeName || "N/A",
+                    getVariantDisplayName(
+                      item.productId?.variants?.find(
+                        (variant) => variant._id === item.variantId,
+                      ),
+                    ),
                 })),
               },
             });

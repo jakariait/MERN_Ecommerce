@@ -4,7 +4,7 @@ import useCategoryStore from "../../store/useCategoryStore.js";
 import useSubCategoryStore from "../../store/useSubCategoryStore.js";
 import useChildCategoryStore from "../../store/useChildCategoryStore.js";
 import useFlagStore from "../../store/useFlagStore.js";
-import useProductSizeStore from "../../store/useProductSizeStore.js";
+import useProductOptionStore from "../../store/useProductOptionStore.js";
 import AuthAdminStore from "../../store/AuthAdminStore.js";
 import useProductStore from "../../store/useProductStore.js";
 const Editor = lazy(() =>
@@ -33,6 +33,7 @@ import {
   Switch,
   Snackbar,
   Alert,
+  IconButton,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import axios from "axios";
@@ -46,7 +47,7 @@ const ProductForm = ({ isEdit: isEditMode }) => {
   const { subCategories } = useSubCategoryStore();
   const { childCategories } = useChildCategoryStore();
   const { flags } = useFlagStore();
-  const { productSizes } = useProductSizeStore();
+  const { productOptions, fetchProductOptions } = useProductOptionStore();
   const apiUrl = import.meta.env.VITE_API_URL;
   const { token } = AuthAdminStore();
   const navigate = useNavigate();
@@ -55,8 +56,6 @@ const ProductForm = ({ isEdit: isEditMode }) => {
   const [name, setName] = useState("");
   const [shortDesc, setShortDesc] = useState("");
   const [longDesc, setLongDesc] = useState("");
-  const [sizeChart, setSizeChart] = useState("");
-  const [shippingReturn, setShippingReturn] = useState("");
   const [productCode, setProductCode] = useState("");
   const [rewardPoints, setRewardPoints] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
@@ -82,9 +81,11 @@ const ProductForm = ({ isEdit: isEditMode }) => {
   const [selectedFlags, setSelectedFlags] = useState([]);
   const [hasVariant, setHasVariant] = useState(true);
   const [variants, setVariants] = useState([
-    { size: "", stock: "", price: "", discount: "" },
+    { attributes: [{ option: "", value: "" }], stock: "", price: "", discount: "" },
   ]);
-  const [isActive, setIsActive] = useState("");
+  const [isActive, setIsActive] = useState("true");
+
+  // State specific to update mode
   const [existingImages, setExistingImages] = useState([]);
   const [imagesToDelete, setImagesToDelete] = useState([]);
 
@@ -103,17 +104,15 @@ const ProductForm = ({ isEdit: isEditMode }) => {
     if (isEditMode && slug) {
       fetchProductBySlug(slug);
     }
-  }, [slug, isEditMode, fetchProductBySlug]);
+    fetchProductOptions();
+  }, [isEditMode, slug, fetchProductBySlug, fetchProductOptions]);
 
   useEffect(() => {
     if (isEditMode && product) {
       setName(product.name || "");
       setShortDesc(product.shortDesc || "");
       setLongDesc(product.longDesc || "");
-      setSizeChart(product.sizeChart || "");
-      setShippingReturn(product.shippingReturn || "");
       setProductCode(product.productCode || "");
-      setIsActive(String(product.isActive));
       setRewardPoints(product.rewardPoints || "");
       setVideoUrl(product.videoUrl || "");
       setMetaTitle(product.metaTitle || "");
@@ -125,7 +124,7 @@ const ProductForm = ({ isEdit: isEditMode }) => {
       setFinalStock(product.finalStock || "");
       setPurchasePrice(product.purchasePrice || "");
       setSelectedFlags(product.flags?.map((f) => f._id) || []);
-      setExistingImages(product.images || []);
+      setIsActive(String(product.isActive));
 
       if (product.category) {
         setSelectedCategory(product.category._id);
@@ -151,10 +150,15 @@ const ProductForm = ({ isEdit: isEditMode }) => {
         setImagePreview(`${imageUrl}/${product.thumbnailImage}`);
       }
 
+      setExistingImages(product.images || []);
+
       if (product.variants && product.variants.length > 0) {
         setVariants(
           product.variants.map((v) => ({
-            size: v.size._id,
+            attributes: v.attributes ? v.attributes.map((attr) => ({
+              option: attr.option ? attr.option._id : "",
+              value: attr.value || "",
+            })) : [],
             stock: v.stock,
             price: v.price,
             discount: v.discount || "",
@@ -162,6 +166,9 @@ const ProductForm = ({ isEdit: isEditMode }) => {
         );
         setHasVariant(true);
       } else {
+        setVariants([
+          { attributes: [{ option: "", value: "" }], stock: "", price: "", discount: "" },
+        ]);
         setHasVariant(false);
       }
     }
@@ -174,12 +181,24 @@ const ProductForm = ({ isEdit: isEditMode }) => {
   const handleAddVariant = () => {
     setVariants([
       ...variants,
-      { size: "", stock: "", price: "", discount: "" },
+      { attributes: [{ option: "", value: "" }], stock: "", price: "", discount: "" },
     ]);
   };
 
   const handleRemoveVariant = (index) => {
     setVariants(variants.filter((_, i) => i !== index));
+  };
+
+  const handleAddAttribute = (variantIndex) => {
+    const updatedVariants = [...variants];
+    updatedVariants[variantIndex].attributes.push({ option: "", value: "" });
+    setVariants(updatedVariants);
+  };
+
+  const handleRemoveAttribute = (variantIndex, attributeIndex) => {
+    const updatedVariants = [...variants];
+    updatedVariants[variantIndex].attributes.splice(attributeIndex, 1);
+    setVariants(updatedVariants);
   };
 
   const handleMultipleImagesChange = (event) => {
@@ -191,20 +210,22 @@ const ProductForm = ({ isEdit: isEditMode }) => {
     setImagePreviews((prevPreviews) => [...prevPreviews, ...newPreviews]);
   };
 
-  const handleRemoveNewImage = (index) => {
+  const handleRemoveImages = (index) => {
     setSelectedImages((prevImages) => prevImages.filter((_, i) => i !== index));
     setImagePreviews((prevPreviews) => {
       URL.revokeObjectURL(prevPreviews[index]);
       return prevPreviews.filter((_, i) => i !== index);
     });
 
-    if (imagesInputRef.current && selectedImages.length === 1) {
-      imagesInputRef.current.value = "";
+    if (selectedImages.length === 1 && !isEditMode) {
+      document.getElementById("multi-image-upload").value = "";
     }
   };
 
-  const handleRemoveExistingImage = (index) => {
-    setExistingImages((prev) => prev.filter((_, i) => i !== index));
+  const handleRemoveExistingImage = (indexToRemove) => {
+    const imageNameToDelete = existingImages[indexToRemove];
+    setImagesToDelete((prev) => [...prev, imageNameToDelete]);
+    setExistingImages((prev) => prev.filter((_, i) => i !== indexToRemove));
   };
 
   const handleRemoveAllNewImages = () => {
@@ -251,23 +272,30 @@ const ProductForm = ({ isEdit: isEditMode }) => {
     const categoryId = e.target.value;
     setSelectedCategory(categoryId);
     setSelectedSubCategory("");
+    setFilteredSubCategories([]);
     setSelectedChildCategory("");
+    setFilteredChildCategories([]);
 
-    const filtered = subCategories.filter(
-      (sub) => sub.category._id === categoryId,
-    );
-    setFilteredSubCategories(filtered);
+    if (categoryId) {
+      const filtered = subCategories.filter(
+        (sub) => sub.category._id === categoryId,
+      );
+      setFilteredSubCategories(filtered);
+    }
   };
 
   const handleSubCategoryChange = (e) => {
     const subCategoryId = e.target.value;
     setSelectedSubCategory(subCategoryId);
     setSelectedChildCategory("");
+    setFilteredChildCategories([]);
 
-    const filtered = childCategories.filter(
-      (child) => child.subCategory._id === subCategoryId,
-    );
-    setFilteredChildCategories(filtered);
+    if (subCategoryId) {
+      const filtered = childCategories.filter(
+        (child) => child.subCategory._id === subCategoryId,
+      );
+      setFilteredChildCategories(filtered);
+    }
   };
 
   const handleChildCategoryChange = (e) => {
@@ -336,13 +364,10 @@ const ProductForm = ({ isEdit: isEditMode }) => {
     if (!name.trim()) validationErrors.name = "Product name is required.";
     if (!selectedCategory) validationErrors.category = "Category is required.";
 
-    if (isEditMode) {
-      if (!imagePreview && !product.thumbnailImage)
-        validationErrors.thumbnailImage = "Thumbnail image is required.";
-    } else {
-      if (!(thumbnailImage instanceof File)) {
-        validationErrors.thumbnailImage = "Thumbnail image is required.";
-      }
+    if (!imagePreview && !isEditMode) {
+      validationErrors.thumbnailImage = "Thumbnail image is required.";
+    } else if (isEditMode && !imagePreview && !product?.thumbnailImage) {
+      validationErrors.thumbnailImage = "Thumbnail image is required.";
     }
 
     if (existingImages.length + selectedImages.length === 0) {
@@ -358,8 +383,6 @@ const ProductForm = ({ isEdit: isEditMode }) => {
     formData.append("name", name);
     formData.append("shortDesc", shortDesc);
     formData.append("longDesc", longDesc);
-    formData.append("sizeChart", sizeChart);
-    formData.append("shippingReturn", shippingReturn);
     formData.append("productCode", productCode);
     formData.append("rewardPoints", rewardPoints);
     formData.append("videoUrl", videoUrl);
@@ -369,10 +392,7 @@ const ProductForm = ({ isEdit: isEditMode }) => {
     formData.append("finalDiscount", finalDiscount);
     formData.append("finalStock", finalStock);
     formData.append("purchasePrice", purchasePrice);
-
-    if (isEditMode) {
-      formData.append("isActive", isActive);
-    }
+    formData.append("isActive", isActive);
 
     if (selectedCategory) formData.append("category", selectedCategory);
     if (selectedSubCategory)
@@ -380,28 +400,23 @@ const ProductForm = ({ isEdit: isEditMode }) => {
     if (selectedChildCategory)
       formData.append("childCategory", selectedChildCategory);
 
-    if (selectedFlags.length > 0) {
-      selectedFlags.forEach((flag) => formData.append("flags", flag));
-    }
-    if (searchTags.length > 0) {
-      searchTags.forEach((tag) => formData.append("searchTags", tag));
-    }
-    if (metaKeywords.length > 0) {
-      metaKeywords.forEach((keyword) =>
-        formData.append("metaKeywords", keyword),
-      );
-    }
+    selectedFlags.forEach((flag) => formData.append("flags", flag));
+    searchTags.forEach((tag) => formData.append("searchTags", tag));
+    metaKeywords.forEach((keyword) => formData.append("metaKeywords", keyword));
 
     if (thumbnailImage instanceof File) {
       formData.append("thumbnailImage", thumbnailImage);
     }
 
-    if (isEditMode) {
+    if (isEditMode && imagesToDelete.length > 0) {
+      imagesToDelete.forEach((imageName) => {
+        formData.append("imagesToDelete", imageName);
+      });
+    }
+
+    if (isEditMode && existingImages.length > 0) {
       existingImages.forEach((imageName) => {
         formData.append("existingImages", imageName);
-      });
-      imagesToDelete.forEach((imageUrl) => {
-        formData.append("imagesToDelete", imageUrl);
       });
     }
 
@@ -411,34 +426,36 @@ const ProductForm = ({ isEdit: isEditMode }) => {
       }
     });
 
-    if (isEditMode) {
-      if (variants.length > 0) {
-        variants.forEach((variant, index) => {
-          if (variant.size && variant.stock && variant.price) {
-            Object.keys(variant).forEach((key) => {
-              formData.append(`variants[${index}][${key}]`, variant[key]);
-            });
-          }
+    const processedVariants = variants.filter(
+      (variant) =>
+        variant.attributes.length > 0 &&
+        variant.attributes.every((attr) => attr.option && attr.value) &&
+        variant.price &&
+        variant.stock !== "" &&
+        variant.stock != null,
+    );
+
+    if (hasVariant && processedVariants.length > 0) {
+      processedVariants.forEach((variant, index) => {
+        formData.append(`variants[${index}][stock]`, variant.stock);
+        formData.append(`variants[${index}][price]`, variant.price);
+        formData.append(`variants[${index}][discount]`, variant.discount);
+        variant.attributes.forEach((attr, attrIndex) => {
+          formData.append(
+            `variants[${index}][attributes][${attrIndex}][option]`,
+            attr.option,
+          );
+          formData.append(
+            `variants[${index}][attributes][${attrIndex}][value]`,
+            attr.value,
+          );
         });
-      } else {
-        formData.append("variants", JSON.stringify([]));
-      }
-    } else {
-      if (variants.length > 0) {
-        variants.forEach((variant, index) => {
-          if (!variant.size || !variant.stock || !variant.price) {
-            return;
-          }
-          Object.keys(variant).forEach((key) => {
-            formData.append(`variants[${index}][${key}]`, variant[key]);
-          });
-        });
-      }
+      });
     }
 
     try {
       if (isEditMode) {
-        await axios.put(`${apiUrl}/products/${product.productId}`, formData, {
+        await axios.put(`${apiUrl}/products/${product._id}`, formData, {
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "multipart/form-data",
@@ -454,8 +471,6 @@ const ProductForm = ({ isEdit: isEditMode }) => {
         setName("");
         setShortDesc("");
         setLongDesc("");
-        setSizeChart("");
-        setShippingReturn("");
         setProductCode("");
         setRewardPoints("");
         setVideoUrl("");
@@ -475,7 +490,9 @@ const ProductForm = ({ isEdit: isEditMode }) => {
         setImagePreview("");
         setSelectedImages([]);
         setImagePreviews([]);
-        setVariants([{ size: "", stock: "", price: "", discount: "" }]);
+        setVariants([{ attributes: [{ option: "", value: "" }], stock: "", price: "", discount: "" }]);
+        setHasVariant(true);
+        setIsActive("true");
         if (fileInputRef.current) fileInputRef.current.value = "";
         if (imagesInputRef.current) imagesInputRef.current.value = "";
       }
@@ -503,17 +520,29 @@ const ProductForm = ({ isEdit: isEditMode }) => {
   if (isEditMode && !product) {
     return (
       <div>
-        <Skeleton height={40} width={300} />
-        <div className={"grid grid-cols-12 gap-8"}>
-          <div className={"col-span-8"}>
-            <Skeleton height={400} />
-            <Skeleton height={200} className="mt-4" />
-          </div>
+        <div className={"grid grid-cols-6 gap-6"}>
           <div className={"col-span-4"}>
-            <Skeleton height={250} />
-            <Skeleton height={300} className="mt-4" />
+            <Skeleton height={50} width={"100%"} />
+            <Skeleton height={150} width={"100%"} />
+            <Skeleton height={50} width={"100%"} />
+            <Skeleton height={100} width={"100%"} />
+            <Skeleton height={50} width={"100%"} />
+          </div>
+          <div className={"col-span-2 "}>
+            <Skeleton height={150} width={"100%"} />
+            <Skeleton height={50} width={"100%"} />
+            <Skeleton height={50} width={"100%"} />
+            <Skeleton height={100} width={"100%"} />
+            <Skeleton height={50} width={"100%"} />
           </div>
         </div>
+        <Skeleton height={250} width={"100%"} />
+        <Skeleton height={200} width={"100%"} />
+        <div className={"grid grid-cols-2 gap-6"}>
+          <Skeleton height={50} width={"100%"} />
+          <Skeleton height={50} width={"100%"} />
+        </div>
+        <Skeleton height={200} width={"100%"} />
       </div>
     );
   }
@@ -534,43 +563,21 @@ const ProductForm = ({ isEdit: isEditMode }) => {
               required
               margin="normal"
             />
-            <TextField
-              label="Short Description"
-              fullWidth
+
+            <h1 className={"py-3 pl-1"}>Short Description</h1>
+            <Editor
               value={shortDesc}
-              onChange={(e) => setShortDesc(e.target.value)}
-              margin="normal"
-              multiline
-              rows={3}
+              onTextChange={(e) => setShortDesc(e.htmlValue)}
+              style={{ height: "260px" }}
             />
+
             <h1 className={"py-3 pl-1"}>Long Description</h1>
-            <Suspense fallback={<Skeleton height={260} />}>
-              <Editor
-                value={longDesc}
-                onTextChange={(e) => setLongDesc(e.htmlValue)}
-                style={{ height: "260px" }}
-              />
-            </Suspense>
-            <div>
-              <h1 className={"py-3 pl-1"}>Size Chart</h1>
-              <Suspense fallback={<Skeleton height={260} />}>
-                <Editor
-                  value={sizeChart}
-                  onTextChange={(e) => setSizeChart(e.htmlValue)}
-                  style={{ height: "260px" }}
-                />
-              </Suspense>
-            </div>
-            <div>
-              <h1 className={"py-3 pl-1"}>Shipping and Return</h1>
-              <Suspense fallback={<Skeleton height={260} />}>
-                <Editor
-                  value={shippingReturn}
-                  onTextChange={(e) => setShippingReturn(e.htmlValue)}
-                  style={{ height: "260px" }}
-                />
-              </Suspense>
-            </div>
+            <Editor
+              value={longDesc}
+              onTextChange={(e) => setLongDesc(e.htmlValue)}
+              style={{ height: "260px" }}
+            />
+
             <Box mb={2}>
               <Box
                 display="flex"
@@ -1007,12 +1014,12 @@ const ProductForm = ({ isEdit: isEditMode }) => {
                           backgroundRepeat: "no-repeat",
                         }}
                       >
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleRemoveNewImage(index);
-                          }}
-                          type="button"
+                         <button
+                           onClick={(e) => {
+                             e.stopPropagation();
+                             handleRemoveImages(index);
+                           }}
+                           type="button"
                           style={{
                             position: "absolute",
                             top: "-5px",
@@ -1072,14 +1079,15 @@ const ProductForm = ({ isEdit: isEditMode }) => {
                 >
                   Product Variant (Insert the Base Variant First)
                 </Typography>
+
                 <Box sx={{ overflowX: "auto" }}>
                   <Table sx={{ minWidth: 600 }}>
                     <TableHead>
                       <TableRow>
-                        <TableCell>Size</TableCell>
+                        <TableCell>Attributes</TableCell>
                         <TableCell>Stock *</TableCell>
                         <TableCell>Price *</TableCell>
-                        <TableCell>Disc. Price</TableCell>
+                        <TableCell>Disc. Price *</TableCell>
                         <TableCell>Action</TableCell>
                       </TableRow>
                     </TableHead>
@@ -1087,38 +1095,94 @@ const ProductForm = ({ isEdit: isEditMode }) => {
                       {variants.map((variant, index) => (
                         <TableRow key={index}>
                           <TableCell>
-                            <TextField
-                              select
-                              fullWidth
-                              value={variant.size}
-                              required={hasVariant}
-                              onChange={(e) => {
-                                const updated = [...variants];
-                                updated[index].size = e.target.value;
-                                setVariants(updated);
-                              }}
-                              sx={{ width: "150px" }}
+                            {variant.attributes.map((attr, attrIndex) => (
+                              <Box
+                                key={attrIndex}
+                                display="flex"
+                                alignItems="center"
+                                gap={1}
+                                mb={1}
+                              >
+                                <TextField
+                                  select
+                                  label="Option"
+                                  value={attr.option}
+                                  onChange={(e) => {
+                                    const updatedVariants = [...variants];
+                                    updatedVariants[index].attributes[
+                                      attrIndex
+                                    ].option = e.target.value;
+                                    updatedVariants[index].attributes[
+                                      attrIndex
+                                    ].value = "";
+                                    setVariants(updatedVariants);
+                                  }}
+                                  sx={{ width: "120px" }}
+                                >
+                                  {productOptions.map((option) => (
+                                    <MenuItem
+                                      key={option._id}
+                                      value={option._id}
+                                    >
+                                      {option.name}
+                                    </MenuItem>
+                                  ))}
+                                </TextField>
+                                <TextField
+                                  select
+                                  label="Value"
+                                  value={attr.value}
+                                  onChange={(e) => {
+                                    const updatedVariants = [...variants];
+                                    updatedVariants[index].attributes[
+                                      attrIndex
+                                    ].value = e.target.value;
+                                    setVariants(updatedVariants);
+                                  }}
+                                  sx={{ width: "120px" }}
+                                  disabled={!attr.option}
+                                >
+                                  {attr.option &&
+                                    productOptions
+                                      .find((o) => o._id === attr.option)
+                                      ?.values?.map((val) => (
+                                        <MenuItem key={val} value={val}>
+                                          {val}
+                                        </MenuItem>
+                                      ))}
+                                </TextField>
+                                <IconButton
+                                  color="error"
+                                  size="small"
+                                  onClick={() =>
+                                    handleRemoveAttribute(index, attrIndex)
+                                  }
+                                >
+                                  <DeleteIcon />
+                                </IconButton>
+                              </Box>
+                            ))}
+                            <Button
+                              variant="outlined"
+                              size="small"
+                              onClick={() => handleAddAttribute(index)}
                             >
-                              {productSizes
-                                .filter((s) => s.isActive)
-                                .map((size) => (
-                                  <MenuItem key={size._id} value={size._id}>
-                                    {size.name}
-                                  </MenuItem>
-                                ))}
-                            </TextField>
+                              + Add Attribute
+                            </Button>
                           </TableCell>
                           <TableCell>
                             <TextField
                               type="number"
                               fullWidth
                               value={variant.stock}
-                              required={hasVariant}
+                              required={true}
                               onChange={(e) => {
-                                const updated = [...variants];
-                                if (e.target.value >= 0)
-                                  updated[index].stock = e.target.value;
-                                setVariants(updated);
+                                const value = e.target.value;
+                                if (value >= 0 || value === "") {
+                                  const updatedVariants = [...variants];
+                                  updatedVariants[index].stock = value;
+                                  setVariants(updatedVariants);
+                                }
                               }}
                             />
                           </TableCell>
@@ -1127,12 +1191,14 @@ const ProductForm = ({ isEdit: isEditMode }) => {
                               type="number"
                               fullWidth
                               value={variant.price}
-                              required={hasVariant}
+                              required={true}
                               onChange={(e) => {
-                                const updated = [...variants];
-                                if (e.target.value >= 0)
-                                  updated[index].price = e.target.value;
-                                setVariants(updated);
+                                const value = e.target.value;
+                                if (value >= 0 || value === "") {
+                                  const updatedVariants = [...variants];
+                                  updatedVariants[index].price = value;
+                                  setVariants(updatedVariants);
+                                }
                               }}
                             />
                           </TableCell>
@@ -1142,10 +1208,12 @@ const ProductForm = ({ isEdit: isEditMode }) => {
                               fullWidth
                               value={variant.discount}
                               onChange={(e) => {
-                                const updated = [...variants];
-                                if (e.target.value >= 0)
-                                  updated[index].discount = e.target.value;
-                                setVariants(updated);
+                                const value = e.target.value;
+                                if (value >= 0 || value === "") {
+                                  const updatedVariants = [...variants];
+                                  updatedVariants[index].discount = value;
+                                  setVariants(updatedVariants);
+                                }
                               }}
                             />
                           </TableCell>

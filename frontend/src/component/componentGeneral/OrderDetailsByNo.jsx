@@ -76,6 +76,24 @@ const OrderDetailsByNo = () => {
     }
   };
 
+  // Helper function to get variant display name from attributes
+  const getVariantDisplayName = (variant) => {
+    if (!variant) return "N/A";
+    if (variant.attributes && Array.isArray(variant.attributes)) {
+      const attributeValues = variant.attributes
+        .map((attr) => attr.value)
+        .filter((val) => val);
+      if (attributeValues.length > 0) {
+        return attributeValues.join(" / ");
+      }
+    }
+    // Fallback for old structure
+    if (variant.size?.name) {
+      return variant.size.name;
+    }
+    return "N/A";
+  };
+
   const fetchOrderByOrderNo = async () => {
     setLoading(true);
     try {
@@ -202,7 +220,7 @@ const OrderDetailsByNo = () => {
                         <div>Code: {product.productCode || "N/A"}</div>
                       </div>
                     </TableCell>
-                    <TableCell>{variant ? variant.sizeName : "N/A"}</TableCell>
+                    <TableCell>{getVariantDisplayName(variant)}</TableCell>
                     <TableCell>{item.quantity}</TableCell>
                     <TableCell>{(item.price ?? 0).toFixed(2)}</TableCell>
                     <TableCell>{totalPrice.toFixed(2)}</TableCell>

@@ -22,29 +22,33 @@ const Cart = ({ onCloseCartMenu }) => {
     return Number(amount).toLocaleString();
   };
 
+  console.table(cart);
+
   return (
     <div className="py-3">
       {cart.length === 0 ? (
         <div className="flex items-center justify-center h-[800px] p-4">
           <div className="flex flex-col items-center text-center">
-            <img src={emptyCart} alt="Empty Cart" className="w-48 h-50" />
+            <img src={emptyCart} alt="Empty Cart" className="w-48 h-auto" />
             <p>There are no more items in your cart!</p>
 
-            <button
-              className="primaryBgColor accentTextColor px-6 py-2 rounded mt-4 cursor-pointer"
-              onClick={onCloseCartMenu}
-            >
-              Continue Shopping
-            </button>
+            <Link to={`/shop`}>
+              <button
+                className="primaryBgColor accentTextColor px-6 py-2 rounded mt-4 cursor-pointer"
+                onClick={onCloseCartMenu}
+              >
+                Continue Shopping
+              </button>
+            </Link>
           </div>
         </div>
       ) : (
         <div className="grid gap-4">
-          {cart.map((item, index) => (
-            <div
-              key={`${item.id || item.productId || index}-${item.variant}`}
-              className="grid grid-cols-2 gap-3 border-t border-dashed py-2"
-            >
+           {cart.map((item) => (
+             <div
+               key={`${item.productId}-${item.variantId}`}
+               className="grid grid-cols-2 gap-3 border-t border-dashed py-2"
+             >
               {/*Product Thumbnail*/}
 
               <Link to={`/product/${item.slug}`}>
@@ -84,7 +88,7 @@ const Cart = ({ onCloseCartMenu }) => {
                       )}
                     </p>
                   )}
-                  {item.variant !== "Default" && <p>Size: {item.variant}</p>}
+                  {item.variant !== "Default" && <p>Variant: {item.variant}</p>}
                   <div className="flex items-center gap-2 justify-between">
                     <div className="flex items-center">
                       {/*Decrease Button*/}

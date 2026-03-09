@@ -188,14 +188,14 @@ const AbandonedCartsList = ({
                         skeletonHeight={50}
                         className="w-16 h-16 rounded object-cover"
                       />
-                      <div className="flex-1 text-sm">
-                        <p className="font-medium">
-                          {item.product?.name || "-"}
-                        </p>
-                        <p className="text-gray-500">
-                          {item.product?.category || "-"} |{" "}
-                          {item.variant?.sizeName || "No size"}
-                        </p>
+                       <div className="flex-1 text-sm">
+                         <p className="font-medium">
+                           {item.product?.name || "-"}
+                         </p>
+                         <p className="text-gray-500">
+                           {item.product?.category || "-"} |{" "}
+                           {item.variant?.displayName || "No variant"}
+                         </p>
                         <p className="text-gray-700">
                           Tk.{item.price?.toFixed(2) || "0.00"} ×{" "}
                           {item.quantity} ={" "}

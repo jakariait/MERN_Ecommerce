@@ -43,7 +43,28 @@ const ViewOrder = () => {
   const [productSearchQuery, setProductSearchQuery] = useState("");
   const [searchedProducts, setSearchedProducts] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(null);
-  const [sizeNameCache, setSizeNameCache] = useState({});
+
+  // Helper function to get variant display name from attributes
+  const getVariantDisplayName = (variant) => {
+    if (!variant) return "N/A";
+    
+    // Handle new variant structure with attributes
+    if (variant.attributes && Array.isArray(variant.attributes)) {
+      const attributeValues = variant.attributes
+        .map((attr) => attr.value)
+        .filter((val) => val);
+      if (attributeValues.length > 0) {
+        return attributeValues.join(" / ");
+      }
+    }
+    
+    // Fallback for old structure (if any legacy data exists)
+    if (variant.size?.name) {
+      return variant.size.name;
+    }
+    
+    return "N/A";
+  };
 
   const handlePrint = () => {
     const content = document.getElementById("print-area");
@@ -204,46 +225,10 @@ const ViewOrder = () => {
         ? product.finalDiscount
         : product.finalPrice;
 
-    let processedVariant = variant;
-    if (variant && variant.size) {
-      const sizeId = variant.size._id || variant.size;
-      let sizeName = sizeNameCache[sizeId];
-
-      if (!sizeName) {
-        // Use existing name if available, otherwise fetch
-        if (variant.size.name) {
-          sizeName = variant.size.name;
-        } else {
-          try {
-            const res = await axios.get(`${apiUrl}/product-sizes/${sizeId}`);
-            if (res.data.productSize) {
-              sizeName = res.data.productSize.name;
-            }
-          } catch (error) {
-            console.error("Failed to fetch size name:", error);
-            sizeName = "N/A"; // Fallback
-          }
-        }
-
-        // Cache the fetched/found name
-        if (sizeName) {
-          setSizeNameCache((prev) => ({
-            ...prev,
-            [sizeId]: sizeName,
-          }));
-        }
-      }
-      if (sizeName) {
-        processedVariant.size = {
-          ...(variant.size || {}),
-          name: sizeName,
-        };
-      }
-    }
-
+    // Create the new item with proper variant structure
     const newItem = {
       productId: product._id,
-      variantId: processedVariant ? processedVariant._id : undefined,
+      variantId: variant ? variant._id : undefined,
       quantity: 1,
       price: price,
       // For display purposes
@@ -252,7 +237,7 @@ const ViewOrder = () => {
         name: product.name,
         productCode: product.productCode || product.code,
         category: { name: product.category?.name },
-        variants: processedVariant ? [processedVariant] : [],
+        variants: variant ? [variant] : [],
       },
     };
 
@@ -455,9 +440,7 @@ const ViewOrder = () => {
                         <div>Code: {product.productCode || "N/A"}</div>
                       </TableCell>
                       <TableCell>
-                        {variant
-                          ? variant.sizeName || variant.size?.name
-                          : "N/A"}
+                        {variant ? getVariantDisplayName(variant) : "N/A"}
                       </TableCell>
                       <TableCell>
                         {isEditMode ? (
@@ -692,23 +675,23 @@ const ViewOrder = () => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {selectedProduct?.variants?.map((variant) => (
-                  <TableRow key={variant._id}>
-                    <TableCell>{variant.size?.name || "N/A"}</TableCell>
-                    <TableCell>{variant.stock}</TableCell>
-                    <TableCell>
-                      <Button
-                        onClick={() => {
-                          handleAddProduct(selectedProduct, variant);
-                          setSelectedProduct(null);
-                        }}
-                        disabled={variant.stock < 1}
-                      >
-                        Add
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
+                 {selectedProduct?.variants?.map((variant) => (
+                   <TableRow key={variant._id}>
+                     <TableCell>{getVariantDisplayName(variant)}</TableCell>
+                     <TableCell>{variant.stock}</TableCell>
+                     <TableCell>
+                       <Button
+                         onClick={() => {
+                           handleAddProduct(selectedProduct, variant);
+                           setSelectedProduct(null);
+                         }}
+                         disabled={variant.stock < 1}
+                       >
+                         Add
+                       </Button>
+                     </TableCell>
+                   </TableRow>
+                 ))}
               </TableBody>
             </Table>
           </TableContainer>
