@@ -9,7 +9,6 @@ import FeatureStore from "./store/FeatureStore.js";
 import CategoryStore from "./store/useCategoryStore.js";
 import SubCategoryStore from "./store/useSubCategoryStore.js";
 import useSocialMediaLinkStore from "./store/SocialMediaLinkStore.js";
-import useProductSizeStore from "./store/useProductSizeStore.js";
 import useFlagStore from "./store/useFlagStore.js";
 import useChildCategoryStore from "./store/useChildCategoryStore.js";
 import useProductStore from "./store/useProductStore.js";
@@ -190,7 +189,6 @@ function App() {
   const { fetchSocialMediaLinks } = useSocialMediaLinkStore();
   const { fetchCategories } = CategoryStore();
   const { fetchSubCategories } = SubCategoryStore();
-  const { fetchProductSizes } = useProductSizeStore();
   const { fetchFlags } = useFlagStore();
   const { fetchChildCategories } = useChildCategoryStore();
   const { fetchProducts, fetchProductsAdmin, fetchHomeProducts } =
@@ -208,7 +206,6 @@ function App() {
           fetchSocialMediaLinks(),
           fetchCategories(),
           fetchSubCategories(),
-          fetchProductSizes(),
           fetchFlags(),
           fetchChildCategories(),
           fetchProducts(),
