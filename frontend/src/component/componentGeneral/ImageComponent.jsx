@@ -19,18 +19,19 @@ const ImageComponent = ({
   }, [imageName]);
 
   return (
-    <div>
-      {isLoading && <Skeleton height={skeletonHeight} width={"100%"} />}
+    <div className="relative" style={skeletonHeight ? { minHeight: skeletonHeight } : {}}>
+      {isLoading && skeletonHeight && <Skeleton height="100%" width={"100%"} />}
+      {isLoading && !skeletonHeight && <Skeleton height={100} width={"100%"} />}
       {imageSrc && (
         <img
           src={imageSrc}
           alt={altName}
           className={className}
-          style={{ display: isLoading ? "none" : "block" }}
+          style={{ display: isLoading ? "none" : "block", position: isLoading ? "absolute" : "relative", top: 0, left: 0, right: 0, bottom: 0 }}
           onLoad={() => setIsLoading(false)}
           onError={() => {
             setIsLoading(false);
-            setImageSrc(); // or keep blank
+            setImageSrc();
           }}
         />
       )}

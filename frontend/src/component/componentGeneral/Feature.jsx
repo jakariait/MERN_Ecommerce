@@ -24,21 +24,25 @@ const Feature = () => {
               height={100}
               width={"100%"}
               style={{ minHeight: "100px" }}
+              className="rounded-xl"
             />
             <Skeleton
               height={100}
               width={"100%"}
               style={{ minHeight: "100px" }}
+              className="rounded-xl"
             />
             <Skeleton
               height={100}
               width={"100%"}
               style={{ minHeight: "100px" }}
+              className="rounded-xl"
             />
             <Skeleton
               height={100}
               width={"100%"}
               style={{ minHeight: "100px" }}
+              className="rounded-xl"
             />
           </div>
         </>

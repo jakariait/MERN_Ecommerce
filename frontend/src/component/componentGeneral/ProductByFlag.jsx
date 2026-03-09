@@ -16,7 +16,7 @@ const ProductByFlag = () => {
 
   if (productsLoading || flagsLoading)
     return (
-      <div className="xl:container xl:mx-auto p-4 justify-center md:justify-start">
+      <div className="xl:container xl:mx-auto p-4 justify-center md:justify-start" style={{ minHeight: "800px" }}>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-1">
           <Skeleton height={250} width="100%" style={{ minHeight: "250px" }} />
           <Skeleton height={250} width="100%" style={{ minHeight: "250px" }} />
@@ -35,6 +35,13 @@ const ProductByFlag = () => {
           <Skeleton height={250} width="100%" style={{ minHeight: "250px" }} />
           <Skeleton height={250} width="100%" style={{ minHeight: "250px" }} />
         </div>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-1">
+          <Skeleton height={250} width="100%" style={{ minHeight: "250px" }} />
+          <Skeleton height={250} width="100%" style={{ minHeight: "250px" }} />
+          <Skeleton height={250} width="100%" style={{ minHeight: "250px" }} />
+          <Skeleton height={250} width="100%" style={{ minHeight: "250px" }} />
+        </div>
+
       </div>
     );
 
