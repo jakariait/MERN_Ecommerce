@@ -101,14 +101,14 @@ export const MENU_CONFIG = [
       },
       {
         type: "link",
-        label: "Add New Product Size",
-        path: "/admin/add-product-size",
+        label: "Add New Product Options",
+        path: "/admin/add-product-options",
         permission: "product_size",
       },
       {
         type: "link",
-        label: "View All Product Size",
-        path: "/admin/product-sizes",
+        label: "View All Product Options",
+        path: "/admin/product-options",
         permission: "product_size",
       },
       {
@@ -505,13 +505,13 @@ export default function SidebarMenu() {
     navigate("/admin/login");
   };
 
-  if (loading) {
-    return (
-      <div className="w-64 mt-100 flex justify-center items-center">
-        <CircularProgress />
-      </div>
-    );
-  }
+  // if (loading) {
+  //   return (
+  //     <div className="w-64 mt-100 flex justify-center items-center">
+  //       <CircularProgress />
+  //     </div>
+  //   );
+  // }
 
   return (
     <div className="w-fit p-4 h-screen overflow-y-auto">

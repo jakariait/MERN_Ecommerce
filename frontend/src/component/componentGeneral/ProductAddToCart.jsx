@@ -242,80 +242,71 @@ const ProductAddToCart = ({ product }) => {
           <h2 className="text-xl md:text-2xl  ">{product.name}</h2>
 
           <div className="flex text-center flex-col gap-2">
+            {/* Without Variant Price Display */}
             {!product.variants?.length && (
-              <div className="grid md:grid-cols-2 gap-2 items-center ">
+              <div className="flex gap-2 items-center">
                 {product.finalDiscount > 0 ? (
                   <>
-                    <div className="text-red-800 bg-gray-100 px-2 py-1 rounded-lg">
-                      Offer Price: Tk.{" "}
-                      {formatPrice(Number(product.finalDiscount))}
+                    <div className="line-through">
+                      Tk. {formatPrice(Number(product.finalPrice))}
                     </div>
-
-                    <div className=" bg-gray-100 px-2 py-1 rounded-lg">
-                      Regular Price: Tk.{" "}
-                      {formatPrice(Number(product.finalPrice))}
+                    <div className="text-red-800">
+                      Tk. {formatPrice(Number(product.finalDiscount))}
+                    </div>
+                    <div>
+                      You Save: Tk{" "}
+                      {formatPrice(
+                        Number(product.finalPrice - product.finalDiscount),
+                      )}
                     </div>
                   </>
                 ) : (
-                  <div className="text-black font-medium bg-gray-100 px-2 py-1 rounded-lg">
-                    Price: Tk. {formatPrice(Number(product.finalPrice))}
-                  </div>
-                )}
-                {product.productCode && (
-                  <div className={"bg-gray-100  px-2 py-1 rounded-lg"}>
-                    <strong>Product Code:</strong> {product.productCode}
-                  </div>
-                )}
-                {product.rewardPoints && (
-                  <div className={"bg-gray-100  px-2 py-1 rounded-lg"}>
-                    Purchase & Earn: {product.rewardPoints} points.
+                  <div className="text-black font-medium">
+                    Tk. {formatPrice(Number(product.finalPrice))}
                   </div>
                 )}
               </div>
             )}
 
+            {/*With Variant Price Display */}
             {variantForPrice && (
-              <div className="grid md:grid-cols-2 gap-2 items-center">
+              <div className="flex gap-2">
                 {variantForPrice.discount > 0 ? (
                   <>
-                    <div className="text-red-800 bg-gray-100 px-2 py-1 rounded-lg">
-                      Offer Price: Tk.{" "}
-                      {formatPrice(Number(variantForPrice.discount))}
+                    <div className="line-through">
+                      Tk. {formatPrice(Number(variantForPrice.price))}
                     </div>
-                    <div className="bg-gray-100 px-2 py-1 rounded-lg">
-                      Regular Price:{" "}
-                      <span className="line-through">
-                        Tk. {formatPrice(Number(variantForPrice.price))}
-                      </span>
+                    <div className="text-red-800">
+                      Tk. {formatPrice(Number(variantForPrice.discount))}
+                    </div>
+                    <div>
+                      You Save: Tk{" "}
+                      {formatPrice(
+                        Number(
+                          variantForPrice.price - variantForPrice.discount,
+                        ),
+                      )}
                     </div>
                   </>
                 ) : (
-                  <div className="text-black bg-gray-100 px-2 py-1 rounded-lg">
-                    Price: Tk. {formatPrice(Number(variantForPrice.price))}
+                  <div className="text-black">
+                    Tk. {formatPrice(Number(variantForPrice.price))}
                   </div>
                 )}
-                {product.productCode && (
-                  <div className={"bg-gray-100  px-2 py-1 rounded-lg"}>
-                    <strong>Product Code:</strong> {product.productCode}
-                  </div>
-                )}
-                {product.rewardPoints && (
-                  <div className={"bg-gray-100  px-2 py-1 rounded-lg"}>
-                    Purchase & Earn: {product.rewardPoints} points.
-                  </div>
-                )}
+              </div>
+            )}
+
+            {product.productCode && (
+              <div className={"bg-gray-100 px-2 py-1 rounded-lg"}>
+                <strong>Product Code:</strong> {product.productCode}
+              </div>
+            )}
+            {product.rewardPoints && (
+              <div className={"bg-gray-100 px-2 py-1 rounded-lg"}>
+                Purchase & Earn: {product.rewardPoints} points.
               </div>
             )}
           </div>
-
-          {product.shortDesc && (
-            <div
-              className="rendered-html"
-              dangerouslySetInnerHTML={{
-                __html: cleanHtml(product.shortDesc),
-              }}
-            />
-          )}
 
           {!selectedVariant && product.variants?.length > 0 && (
             <div className=" text-red-500">

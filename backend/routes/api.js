@@ -13,7 +13,6 @@ const AdminController = require("../controllers/AdminController");
 const categoryController = require("../controllers/categoryController");
 const subCategoryController = require("../controllers/subCategoryController");
 const childCategoryController = require("../controllers/childCategoryController");
-const productSizeController = require("../controllers/productSizeController");
 const flagController = require("../controllers/flagController");
 const productController = require("../controllers/productController");
 const userController = require("../controllers/userController");
@@ -392,27 +391,6 @@ router.delete(
   childCategoryController.deleteChildCategory,
 );
 
-// Product Size Routes
-router.get("/product-sizes", productSizeController.getAllProductSizes);
-router.get("/product-sizes/:id", productSizeController.getProductSizeById);
-router.post(
-  "/product-sizes",
-  adminProtect,
-  checkPermission("product_size"),
-  productSizeController.createProductSize,
-);
-router.put(
-  "/product-sizes/:id",
-  adminProtect,
-  checkPermission("product_size"),
-  productSizeController.updateProductSize,
-);
-router.delete(
-  "/product-sizes/:id",
-  adminProtect,
-  checkPermission("product_size"),
-  productSizeController.deleteProductSize,
-);
 
 // Routes for Flags
 router.get("/flags", flagController.getAllFlags);

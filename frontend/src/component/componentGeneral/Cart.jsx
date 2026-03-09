@@ -22,7 +22,7 @@ const Cart = ({ onCloseCartMenu }) => {
     return Number(amount).toLocaleString();
   };
 
-  console.table(cart);
+  // console.table(cart);
 
   return (
     <div className="py-3">
