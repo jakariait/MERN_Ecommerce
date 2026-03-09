@@ -7,7 +7,7 @@ import ProductOptionManager from "../component/componentAdmin/ProductOptionManag
 const ProductSizeListPage = () => {
   return (
     <LayoutAdmin>
-      <Breadcrumb pageDetails="PRODUCT SIZE" title="View all Product Size" />
+      <Breadcrumb pageDetails="PRODUCT OPTIONS" title="View all Product Options" />
       <RequirePermission permission="product_size" >
         <ProductOptionManager/>
       </RequirePermission >

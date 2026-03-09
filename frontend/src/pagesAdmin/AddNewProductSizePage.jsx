@@ -7,7 +7,7 @@ import AddProductOption from "../component/componentAdmin/AddProductOption.jsx";
 const AddNewProductSizePage = () => {
   return (
     <LayoutAdmin>
-      <Breadcrumb pageDetails="PRODUCT SIZE" title="Add New Product Size" />
+      <Breadcrumb pageDetails="PRODUCT OPTIONS" title="Add New Product Options" />
       <RequirePermission permission="product_size" >
         <AddProductOption/>
       </RequirePermission >

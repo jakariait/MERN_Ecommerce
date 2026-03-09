@@ -73,7 +73,7 @@ const EditProductOption = () => {
   return (
     <div className="p-4 shadow rounded-lg">
       <h1 className="border-l-4 primaryBorderColor primaryTextColor mb-6 pl-2 text-lg font-semibold ">
-        Edit Product Option
+        Edit Product Options
       </h1>
       <form onSubmit={handleSubmit} className="space-y-6 flex flex-col gap-5">
         <TextField

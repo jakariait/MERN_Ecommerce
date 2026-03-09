@@ -7,7 +7,7 @@ import EditProductOption from "../component/componentAdmin/EditProductOption.jsx
 const EditProductSizePage = () => {
   return (
     <LayoutAdmin>
-      <Breadcrumb pageDetails="PRODUCT SIZE" title="View all Product Size" />
+      <Breadcrumb pageDetails="PRODUCT OPTIONS" title="Edit Product Options" />
       <RequirePermission permission="product_size">
         <EditProductOption/>
       </RequirePermission>
