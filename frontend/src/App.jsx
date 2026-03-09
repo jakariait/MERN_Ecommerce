@@ -373,15 +373,15 @@ function App() {
 
             {/* Product Size Routes */}
             <Route
-              path="/admin/add-product-size"
+              path="/admin/add-product-options"
               element={<AddNewProductSizePage />}
             />
             <Route
-              path="/admin/product-sizes"
+              path="/admin/product-options"
               element={<ProductSizeListPage />}
             />
             <Route
-              path="/admin/edit-product-size/:id"
+              path="/admin/edit-product-option/:id"
               element={<EditProductSizePage />}
             />
 

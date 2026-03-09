@@ -36,6 +36,7 @@ const blogController = require("../controllers/BlogController");
 const PassWordResetController = require("../controllers/PassWordResetController");
 const pathaoController = require("../controllers/pathaoController");
 const pathaoConfigController = require("../controllers/pathaoConfigController");
+const productOptionController = require("../controllers/ProductOptionController");
 
 const {
   handleCourierCheck,
@@ -82,7 +83,9 @@ const fileFilter = (req, file, cb) => {
     cb(null, true);
   } else {
     cb(
-      new Error("Invalid file type. Only JPEG, PNG, JPG, WebP and SVG are allowed."),
+      new Error(
+        "Invalid file type. Only JPEG, PNG, JPG, WebP and SVG are allowed.",
+      ),
       false,
     );
   }
@@ -858,5 +861,30 @@ router.get("/blog/:id", blogController.getBlogById);
 // Password Reset Routes
 router.post("/request-reset", PassWordResetController.requestPasswordReset);
 router.post("/reset-password", PassWordResetController.resetPasswordWithOTP);
+
+// Product Option Routes
+router.get("/product-options", productOptionController.getAllProductOptions);
+router.get(
+  "/product-options/:id",
+  productOptionController.getProductOptionById,
+);
+router.post(
+  "/product-options",
+  adminProtect,
+  checkPermission("product_size"),
+  productOptionController.createProductOption,
+);
+router.put(
+  "/product-options/:id",
+  adminProtect,
+  checkPermission("product_size"),
+  productOptionController.updateProductOption,
+);
+router.delete(
+  "/product-options/:id",
+  adminProtect,
+  checkPermission("product_size"),
+  productOptionController.deleteProductOption,
+);
 
 module.exports = router;
