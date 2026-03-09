@@ -443,6 +443,7 @@ const updateProduct = async (productId, updatedData, files) => {
 
     // Handle images array update
     // updatedData.images = req.body.existingImages (may be string or array)
+    // Maintain order of images
     let images = [];
 
     if (updatedData.existingImages) {

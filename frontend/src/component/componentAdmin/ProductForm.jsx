@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect, lazy, Suspense } from "react";
+import React, { useRef, useState, useEffect, lazy } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import useCategoryStore from "../../store/useCategoryStore.js";
 import useSubCategoryStore from "../../store/useSubCategoryStore.js";
@@ -88,6 +88,9 @@ const ProductForm = ({ isEdit: isEditMode }) => {
   // State specific to update mode
   const [existingImages, setExistingImages] = useState([]);
   const [imagesToDelete, setImagesToDelete] = useState([]);
+  const [draggedImage, setDraggedImage] = useState(null);
+  const [draggedIndex, setDraggedIndex] = useState(null);
+  const [dragSource, setDragSource] = useState(null); // 'existing' or 'new'
 
   // UI state
   const [snackbarOpen, setSnackbarOpen] = useState(false);
@@ -235,6 +238,60 @@ const ProductForm = ({ isEdit: isEditMode }) => {
     if (imagesInputRef.current) {
       imagesInputRef.current.value = "";
     }
+  };
+
+  // Drag and drop handlers for reordering
+  const handleDragStart = (e, index, source) => {
+    setDraggedIndex(index);
+    setDragSource(source);
+    e.dataTransfer.effectAllowed = "move";
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+  };
+
+  const handleDrop = (e, targetIndex, targetSource) => {
+    e.preventDefault();
+    
+    // Only reorder within the same source (existing or new)
+    if (dragSource !== targetSource) {
+      setDraggedIndex(null);
+      setDragSource(null);
+      return;
+    }
+
+    if (dragSource === "existing") {
+      const newExistingImages = [...existingImages];
+      const draggedItem = newExistingImages[draggedIndex];
+      newExistingImages.splice(draggedIndex, 1);
+      newExistingImages.splice(targetIndex, 0, draggedItem);
+      setExistingImages(newExistingImages);
+    } else if (dragSource === "new") {
+      const newSelectedImages = [...selectedImages];
+      const newPreviews = [...imagePreviews];
+      
+      const draggedImageItem = newSelectedImages[draggedIndex];
+      const draggedPreview = newPreviews[draggedIndex];
+      
+      newSelectedImages.splice(draggedIndex, 1);
+      newPreviews.splice(draggedIndex, 1);
+      
+      newSelectedImages.splice(targetIndex, 0, draggedImageItem);
+      newPreviews.splice(targetIndex, 0, draggedPreview);
+      
+      setSelectedImages(newSelectedImages);
+      setImagePreviews(newPreviews);
+    }
+
+    setDraggedIndex(null);
+    setDragSource(null);
+  };
+
+  const handleDragEnd = () => {
+    setDraggedIndex(null);
+    setDragSource(null);
   };
 
   const handleImageChange = (e) => {
@@ -964,6 +1021,11 @@ const ProductForm = ({ isEdit: isEditMode }) => {
                       existingImages.map((image, index) => (
                         <div
                           key={`existing-${index}`}
+                          draggable
+                          onDragStart={(e) => handleDragStart(e, index, "existing")}
+                          onDragOver={handleDragOver}
+                          onDrop={(e) => handleDrop(e, index, "existing")}
+                          onDragEnd={handleDragEnd}
                           style={{
                             width: "150px",
                             height: "150px",
@@ -974,6 +1036,10 @@ const ProductForm = ({ isEdit: isEditMode }) => {
                             borderRadius: "5px",
                             position: "relative",
                             backgroundRepeat: "no-repeat",
+                            cursor: "move",
+                            opacity: draggedIndex === index && dragSource === "existing" ? 0.5 : 1,
+                            transition: "opacity 0.2s",
+                            border: draggedIndex === index && dragSource === "existing" ? "2px dashed #ccc" : "none",
                           }}
                         >
                           <button
@@ -1002,6 +1068,11 @@ const ProductForm = ({ isEdit: isEditMode }) => {
                     {imagePreviews.map((image, index) => (
                       <div
                         key={`new-${index}`}
+                        draggable
+                        onDragStart={(e) => handleDragStart(e, index, "new")}
+                        onDragOver={handleDragOver}
+                        onDrop={(e) => handleDrop(e, index, "new")}
+                        onDragEnd={handleDragEnd}
                         style={{
                           width: "150px",
                           height: "150px",
@@ -1012,6 +1083,10 @@ const ProductForm = ({ isEdit: isEditMode }) => {
                           borderRadius: "5px",
                           position: "relative",
                           backgroundRepeat: "no-repeat",
+                          cursor: "move",
+                          opacity: draggedIndex === index && dragSource === "new" ? 0.5 : 1,
+                          transition: "opacity 0.2s",
+                          border: draggedIndex === index && dragSource === "new" ? "2px dashed #ccc" : "none",
                         }}
                       >
                          <button
