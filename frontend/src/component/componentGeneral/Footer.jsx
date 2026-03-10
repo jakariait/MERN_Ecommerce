@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import GeneralInfoStore from "../../store/GeneralInfoStore.js";
 import { Link } from "react-router-dom";
 
@@ -9,23 +9,13 @@ import {
   Typography,
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-
 import NewsletterForm from "./NewsletterForm.jsx";
-
 import SocialMedia from "./SocialMedia.jsx";
 import Skeleton from "react-loading-skeleton";
-import useAuthUserStore from "../../store/AuthUserStore.js";
 
 const Footer = () => {
   const { GeneralInfoList, GeneralInfoListLoading, GeneralInfoListError } =
     GeneralInfoStore();
-  const { user, logout } = useAuthUserStore();
-  const [expanded, setExpanded] = useState(false);
-
-  const handleLogout = () => {
-    logout();
-    navigate("/login"); // redirect to login page after logout
-  };
 
   if (GeneralInfoListError) {
     return (
@@ -106,10 +96,7 @@ const Footer = () => {
                       <Link to="/blog">Blog</Link>
                     </li>
                     <li className={"hover:text-gray-300"}>
-                      <Link
-                        to="/contact-us"
-                        className={"hover:text-gray-300"}
-                      >
+                      <Link to="/contact-us" className={"hover:text-gray-300"}>
                         Contact
                       </Link>
                     </li>
@@ -160,7 +147,8 @@ const Footer = () => {
                 to="/track-order"
                 className="flex items-center gap-2 ml-4 pt-2 pb-2 "
               >
-                <p>Track Your Order</p>              </Link>
+                <p>Track Your Order</p>{" "}
+              </Link>
             </div>
             {/*Desktop Footer*/}
             <div
@@ -235,7 +223,7 @@ const Footer = () => {
                 Design and Developed by{" "}
                 <a
                   href="https://www.digiweb.digital/"
-                  className={"text-red-500 hover:underline"}
+                  className={"text-green-500 hover:underline"}
                 >
                   DigiWeb
                 </a>

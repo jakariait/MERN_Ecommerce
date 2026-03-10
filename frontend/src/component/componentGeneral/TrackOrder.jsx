@@ -77,7 +77,7 @@ const TrackOrder = () => {
     }).format(price);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-12 px-4 sm:px-6 lg:px-8">
+    <div className=" py-16 px-4 sm:px-6 lg:px-8">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="text-center mb-12">
@@ -286,7 +286,8 @@ const TrackOrder = () => {
                         Qty: {item.quantity}
                         {item.variantId && (
                           <span className="ml-2">
-                            • {getVariantDisplayName(
+                            •{" "}
+                            {getVariantDisplayName(
                               item.productId?.variants?.find(
                                 (v) => v._id === item.variantId,
                               ),
@@ -307,8 +308,7 @@ const TrackOrder = () => {
                   <span className="text-gray-600">Subtotal</span>
                   <span className="text-gray-900 font-semibold">
                     {formatPrice(
-                      order.totalAmount -
-                        (order.deliveryCharge || 0)
+                      order.totalAmount - (order.deliveryCharge || 0),
                     )}
                   </span>
                 </div>
@@ -375,7 +375,10 @@ const TrackOrder = () => {
                         {item.productId?.shortDesc && (
                           <span
                             dangerouslySetInnerHTML={{
-                              __html: item.productId.shortDesc.substring(0, 100),
+                              __html: item.productId.shortDesc.substring(
+                                0,
+                                100,
+                              ),
                             }}
                           />
                         )}
