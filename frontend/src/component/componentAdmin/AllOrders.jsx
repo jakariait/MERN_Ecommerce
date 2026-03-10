@@ -24,7 +24,6 @@ import {
   Chip,
   InputAdornment,
   IconButton,
-  CircularProgress,
   Checkbox,
 } from "@mui/material";
 import { Skeleton } from "@mui/material";
@@ -42,6 +41,7 @@ import OrderStatusSelector from "./OrderStatusSelector.jsx";
 import SendToCourierButton from "./SendToCourierButton.jsx";
 import CourierSummary from "../componentAdmin/CourierSummery.jsx";
 import RequirePermission from "./RequirePermission.jsx";
+import FileDownloadIcon from "@mui/icons-material/FileDownload";
 
 const AllOrders = ({ title, status = "" }) => {
   const {
@@ -91,6 +91,7 @@ const AllOrders = ({ title, status = "" }) => {
   const [bulkCourierDialog, setBulkCourierDialog] = useState(false);
   const [selectedCourier, setSelectedCourier] = useState("");
   const [sendingToCourier, setSendingToCourier] = useState(false);
+  const [downloadingOrders, setDownloadingOrders] = useState(false);
 
   const apiUrl = import.meta.env.VITE_API_URL;
   const navigate = useNavigate();
@@ -291,14 +292,103 @@ const AllOrders = ({ title, status = "" }) => {
     fetchOrders();
   }, [fetchOrders]);
 
-  // Bulk selection handlers
-  const handleSelectAll = useCallback((event) => {
-    if (event.target.checked) {
-      setSelectedOrders(allOrders.map((order) => order._id));
-    } else {
-      setSelectedOrders([]);
+  // Download orders as CSV
+  const handleDownloadOrders = useCallback(async () => {
+    setDownloadingOrders(true);
+    try {
+      // Fetch all orders from API
+      const response = await axios.get(`${apiUrl}/orders`, {
+        headers: { Authorization: `Bearer ${token}` },
+        params: {
+          limit: 10000, // Large number to get all orders
+          page: 1,
+          ...(status && { orderStatus: status }), // Include status filter if applied
+          ...(searchQuery && { search: searchQuery }), // Include search filter if applied
+        },
+      });
+
+      const ordersToDownload = response.data.orders || [];
+
+      if (ordersToDownload.length === 0) {
+        setSnackbarMessage("No orders to download");
+        setSnackbarSeverity("warning");
+        setOpenSnackbar(true);
+        setDownloadingOrders(false);
+        return;
+      }
+
+      // Prepare CSV headers
+      const headers = [
+        "Order No",
+        "Order Date",
+        "Customer Name",
+        "Mobile Number",
+        "Email",
+        "Address",
+        "Billed Amount",
+      ];
+
+      // Prepare CSV rows
+      const rows = ordersToDownload.map((order) => [
+        order.orderNo || "",
+        order.orderDate
+          ? new Date(order.orderDate).toLocaleDateString()
+          : new Date(order.createdAt).toLocaleDateString(),
+        order.shippingInfo?.fullName || "",
+        order.shippingInfo?.mobileNo || "",
+        order.shippingInfo?.email || "",
+        order.shippingInfo?.address || "",
+        order.totalAmount?.toFixed(2) || "0",
+      ]);
+
+      // Create CSV content
+      const csvContent = [
+        headers.map((h) => `"${h}"`).join(","),
+        ...rows.map((row) =>
+          row
+            .map((cell) => `"${cell?.toString().replace(/"/g, '""') || ""}"`)
+            .join(","),
+        ),
+      ].join("\n");
+
+      // Create blob and download
+      const blob = new Blob([csvContent], {
+        type: "text/csv;charset=utf-8;",
+      });
+      const link = document.createElement("a");
+      const url = URL.createObjectURL(blob);
+      link.href = url;
+      link.download = `Orders_${new Date().toISOString().slice(0, 10)}.csv`;
+      link.click();
+      URL.revokeObjectURL(url);
+
+      setSnackbarMessage(
+        `Downloaded ${ordersToDownload.length} orders successfully`,
+      );
+      setSnackbarSeverity("success");
+      setOpenSnackbar(true);
+    } catch (error) {
+      setSnackbarMessage(
+        error.response?.data?.message || "Error downloading orders",
+      );
+      setSnackbarSeverity("error");
+      setOpenSnackbar(true);
+    } finally {
+      setDownloadingOrders(false);
     }
-  }, [allOrders]);
+  }, [apiUrl, token, status, searchQuery]);
+
+  // Bulk selection handlers
+  const handleSelectAll = useCallback(
+    (event) => {
+      if (event.target.checked) {
+        setSelectedOrders(allOrders.map((order) => order._id));
+      } else {
+        setSelectedOrders([]);
+      }
+    },
+    [allOrders],
+  );
 
   const handleSelectOrder = useCallback((orderId) => {
     setSelectedOrders((prev) => {
@@ -328,12 +418,12 @@ const AllOrders = ({ title, status = "" }) => {
       const response = await axios.put(
         `${apiUrl}/orders/bulk-update-status`,
         { orderIds: selectedOrders, orderStatus: bulkNewStatus },
-        { headers: { Authorization: `Bearer ${token}` } }
+        { headers: { Authorization: `Bearer ${token}` } },
       );
 
       if (response.data.success) {
         setSnackbarMessage(
-          `${response.data.totalUpdated} orders updated successfully`
+          `${response.data.totalUpdated} orders updated successfully`,
         );
         setSnackbarSeverity("success");
         setOpenSnackbar(true);
@@ -346,7 +436,7 @@ const AllOrders = ({ title, status = "" }) => {
       }
     } catch (error) {
       setSnackbarMessage(
-        error.response?.data?.message || "Error updating orders"
+        error.response?.data?.message || "Error updating orders",
       );
       setSnackbarSeverity("error");
       setOpenSnackbar(true);
@@ -354,7 +444,14 @@ const AllOrders = ({ title, status = "" }) => {
       setBulkUpdating(false);
       handleBulkUpdateClose();
     }
-  }, [bulkNewStatus, selectedOrders, apiUrl, token, fetchOrders, handleBulkUpdateClose]);
+  }, [
+    bulkNewStatus,
+    selectedOrders,
+    apiUrl,
+    token,
+    fetchOrders,
+    handleBulkUpdateClose,
+  ]);
 
   // Bulk delete handlers
   const handleBulkDeleteOpen = useCallback(() => {
@@ -377,7 +474,7 @@ const AllOrders = ({ title, status = "" }) => {
 
       if (response.data.success) {
         setSnackbarMessage(
-          `${response.data.totalDeleted} orders deleted successfully`
+          `${response.data.totalDeleted} orders deleted successfully`,
         );
         setSnackbarSeverity("success");
         setOpenSnackbar(true);
@@ -390,7 +487,7 @@ const AllOrders = ({ title, status = "" }) => {
       }
     } catch (error) {
       setSnackbarMessage(
-        error.response?.data?.message || "Error deleting orders"
+        error.response?.data?.message || "Error deleting orders",
       );
       setSnackbarSeverity("error");
       setOpenSnackbar(true);
@@ -431,35 +528,41 @@ const AllOrders = ({ title, status = "" }) => {
         response = await axios.post(
           `${apiUrl}/steadfast/bulk-order`,
           { data: ordersToSend },
-          { headers: { Authorization: `Bearer ${token}` } }
+          { headers: { Authorization: `Bearer ${token}` } },
         );
       } else if (selectedCourier === "pathao") {
         response = await axios.post(
           `${apiUrl}/pathao/orders/bulk`,
           { data: ordersToSend },
-          { headers: { Authorization: `Bearer ${token}` } }
+          { headers: { Authorization: `Bearer ${token}` } },
         );
       }
 
       if (response.data.status === "success") {
-        const successCount = response.data.data.filter((r) => r.status === "success").length;
-        const errorCount = response.data.data.filter((r) => r.status === "error").length;
-        
+        const successCount = response.data.data.filter(
+          (r) => r.status === "success",
+        ).length;
+        const errorCount = response.data.data.filter(
+          (r) => r.status === "error",
+        ).length;
+
         setSnackbarMessage(
-          `${successCount} orders sent to ${selectedCourier} successfully${errorCount > 0 ? `, ${errorCount} failed` : ""}`
+          `${successCount} orders sent to ${selectedCourier} successfully${errorCount > 0 ? `, ${errorCount} failed` : ""}`,
         );
         setSnackbarSeverity(errorCount > 0 ? "warning" : "success");
         setOpenSnackbar(true);
         setSelectedOrders([]);
         fetchOrders();
       } else {
-        setSnackbarMessage(response.data.message || "Failed to send orders to courier");
+        setSnackbarMessage(
+          response.data.message || "Failed to send orders to courier",
+        );
         setSnackbarSeverity("error");
         setOpenSnackbar(true);
       }
     } catch (error) {
       setSnackbarMessage(
-        error.response?.data?.message || "Error sending orders to courier"
+        error.response?.data?.message || "Error sending orders to courier",
       );
       setSnackbarSeverity("error");
       setOpenSnackbar(true);
@@ -467,7 +570,15 @@ const AllOrders = ({ title, status = "" }) => {
       setSendingToCourier(false);
       handleBulkCourierClose();
     }
-  }, [selectedCourier, selectedOrders, allOrders, apiUrl, token, fetchOrders, handleBulkCourierClose]);
+  }, [
+    selectedCourier,
+    selectedOrders,
+    allOrders,
+    apiUrl,
+    token,
+    fetchOrders,
+    handleBulkCourierClose,
+  ]);
 
   // Memoize the loading skeleton
   const LoadingSkeleton = useMemo(
@@ -518,6 +629,18 @@ const AllOrders = ({ title, status = "" }) => {
       <h1 className="border-l-4 primaryBorderColor primaryTextColor mb-6 pl-2 text-lg font-semibold">
         {title}
       </h1>
+
+      <div className={"flex justify-center items-center"}>
+        <Button
+          variant="contained"
+          color="success"
+          startIcon={<FileDownloadIcon />}
+          onClick={handleDownloadOrders}
+          disabled={downloadingOrders}
+        >
+          {downloadingOrders ? "Downloading..." : "Download All Orders (CSV)"}
+        </Button>
+      </div>
 
       <div className="grid grid-cols-2 gap-4 shadow rounded-lg p-4 items-center mt-6 mb-6">
         <TextField
@@ -699,8 +822,14 @@ const AllOrders = ({ title, status = "" }) => {
                     <TableRow>
                       <TableCell padding="checkbox">
                         <Checkbox
-                          checked={allOrders.length > 0 && selectedOrders.length === allOrders.length}
-                          indeterminate={selectedOrders.length > 0 && selectedOrders.length < allOrders.length}
+                          checked={
+                            allOrders.length > 0 &&
+                            selectedOrders.length === allOrders.length
+                          }
+                          indeterminate={
+                            selectedOrders.length > 0 &&
+                            selectedOrders.length < allOrders.length
+                          }
                           onChange={handleSelectAll}
                         />
                       </TableCell>
@@ -936,7 +1065,8 @@ const AllOrders = ({ title, status = "" }) => {
         <DialogTitle>Bulk Update Order Status</DialogTitle>
         <DialogContent>
           <DialogContentText sx={{ mb: 2 }}>
-            You are about to update {selectedOrders.length} order(s) to a new status.
+            You are about to update {selectedOrders.length} order(s) to a new
+            status.
           </DialogContentText>
           <FormControl fullWidth>
             <InputLabel>New Status</InputLabel>
@@ -972,7 +1102,7 @@ const AllOrders = ({ title, status = "" }) => {
         <DialogTitle>Confirm Bulk Delete</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            Are you sure you want to delete {selectedOrders.length} order(s)? 
+            Are you sure you want to delete {selectedOrders.length} order(s)?
             This action cannot be undone and will restore stock for each order.
           </DialogContentText>
         </DialogContent>
@@ -980,7 +1110,11 @@ const AllOrders = ({ title, status = "" }) => {
           <Button onClick={handleBulkDeleteClose} disabled={bulkDeleting}>
             Cancel
           </Button>
-          <Button onClick={handleBulkDelete} color="error" disabled={bulkDeleting}>
+          <Button
+            onClick={handleBulkDelete}
+            color="error"
+            disabled={bulkDeleting}
+          >
             {bulkDeleting ? "Deleting..." : "Delete"}
           </Button>
         </DialogActions>
@@ -990,7 +1124,8 @@ const AllOrders = ({ title, status = "" }) => {
         <DialogTitle>Send to Courier</DialogTitle>
         <DialogContent>
           <DialogContentText sx={{ mb: 2 }}>
-            You are about to send {selectedOrders.length} order(s) to a courier service.
+            You are about to send {selectedOrders.length} order(s) to a courier
+            service.
           </DialogContentText>
           <FormControl fullWidth>
             <InputLabel>Select Courier</InputLabel>
