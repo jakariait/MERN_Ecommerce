@@ -33,6 +33,7 @@ import ClearIcon from "@mui/icons-material/Clear";
 import { Box } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { Tooltip } from "@mui/material";
+import FileDownloadIcon from "@mui/icons-material/FileDownload";
 import axios from "axios";
 import { Snackbar, Alert } from "@mui/material";
 import { useNavigate } from "react-router-dom";
@@ -41,7 +42,6 @@ import OrderStatusSelector from "./OrderStatusSelector.jsx";
 import SendToCourierButton from "./SendToCourierButton.jsx";
 import CourierSummary from "../componentAdmin/CourierSummery.jsx";
 import RequirePermission from "./RequirePermission.jsx";
-import FileDownloadIcon from "@mui/icons-material/FileDownload";
 
 const AllOrders = ({ title, status = "" }) => {
   const {
@@ -228,6 +228,10 @@ const AllOrders = ({ title, status = "" }) => {
           aVal = a.orderStatus;
           bVal = b.orderStatus;
           break;
+        case "orderSource":
+          aVal = a.orderSource;
+          bVal = b.orderSource;
+          break;
         case "paymentStatus":
           aVal = a.paymentStatus;
           bVal = b.paymentStatus;
@@ -320,6 +324,7 @@ const AllOrders = ({ title, status = "" }) => {
       // Prepare CSV headers
       const headers = [
         "Order No",
+        "Source",
         "Order Date",
         "Customer Name",
         "Mobile Number",
@@ -331,6 +336,7 @@ const AllOrders = ({ title, status = "" }) => {
       // Prepare CSV rows
       const rows = ordersToDownload.map((order) => [
         order.orderNo || "",
+        order.orderSource || "web",
         order.orderDate
           ? new Date(order.orderDate).toLocaleDateString()
           : new Date(order.createdAt).toLocaleDateString(),
@@ -519,9 +525,11 @@ const AllOrders = ({ title, status = "" }) => {
           recipient_name: order.shippingInfo?.fullName || "N/A",
           recipient_phone: order.shippingInfo?.mobileNo || "",
           recipient_address: order.shippingInfo?.address || "N/A",
-          cod_amount: order.dueAmount?.toString() || "0",
+          cod_amount: String(order.dueAmount || 0), // Send as string for Steadfast
           note: order.note || "",
         }));
+
+      console.log("Sending to Steadfast:", ordersToSend);
 
       let response;
       if (selectedCourier === "steadfast") {
@@ -538,18 +546,72 @@ const AllOrders = ({ title, status = "" }) => {
         );
       }
 
+      console.log("Courier response:", response.data);
+
       if (response.data.status === "success") {
-        const successCount = response.data.data.filter(
+        // Ensure data is an array before filtering
+        const responseData = Array.isArray(response.data.data) ? response.data.data : [];
+
+        console.log("Response data array:", responseData);
+
+        const successCount = responseData.filter(
           (r) => r.status === "success",
         ).length;
-        const errorCount = response.data.data.filter(
+        const errorCount = responseData.filter(
           (r) => r.status === "error",
         ).length;
 
-        setSnackbarMessage(
-          `${successCount} orders sent to ${selectedCourier} successfully${errorCount > 0 ? `, ${errorCount} failed` : ""}`,
-        );
-        setSnackbarSeverity(errorCount > 0 ? "warning" : "success");
+        // Update successfully sent orders with courier details
+        if (successCount > 0) {
+          const updatePromises = responseData
+            .filter((r) => r.status === "success")
+            .map((result) => {
+              // Find the order by invoice number
+              const order = allOrders.find((o) => o.orderNo === result.invoice);
+              if (!order) return null;
+
+              // Prepare update payload based on courier type
+              let updatePayload = {
+                sentToCourier: true,
+                orderStatus: "intransit",
+                courierProvider: selectedCourier,
+              };
+
+              if (selectedCourier === "steadfast") {
+                updatePayload.courierConsignmentId = result.consignment_id;
+              } else if (selectedCourier === "pathao") {
+                updatePayload.courierConsignmentId = result.consignment_id;
+              }
+
+              return axios.put(
+                `${apiUrl}/orders/${order._id}`,
+                updatePayload,
+                { headers: { Authorization: `Bearer ${token}` } },
+              );
+            })
+            .filter((p) => p !== null);
+
+          // Wait for all updates to complete
+          try {
+            await Promise.all(updatePromises);
+            console.log("All orders updated successfully");
+          } catch (updateError) {
+            console.error("Error updating orders:", updateError);
+          }
+        }
+
+        // If all orders failed, show detailed error
+        if (successCount === 0 && errorCount === 0 && responseData.length === 0) {
+          setSnackbarMessage(
+            "All orders were rejected by Steadfast. Check console logs and your Steadfast dashboard for details.",
+          );
+          setSnackbarSeverity("error");
+        } else {
+          setSnackbarMessage(
+            `${successCount} orders sent to ${selectedCourier} successfully${errorCount > 0 ? `, ${errorCount} failed` : ""}`,
+          );
+          setSnackbarSeverity(errorCount > 0 ? "warning" : "success");
+        }
         setOpenSnackbar(true);
         setSelectedOrders([]);
         fetchOrders();
@@ -561,9 +623,16 @@ const AllOrders = ({ title, status = "" }) => {
         setOpenSnackbar(true);
       }
     } catch (error) {
-      setSnackbarMessage(
-        error.response?.data?.message || "Error sending orders to courier",
-      );
+      const errorMsg = error.response?.data?.message ||
+        error.message ||
+        "Error sending orders to courier";
+      console.error("Bulk courier error:", error);
+      console.error("Error details:", {
+        status: error.response?.status,
+        data: error.response?.data,
+        message: error.message
+      });
+      setSnackbarMessage(errorMsg);
       setSnackbarSeverity("error");
       setOpenSnackbar(true);
     } finally {
@@ -597,6 +666,7 @@ const AllOrders = ({ title, status = "" }) => {
                 "Status",
                 "Payment Status",
                 "Total Amount",
+                "Source",
                 "Actions",
               ].map((header, i) => (
                 <TableCell key={i}>
@@ -608,7 +678,7 @@ const AllOrders = ({ title, status = "" }) => {
           <TableBody>
             {[...Array(itemsPerPage)].map((_, index) => (
               <TableRow key={index}>
-                {Array(10)
+                {Array(11)
                   .fill()
                   .map((_, cellIndex) => (
                     <TableCell key={cellIndex}>
@@ -810,6 +880,7 @@ const AllOrders = ({ title, status = "" }) => {
                   </Button>
                 </Box>
               )}
+
               <TableContainer
                 component={Paper}
                 sx={{
@@ -898,30 +969,29 @@ const AllOrders = ({ title, status = "" }) => {
                           Status
                         </TableSortLabel>
                       </TableCell>
-                       <TableCell>
-                         <TableSortLabel
-                           active={orderBy === "paymentStatus"}
-                           direction={
-                             orderBy === "paymentStatus" ? sortDirection : "asc"
-                           }
-                           onClick={() => handleSortRequest("paymentStatus")}
-                         >
-                           Payment Status
-                         </TableSortLabel>
-                       </TableCell>
-                       <TableCell>
-                         <TableSortLabel
-                           active={orderBy === "totalAmount"}
-                           direction={
-                             orderBy === "totalAmount" ? sortDirection : "asc"
-                           }
-                           onClick={() => handleSortRequest("totalAmount")}
-                         >
-                           Total Amount
-                         </TableSortLabel>
-                       </TableCell>
-                       <TableCell>Order Source</TableCell>
-                       <TableCell>Actions</TableCell>
+
+                      <TableCell>
+                        <TableSortLabel
+                          active={orderBy === "orderSource"}
+                          direction={
+                            orderBy === "orderSource" ? sortDirection : "asc"
+                          }
+                          onClick={() => handleSortRequest("orderSource")}
+                        >
+                          Source
+                        </TableSortLabel>
+                      </TableCell>
+                      <TableCell>
+                        <TableSortLabel
+                          active={orderBy === "totalAmount"}
+                          direction={
+                            orderBy === "totalAmount" ? sortDirection : "asc"
+                          }
+                          onClick={() => handleSortRequest("totalAmount")}
+                        >
+                          Total Amount
+                        </TableSortLabel>
+                      </TableCell>                      <TableCell>Actions</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
@@ -967,50 +1037,19 @@ const AllOrders = ({ title, status = "" }) => {
                             refetchOrders={fetchOrders}
                           />
                         </TableCell>
+
                         <TableCell>
                           <Chip
-                            label={
-                              order.paymentStatus.charAt(0).toUpperCase() +
-                              order.paymentStatus.slice(1)
-                            }
-                            color={
-                              order.paymentStatus === "paid"
-                                ? "success"
-                                : "error"
-                            }
-                            variant="filled"
-                            sx={{
-                              fontWeight: "bold",
-                              minWidth: "100px",
-                              height: "32px",
-                              borderRadius: "4px",
-                            }}
+                            label={order.orderSource === "admin" ? "Admin" : "Web"}
+                            color={order.orderSource === "admin" ? "primary" : "success"}
+                            size="small"
                           />
                         </TableCell>
-                         <TableCell>
-                           Tk. {order.totalAmount?.toFixed(2)}
-                         </TableCell>
-                         <TableCell>
-                           <Chip
-                             label={
-                               (order.orderSource || "web").charAt(0).toUpperCase() +
-                               (order.orderSource || "web").slice(1)
-                             }
-                             color={
-                               order.orderSource === "admin"
-                                 ? "info"
-                                 : "default"
-                             }
-                             variant="filled"
-                             sx={{
-                               fontWeight: "bold",
-                               minWidth: "70px",
-                               height: "32px",
-                               borderRadius: "4px",
-                             }}
-                           />
-                         </TableCell>
-                         <TableCell>
+
+                        <TableCell>
+                          Tk. {order.totalAmount?.toFixed(2)}
+                        </TableCell>
+                        <TableCell>
                           <Box sx={{ display: "flex", gap: 1 }}>
                             <Tooltip title="View">
                               <IconButton

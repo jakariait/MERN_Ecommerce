@@ -54,13 +54,21 @@ const bulkCreateSteadfastOrder = async (req, res) => {
       });
     }
 
+    console.log("Bulk order received:", JSON.stringify(data, null, 2));
+
     const response = await bulkCreateSteadfastOrderService(data);
-    res.status(200).json({ status: "success", data: response });
+
+    console.log("Steadfast bulk response:", JSON.stringify(response, null, 2));
+
+    // Ensure response is always an array
+    const responseArray = Array.isArray(response) ? response : [];
+
+    res.status(200).json({ status: "success", data: responseArray });
   } catch (err) {
     console.error("Steadfast bulk order error:", err.response?.data || err.message);
     res.status(500).json({
       status: "error",
-      message: err.response?.data?.message || "Something went wrong",
+      message: err.response?.data?.message || err.message || "Something went wrong",
     });
   }
 };

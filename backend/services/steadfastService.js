@@ -87,23 +87,41 @@ const bulkCreateSteadfastOrderService = async (orders) => {
     throw new Error("Maximum 500 items allowed");
   }
 
+  // Send data as JSON string (as per Steadfast docs example)
   const payload = {
-    data: orders,
+    data: JSON.stringify(orders),
   };
 
-  const response = await axios.post(
-    `${config.baseUrl}/create_order/bulk-order`,
-    payload,
-    {
-      headers: {
-        "Api-Key": config.apiKey,
-        "Secret-Key": config.secretKey,
-        "Content-Type": "application/json",
-      },
-    }
-  );
+  console.log("Sending to Steadfast API with payload:", JSON.stringify(payload, null, 2));
+  console.log("Orders being sent:", orders);
 
-  return response.data;
+  try {
+    const response = await axios.post(
+      `${config.baseUrl}/create_order/bulk-order`,
+      payload,
+      {
+        headers: {
+          "Api-Key": config.apiKey,
+          "Secret-Key": config.secretKey,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    console.log("Steadfast API response status:", response.status);
+    console.log("Steadfast API full response:", JSON.stringify(response.data, null, 2));
+
+    // Steadfast returns data wrapped in response object: { status: 200, message: "...", data: [...] }
+    const responseData = response.data?.data || response.data;
+    console.log("Extracted response data:", JSON.stringify(responseData, null, 2));
+
+    return Array.isArray(responseData) ? responseData : [];
+  } catch (error) {
+    console.error("Steadfast API error response:", JSON.stringify(error.response?.data, null, 2));
+    console.error("Steadfast API error message:", error.message);
+    console.error("Steadfast API error status:", error.response?.status);
+    throw error;
+  }
 };
 
 module.exports = {
