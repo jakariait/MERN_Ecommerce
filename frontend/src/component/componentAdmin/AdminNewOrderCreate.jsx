@@ -106,7 +106,7 @@ const AdminNewOrderCreate = () => {
     try {
       const res = await axios.get(`${apiUrl}/getAllProductsAdmin`, {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
       });
       if (res.data?.success) {
@@ -129,7 +129,7 @@ const AdminNewOrderCreate = () => {
     try {
       const res = await axios.get(`${apiUrl}/getAllUsers`, {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
       });
       if (res.data?.success) {
@@ -327,7 +327,7 @@ const AdminNewOrderCreate = () => {
 
       const res = await axios.post(`${apiUrl}/orders/admin/create`, orderData, {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
       });
 
