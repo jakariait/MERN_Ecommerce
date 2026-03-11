@@ -90,6 +90,15 @@ const AdminNewOrderCreate = () => {
     severity: "success",
   });
 
+  // Form validation errors
+  const [formErrors, setFormErrors] = useState({
+    fullName: false,
+    mobileNo: false,
+    address: false,
+    selectedCustomer: false,
+    selectedShipping: false,
+  });
+
   // Fetch initial data
   useEffect(() => {
     fetchProducts();
@@ -407,7 +416,55 @@ const AdminNewOrderCreate = () => {
     setAdminNote("");
     setPaymentMethod("cash_on_delivery");
     setPaymentStatus("unpaid");
+    setFormErrors({
+      fullName: false,
+      mobileNo: false,
+      address: false,
+      selectedCustomer: false,
+      selectedShipping: false,
+    });
   };
+
+  // Real-time form validation
+  const validateForm = () => {
+    const errors = {
+      fullName: false,
+      mobileNo: false,
+      address: false,
+      selectedCustomer: false,
+      selectedShipping: false,
+    };
+
+    if (isGuest) {
+      if (!guestInfo.fullName?.trim()) errors.fullName = true;
+      if (!guestInfo.mobileNo?.trim()) errors.mobileNo = true;
+      if (!guestInfo.address?.trim()) errors.address = true;
+    } else {
+      if (!selectedCustomer) errors.selectedCustomer = true;
+      if (!selectedCustomer?.fullName?.trim()) errors.fullName = true;
+      if (!selectedCustomer?.mobileNumber?.trim()) errors.mobileNo = true;
+      if (!guestInfo.address?.trim()) errors.address = true;
+    }
+
+    if (!selectedShipping) errors.selectedShipping = true;
+
+    setFormErrors(errors);
+    return !Object.values(errors).some((error) => error);
+  };
+
+  // Trigger validation whenever relevant fields change
+  useEffect(() => {
+    if (openDialog) {
+      validateForm();
+    }
+  }, [
+    isGuest,
+    guestInfo.fullName,
+    guestInfo.mobileNo,
+    guestInfo.address,
+    selectedCustomer,
+    selectedShipping,
+  ]);
 
   return (
     <Box sx={{ mb: 3 }}>
@@ -458,6 +515,8 @@ const AdminNewOrderCreate = () => {
                             fullName: e.target.value,
                           })
                         }
+                        error={formErrors.fullName}
+                        helperText={formErrors.fullName ? "Full Name is required" : ""}
                       />
                     </Grid>
                     <Grid item xs={12} sm={6}>
@@ -471,6 +530,8 @@ const AdminNewOrderCreate = () => {
                             mobileNo: e.target.value,
                           })
                         }
+                        error={formErrors.mobileNo}
+                        helperText={formErrors.mobileNo ? "Mobile Number is required" : ""}
                       />
                     </Grid>
                     <Grid item xs={12} sm={6}>
@@ -498,6 +559,8 @@ const AdminNewOrderCreate = () => {
                             address: e.target.value,
                           })
                         }
+                        error={formErrors.address}
+                        helperText={formErrors.address ? "Address is required" : ""}
                       />
                     </Grid>
                   </Grid>
@@ -510,7 +573,12 @@ const AdminNewOrderCreate = () => {
                     value={selectedCustomer}
                     onChange={(e, value) => setSelectedCustomer(value)}
                     renderInput={(params) => (
-                      <TextField {...params} label="Select Customer" />
+                      <TextField
+                        {...params}
+                        label="Select Customer"
+                        error={formErrors.selectedCustomer}
+                        helperText={formErrors.selectedCustomer ? "Customer is required" : ""}
+                      />
                     )}
                   />
                 )}
@@ -651,7 +719,7 @@ const AdminNewOrderCreate = () => {
                 <h3 className={"pb-5"}>Shipping & Payment</h3>
                 <Grid container spacing={2}>
                   <Grid item xs={12} sm={6}>
-                    <FormControl fullWidth>
+                    <FormControl fullWidth error={formErrors.selectedShipping}>
                       <InputLabel>Shipping Option</InputLabel>
                       <Select
                         value={selectedShipping?._id || ""}
@@ -669,6 +737,11 @@ const AdminNewOrderCreate = () => {
                           </MenuItem>
                         ))}
                       </Select>
+                      {formErrors.selectedShipping && (
+                        <Box sx={{ color: "#d32f2f", fontSize: "0.75rem", mt: 0.5 }}>
+                          Shipping Option is required
+                        </Box>
+                      )}
                     </FormControl>
                   </Grid>
 
@@ -801,7 +874,11 @@ const AdminNewOrderCreate = () => {
             onClick={handleCreateOrder}
             variant="contained"
             color="primary"
-            disabled={isLoading || orderItems.length === 0}
+            disabled={
+              isLoading ||
+              orderItems.length === 0 ||
+              Object.values(formErrors).some((error) => error)
+            }
           >
             {isLoading ? <CircularProgress size={24} /> : "Create Order"}
           </Button>
