@@ -154,11 +154,17 @@ const AdminNewOrderCreate = () => {
   const fetchVatPercentage = async () => {
     try {
       const res = await axios.get(`${apiUrl}/getVatPercentage`);
-      if (res.data?.success) {
-        setVatPercentage(res.data.data.percentage);
+      if (res.data?.success && res.data.data) {
+        const vatValue = res.data.data.percentage || res.data.data.value || 0;
+        console.log("VAT fetched:", vatValue); // Debug log
+        setVatPercentage(parseFloat(vatValue) || 0);
+      } else {
+        console.error("VAT fetch failed:", res.data);
+        setVatPercentage(0);
       }
     } catch (err) {
       console.error("Failed to fetch VAT percentage", err);
+      setVatPercentage(0);
     }
   };
 
@@ -207,7 +213,7 @@ const AdminNewOrderCreate = () => {
 
     const newItem = {
       productId: selectedProduct._id,
-      productName: selectedProduct.productName || selectedProduct.name,
+      productName: selectedProduct.name, // Use 'name' not 'productName'
       variantId,
       variantName,
       quantity: parseInt(quantity),
@@ -227,17 +233,19 @@ const AdminNewOrderCreate = () => {
 
   const calculateTotals = () => {
     const subtotal = orderItems.reduce(
-      (sum, item) => sum + item.price * item.quantity,
+      (sum, item) => sum + (item.price || 0) * (item.quantity || 0),
       0
     );
     const deliveryCharge = selectedShipping?.deliveryCharge || 0;
-    const vat = (subtotal * vatPercentage) / 100;
-    const total = subtotal + deliveryCharge + vat - specialDiscount;
+    const vatPercent = parseFloat(vatPercentage) || 0;
+    const vat = (subtotal * vatPercent) / 100;
+    const discount = parseFloat(specialDiscount) || 0;
+    const total = subtotal + deliveryCharge + vat - discount;
 
     setCalculatedTotals({
-      subtotal,
+      subtotal: Math.round(subtotal * 100) / 100,
       vat: Math.round(vat * 100) / 100,
-      deliveryCharge,
+      deliveryCharge: Math.round(deliveryCharge * 100) / 100,
       total: Math.max(0, Math.round(total * 100) / 100),
     });
   };
@@ -447,15 +455,21 @@ const AdminNewOrderCreate = () => {
                   <Grid item xs={12} sm={4}>
                     <Autocomplete
                       options={products}
-                      getOptionLabel={(option) => option.productName}
+                      getOptionLabel={(option) => option.name || ""}
                       value={selectedProduct}
                       onChange={(e, value) => {
                         setSelectedProduct(value);
                         setSelectedVariant(null);
                       }}
                       renderInput={(params) => (
-                        <TextField {...params} label="Select Product" />
+                        <TextField
+                          {...params}
+                          label="Select Product"
+                          placeholder="Search products..."
+                        />
                       )}
+                      noOptionsText="No products found"
+                      loading={!products || products.length === 0}
                     />
                   </Grid>
 
