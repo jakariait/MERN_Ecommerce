@@ -251,11 +251,22 @@ const AdminNewOrderCreate = () => {
       (sum, item) => sum + (item.price || 0) * (item.quantity || 0),
       0
     );
-    const deliveryCharge = selectedShipping?.deliveryCharge || 0;
+    // Use 'value' instead of 'deliveryCharge' - shipping model uses 'value' field
+    const deliveryCharge = selectedShipping?.value || 0;
     const vatPercent = parseFloat(vatPercentage) || 0;
     const vat = (subtotal * vatPercent) / 100;
     const discount = parseFloat(specialDiscount) || 0;
     const total = subtotal + deliveryCharge + vat - discount;
+
+    // Debug logging
+    console.log("Calculate Totals Debug:", {
+      selectedShipping,
+      deliveryCharge,
+      subtotal,
+      vat,
+      discount,
+      total,
+    });
 
     setCalculatedTotals({
       subtotal: Math.round(subtotal * 100) / 100,
@@ -304,7 +315,7 @@ const AdminNewOrderCreate = () => {
               address: guestInfo.address,
             },
         shippingId: selectedShipping._id,
-        deliveryCharge: selectedShipping.deliveryCharge,
+        deliveryCharge: selectedShipping.value,
         subtotalAmount: calculatedTotals.subtotal,
         vat: calculatedTotals.vat,
         specialDiscount: specialDiscount,
@@ -607,7 +618,7 @@ const AdminNewOrderCreate = () => {
                       >
                         {shippingOptions.map((option) => (
                           <MenuItem key={option._id} value={option._id}>
-                            {option.name} - ৳{option.deliveryCharge}
+                            {option.name} - ৳{option.value}
                           </MenuItem>
                         ))}
                       </Select>
