@@ -11,7 +11,11 @@ const AllOrdersPage = () => {
       <Breadcrumb pageDetails="ORDERS" title="View All Orders" />
       {/* Order status totals */}
       <RequirePermission permission="view_orders">
-        <AdminNewOrderCreate />
+
+        <div className={"flex items-center justify-center"}>
+          <AdminNewOrderCreate />
+        </div>
+
         <OrderStats />
         <AllOrders title={"All Orders"} />
       </RequirePermission>

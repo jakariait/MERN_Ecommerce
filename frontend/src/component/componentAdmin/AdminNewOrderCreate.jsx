@@ -122,7 +122,7 @@ const AdminNewOrderCreate = () => {
       console.error("Product fetch error:", err);
       showSnackbar(
         err.response?.data?.message || "Failed to fetch products",
-        "error"
+        "error",
       );
     }
   };
@@ -181,14 +181,14 @@ const AdminNewOrderCreate = () => {
   // Helper function to build variant name from attributes
   const getVariantName = (variant) => {
     if (!variant) return "Unknown";
-    
+
     // If variant has attributes, build name from them (e.g., "M - Red")
     if (variant.attributes && variant.attributes.length > 0) {
       return variant.attributes
         .map((attr) => attr.value) // attr.value is the actual value (e.g., "M", "Red")
         .join(" - ");
     }
-    
+
     // Fallback to _id if no attributes
     return `Variant ${variant._id.slice(-4)}`;
   };
@@ -200,7 +200,8 @@ const AdminNewOrderCreate = () => {
     }
 
     // Check if product has variants
-    const hasVariants = selectedProduct.variants && selectedProduct.variants.length > 0;
+    const hasVariants =
+      selectedProduct.variants && selectedProduct.variants.length > 0;
 
     if (hasVariants && !selectedVariant) {
       showSnackbar("Please select a variant", "error");
@@ -221,9 +222,10 @@ const AdminNewOrderCreate = () => {
       variantName = getVariantName(selectedVariant);
     } else {
       // For products without variants, use the finalPrice
-      price = selectedProduct.finalDiscount > 0 
-        ? selectedProduct.finalDiscount 
-        : selectedProduct.finalPrice || 0;
+      price =
+        selectedProduct.finalDiscount > 0
+          ? selectedProduct.finalDiscount
+          : selectedProduct.finalPrice || 0;
       variantId = null;
       variantName = "Default";
     }
@@ -251,19 +253,19 @@ const AdminNewOrderCreate = () => {
   const calculateTotals = () => {
     const subtotal = orderItems.reduce(
       (sum, item) => sum + (item.price || 0) * (item.quantity || 0),
-      0
+      0,
     );
     // Use 'value' instead of 'deliveryCharge' - shipping model uses 'value' field
     const deliveryCharge = selectedShipping?.value || 0;
     const discount = parseFloat(specialDiscount) || 0;
-    
+
     // Calculate amount after discounts (matching Checkout.jsx logic)
     const amountAfterDiscount = subtotal - discount;
-    
+
     // VAT is calculated on the amount AFTER discounts (matching Checkout.jsx)
     const vatPercent = parseFloat(vatPercentage) || 0;
     const vat = (amountAfterDiscount * vatPercent) / 100;
-    
+
     // Total = subtotal - discount + vat + delivery
     const total = subtotal + deliveryCharge + vat - discount;
 
@@ -299,9 +301,38 @@ const AdminNewOrderCreate = () => {
         return;
       }
 
-      if (isGuest && !guestInfo.fullName) {
-        showSnackbar("Please fill in guest information", "error");
-        return;
+      // Validate customer information
+      if (isGuest) {
+        if (!guestInfo.fullName?.trim()) {
+          showSnackbar("Full Name is required", "error");
+          return;
+        }
+        if (!guestInfo.mobileNo?.trim()) {
+          showSnackbar("Mobile Number is required", "error");
+          return;
+        }
+        if (!guestInfo.address?.trim()) {
+          showSnackbar("Address is required", "error");
+          return;
+        }
+      } else {
+        // For registered customers
+        if (!selectedCustomer) {
+          showSnackbar("Please select a customer", "error");
+          return;
+        }
+        if (!selectedCustomer?.fullName?.trim()) {
+          showSnackbar("Customer Full Name is required", "error");
+          return;
+        }
+        if (!selectedCustomer?.mobileNumber?.trim()) {
+          showSnackbar("Customer Mobile Number is required", "error");
+          return;
+        }
+        if (!guestInfo.address?.trim()) {
+          showSnackbar("Address is required", "error");
+          return;
+        }
       }
 
       setIsLoading(true);
@@ -351,7 +382,7 @@ const AdminNewOrderCreate = () => {
     } catch (err) {
       showSnackbar(
         err.response?.data?.message || "Failed to create order",
-        "error"
+        "error",
       );
     } finally {
       setIsLoading(false);
@@ -401,7 +432,7 @@ const AdminNewOrderCreate = () => {
             {/* Customer Selection */}
             <Card>
               <CardContent>
-                <h3>Customer Information</h3>
+                <h3 className={"pb-5"}>Customer Information</h3>
                 <FormControl fullWidth sx={{ mb: 2 }}>
                   <InputLabel>Customer Type</InputLabel>
                   <Select
@@ -489,7 +520,7 @@ const AdminNewOrderCreate = () => {
             {/* Product Selection */}
             <Card>
               <CardContent>
-                <h3>Add Products</h3>
+                <h3 className={"pb-5"}>Add Products</h3>
                 <Grid container spacing={2} sx={{ mb: 2 }}>
                   <Grid item xs={12} sm={4}>
                     <Autocomplete
@@ -512,36 +543,39 @@ const AdminNewOrderCreate = () => {
                     />
                   </Grid>
 
-                  {selectedProduct && selectedProduct.variants && selectedProduct.variants.length > 0 && (
-                    <Grid item xs={12} sm={4}>
-                      <FormControl fullWidth>
-                        <InputLabel>Variant</InputLabel>
-                        <Select
-                          value={selectedVariant?._id || ""}
-                          onChange={(e) => {
-                            const variant = (selectedProduct.variants || []).find(
-                              (v) => v._id === e.target.value
-                            );
-                            setSelectedVariant(variant);
-                          }}
-                          label="Variant"
-                        >
-                          {selectedProduct.variants && selectedProduct.variants.length > 0 ? (
-                            selectedProduct.variants.map((variant) => (
-                              <MenuItem key={variant._id} value={variant._id}>
-                                {getVariantName(variant)} - ৳
-                                {variant.price || variant.discount || 0}
+                  {selectedProduct &&
+                    selectedProduct.variants &&
+                    selectedProduct.variants.length > 0 && (
+                      <Grid item xs={12} sm={4}>
+                        <FormControl fullWidth>
+                          <InputLabel>Variant</InputLabel>
+                          <Select
+                            value={selectedVariant?._id || ""}
+                            onChange={(e) => {
+                              const variant = (
+                                selectedProduct.variants || []
+                              ).find((v) => v._id === e.target.value);
+                              setSelectedVariant(variant);
+                            }}
+                            label="Variant"
+                          >
+                            {selectedProduct.variants &&
+                            selectedProduct.variants.length > 0 ? (
+                              selectedProduct.variants.map((variant) => (
+                                <MenuItem key={variant._id} value={variant._id}>
+                                  {getVariantName(variant)} - ৳
+                                  {variant.price || variant.discount || 0}
+                                </MenuItem>
+                              ))
+                            ) : (
+                              <MenuItem disabled>
+                                No variants available
                               </MenuItem>
-                            ))
-                          ) : (
-                            <MenuItem disabled>
-                              No variants available
-                            </MenuItem>
-                          )}
-                        </Select>
-                      </FormControl>
-                    </Grid>
-                  )}
+                            )}
+                          </Select>
+                        </FormControl>
+                      </Grid>
+                    )}
 
                   <Grid item xs={12} sm={2}>
                     <TextField
@@ -614,7 +648,7 @@ const AdminNewOrderCreate = () => {
             {/* Shipping & Payment */}
             <Card>
               <CardContent>
-                <h3>Shipping & Payment</h3>
+                <h3 className={"pb-5"}>Shipping & Payment</h3>
                 <Grid container spacing={2}>
                   <Grid item xs={12} sm={6}>
                     <FormControl fullWidth>
@@ -623,7 +657,7 @@ const AdminNewOrderCreate = () => {
                         value={selectedShipping?._id || ""}
                         onChange={(e) => {
                           const shipping = shippingOptions.find(
-                            (s) => s._id === e.target.value
+                            (s) => s._id === e.target.value,
                           );
                           setSelectedShipping(shipping);
                         }}
@@ -649,9 +683,6 @@ const AdminNewOrderCreate = () => {
                         <MenuItem value="cash_on_delivery">
                           Cash on Delivery
                         </MenuItem>
-                        <MenuItem value="bkash">bKash</MenuItem>
-                        <MenuItem value="nagad">Nagad</MenuItem>
-                        <MenuItem value="card">Card</MenuItem>
                       </Select>
                     </FormControl>
                   </Grid>
@@ -676,7 +707,9 @@ const AdminNewOrderCreate = () => {
                       label="Special Discount (৳)"
                       type="number"
                       value={specialDiscount}
-                      onChange={(e) => setSpecialDiscount(parseFloat(e.target.value) || 0)}
+                      onChange={(e) =>
+                        setSpecialDiscount(parseFloat(e.target.value) || 0)
+                      }
                       inputProps={{ min: 0 }}
                     />
                   </Grid>
@@ -770,11 +803,7 @@ const AdminNewOrderCreate = () => {
             color="primary"
             disabled={isLoading || orderItems.length === 0}
           >
-            {isLoading ? (
-              <CircularProgress size={24} />
-            ) : (
-              "Create Order"
-            )}
+            {isLoading ? <CircularProgress size={24} /> : "Create Order"}
           </Button>
         </DialogActions>
       </Dialog>
