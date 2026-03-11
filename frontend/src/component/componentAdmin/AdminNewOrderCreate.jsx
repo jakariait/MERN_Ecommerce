@@ -176,6 +176,21 @@ const AdminNewOrderCreate = () => {
     setSnackbar({ ...snackbar, open: false });
   };
 
+  // Helper function to build variant name from attributes
+  const getVariantName = (variant) => {
+    if (!variant) return "Unknown";
+    
+    // If variant has attributes, build name from them (e.g., "M - Red")
+    if (variant.attributes && variant.attributes.length > 0) {
+      return variant.attributes
+        .map((attr) => attr.value) // attr.value is the actual value (e.g., "M", "Red")
+        .join(" - ");
+    }
+    
+    // Fallback to _id if no attributes
+    return `Variant ${variant._id.slice(-4)}`;
+  };
+
   const handleAddProduct = () => {
     if (!selectedProduct) {
       showSnackbar("Please select a product", "error");
@@ -201,7 +216,7 @@ const AdminNewOrderCreate = () => {
     if (hasVariants) {
       price = selectedVariant.price || selectedVariant.discount || 0;
       variantId = selectedVariant._id;
-      variantName = selectedVariant.variantName || `Variant ${selectedVariant._id.slice(-4)}`;
+      variantName = getVariantName(selectedVariant);
     } else {
       // For products without variants, use the finalPrice
       price = selectedProduct.finalDiscount > 0 
@@ -490,7 +505,7 @@ const AdminNewOrderCreate = () => {
                           {selectedProduct.variants && selectedProduct.variants.length > 0 ? (
                             selectedProduct.variants.map((variant) => (
                               <MenuItem key={variant._id} value={variant._id}>
-                                {variant.variantName || `Variant ${variant._id.slice(-4)}`} - ৳
+                                {getVariantName(variant)} - ৳
                                 {variant.price || variant.discount || 0}
                               </MenuItem>
                             ))
