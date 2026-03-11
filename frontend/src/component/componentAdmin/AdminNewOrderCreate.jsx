@@ -29,9 +29,11 @@ import {
   Autocomplete,
 } from "@mui/material";
 import { Delete as DeleteIcon, Add as AddIcon } from "@mui/icons-material";
+import useOrderStore from "../../store/useOrderStore.js";
 
 const AdminNewOrderCreate = () => {
   const apiUrl = import.meta.env.VITE_API_URL;
+  const { fetchAllOrders } = useOrderStore();
 
   // Dialog state
   const [openDialog, setOpenDialog] = useState(false);
@@ -333,6 +335,8 @@ const AdminNewOrderCreate = () => {
 
       if (res.data?.success) {
         showSnackbar("Order created successfully!", "success");
+        // Refetch all orders to show the new order
+        fetchAllOrders();
         handleCloseDialog();
       }
     } catch (err) {
