@@ -545,6 +545,13 @@ router.patch(
 // Order routes
 router.post("/orders", orderController.createOrder);
 
+router.post(
+  "/orders/admin/create",
+  adminProtect,
+  checkPermission("edit_orders"),
+  orderController.createAdminOrder,
+);
+
 router.get(
   "/orders",
   adminProtect,

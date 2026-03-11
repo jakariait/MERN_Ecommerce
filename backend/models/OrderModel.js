@@ -37,6 +37,13 @@ const orderSchema = new mongoose.Schema(
       default: "pending",
     },
 
+    orderSource: {
+      type: String,
+      enum: ["web", "admin"],
+      default: "web",
+      required: true,
+    },
+
     deliveryMethod: {
       type: String,
       enum: ["home_delivery"],

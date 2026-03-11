@@ -1,0 +1,743 @@
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button,
+  TextField,
+  Box,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
+  Card,
+  CardContent,
+  Grid,
+  IconButton,
+  Snackbar,
+  Alert,
+  CircularProgress,
+  Autocomplete,
+} from "@mui/material";
+import { Delete as DeleteIcon, Add as AddIcon } from "@mui/icons-material";
+
+const AdminNewOrderCreate = () => {
+  const apiUrl = import.meta.env.VITE_API_URL;
+
+  // Dialog state
+  const [openDialog, setOpenDialog] = useState(false);
+
+  // Customer selection
+  const [customers, setCustomers] = useState([]);
+  const [selectedCustomer, setSelectedCustomer] = useState(null);
+  const [isGuest, setIsGuest] = useState(true);
+
+  // Guest customer info
+  const [guestInfo, setGuestInfo] = useState({
+    fullName: "",
+    mobileNo: "",
+    email: "",
+    address: "",
+  });
+
+  // Products
+  const [products, setProducts] = useState([]);
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [selectedVariant, setSelectedVariant] = useState(null);
+  const [quantity, setQuantity] = useState(1);
+
+  // Order items cart
+  const [orderItems, setOrderItems] = useState([]);
+
+  // Shipping & Payment
+  const [shippingOptions, setShippingOptions] = useState([]);
+  const [selectedShipping, setSelectedShipping] = useState(null);
+  const [paymentMethod, setPaymentMethod] = useState("cash_on_delivery");
+  const [paymentStatus, setPaymentStatus] = useState("unpaid");
+
+  // Discounts
+  const [specialDiscount, setSpecialDiscount] = useState(0);
+  const [promoCode, setPromoCode] = useState("");
+
+  // Notes
+  const [adminNote, setAdminNote] = useState("");
+
+  // Calculations
+  const [calculatedTotals, setCalculatedTotals] = useState({
+    subtotal: 0,
+    vat: 0,
+    deliveryCharge: 0,
+    total: 0,
+  });
+  const [vatPercentage, setVatPercentage] = useState(0);
+
+  // Loading & Alerts
+  const [isLoading, setIsLoading] = useState(false);
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: "",
+    severity: "success",
+  });
+
+  // Fetch initial data
+  useEffect(() => {
+    fetchProducts();
+    fetchShippingOptions();
+    fetchVatPercentage();
+    if (!isGuest) {
+      fetchCustomers();
+    }
+  }, []);
+
+  useEffect(() => {
+    calculateTotals();
+  }, [orderItems, selectedShipping, specialDiscount, vatPercentage]);
+
+  const fetchProducts = async () => {
+    try {
+      const res = await axios.get(`${apiUrl}/getAllProductsAdmin`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
+        },
+      });
+      if (res.data?.success) {
+        console.log("Products fetched:", res.data.products); // Debug log
+        setProducts(res.data.products || []);
+      } else {
+        console.error("Product fetch failed:", res.data);
+        showSnackbar("Failed to fetch products", "error");
+      }
+    } catch (err) {
+      console.error("Product fetch error:", err);
+      showSnackbar(
+        err.response?.data?.message || "Failed to fetch products",
+        "error"
+      );
+    }
+  };
+
+  const fetchCustomers = async () => {
+    try {
+      const res = await axios.get(`${apiUrl}/getAllUsers`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
+        },
+      });
+      if (res.data?.success) {
+        setCustomers(res.data.users);
+      }
+    } catch (err) {
+      showSnackbar("Failed to fetch customers", "error");
+    }
+  };
+
+  const fetchShippingOptions = async () => {
+    try {
+      const res = await axios.get(`${apiUrl}/getAllShipping`);
+      if (res.data?.success) {
+        setShippingOptions(res.data.data);
+      }
+    } catch (err) {
+      showSnackbar("Failed to fetch shipping options", "error");
+    }
+  };
+
+  const fetchVatPercentage = async () => {
+    try {
+      const res = await axios.get(`${apiUrl}/getVatPercentage`);
+      if (res.data?.success) {
+        setVatPercentage(res.data.data.percentage);
+      }
+    } catch (err) {
+      console.error("Failed to fetch VAT percentage", err);
+    }
+  };
+
+  const showSnackbar = (message, severity = "success") => {
+    setSnackbar({ open: true, message, severity });
+  };
+
+  const handleCloseSnackbar = () => {
+    setSnackbar({ ...snackbar, open: false });
+  };
+
+  const handleAddProduct = () => {
+    if (!selectedProduct) {
+      showSnackbar("Please select a product", "error");
+      return;
+    }
+
+    // Check if product has variants
+    const hasVariants = selectedProduct.variants && selectedProduct.variants.length > 0;
+
+    if (hasVariants && !selectedVariant) {
+      showSnackbar("Please select a variant", "error");
+      return;
+    }
+
+    if (quantity < 1) {
+      showSnackbar("Please enter a valid quantity", "error");
+      return;
+    }
+
+    // Handle both products with and without variants
+    let price, variantId, variantName;
+
+    if (hasVariants) {
+      price = selectedVariant.price || selectedVariant.discount || 0;
+      variantId = selectedVariant._id;
+      variantName = selectedVariant.variantName || `Variant ${selectedVariant._id.slice(-4)}`;
+    } else {
+      // For products without variants, use the finalPrice
+      price = selectedProduct.finalDiscount > 0 
+        ? selectedProduct.finalDiscount 
+        : selectedProduct.finalPrice || 0;
+      variantId = null;
+      variantName = "Default";
+    }
+
+    const newItem = {
+      productId: selectedProduct._id,
+      productName: selectedProduct.productName || selectedProduct.name,
+      variantId,
+      variantName,
+      quantity: parseInt(quantity),
+      price,
+    };
+
+    setOrderItems([...orderItems, newItem]);
+    setSelectedProduct(null);
+    setSelectedVariant(null);
+    setQuantity(1);
+    showSnackbar("Product added to order", "success");
+  };
+
+  const handleRemoveItem = (index) => {
+    setOrderItems(orderItems.filter((_, i) => i !== index));
+  };
+
+  const calculateTotals = () => {
+    const subtotal = orderItems.reduce(
+      (sum, item) => sum + item.price * item.quantity,
+      0
+    );
+    const deliveryCharge = selectedShipping?.deliveryCharge || 0;
+    const vat = (subtotal * vatPercentage) / 100;
+    const total = subtotal + deliveryCharge + vat - specialDiscount;
+
+    setCalculatedTotals({
+      subtotal,
+      vat: Math.round(vat * 100) / 100,
+      deliveryCharge,
+      total: Math.max(0, Math.round(total * 100) / 100),
+    });
+  };
+
+  const handleCreateOrder = async () => {
+    try {
+      if (orderItems.length === 0) {
+        showSnackbar("Add at least one product to the order", "error");
+        return;
+      }
+
+      if (!selectedShipping) {
+        showSnackbar("Please select a shipping option", "error");
+        return;
+      }
+
+      if (isGuest && !guestInfo.fullName) {
+        showSnackbar("Please fill in guest information", "error");
+        return;
+      }
+
+      setIsLoading(true);
+
+      const orderData = {
+        userId: isGuest ? null : selectedCustomer?._id,
+        items: orderItems,
+        paymentMethod,
+        paymentStatus,
+        shippingInfo: isGuest
+          ? guestInfo
+          : {
+              fullName: selectedCustomer?.fullName || "",
+              mobileNo: selectedCustomer?.mobileNumber || "",
+              email: selectedCustomer?.email || "",
+              address: guestInfo.address,
+            },
+        billingInfo: isGuest
+          ? guestInfo
+          : {
+              fullName: selectedCustomer?.fullName || "",
+              address: guestInfo.address,
+            },
+        shippingId: selectedShipping._id,
+        deliveryCharge: selectedShipping.deliveryCharge,
+        subtotalAmount: calculatedTotals.subtotal,
+        vat: calculatedTotals.vat,
+        specialDiscount: specialDiscount,
+        promoCode: promoCode || null,
+        promoDiscount: 0, // Can be enhanced later
+        adminNote,
+        orderSource: "admin", // Mark as admin order
+      };
+
+      const res = await axios.post(`${apiUrl}/orders/admin/create`, orderData, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
+        },
+      });
+
+      if (res.data?.success) {
+        showSnackbar("Order created successfully!", "success");
+        handleCloseDialog();
+      }
+    } catch (err) {
+      showSnackbar(
+        err.response?.data?.message || "Failed to create order",
+        "error"
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleOpenDialog = () => {
+    setOpenDialog(true);
+  };
+
+  const handleCloseDialog = () => {
+    setOpenDialog(false);
+    // Reset form
+    setOrderItems([]);
+    setSelectedCustomer(null);
+    setGuestInfo({ fullName: "", mobileNo: "", email: "", address: "" });
+    setSelectedProduct(null);
+    setSelectedVariant(null);
+    setQuantity(1);
+    setSpecialDiscount(0);
+    setPromoCode("");
+    setAdminNote("");
+    setPaymentMethod("cash_on_delivery");
+    setPaymentStatus("unpaid");
+  };
+
+  return (
+    <Box sx={{ mb: 3 }}>
+      <Button
+        variant="contained"
+        color="primary"
+        onClick={handleOpenDialog}
+        sx={{ mb: 2 }}
+      >
+        + Create New Order
+      </Button>
+
+      <Dialog
+        open={openDialog}
+        onClose={handleCloseDialog}
+        maxWidth="lg"
+        fullWidth
+      >
+        <DialogTitle>Create New Admin Order</DialogTitle>
+        <DialogContent dividers>
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
+            {/* Customer Selection */}
+            <Card>
+              <CardContent>
+                <h3>Customer Information</h3>
+                <FormControl fullWidth sx={{ mb: 2 }}>
+                  <InputLabel>Customer Type</InputLabel>
+                  <Select
+                    value={isGuest ? "guest" : "registered"}
+                    onChange={(e) => setIsGuest(e.target.value === "guest")}
+                    label="Customer Type"
+                  >
+                    <MenuItem value="guest">Guest Checkout</MenuItem>
+                    <MenuItem value="registered">Registered User</MenuItem>
+                  </Select>
+                </FormControl>
+
+                {isGuest ? (
+                  <Grid container spacing={2}>
+                    <Grid item xs={12} sm={6}>
+                      <TextField
+                        fullWidth
+                        label="Full Name"
+                        value={guestInfo.fullName}
+                        onChange={(e) =>
+                          setGuestInfo({
+                            ...guestInfo,
+                            fullName: e.target.value,
+                          })
+                        }
+                      />
+                    </Grid>
+                    <Grid item xs={12} sm={6}>
+                      <TextField
+                        fullWidth
+                        label="Mobile Number"
+                        value={guestInfo.mobileNo}
+                        onChange={(e) =>
+                          setGuestInfo({
+                            ...guestInfo,
+                            mobileNo: e.target.value,
+                          })
+                        }
+                      />
+                    </Grid>
+                    <Grid item xs={12} sm={6}>
+                      <TextField
+                        fullWidth
+                        label="Email"
+                        type="email"
+                        value={guestInfo.email}
+                        onChange={(e) =>
+                          setGuestInfo({
+                            ...guestInfo,
+                            email: e.target.value,
+                          })
+                        }
+                      />
+                    </Grid>
+                    <Grid item xs={12} sm={6}>
+                      <TextField
+                        fullWidth
+                        label="Address"
+                        value={guestInfo.address}
+                        onChange={(e) =>
+                          setGuestInfo({
+                            ...guestInfo,
+                            address: e.target.value,
+                          })
+                        }
+                      />
+                    </Grid>
+                  </Grid>
+                ) : (
+                  <Autocomplete
+                    options={customers}
+                    getOptionLabel={(option) =>
+                      `${option.fullName} (${option.email})`
+                    }
+                    value={selectedCustomer}
+                    onChange={(e, value) => setSelectedCustomer(value)}
+                    renderInput={(params) => (
+                      <TextField {...params} label="Select Customer" />
+                    )}
+                  />
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Product Selection */}
+            <Card>
+              <CardContent>
+                <h3>Add Products</h3>
+                <Grid container spacing={2} sx={{ mb: 2 }}>
+                  <Grid item xs={12} sm={4}>
+                    <Autocomplete
+                      options={products}
+                      getOptionLabel={(option) => option.productName}
+                      value={selectedProduct}
+                      onChange={(e, value) => {
+                        setSelectedProduct(value);
+                        setSelectedVariant(null);
+                      }}
+                      renderInput={(params) => (
+                        <TextField {...params} label="Select Product" />
+                      )}
+                    />
+                  </Grid>
+
+                  {selectedProduct && selectedProduct.variants && selectedProduct.variants.length > 0 && (
+                    <Grid item xs={12} sm={4}>
+                      <FormControl fullWidth>
+                        <InputLabel>Variant</InputLabel>
+                        <Select
+                          value={selectedVariant?._id || ""}
+                          onChange={(e) => {
+                            const variant = (selectedProduct.variants || []).find(
+                              (v) => v._id === e.target.value
+                            );
+                            setSelectedVariant(variant);
+                          }}
+                          label="Variant"
+                        >
+                          {selectedProduct.variants && selectedProduct.variants.length > 0 ? (
+                            selectedProduct.variants.map((variant) => (
+                              <MenuItem key={variant._id} value={variant._id}>
+                                {variant.variantName || `Variant ${variant._id.slice(-4)}`} - ৳
+                                {variant.price || variant.discount || 0}
+                              </MenuItem>
+                            ))
+                          ) : (
+                            <MenuItem disabled>
+                              No variants available
+                            </MenuItem>
+                          )}
+                        </Select>
+                      </FormControl>
+                    </Grid>
+                  )}
+
+                  <Grid item xs={12} sm={2}>
+                    <TextField
+                      fullWidth
+                      label="Quantity"
+                      type="number"
+                      value={quantity}
+                      onChange={(e) => setQuantity(e.target.value)}
+                      inputProps={{ min: 1 }}
+                    />
+                  </Grid>
+
+                  <Grid item xs={12} sm={2}>
+                    <Button
+                      fullWidth
+                      variant="contained"
+                      startIcon={<AddIcon />}
+                      onClick={handleAddProduct}
+                      sx={{ mt: 1 }}
+                    >
+                      Add
+                    </Button>
+                  </Grid>
+                </Grid>
+
+                {/* Order Items Table */}
+                {orderItems.length > 0 && (
+                  <TableContainer component={Paper}>
+                    <Table>
+                      <TableHead>
+                        <TableRow sx={{ backgroundColor: "#f5f5f5" }}>
+                          <TableCell>Product</TableCell>
+                          <TableCell align="right">Variant</TableCell>
+                          <TableCell align="right">Price</TableCell>
+                          <TableCell align="right">Qty</TableCell>
+                          <TableCell align="right">Total</TableCell>
+                          <TableCell align="center">Action</TableCell>
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        {orderItems.map((item, index) => (
+                          <TableRow key={index}>
+                            <TableCell>{item.productName}</TableCell>
+                            <TableCell align="right">
+                              {item.variantName}
+                            </TableCell>
+                            <TableCell align="right">৳{item.price}</TableCell>
+                            <TableCell align="right">{item.quantity}</TableCell>
+                            <TableCell align="right">
+                              ৳{item.price * item.quantity}
+                            </TableCell>
+                            <TableCell align="center">
+                              <IconButton
+                                size="small"
+                                color="error"
+                                onClick={() => handleRemoveItem(index)}
+                              >
+                                <DeleteIcon fontSize="small" />
+                              </IconButton>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Shipping & Payment */}
+            <Card>
+              <CardContent>
+                <h3>Shipping & Payment</h3>
+                <Grid container spacing={2}>
+                  <Grid item xs={12} sm={6}>
+                    <FormControl fullWidth>
+                      <InputLabel>Shipping Option</InputLabel>
+                      <Select
+                        value={selectedShipping?._id || ""}
+                        onChange={(e) => {
+                          const shipping = shippingOptions.find(
+                            (s) => s._id === e.target.value
+                          );
+                          setSelectedShipping(shipping);
+                        }}
+                        label="Shipping Option"
+                      >
+                        {shippingOptions.map((option) => (
+                          <MenuItem key={option._id} value={option._id}>
+                            {option.name} - ৳{option.deliveryCharge}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  </Grid>
+
+                  <Grid item xs={12} sm={6}>
+                    <FormControl fullWidth>
+                      <InputLabel>Payment Method</InputLabel>
+                      <Select
+                        value={paymentMethod}
+                        onChange={(e) => setPaymentMethod(e.target.value)}
+                        label="Payment Method"
+                      >
+                        <MenuItem value="cash_on_delivery">
+                          Cash on Delivery
+                        </MenuItem>
+                        <MenuItem value="bkash">bKash</MenuItem>
+                        <MenuItem value="nagad">Nagad</MenuItem>
+                        <MenuItem value="card">Card</MenuItem>
+                      </Select>
+                    </FormControl>
+                  </Grid>
+
+                  <Grid item xs={12} sm={6}>
+                    <FormControl fullWidth>
+                      <InputLabel>Payment Status</InputLabel>
+                      <Select
+                        value={paymentStatus}
+                        onChange={(e) => setPaymentStatus(e.target.value)}
+                        label="Payment Status"
+                      >
+                        <MenuItem value="unpaid">Unpaid</MenuItem>
+                        <MenuItem value="paid">Paid</MenuItem>
+                      </Select>
+                    </FormControl>
+                  </Grid>
+
+                  <Grid item xs={12} sm={6}>
+                    <TextField
+                      fullWidth
+                      label="Special Discount (৳)"
+                      type="number"
+                      value={specialDiscount}
+                      onChange={(e) => setSpecialDiscount(parseFloat(e.target.value) || 0)}
+                      inputProps={{ min: 0 }}
+                    />
+                  </Grid>
+                </Grid>
+              </CardContent>
+            </Card>
+
+            {/* Admin Notes */}
+            <TextField
+              fullWidth
+              multiline
+              rows={3}
+              label="Admin Notes"
+              value={adminNote}
+              onChange={(e) => setAdminNote(e.target.value)}
+              variant="outlined"
+            />
+
+            {/* Order Summary */}
+            <Card>
+              <CardContent>
+                <h3>Order Summary</h3>
+                <Grid container spacing={2}>
+                  <Grid item xs={6}>
+                    <strong>Subtotal:</strong>
+                  </Grid>
+                  <Grid item xs={6} sx={{ textAlign: "right" }}>
+                    ৳{calculatedTotals.subtotal.toFixed(2)}
+                  </Grid>
+
+                  <Grid item xs={6}>
+                    <strong>VAT ({vatPercentage}%):</strong>
+                  </Grid>
+                  <Grid item xs={6} sx={{ textAlign: "right" }}>
+                    ৳{calculatedTotals.vat.toFixed(2)}
+                  </Grid>
+
+                  <Grid item xs={6}>
+                    <strong>Delivery Charge:</strong>
+                  </Grid>
+                  <Grid item xs={6} sx={{ textAlign: "right" }}>
+                    ৳{calculatedTotals.deliveryCharge.toFixed(2)}
+                  </Grid>
+
+                  <Grid item xs={6}>
+                    <strong>Discount:</strong>
+                  </Grid>
+                  <Grid item xs={6} sx={{ textAlign: "right" }}>
+                    -৳{specialDiscount.toFixed(2)}
+                  </Grid>
+
+                  <Grid
+                    item
+                    xs={6}
+                    sx={{
+                      borderTop: "2px solid #ddd",
+                      pt: 2,
+                      fontWeight: "bold",
+                    }}
+                  >
+                    Total:
+                  </Grid>
+                  <Grid
+                    item
+                    xs={6}
+                    sx={{
+                      textAlign: "right",
+                      borderTop: "2px solid #ddd",
+                      pt: 2,
+                      fontWeight: "bold",
+                      color: "#1976d2",
+                    }}
+                  >
+                    ৳{calculatedTotals.total.toFixed(2)}
+                  </Grid>
+                </Grid>
+              </CardContent>
+            </Card>
+          </Box>
+        </DialogContent>
+
+        <DialogActions>
+          <Button onClick={handleCloseDialog}>Cancel</Button>
+          <Button
+            onClick={handleCreateOrder}
+            variant="contained"
+            color="primary"
+            disabled={isLoading || orderItems.length === 0}
+          >
+            {isLoading ? (
+              <CircularProgress size={24} />
+            ) : (
+              "Create Order"
+            )}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={4000}
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: "top", horizontal: "right" }}
+      >
+        <Alert
+          onClose={handleCloseSnackbar}
+          severity={snackbar.severity}
+          sx={{ width: "100%" }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
+    </Box>
+  );
+};
+
+export default AdminNewOrderCreate;

@@ -51,6 +51,57 @@ const createOrder = async (req, res) => {
   }
 };
 
+// Create order from admin
+const createAdminOrder = async (req, res) => {
+  try {
+    const { userId, rewardPointsUsed = 0, ...orderData } = req.body;
+
+    let user = null;
+
+    if (userId) {
+      user = await User.findById(userId);
+      if (!user) {
+        return res
+          .status(404)
+          .json({ success: false, message: "User not found" });
+      }
+
+      const rewardPointsUsedNumber = Number(rewardPointsUsed);
+      const userRewardPoints = Number(user.rewardPoints || 0);
+
+      if (rewardPointsUsedNumber > userRewardPoints) {
+        return res.status(400).json({
+          success: false,
+          message: "You cannot use more reward points than you have available.",
+        });
+      }
+    }
+
+    // Create order with admin source
+    const order = await orderService.createOrder(
+      { ...orderData, rewardPointsUsed, orderSource: "admin" },
+      userId || null,
+    );
+
+    if (user && rewardPointsUsed > 0) {
+      user.rewardPoints -= Number(rewardPointsUsed);
+      await user.save();
+    }
+
+    res.status(201).json({
+      success: true,
+      message: "Admin order created successfully",
+      order,
+    });
+  } catch (error) {
+    console.error("Admin Order Creation Error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error creating admin order: " + error.message,
+    });
+  }
+};
+
 const getAllOrders = async (req, res) => {
   try {
     const { orderStatus, page, limit, search, startDate, endDate } = req.query;
@@ -286,6 +337,7 @@ const bulkDeleteOrders = async (req, res) => {
 // Exporting the controller functions
 module.exports = {
   createOrder,
+  createAdminOrder,
   getAllOrders,
   getOrderById,
   updateOrder,
