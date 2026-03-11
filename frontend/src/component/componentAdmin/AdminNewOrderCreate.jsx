@@ -255,9 +255,16 @@ const AdminNewOrderCreate = () => {
     );
     // Use 'value' instead of 'deliveryCharge' - shipping model uses 'value' field
     const deliveryCharge = selectedShipping?.value || 0;
-    const vatPercent = parseFloat(vatPercentage) || 0;
-    const vat = (subtotal * vatPercent) / 100;
     const discount = parseFloat(specialDiscount) || 0;
+    
+    // Calculate amount after discounts (matching Checkout.jsx logic)
+    const amountAfterDiscount = subtotal - discount;
+    
+    // VAT is calculated on the amount AFTER discounts (matching Checkout.jsx)
+    const vatPercent = parseFloat(vatPercentage) || 0;
+    const vat = (amountAfterDiscount * vatPercent) / 100;
+    
+    // Total = subtotal - discount + vat + delivery
     const total = subtotal + deliveryCharge + vat - discount;
 
     // Debug logging
@@ -265,8 +272,10 @@ const AdminNewOrderCreate = () => {
       selectedShipping,
       deliveryCharge,
       subtotal,
-      vat,
       discount,
+      amountAfterDiscount,
+      vatPercent,
+      vat,
       total,
     });
 
