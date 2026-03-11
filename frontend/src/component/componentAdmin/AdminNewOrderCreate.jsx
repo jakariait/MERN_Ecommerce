@@ -707,12 +707,16 @@ const AdminNewOrderCreate = () => {
                     ৳{calculatedTotals.subtotal.toFixed(2)}
                   </Grid>
 
-                  <Grid item xs={6}>
-                    <strong>VAT ({vatPercentage}%):</strong>
-                  </Grid>
-                  <Grid item xs={6} sx={{ textAlign: "right" }}>
-                    ৳{calculatedTotals.vat.toFixed(2)}
-                  </Grid>
+                  {vatPercentage > 0 && (
+                    <>
+                      <Grid item xs={6}>
+                        <strong>VAT ({vatPercentage}%):</strong>
+                      </Grid>
+                      <Grid item xs={6} sx={{ textAlign: "right" }}>
+                        ৳{calculatedTotals.vat.toFixed(2)}
+                      </Grid>
+                    </>
+                  )}
 
                   <Grid item xs={6}>
                     <strong>Delivery Charge:</strong>
