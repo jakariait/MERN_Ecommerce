@@ -226,11 +226,12 @@ const AdminNewOrderCreate = () => {
     let price, variantId, variantName;
 
     if (hasVariants) {
-      price = selectedVariant.price || selectedVariant.discount || 0;
+      // Use discount price if available, otherwise use regular price (matching Checkout.jsx logic)
+      price = selectedVariant.discount > 0 ? selectedVariant.discount : selectedVariant.price || 0;
       variantId = selectedVariant._id;
       variantName = getVariantName(selectedVariant);
     } else {
-      // For products without variants, use the finalPrice
+      // For products without variants, use discount price if available (matching Checkout.jsx logic)
       price =
         selectedProduct.finalDiscount > 0
           ? selectedProduct.finalDiscount
@@ -273,10 +274,10 @@ const AdminNewOrderCreate = () => {
 
     // VAT is calculated on the amount AFTER discounts (matching Checkout.jsx)
     const vatPercent = parseFloat(vatPercentage) || 0;
-    const vat = (amountAfterDiscount * vatPercent) / 100;
+    const vat = Math.max(0, (amountAfterDiscount * vatPercent) / 100);
 
     // Total = subtotal - discount + vat + delivery
-    const total = subtotal + deliveryCharge + vat - discount;
+    const total = Math.max(0, subtotal + deliveryCharge + vat - discount);
 
     // Debug logging
     console.log("Calculate Totals Debug:", {
@@ -294,7 +295,7 @@ const AdminNewOrderCreate = () => {
       subtotal: Math.round(subtotal * 100) / 100,
       vat: Math.round(vat * 100) / 100,
       deliveryCharge: Math.round(deliveryCharge * 100) / 100,
-      total: Math.max(0, Math.round(total * 100) / 100),
+      total: Math.round(total * 100) / 100,
     });
   };
 
@@ -371,7 +372,7 @@ const AdminNewOrderCreate = () => {
         vat: calculatedTotals.vat,
         specialDiscount: specialDiscount,
         promoCode: promoCode || null,
-        promoDiscount: 0, // Can be enhanced later
+        promoDiscount: 0,
         adminNote,
         orderSource: "admin", // Mark as admin order
       };
@@ -632,7 +633,7 @@ const AdminNewOrderCreate = () => {
                               selectedProduct.variants.map((variant) => (
                                 <MenuItem key={variant._id} value={variant._id}>
                                   {getVariantName(variant)} - ৳
-                                  {variant.price || variant.discount || 0}
+                                  {variant.discount > 0 ? variant.discount : variant.price || 0}
                                 </MenuItem>
                               ))
                             ) : (
