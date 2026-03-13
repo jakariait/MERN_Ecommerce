@@ -13,6 +13,7 @@ const userSchema = new mongoose.Schema(
     },
     email: {
       type: String,
+      required: true,
       unique: true,
       sparse: true,
       trim: true,
@@ -36,9 +37,11 @@ const userSchema = new mongoose.Schema(
     },
     address: {
       type: String,
+      required: true,
     },
     phone: {
       type: String,
+      required: true,
       unique: true,
       sparse: true,
       match: [/^\d{10,15}$/, "Please enter a valid phone number"],
@@ -60,11 +63,13 @@ const userSchema = new mongoose.Schema(
   { timestamps: true, versionKey: false },
 );
 
-// 🔁 Ensure either email or phone is provided
+// 🔁 Ensure both email and phone are provided
 userSchema.pre("validate", function (next) {
-  if (!this.email && !this.phone) {
-    this.invalidate("email", "Either email or phone number is required.");
-    this.invalidate("phone", "Either email or phone number is required.");
+  if (!this.email) {
+    this.invalidate("email", "Email is required.");
+  }
+  if (!this.phone) {
+    this.invalidate("phone", "Phone number is required.");
   }
   next();
 });

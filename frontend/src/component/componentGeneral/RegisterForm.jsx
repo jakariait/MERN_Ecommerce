@@ -5,6 +5,7 @@ import {
   FaEye,
   FaEnvelope,
   FaHome,
+  FaPhone,
 } from "react-icons/fa";
 import { FaRegEdit } from "react-icons/fa";
 import { useState } from "react";
@@ -20,7 +21,8 @@ const RegisterForm = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     fullName: "",
-    emailOrPhone: "",
+    email: "",
+    phone: "",
     address: "",
     password: "",
   });
@@ -44,15 +46,11 @@ const RegisterForm = () => {
 
     const payload = {
       fullName: formData.fullName,
+      email: formData.email,
+      phone: formData.phone,
       address: formData.address,
       password: formData.password,
     };
-
-    if (formData.emailOrPhone.includes("@")) {
-      payload.email = formData.emailOrPhone;
-    } else {
-      payload.phone = formData.emailOrPhone;
-    }
 
     try {
       const res = await fetch(`${apiUrl}/register`, {
@@ -67,7 +65,7 @@ const RegisterForm = () => {
 
       if (res.ok) {
         // Attempt to log in the user after successful registration
-        await login(formData.emailOrPhone, formData.password);
+        await login(formData.email || formData.phone, formData.password);
         const token = localStorage.getItem("user_token");
 
         if (token) {
@@ -134,15 +132,29 @@ const RegisterForm = () => {
             />
           </div>
 
-          {/* Email or Phone */}
+          {/* Email */}
           <div className="flex items-center bg-white rounded-md shadow-sm px-4 py-4">
             <FaEnvelope className="primaryTextColor mr-5 text-2xl" />
             <input
-              type="text"
-              name="emailOrPhone"
-              value={formData.emailOrPhone}
+              type="email"
+              name="email"
+              value={formData.email}
               onChange={handleChange}
-              placeholder="Email or Phone Number*"
+              placeholder="Email*"
+              className="w-full outline-none text-sm bg-transparent"
+              required
+            />
+          </div>
+
+          {/* Phone */}
+          <div className="flex items-center bg-white rounded-md shadow-sm px-4 py-4">
+            <FaPhone className="primaryTextColor mr-5 text-2xl" />
+            <input
+              type="tel"
+              name="phone"
+              value={formData.phone}
+              onChange={handleChange}
+              placeholder="Phone Number*"
               className="w-full outline-none text-sm bg-transparent"
               required
             />
@@ -156,8 +168,9 @@ const RegisterForm = () => {
               name="address"
               value={formData.address}
               onChange={handleChange}
-              placeholder="Address"
+              placeholder="Address*"
               className="w-full outline-none text-sm bg-transparent"
+              required
             />
           </div>
 
