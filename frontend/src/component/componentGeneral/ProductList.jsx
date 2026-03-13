@@ -138,7 +138,7 @@ const ProductList = ({ products }) => {
 
               {/* Free Delivery Badge - on image */}
               {product.freeShipping && (
-                <div className="absolute bottom-17 left-0 z-10">
+                <div className="absolute bottom-25 left-0 z-10">
                   <span className="primaryBgColor accentTextColor px-2 py-1 text-sm rounded">
                     Free Delivery
                   </span>
@@ -159,6 +159,9 @@ const ProductList = ({ products }) => {
                 >
                   <FaEye aria-hidden="true" />
                 </button>
+              </div>
+              <div className={"pt-5"}>
+                <BuyNowButton product={product} isAddToCart={false} />
               </div>
             </div>
           ))}
