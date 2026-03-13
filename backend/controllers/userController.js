@@ -63,17 +63,15 @@ const getAllUsers = asyncHandler(async (req, res) => {
     // Count the number of registered users
     const userCount = users.length;
 
-    if (userCount === 0) {
-      return res.status(200).json({ message: "No users found", userCount });
-    }
-
     res.status(200).json({
-      message: "Users retrieved successfully",
-      userCount, // Include the user count in the response
+      success: true,
+      message: userCount === 0 ? "No users found" : "Users retrieved successfully",
+      userCount,
       users,
     });
   } catch (error) {
     res.status(500).json({
+      success: false,
       message: "Failed to fetch users",
       error: error.message,
     });

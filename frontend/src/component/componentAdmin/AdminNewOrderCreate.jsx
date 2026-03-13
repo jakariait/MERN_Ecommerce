@@ -27,6 +27,7 @@ import {
   Alert,
   CircularProgress,
   Autocomplete,
+  Typography,
 } from "@mui/material";
 import { Delete as DeleteIcon, Add as AddIcon } from "@mui/icons-material";
 import useOrderStore from "../../store/useOrderStore.js";
@@ -104,10 +105,14 @@ const AdminNewOrderCreate = () => {
     fetchProducts();
     fetchShippingOptions();
     fetchVatPercentage();
+  }, []);
+
+  // Fetch customers when switching to registered user
+  useEffect(() => {
     if (!isGuest) {
       fetchCustomers();
     }
-  }, []);
+  }, [isGuest]);
 
   useEffect(() => {
     calculateTotals();
@@ -121,14 +126,11 @@ const AdminNewOrderCreate = () => {
         },
       });
       if (res.data?.success) {
-        console.log("Products fetched:", res.data.products); // Debug log
         setProducts(res.data.products || []);
       } else {
-        console.error("Product fetch failed:", res.data);
         showSnackbar("Failed to fetch products", "error");
       }
     } catch (err) {
-      console.error("Product fetch error:", err);
       showSnackbar(
         err.response?.data?.message || "Failed to fetch products",
         "error",
@@ -144,10 +146,10 @@ const AdminNewOrderCreate = () => {
         },
       });
       if (res.data?.success) {
-        setCustomers(res.data.users);
+        setCustomers(res.data.users || []);
       }
     } catch (err) {
-      showSnackbar("Failed to fetch customers", "error");
+      showSnackbar(err.response?.data?.message || "Failed to fetch customers", "error");
     }
   };
 
@@ -167,14 +169,11 @@ const AdminNewOrderCreate = () => {
       const res = await axios.get(`${apiUrl}/getVatPercentage`);
       if (res.data?.success && res.data.data) {
         const vatValue = res.data.data.percentage || res.data.data.value || 0;
-        console.log("VAT fetched:", vatValue); // Debug log
         setVatPercentage(parseFloat(vatValue) || 0);
       } else {
-        console.error("VAT fetch failed:", res.data);
         setVatPercentage(0);
       }
     } catch (err) {
-      console.error("Failed to fetch VAT percentage", err);
       setVatPercentage(0);
     }
   };
@@ -279,18 +278,6 @@ const AdminNewOrderCreate = () => {
     // Total = subtotal - discount + vat + delivery
     const total = Math.max(0, subtotal + deliveryCharge + vat - discount);
 
-    // Debug logging
-    console.log("Calculate Totals Debug:", {
-      selectedShipping,
-      deliveryCharge,
-      subtotal,
-      discount,
-      amountAfterDiscount,
-      vatPercent,
-      vat,
-      total,
-    });
-
     setCalculatedTotals({
       subtotal: Math.round(subtotal * 100) / 100,
       vat: Math.round(vat * 100) / 100,
@@ -335,7 +322,7 @@ const AdminNewOrderCreate = () => {
           showSnackbar("Customer Full Name is required", "error");
           return;
         }
-        if (!selectedCustomer?.mobileNumber?.trim()) {
+        if (!selectedCustomer?.phone?.trim()) {
           showSnackbar("Customer Mobile Number is required", "error");
           return;
         }
@@ -356,7 +343,7 @@ const AdminNewOrderCreate = () => {
           ? guestInfo
           : {
               fullName: selectedCustomer?.fullName || "",
-              mobileNo: selectedCustomer?.mobileNumber || "",
+              mobileNo: selectedCustomer?.phone || "",
               email: selectedCustomer?.email || "",
               address: guestInfo.address,
             },
@@ -442,8 +429,8 @@ const AdminNewOrderCreate = () => {
       if (!guestInfo.address?.trim()) errors.address = true;
     } else {
       if (!selectedCustomer) errors.selectedCustomer = true;
-      if (!selectedCustomer?.fullName?.trim()) errors.fullName = true;
-      if (!selectedCustomer?.mobileNumber?.trim()) errors.mobileNo = true;
+      if (!guestInfo.fullName?.trim()) errors.fullName = true;
+      if (!guestInfo.mobileNo?.trim()) errors.mobileNo = true;
       if (!guestInfo.address?.trim()) errors.address = true;
     }
 
@@ -566,22 +553,104 @@ const AdminNewOrderCreate = () => {
                     </Grid>
                   </Grid>
                 ) : (
-                  <Autocomplete
-                    options={customers}
-                    getOptionLabel={(option) =>
-                      `${option.fullName} (${option.email})`
-                    }
-                    value={selectedCustomer}
-                    onChange={(e, value) => setSelectedCustomer(value)}
-                    renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        label="Select Customer"
-                        error={formErrors.selectedCustomer}
-                        helperText={formErrors.selectedCustomer ? "Customer is required" : ""}
-                      />
+                  <>
+                    <Autocomplete
+                      options={customers}
+                      getOptionLabel={(option) =>
+                        `${option.fullName} (${option.email})`
+                      }
+                      value={selectedCustomer}
+                      onChange={(e, value) => {
+                        setSelectedCustomer(value);
+                        if (value) {
+                          setGuestInfo({
+                            fullName: value.fullName || "",
+                            mobileNo: value.phone || "",
+                            email: value.email || "",
+                            address: value.address || "",
+                          });
+                        }
+                      }}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          label="Select Customer"
+                          error={formErrors.selectedCustomer}
+                          helperText={formErrors.selectedCustomer ? "Customer is required" : ""}
+                        />
+                      )}
+                    />
+                    {selectedCustomer && (
+                      <>
+                        <Box sx={{ mt: 2, p: 2, bgcolor: "#f5f5f5", borderRadius: 1 }}>
+                          <Typography variant="body2" sx={{ mb: 2, fontWeight: "bold" }}>
+                            Customer Details (Editable)
+                          </Typography>
+                          <Grid container spacing={2}>
+                            <Grid item xs={12} sm={6}>
+                              <TextField
+                                fullWidth
+                                label="Full Name"
+                                value={guestInfo.fullName}
+                                onChange={(e) =>
+                                  setGuestInfo({
+                                    ...guestInfo,
+                                    fullName: e.target.value,
+                                  })
+                                }
+                                error={formErrors.fullName}
+                                helperText={formErrors.fullName ? "Full Name is required" : ""}
+                              />
+                            </Grid>
+                            <Grid item xs={12} sm={6}>
+                              <TextField
+                                fullWidth
+                                label="Mobile Number"
+                                value={guestInfo.mobileNo}
+                                onChange={(e) =>
+                                  setGuestInfo({
+                                    ...guestInfo,
+                                    mobileNo: e.target.value,
+                                  })
+                                }
+                                error={formErrors.mobileNo}
+                                helperText={formErrors.mobileNo ? "Mobile Number is required" : ""}
+                              />
+                            </Grid>
+                            <Grid item xs={12} sm={6}>
+                              <TextField
+                                fullWidth
+                                label="Email"
+                                type="email"
+                                value={guestInfo.email}
+                                onChange={(e) =>
+                                  setGuestInfo({
+                                    ...guestInfo,
+                                    email: e.target.value,
+                                  })
+                                }
+                              />
+                            </Grid>
+                            <Grid item xs={12} sm={6}>
+                              <TextField
+                                fullWidth
+                                label="Address"
+                                value={guestInfo.address}
+                                onChange={(e) =>
+                                  setGuestInfo({
+                                    ...guestInfo,
+                                    address: e.target.value,
+                                  })
+                                }
+                                error={formErrors.address}
+                                helperText={formErrors.address ? "Address is required" : ""}
+                              />
+                            </Grid>
+                          </Grid>
+                        </Box>
+                      </>
                     )}
-                  />
+                  </>
                 )}
               </CardContent>
             </Card>
