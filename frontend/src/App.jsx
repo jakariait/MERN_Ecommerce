@@ -13,6 +13,7 @@ import useFlagStore from "./store/useFlagStore.js";
 import useChildCategoryStore from "./store/useChildCategoryStore.js";
 import useProductStore from "./store/useProductStore.js";
 import useAuthUserStore from "./store/AuthUserStore.js";
+import useWishlistStore from "./store/useWishlistStore.js";
 import ProtectedRoute from "./component/componentAdmin/ProtectedRoute.jsx";
 import UserProtectedRoute from "./component/componentGeneral/UserProtectedRoute.jsx";
 import ScrollToTop from "./component/componentGeneral/ScrollToTop.jsx";
@@ -180,6 +181,7 @@ const ResetPasswordPage = lazy(
 const PathaoConfigPage = lazy(
   () => import("./pagesAdmin/PathaoConfigPage.jsx"),
 );
+const WishlistPage = lazy(() => import("./pagesUser/WishlistPage.jsx"));
 
 function App() {
   const { GeneralInfoListRequest, GeneralInfoList } = GeneralInfoStore();
@@ -194,6 +196,7 @@ function App() {
   const { fetchProducts, fetchProductsAdmin, fetchHomeProducts } =
     useProductStore();
   const { initialize } = useAuthUserStore();
+  const { initialize: initWishlist } = useWishlistStore();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -211,6 +214,7 @@ function App() {
           fetchProducts(),
           fetchProductsAdmin(),
           initialize(),
+          initWishlist(),
           fetchHomeProducts(),
         ]);
       } catch (error) {
@@ -306,6 +310,7 @@ function App() {
               path="/user/change-password"
               element={<ChangePasswordPage />}
             />
+            <Route path="/user/wishlist" element={<WishlistPage />} />
           </Route>
 
           {/* Protected Admin Routes */}

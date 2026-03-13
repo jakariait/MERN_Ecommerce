@@ -12,6 +12,7 @@ import ProductGallery from "./ProductGallery.jsx";
 import ProductAddToCart from "./ProductAddToCart.jsx";
 import BuyNowButton from "./BuyNowButton.jsx";
 import ImageComponentWithCompression from "./ImageComponentWithCompression.jsx";
+import WishlistButton from "./WishlistButton.jsx";
 
 // Memoize the formatted price function
 const formatPrice = (price) => {
@@ -141,7 +142,8 @@ const ProductList = ({ products }) => {
               </div>
 
               {/* Quick View Button */}
-              <div className="absolute top-1 right-0 z-10 bg-white rounded-full flex justify-center items-center">
+              <div className="absolute top-1 right-0 z-10 flex gap-1 bg-white rounded-full justify-center items-center">
+                <WishlistButton product={product} size={18} className="!p-1.5" />
                 <button
                   onClick={() => handleOpen(product)}
                   className="p-2 cursor-pointer"

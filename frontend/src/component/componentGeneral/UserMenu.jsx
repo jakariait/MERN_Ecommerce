@@ -10,6 +10,7 @@ import {
   FaShoppingCart,
   FaUserCog,
   FaKey,
+  FaHeart,
 } from "react-icons/fa";
 import Skeleton from "react-loading-skeleton";
 
@@ -19,6 +20,11 @@ const menuItems = [
     label: "Dashboard",
     path: "/user/home",
     active: true,
+  },
+  {
+    icon: <FaHeart />,
+    label: "My Wishlist",
+    path: "/user/wishlist",
   },
   {
     icon: <FaShoppingCart />,

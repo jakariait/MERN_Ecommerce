@@ -3,6 +3,7 @@ import { FaPlus } from "react-icons/fa6";
 import { FiMinus } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import useCartStore from "../../store/useCartStore.js";
+import WishlistButton from "./WishlistButton.jsx";
 
 const ProductAddToCart = ({ product }) => {
   const [quantity, setQuantity] = useState(1);
@@ -240,7 +241,6 @@ const ProductAddToCart = ({ product }) => {
       <div>
         <div className="flex flex-col gap-3 md:col-span-4 lg:col-span-3 xl:col-span-4 pt-4 md:pt-0">
           <h2 className="text-xl md:text-2xl  ">{product.name}</h2>
-
           <div className="flex text-center flex-col gap-2">
             {/* Without Variant Price Display */}
             {!product.variants?.length && (
@@ -384,6 +384,10 @@ const ProductAddToCart = ({ product }) => {
                 ADD TO CART
               </button>
             )}
+            <WishlistButton
+              product={product}
+              className={"primaryBgColor accentTextColor px-2 py-1"}
+            />
           </div>
           {selectedVariant?.stock !== 0 && (
             <button

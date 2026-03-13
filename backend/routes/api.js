@@ -17,6 +17,7 @@ const flagController = require("../controllers/flagController");
 const productController = require("../controllers/productController");
 const userController = require("../controllers/userController");
 const cartController = require("../controllers/cartController");
+const wishlistController = require("../controllers/wishlistController");
 const shippingController = require("../controllers/ShippingController");
 const freeDeliveryController = require("../controllers/FreeDeliveryController");
 const couponController = require("../controllers/CouponController");
@@ -465,6 +466,13 @@ router.post("/addToCart", userProtect, cartController.addToCart);
 router.patch("/updateCartItem", userProtect, cartController.updateCartItem);
 router.delete("/removeCartItem", userProtect, cartController.removeCartItem);
 router.delete("/clearCart", userProtect, cartController.clearCart);
+
+// Wishlist Routes
+router.get("/wishlist", userProtect, wishlistController.getWishlist);
+router.post("/wishlist/add", userProtect, wishlistController.addToWishlist);
+router.delete("/wishlist/remove", userProtect, wishlistController.removeFromWishlist);
+router.delete("/wishlist/clear", userProtect, wishlistController.clearWishlist);
+router.get("/wishlist/check/:productId", userProtect, wishlistController.checkProductInWishlist);
 
 // Shipping Option Routes
 router.get("/getAllShipping", shippingController.getAllShipping);
