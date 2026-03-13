@@ -149,7 +149,10 @@ const AdminNewOrderCreate = () => {
         setCustomers(res.data.users || []);
       }
     } catch (err) {
-      showSnackbar(err.response?.data?.message || "Failed to fetch customers", "error");
+      showSnackbar(
+        err.response?.data?.message || "Failed to fetch customers",
+        "error",
+      );
     }
   };
 
@@ -226,7 +229,10 @@ const AdminNewOrderCreate = () => {
 
     if (hasVariants) {
       // Use discount price if available, otherwise use regular price (matching Checkout.jsx logic)
-      price = selectedVariant.discount > 0 ? selectedVariant.discount : selectedVariant.price || 0;
+      price =
+        selectedVariant.discount > 0
+          ? selectedVariant.discount
+          : selectedVariant.price || 0;
       variantId = selectedVariant._id;
       variantName = getVariantName(selectedVariant);
     } else {
@@ -504,7 +510,9 @@ const AdminNewOrderCreate = () => {
                           })
                         }
                         error={formErrors.fullName}
-                        helperText={formErrors.fullName ? "Full Name is required" : ""}
+                        helperText={
+                          formErrors.fullName ? "Full Name is required" : ""
+                        }
                       />
                     </Grid>
                     <Grid item xs={12} sm={6}>
@@ -519,7 +527,9 @@ const AdminNewOrderCreate = () => {
                           })
                         }
                         error={formErrors.mobileNo}
-                        helperText={formErrors.mobileNo ? "Mobile Number is required" : ""}
+                        helperText={
+                          formErrors.mobileNo ? "Mobile Number is required" : ""
+                        }
                       />
                     </Grid>
                     <Grid item xs={12} sm={6}>
@@ -548,7 +558,9 @@ const AdminNewOrderCreate = () => {
                           })
                         }
                         error={formErrors.address}
-                        helperText={formErrors.address ? "Address is required" : ""}
+                        helperText={
+                          formErrors.address ? "Address is required" : ""
+                        }
                       />
                     </Grid>
                   </Grid>
@@ -576,14 +588,28 @@ const AdminNewOrderCreate = () => {
                           {...params}
                           label="Select Customer"
                           error={formErrors.selectedCustomer}
-                          helperText={formErrors.selectedCustomer ? "Customer is required" : ""}
+                          helperText={
+                            formErrors.selectedCustomer
+                              ? "Customer is required"
+                              : ""
+                          }
                         />
                       )}
                     />
                     {selectedCustomer && (
                       <>
-                        <Box sx={{ mt: 2, p: 2, bgcolor: "#f5f5f5", borderRadius: 1 }}>
-                          <Typography variant="body2" sx={{ mb: 2, fontWeight: "bold" }}>
+                        <Box
+                          sx={{
+                            mt: 2,
+                            p: 2,
+                            bgcolor: "#f5f5f5",
+                            borderRadius: 1,
+                          }}
+                        >
+                          <Typography
+                            variant="body2"
+                            sx={{ mb: 2, fontWeight: "bold" }}
+                          >
                             Customer Details (Editable)
                           </Typography>
                           <Grid container spacing={2}>
@@ -599,7 +625,11 @@ const AdminNewOrderCreate = () => {
                                   })
                                 }
                                 error={formErrors.fullName}
-                                helperText={formErrors.fullName ? "Full Name is required" : ""}
+                                helperText={
+                                  formErrors.fullName
+                                    ? "Full Name is required"
+                                    : ""
+                                }
                               />
                             </Grid>
                             <Grid item xs={12} sm={6}>
@@ -614,7 +644,11 @@ const AdminNewOrderCreate = () => {
                                   })
                                 }
                                 error={formErrors.mobileNo}
-                                helperText={formErrors.mobileNo ? "Mobile Number is required" : ""}
+                                helperText={
+                                  formErrors.mobileNo
+                                    ? "Mobile Number is required"
+                                    : ""
+                                }
                               />
                             </Grid>
                             <Grid item xs={12} sm={6}>
@@ -643,7 +677,11 @@ const AdminNewOrderCreate = () => {
                                   })
                                 }
                                 error={formErrors.address}
-                                helperText={formErrors.address ? "Address is required" : ""}
+                                helperText={
+                                  formErrors.address
+                                    ? "Address is required"
+                                    : ""
+                                }
                               />
                             </Grid>
                           </Grid>
@@ -702,7 +740,9 @@ const AdminNewOrderCreate = () => {
                               selectedProduct.variants.map((variant) => (
                                 <MenuItem key={variant._id} value={variant._id}>
                                   {getVariantName(variant)} - ৳
-                                  {variant.discount > 0 ? variant.discount : variant.price || 0}
+                                  {variant.discount > 0
+                                    ? variant.discount
+                                    : variant.price || 0}
                                 </MenuItem>
                               ))
                             ) : (
@@ -808,7 +848,13 @@ const AdminNewOrderCreate = () => {
                         ))}
                       </Select>
                       {formErrors.selectedShipping && (
-                        <Box sx={{ color: "#d32f2f", fontSize: "0.75rem", mt: 0.5 }}>
+                        <Box
+                          sx={{
+                            color: "#d32f2f",
+                            fontSize: "0.75rem",
+                            mt: 0.5,
+                          }}
+                        >
                           Shipping Option is required
                         </Box>
                       )}

@@ -10,8 +10,8 @@ import {
 import { FaRegEdit } from "react-icons/fa";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import useAuthUserStore from "../../store/AuthUserStore.js"; // Import the auth store
-import useCartStore from "../../store/useCartStore.js"; // Import the cart store
+import useAuthUserStore from "../../store/AuthUserStore.js";
+import useCartStore from "../../store/useCartStore.js";
 import Snackbar from "@mui/material/Snackbar";
 import Alert from "@mui/material/Alert";
 
@@ -25,11 +25,12 @@ const RegisterForm = () => {
     phone: "",
     address: "",
     password: "",
+    confirmPassword: "",
   });
 
   const navigate = useNavigate();
-  const { login, loading: authLoading, error: authError } = useAuthUserStore(); // Get login, loading, and error from auth store
-  const { syncCartToDB, loadCartFromBackend } = useCartStore(); // Get cart actions
+  const { login, loading: authLoading, error: authError } = useAuthUserStore();
+  const { syncCartToDB, loadCartFromBackend } = useCartStore();
   const [registrationLoading, setRegistrationLoading] = useState(false);
   const [registrationError, setRegistrationError] = useState(null);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
@@ -41,6 +42,12 @@ const RegisterForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    if (formData.password !== formData.confirmPassword) {
+      setRegistrationError("Passwords do not match!");
+      return;
+    }
+    
     setRegistrationLoading(true);
     setRegistrationError(null);
 
@@ -64,7 +71,6 @@ const RegisterForm = () => {
       const data = await res.json();
 
       if (res.ok) {
-        // Attempt to log in the user after successful registration
         await login(formData.email || formData.phone, formData.password);
         const token = localStorage.getItem("user_token");
 
@@ -78,13 +84,13 @@ const RegisterForm = () => {
               "Registration successful, but there was a problem loading your cart. Please try again.",
             );
             setSnackbarOpen(true);
-            navigate("/user/home"); // Still navigate even if cart load fails
+            navigate("/user/home");
           }
         } else {
           alert(
             "Registration successful, but automatic login failed. Please log in manually.",
           );
-          navigate("/login"); // Redirect to login page if auto-login fails
+          navigate("/login");
         }
       } else {
         setRegistrationError(data.message || "Registration failed!");
@@ -194,6 +200,22 @@ const RegisterForm = () => {
             >
               {showPassword ? <FaEyeSlash /> : <FaEye />}
             </div>
+          </div>
+
+          {/* Confirm Password */}
+          <div className="flex items-center bg-white rounded-md shadow-sm px-4 py-4">
+            <FaLock className="primaryTextColor mr-5 text-2xl" />
+            <input
+              type={showPassword ? "text" : "password"}
+              name="confirmPassword"
+              value={formData.confirmPassword}
+              onChange={handleChange}
+              placeholder="Confirm Password*"
+              className={`w-full outline-none bg-transparent text-lg ${
+                showPassword ? "font-bold" : ""
+              } placeholder:text-sm`}
+              required
+            />
           </div>
 
           {/* Register Button */}
