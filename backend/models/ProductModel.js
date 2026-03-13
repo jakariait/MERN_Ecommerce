@@ -152,6 +152,11 @@ const productSchema = new mongoose.Schema(
         message: "Purchase cannot be negative",
       },
     },
+
+    freeShipping: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     timestamps: true,

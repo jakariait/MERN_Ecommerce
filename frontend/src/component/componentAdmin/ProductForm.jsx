@@ -84,6 +84,7 @@ const ProductForm = ({ isEdit: isEditMode }) => {
     { attributes: [{ option: "", value: "" }], stock: "", price: "", discount: "" },
   ]);
   const [isActive, setIsActive] = useState("true");
+  const [freeShipping, setFreeShipping] = useState(false);
 
   // State specific to update mode
   const [existingImages, setExistingImages] = useState([]);
@@ -128,6 +129,7 @@ const ProductForm = ({ isEdit: isEditMode }) => {
       setPurchasePrice(product.purchasePrice || "");
       setSelectedFlags(product.flags?.map((f) => f._id) || []);
       setIsActive(String(product.isActive));
+      setFreeShipping(product.freeShipping || false);
 
       if (product.category) {
         setSelectedCategory(product.category._id);
@@ -450,6 +452,7 @@ const ProductForm = ({ isEdit: isEditMode }) => {
     formData.append("finalStock", finalStock);
     formData.append("purchasePrice", purchasePrice);
     formData.append("isActive", isActive);
+    formData.append("freeShipping", freeShipping);
 
     if (selectedCategory) formData.append("category", selectedCategory);
     if (selectedSubCategory)
@@ -550,6 +553,7 @@ const ProductForm = ({ isEdit: isEditMode }) => {
         setVariants([{ attributes: [{ option: "", value: "" }], stock: "", price: "", discount: "" }]);
         setHasVariant(true);
         setIsActive("true");
+        setFreeShipping(false);
         if (fileInputRef.current) fileInputRef.current.value = "";
         if (imagesInputRef.current) imagesInputRef.current.value = "";
       }
@@ -814,6 +818,14 @@ const ProductForm = ({ isEdit: isEditMode }) => {
                 </FormControl>
               </Box>
             )}
+
+            <Box sx={{ my: 2, display: "flex", alignItems: "center", gap: 1 }}>
+              <Typography>Free Shipping</Typography>
+              <Switch
+                checked={freeShipping}
+                onChange={(e) => setFreeShipping(e.target.checked)}
+              />
+            </Box>
 
             <TextField
               label="Reward Points"

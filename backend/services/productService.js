@@ -404,7 +404,7 @@ const getAllProducts = async ({
       .skip((page - 1) * limit)
       .limit(limit)
       .select(
-        "name slug finalDiscount finalPrice finalStock thumbnailImage isActive images productId category variants flags productCode",
+        "name slug finalDiscount finalPrice finalStock thumbnailImage isActive images productId category variants flags productCode freeShipping",
       )
       .populate([
         { path: "category", select: "-createdAt -updatedAt" },
@@ -559,7 +559,7 @@ const getSimilarProducts = async (category, excludeId) => {
     })
       .limit(8) // Limiting to 12 products
       .select(
-        "name slug finalDiscount finalPrice finalStock thumbnailImage isActive images productId category variants flags productId",
+        "name slug finalDiscount finalPrice finalStock thumbnailImage isActive images productId category variants flags productId freeShipping",
       )
       .populate([
         { path: "category", select: "-createdAt -updatedAt" },
@@ -629,6 +629,7 @@ const getProductDetailsService = async ({ productId, variantId }) => {
         thumbnailImage: product.thumbnailImage,
         images: product.images,
         category: product.category,
+        freeShipping: product.freeShipping,
         selectedVariant: {
           _id: selectedVariant._id,
           attributes: selectedVariant.attributes,
@@ -655,6 +656,7 @@ const getProductDetailsService = async ({ productId, variantId }) => {
       finalPrice: product.finalPrice,
       finalDiscount: product.finalDiscount,
       finalStock: product.finalStock,
+      freeShipping: product.freeShipping,
     },
   };
 };
@@ -678,7 +680,7 @@ const getHomePageProducts = async () => {
         .sort({ createdAt: -1 }) // Sort products by newest first
 
         .select(
-          "name slug finalDiscount finalPrice finalStock thumbnailImage isActive images productId category variants flags",
+          "name slug finalDiscount finalPrice finalStock thumbnailImage isActive images productId category variants flags freeShipping",
         )
       .populate([
         { path: "category", select: "-createdAt -updatedAt" },

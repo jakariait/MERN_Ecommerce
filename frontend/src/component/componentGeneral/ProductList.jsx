@@ -112,10 +112,10 @@ const ProductList = ({ products }) => {
               </div>
 
               {/* Discount Percentage */}
-              <div className="absolute top-1 z-10">
+              <div className="absolute top-2 left-0 z-10 ">
                 {product.variants?.length > 0
                   ? product.variants[0].discount > 0 && (
-                      <span className="bg-red-400 px-2 py-1 text-white">
+                      <span className="bg-red-400 px-2 py-1 rounded text-white">
                         -
                         {calculateDiscountPercentage(
                           product.variants[0].price,
@@ -125,7 +125,7 @@ const ProductList = ({ products }) => {
                       </span>
                     )
                   : product.finalDiscount > 0 && (
-                      <span className="bg-red-400 px-2 py-1 text-white">
+                      <span className="bg-red-400 px-2 py-1 text-white rounded">
                         -
                         {calculateDiscountPercentage(
                           product.finalPrice,
@@ -136,14 +136,22 @@ const ProductList = ({ products }) => {
                     )}
               </div>
 
-              <div className={"py-3 flex gap-2 justify-center items-center"}>
-                {/*<BuyNowButton product={product} isAddToCart={true} />*/}
-                <BuyNowButton product={product} />
-              </div>
+              {/* Free Delivery Badge - on image */}
+              {product.freeShipping && (
+                <div className="absolute bottom-17 left-0 z-10">
+                  <span className="primaryBgColor accentTextColor px-2 py-1 text-sm rounded">
+                    Free Delivery
+                  </span>
+                </div>
+              )}
 
               {/* Quick View Button */}
               <div className="absolute top-1 right-0 z-10 flex gap-1 bg-white rounded-full justify-center items-center">
-                <WishlistButton product={product} size={18} className="!p-1.5" />
+                <WishlistButton
+                  product={product}
+                  size={18}
+                  className="!p-1.5"
+                />
                 <button
                   onClick={() => handleOpen(product)}
                   className="p-2 cursor-pointer"
