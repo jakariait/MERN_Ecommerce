@@ -136,6 +136,10 @@ const useWishlistStore = create((set, get) => ({
     );
   },
 
+  setWishlist: (items) => {
+    set({ wishlist: items, loading: false, removing: false });
+  },
+
   initialize: async () => {
     const token = localStorage.getItem("user_token");
     if (!token) {

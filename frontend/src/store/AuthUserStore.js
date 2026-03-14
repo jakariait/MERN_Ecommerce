@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import axios from "axios";
+import useWishlistStore from "./useWishlistStore";
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
@@ -24,6 +25,9 @@ const useAuthUserStore = create((set, get) => ({
       // Save token and user
       localStorage.setItem("user_token", user.token);
       set({ user, token: user.token, loading: false });
+
+      // Fetch wishlist after successful login
+      useWishlistStore.getState().getWishlist();
     } catch (error) {
       console.error("Login error:", error.response || error);
       set({
@@ -48,6 +52,9 @@ const useAuthUserStore = create((set, get) => ({
       });
 
       set({ user: res.data.user, token, loading: false });
+
+      // Fetch wishlist on initialization
+      useWishlistStore.getState().getWishlist();
     } catch (error) {
       console.error("Initialization error:", error.response || error);
       localStorage.removeItem("user_token");
@@ -63,8 +70,12 @@ const useAuthUserStore = create((set, get) => ({
 
   // Logout
   logout: () => {
+    const token = localStorage.getItem("user_token");
     localStorage.removeItem("user_token");
     set({ user: null, token: null });
+    
+    // Clear wishlist locally on logout (no need to call API since token is removed)
+    useWishlistStore.getState().setWishlist([]);
   },
 }));
 

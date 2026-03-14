@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { MdEmail, MdClose } from "react-icons/md";
 import { TfiTruck } from "react-icons/tfi";
-import { CiShoppingCart } from "react-icons/ci";
+import { CiShoppingCart, CiHeart } from "react-icons/ci";
 import { IoPersonOutline } from "react-icons/io5";
 import { GiHamburgerMenu } from "react-icons/gi";
 import { IoIosLogOut } from "react-icons/io";
@@ -11,6 +11,7 @@ import Skeleton from "react-loading-skeleton";
 import GeneralInfoStore from "../../store/GeneralInfoStore";
 import useCartStore from "../../store/useCartStore";
 import useAuthUserStore from "../../store/AuthUserStore";
+import useWishlistStore from "../../store/useWishlistStore";
 
 import ImageComponent from "./ImageComponent";
 import MenuBar from "./MenuBar";
@@ -25,6 +26,7 @@ const Headers = () => {
     GeneralInfoStore();
   const { cart } = useCartStore();
   const { user, logout } = useAuthUserStore();
+  const { wishlist } = useWishlistStore();
 
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -44,11 +46,19 @@ const Headers = () => {
   );
 
   const avatarClass = `
-  w-10 h-10 md:w-14 md:h-14
-  rounded-full object-cover border-white border-4
+  w-10 h-10 md:w-12 md:h-12
+  rounded-full object-cover border-2 border-white shadow-md
   flex items-center justify-center
   primaryBgColor accentTextColor
-  transition-all duration-300 ease-in-out
+  transition-all duration-300 ease-in-out hover:scale-110 hover:shadow-lg
+`;
+
+  const avatarInitialClass = `
+  w-10 h-10 md:w-12 md:h-12
+  rounded-full object-cover border-2 border-white shadow-md
+  flex items-center justify-center
+  primaryBgColor accentTextColor text-lg font-semibold
+  transition-all duration-300 ease-in-out hover:scale-110 hover:shadow-lg
 `;
 
   useEffect(() => {
@@ -205,6 +215,21 @@ const Headers = () => {
 
           {/* Right Icons */}
           <div className="flex items-center justify-center gap-2 relative">
+            {/* Wishlist */}
+            <Link
+              to="/user/wishlist"
+              className="relative flex flex-col justify-center items-center"
+              aria-label="Wishlist"
+            >
+              <CiHeart className="w-7 h-7 cursor-pointer" />
+              <span className="text-sm hidden lg:block pt-1">Wishlist</span>
+              {wishlist.length > 0 && (
+                <span className="absolute top-0 right-0 -mt-2 -mr-2 md:mr-0 primaryBgColor rounded-full h-6 w-6 flex items-center justify-center text-xs accentTextColor">
+                  {wishlist.length}
+                </span>
+              )}
+            </Link>
+
             {/* Cart */}
             <div
               ref={cartButtonRef}
@@ -248,7 +273,7 @@ const Headers = () => {
                       className={avatarClass}
                     />
                   ) : (
-                    <span className={avatarClass}>
+                    <span className={avatarInitialClass}>
                       {(user?.fullName &&
                         user.fullName.trim().charAt(0).toUpperCase()) ||
                         "U"}
@@ -259,25 +284,25 @@ const Headers = () => {
                 {isDropdownOpen && (
                   <div
                     ref={dropdownRef}
-                    className="absolute z-50 top-full right-0 mt-5 bg-white shadow-lg rounded-md p-2"
+                    className="absolute z-50 top-full right-0 mt-3 bg-white shadow-xl rounded-lg p-3 min-w-[180px] animate-fadeIn"
                   >
-                    <div className="flex flex-col items-center gap-2 p-3">
-                      <button className="primaryBgColor px-2 py-2 rounded w-42 accentTextColor cursor-pointer">
+                    <div className="flex flex-col items-center gap-2">
+                      <button className="primaryBgColor px-4 py-2 rounded-lg w-full accentTextColor cursor-pointer hover:opacity-90 transition-opacity">
                         <Link
                           to="/user/home"
-                          className={"flex items-center gap-2 "}
+                          className={"flex items-center justify-center gap-2"}
                         >
-                          <IoPersonOutline className="w-6 h-6" />
-                          <span className="text-sm ">My Account</span>
+                          <IoPersonOutline className="w-5 h-5" />
+                          <span className="text-sm">My Account</span>
                         </Link>
                       </button>
                       <button
                         onClick={handleLogout}
-                        className="bg-red-500 w-42 text-white px-2 py-2 cursor-pointer rounded flex items-center gap-2"
+                        className="bg-red-500 w-full text-white px-4 py-2 cursor-pointer rounded-lg flex items-center justify-center gap-2 hover:bg-red-600 transition-colors"
                         aria-label="Log out"
                       >
-                        <IoIosLogOut className="text-2xl" aria-hidden="true" />
-                        Log Out
+                        <IoIosLogOut className="text-xl" aria-hidden="true" />
+                        <span>Log Out</span>
                       </button>
                     </div>
                   </div>
