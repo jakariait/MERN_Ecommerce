@@ -83,10 +83,10 @@ const BuyNowButton = ({ product, isAddToCart = false }) => {
     <>
       <button
         onClick={handleOpen}
-        className="primaryBgColor accentTextColor px-1 py-1 md:py-1 rounded cursor-pointer w-full"
+        className="primaryBgColor accentTextColor py-2  px-1 text-sm md:text-md  rounded cursor-pointer w-full"
       >
         <div className="flex items-center justify-center gap-4">
-          {isAddToCart ? <FaCartArrowDown /> : <FaCreditCard />}
+          {/*{isAddToCart ? <FaCartArrowDown /> : <FaCreditCard />}*/}
           <span>{isAddToCart ? "Add to Cart" : "Buy Now"}</span>
           {product.freeShipping && (
             <span className="border-l border-white/30 pl-3 ml-1">
