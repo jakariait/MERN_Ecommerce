@@ -61,6 +61,9 @@ const AdminNewOrderCreate = () => {
   // Order items cart
   const [orderItems, setOrderItems] = useState([]);
 
+  // Check if any product has free shipping
+  const hasFreeShippingProduct = orderItems.some((item) => item.freeShipping);
+
   // Shipping & Payment
   const [shippingOptions, setShippingOptions] = useState([]);
   const [selectedShipping, setSelectedShipping] = useState(null);
@@ -252,6 +255,7 @@ const AdminNewOrderCreate = () => {
       variantName,
       quantity: parseInt(quantity),
       price,
+      freeShipping: selectedProduct.freeShipping || false,
     };
 
     setOrderItems([...orderItems, newItem]);
@@ -266,12 +270,16 @@ const AdminNewOrderCreate = () => {
   };
 
   const calculateTotals = () => {
+    const hasFreeShipping = orderItems.some((item) => item.freeShipping === true);
+    
     const subtotal = orderItems.reduce(
       (sum, item) => sum + (item.price || 0) * (item.quantity || 0),
       0,
     );
+    
     // Use 'value' instead of 'deliveryCharge' - shipping model uses 'value' field
-    const deliveryCharge = selectedShipping?.value || 0;
+    // If any product has freeShipping, delivery charge is 0
+    const deliveryCharge = hasFreeShipping ? 0 : (selectedShipping?.value || 0);
     const discount = parseFloat(specialDiscount) || 0;
 
     // Calculate amount after discounts (matching Checkout.jsx logic)
@@ -299,7 +307,7 @@ const AdminNewOrderCreate = () => {
         return;
       }
 
-      if (!selectedShipping) {
+      if (!hasFreeShippingProduct && !selectedShipping) {
         showSnackbar("Please select a shipping option", "error");
         return;
       }
@@ -359,8 +367,8 @@ const AdminNewOrderCreate = () => {
               fullName: selectedCustomer?.fullName || "",
               address: guestInfo.address,
             },
-        shippingId: selectedShipping._id,
-        deliveryCharge: selectedShipping.value,
+        shippingId: hasFreeShippingProduct ? shippingOptions[0]?._id : selectedShipping._id,
+        deliveryCharge: hasFreeShippingProduct ? 0 : selectedShipping.value,
         subtotalAmount: calculatedTotals.subtotal,
         vat: calculatedTotals.vat,
         specialDiscount: specialDiscount,
@@ -440,7 +448,7 @@ const AdminNewOrderCreate = () => {
       if (!guestInfo.address?.trim()) errors.address = true;
     }
 
-    if (!selectedShipping) errors.selectedShipping = true;
+    if (!hasFreeShippingProduct && !selectedShipping) errors.selectedShipping = true;
 
     setFormErrors(errors);
     return !Object.values(errors).some((error) => error);
@@ -458,6 +466,7 @@ const AdminNewOrderCreate = () => {
     guestInfo.address,
     selectedCustomer,
     selectedShipping,
+    orderItems,
   ]);
 
   return (
@@ -707,6 +716,22 @@ const AdminNewOrderCreate = () => {
                         setSelectedProduct(value);
                         setSelectedVariant(null);
                       }}
+                      renderOption={(props, option) => (
+                        <li {...props}>
+                          {option.name}
+                          {option.freeShipping && (
+                            <span
+                              style={{
+                                marginLeft: 8,
+                                color: "green",
+                                fontSize: "0.75rem",
+                              }}
+                            >
+                              (Free Shipping)
+                            </span>
+                          )}
+                        </li>
+                      )}
                       renderInput={(params) => (
                         <TextField
                           {...params}
@@ -829,36 +854,53 @@ const AdminNewOrderCreate = () => {
                 <h3 className={"pb-5"}>Shipping & Payment</h3>
                 <Grid container spacing={2}>
                   <Grid item xs={12} sm={6}>
-                    <FormControl fullWidth error={formErrors.selectedShipping}>
-                      <InputLabel>Shipping Option</InputLabel>
-                      <Select
-                        value={selectedShipping?._id || ""}
-                        onChange={(e) => {
-                          const shipping = shippingOptions.find(
-                            (s) => s._id === e.target.value,
-                          );
-                          setSelectedShipping(shipping);
-                        }}
+                    {hasFreeShippingProduct ? (
+                      <TextField
+                        fullWidth
                         label="Shipping Option"
-                      >
-                        {shippingOptions.map((option) => (
-                          <MenuItem key={option._id} value={option._id}>
-                            {option.name} - ৳{option.value}
-                          </MenuItem>
-                        ))}
-                      </Select>
-                      {formErrors.selectedShipping && (
-                        <Box
-                          sx={{
-                            color: "#d32f2f",
-                            fontSize: "0.75rem",
-                            mt: 0.5,
+                        value="Free Shipping"
+                        InputProps={{
+                          readOnly: true,
+                        }}
+                        sx={{
+                          "& .MuiInputBase-input": {
+                            color: "green",
+                            fontWeight: "bold",
+                          },
+                        }}
+                      />
+                    ) : (
+                      <FormControl fullWidth error={formErrors.selectedShipping}>
+                        <InputLabel>Shipping Option</InputLabel>
+                        <Select
+                          value={selectedShipping?._id || ""}
+                          onChange={(e) => {
+                            const shipping = shippingOptions.find(
+                              (s) => s._id === e.target.value,
+                            );
+                            setSelectedShipping(shipping);
                           }}
+                          label="Shipping Option"
                         >
-                          Shipping Option is required
-                        </Box>
-                      )}
-                    </FormControl>
+                          {shippingOptions.map((option) => (
+                            <MenuItem key={option._id} value={option._id}>
+                              {option.name} - ৳{option.value}
+                            </MenuItem>
+                          ))}
+                        </Select>
+                        {formErrors.selectedShipping && (
+                          <Box
+                            sx={{
+                              color: "#d32f2f",
+                              fontSize: "0.75rem",
+                              mt: 0.5,
+                            }}
+                          >
+                            Shipping Option is required
+                          </Box>
+                        )}
+                      </FormControl>
+                    )}
                   </Grid>
 
                   <Grid item xs={12} sm={6}>
@@ -944,7 +986,11 @@ const AdminNewOrderCreate = () => {
                     <strong>Delivery Charge:</strong>
                   </Grid>
                   <Grid item xs={6} sx={{ textAlign: "right" }}>
-                    ৳{calculatedTotals.deliveryCharge.toFixed(2)}
+                    {hasFreeShippingProduct ? (
+                      <span style={{ color: "green", fontWeight: "bold" }}>Free</span>
+                    ) : (
+                      `৳${calculatedTotals.deliveryCharge.toFixed(2)}`
+                    )}
                   </Grid>
 
                   <Grid item xs={6}>
