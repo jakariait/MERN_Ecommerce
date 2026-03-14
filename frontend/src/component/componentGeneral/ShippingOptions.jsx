@@ -1,14 +1,18 @@
 // ShippingOptions.jsx
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import useCartStore from "../../store/useCartStore.js";
 
 const ShippingOptions = ({ onShippingChange }) => {
   const apiUrl = import.meta.env.VITE_API_URL;
+  const { cart } = useCartStore();
 
   const [shipping, setShipping] = useState([]);
   const [selectedShipping, setSelectedShipping] = useState(0);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
+
+  const hasFreeShippingProduct = cart.some((item) => item.freeShipping);
 
   // Fetch shipping options
   useEffect(() => {
@@ -36,19 +40,25 @@ const ShippingOptions = ({ onShippingChange }) => {
   useEffect(() => {
     if (shipping.length > 0) {
       const defaultOption = shipping[0];
-      setSelectedShipping(defaultOption.value);
+      const shippingValue = hasFreeShippingProduct ? 0 : defaultOption.value;
+      setSelectedShipping(shippingValue);
       onShippingChange({
-        name: defaultOption.name,
-        value: defaultOption.value,
+        name: hasFreeShippingProduct ? "Free Shipping" : defaultOption.name,
+        value: shippingValue,
         id: defaultOption._id,
       });
     }
-  }, [shipping]);
+  }, [shipping, hasFreeShippingProduct]);
 
 
   const handleChange = (option) => {
-    setSelectedShipping(option.value);
-    onShippingChange({ name: option.name, value: option.value, id: option._id }); // Send both
+    const shippingValue = hasFreeShippingProduct ? 0 : option.value;
+    setSelectedShipping(shippingValue);
+    onShippingChange({ 
+      name: hasFreeShippingProduct ? "Free Shipping" : option.name, 
+      value: shippingValue, 
+      id: option._id 
+    });
   };
 
 
@@ -62,6 +72,22 @@ const ShippingOptions = ({ onShippingChange }) => {
         <div className="text-gray-500">Loading shipping options...</div>
       ) : message && shipping.length === 0 ? (
         <div className="text-red-500">{message}</div>
+      ) : hasFreeShippingProduct ? (
+        <div className="w-full border border-green-500 bg-green-50 rounded-lg px-4 py-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <input
+                type="radio"
+                name="shipping"
+                checked={true}
+                readOnly
+                className="primaryAccentColor w-5 h-5"
+              />
+              <span className="font-medium text-green-700">Free Shipping</span>
+            </div>
+            <span className="font-medium text-green-700">Tk. 0</span>
+          </div>
+        </div>
       ) : (
         shipping.map((option, index) => (
           <label

@@ -101,8 +101,10 @@ const Checkout = () => {
 
   const formattedTotalAmount = (amount) => Number(amount).toLocaleString();
 
+  const hasFreeShippingProduct = cart.some((item) => item.freeShipping);
+
   const actualShippingCost =
-    freeDelivery > 1 && totalAmount >= freeDelivery
+    hasFreeShippingProduct || (freeDelivery > 1 && totalAmount >= freeDelivery)
       ? 0
       : selectedShipping.value;
 
@@ -320,7 +322,7 @@ const Checkout = () => {
         open={snackbar.open}
         autoHideDuration={4000}
         onClose={handleCloseSnackbar}
-        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+        anchorOrigin={{ vertical: "top", horizontal: "right" }}
       >
         <Alert
           onClose={handleCloseSnackbar}

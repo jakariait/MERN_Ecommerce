@@ -31,6 +31,7 @@ const useCartStore = create((set, get) => ({
         thumbnail: item.thumbnail,
         slug: item.slug,
         variantId: item.variantId || "Default",
+        freeShipping: item.freeShipping,
       }));
 
       saveCart(serverCartItems);
@@ -81,6 +82,7 @@ const useCartStore = create((set, get) => ({
           thumbnail: product.thumbnailImage,
           variantId,
           slug: product.slug,
+          freeShipping: product.freeShipping,
         });
       }
 
@@ -110,6 +112,7 @@ const useCartStore = create((set, get) => ({
             thumbnail: product.thumbnailImage,
             slug: product.slug,
             variantId,
+            freeShipping: product.freeShipping,
           },
           { headers: { Authorization: `Bearer ${token}` } }
         );
@@ -204,6 +207,7 @@ const useCartStore = create((set, get) => ({
             thumbnail: item.thumbnail,
             slug: item.slug,
             variantId: item.variantId,
+            freeShipping: item.freeShipping,
           },
           {
             headers: {
@@ -230,6 +234,7 @@ const useCartStore = create((set, get) => ({
         thumbnail: item.thumbnail,
         slug: item.product?.slug,
         variantId: item.variantId,
+        freeShipping: item.freeShipping,
       }));
 
       saveCart(serverCartItems);

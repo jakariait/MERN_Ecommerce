@@ -32,12 +32,17 @@ const createOrder = async (orderData, userId) => {
     // Calculate subtotal and update stock
     let subtotal = 0;
     const updatedItems = [];
+    let hasFreeShippingProduct = false;
 
     for (const item of orderData.items) {
       const { productId, variantId, quantity } = item;
 
       const product = await Product.findById(productId);
       if (!product) throw new Error("Product not found");
+
+      if (product.freeShipping) {
+        hasFreeShippingProduct = true;
+      }
 
       let price, stock;
 
@@ -82,7 +87,8 @@ const createOrder = async (orderData, userId) => {
     const freeDeliveryThreshold = freeDelivery ? freeDelivery.value : 0;
 
     const deliveryCharge =
-      freeDeliveryThreshold > 0 && subtotal >= freeDeliveryThreshold
+      hasFreeShippingProduct ||
+      (freeDeliveryThreshold > 0 && subtotal >= freeDeliveryThreshold)
         ? 0
         : shippingMethod.value;
 
