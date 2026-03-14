@@ -203,7 +203,7 @@ const ViewAllProducts = () => {
                       imageName={product?.thumbnailImage}
                       altName={product?.name}
                       skeletonHeight={30}
-                      className="w-25 h-25 object-cover transform group-hover:scale-150 transition-transform duration-300"
+                      className="w-24 object-cover transform group-hover:scale-150 transition-transform duration-300"
                     />
                   </div>
                 </TableCell>

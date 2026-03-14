@@ -27,7 +27,6 @@
     "file-saver": "^2.0.5",
     "framer-motion": "^12.6.2",
     "lightgallery": "^2.8.3",
-    "lottie-react": "^2.4.1",
     "lucide-react": "^0.477.0",
     "primereact": "^10.9.4",
     "quill": "^2.0.2",
@@ -45,7 +44,6 @@
     "react-select": "^5.10.1",
     "react-share": "^5.2.2",
     "react-slick": "^0.30.3",
-    "react-toastify": "^11.0.5",
     "slick-carousel": "^1.8.1",
     "zustand": "^5.0.3"
   },
@@ -61,8 +59,7 @@
     "eslint-plugin-react-refresh": "^0.4.18",
     "globals": "^15.14.0",
     "sass-embedded": "^1.85.1",
-    "vite": "^6.3.5",
-    "vite-plugin-sitemap": "^0.8.2"
+    "vite": "^6.3.5"
   },
   "overrides": {
     "react-is": "^19.0.0"
