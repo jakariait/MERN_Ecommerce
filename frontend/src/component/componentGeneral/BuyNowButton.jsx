@@ -83,13 +83,19 @@ const BuyNowButton = ({ product, isAddToCart = false }) => {
     <>
       <button
         onClick={handleOpen}
-        className="primaryBgColor accentTextColor w-full px-1 py-1 md:py-1 rounded cursor-pointer"
+        className="primaryBgColor accentTextColor px-1 py-1 md:py-1 rounded cursor-pointer w-full"
       >
         <div className="flex items-center justify-center gap-4">
           {isAddToCart ? <FaCartArrowDown /> : <FaCreditCard />}
           <span>{isAddToCart ? "Add to Cart" : "Buy Now"}</span>
+          {product.freeShipping && (
+            <span className="border-l border-white/30 pl-3 ml-1">
+              Free Delivery
+            </span>
+          )}
         </div>
       </button>
+
       <Dialog open={open} onClose={handleClose} fullWidth maxWidth="xs">
         <DialogTitle>{product.name}</DialogTitle>
         <DialogContent>
@@ -141,7 +147,8 @@ const BuyNowButton = ({ product, isAddToCart = false }) => {
                 {product.variants.map((variant) => {
                   const variantDisplayName = getVariantDisplayName(variant);
                   const isSelected =
-                    getVariantDisplayName(selectedVariant) === variantDisplayName;
+                    getVariantDisplayName(selectedVariant) ===
+                    variantDisplayName;
                   return (
                     <button
                       key={variant._id}

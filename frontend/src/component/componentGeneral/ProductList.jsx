@@ -136,15 +136,6 @@ const ProductList = ({ products }) => {
                     )}
               </div>
 
-              {/* Free Delivery Badge - on image */}
-              {product.freeShipping && (
-                <div className="absolute bottom-25 left-0 z-10">
-                  <span className="primaryBgColor accentTextColor px-2 py-1 text-sm rounded">
-                    Free Delivery
-                  </span>
-                </div>
-              )}
-
               {/* Quick View Button */}
               <div className="absolute top-1 right-0 z-10 flex gap-1 bg-white rounded-full justify-center items-center">
                 <WishlistButton
