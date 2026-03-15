@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { FaPlus } from "react-icons/fa6";
 import { FiMinus } from "react-icons/fi";
+import { FaTruck } from "react-icons/fa";
+
 import { useNavigate } from "react-router-dom";
 import useCartStore from "../../store/useCartStore.js";
 import WishlistButton from "./WishlistButton.jsx";
@@ -294,6 +296,18 @@ const ProductAddToCart = ({ product }) => {
                   </div>
                 )}
               </div>
+            )}
+
+            {product.freeShipping && (
+              <p className="text-[#2E7D31] flex gap-2 items-start justify-start text-start">
+                <span
+                  className={"font-bold flex items-center justify-center gap-2"}
+                >
+                  <FaTruck className={"rotate-y-180"} />
+                  Free Shipping
+                </span>
+                on this product
+              </p>
             )}
 
             {product.productCode && (

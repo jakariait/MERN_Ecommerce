@@ -3,11 +3,8 @@ import { useLocation, useParams } from "react-router-dom";
 import useProductStore from "../../store/useProductStore.js";
 import GeneralInfoStore from "../../store/GeneralInfoStore.js";
 import Skeleton from "react-loading-skeleton";
-
 import LazySocialShareButtons from "./LazySocialShareButtons.jsx";
-
 import { Typography } from "@mui/material";
-
 import Accordion from "@mui/material/Accordion";
 import AccordionSummary from "@mui/material/AccordionSummary";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
@@ -200,7 +197,14 @@ const ProductDetails = () => {
               )}
 
               {/*Short Description*/}
-              {product.shortDesc && <div>{product.shortDesc}</div>}
+              {product.shortDesc && (
+                <div
+                  className="rendered-html"
+                  dangerouslySetInnerHTML={{
+                    __html: cleanHtml(product.shortDesc),
+                  }}
+                />
+              )}
             </div>
           </div>
 
