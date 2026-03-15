@@ -13,8 +13,7 @@ const AbandonedCartPage = () => {
       />
       <RequirePermission permission="incomplete_orders">
         <AbandonedCartsContainer />
-      </RequirePermission >
-
+      </RequirePermission>
     </LayoutAdmin>
   );
 };
