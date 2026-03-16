@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Outlet } from "react-router-dom";
 import { useEffect, lazy, Suspense } from "react";
 import TagManager from "react-gtm-module";
 
@@ -21,6 +21,32 @@ import MetaProvider from "./component/componentGeneral/MetaProvider.jsx";
 import ScrollToTopButton from "./component/componentGeneral/ScrollToTopButton.jsx";
 import { setFaviconFromApi } from "./utils/setFavicon.js";
 import Loading from "./component/skeleton/Loading.jsx";
+import UserLoading from "./component/skeleton/UserLoading.jsx";
+import { RoutePreloader } from "./component/componentGeneral/RoutePreloader.jsx";
+import { preloadAdminRoutes, preloadUserRoutes } from "./utils/routePreloader.js";
+
+const AdminLoginWithPreload = () => {
+  preloadAdminRoutes();
+  return <AdminLogin />;
+};
+
+const UserProtectedWrapper = () => {
+  preloadUserRoutes();
+  return (
+    <Suspense fallback={<UserLoading />}>
+      <Outlet />
+    </Suspense>
+  );
+};
+
+const AdminProtectedWrapper = () => {
+  preloadAdminRoutes();
+  return (
+    <Suspense fallback={<Loading />}>
+      <Outlet />
+    </Suspense>
+  );
+};
 
 const GeneralInfoPage = lazy(() => import("./pagesAdmin/GeneralInfoPage.jsx"));
 const HomePage = lazy(() => import("./pagesUser/HomePage.jsx"));
@@ -270,9 +296,9 @@ function App() {
       <MetaProvider />
       <ScrollToTop />
       <ScrollToTopButton />
-      <Suspense fallback={<Loading />}>
-        <Routes>
-          {/* General User Routes */}
+      <RoutePreloader />
+      <Routes>
+        {/* Public Routes - preloaded, no loading */}
           <Route path="/" element={<HomePage />} />
           <Route path="/shop" element={<ShopPage />} />
           <Route path="/product/:slug" element={<ProductDetailsPage />} />
@@ -293,12 +319,11 @@ function App() {
           <Route path="/blogs/:slug" element={<BlogDetailsPage />} />
           <Route path="/forgot-password" element={<ForgetPasswordPage />} />
           <Route path="/reset-password" element={<ResetPasswordPage />} />
+          <Route path="/admin/login" element={<AdminLoginWithPreload />} />
 
-          {/*Admin Login Page*/}
-          <Route path="/admin/login" element={<AdminLogin />} />
-
-          {/* Protected User Routes */}
-          <Route element={<UserProtectedRoute />}>
+        {/* Protected User Routes - User loading */}
+        <Route element={<UserProtectedRoute />}>
+          <Route element={<UserProtectedWrapper />}>
             <Route path="/user/home" element={<UserHomePage />} />
             <Route path="/user/orders" element={<UserAllOrdersPage />} />
             <Route
@@ -312,9 +337,11 @@ function App() {
             />
             <Route path="/user/wishlist" element={<WishlistPage />} />
           </Route>
+        </Route>
 
-          {/* Protected Admin Routes */}
-          <Route element={<ProtectedRoute />}>
+        {/* Protected Admin Routes - Full loading */}
+        <Route element={<ProtectedRoute />}>
+          <Route element={<AdminProtectedWrapper />}>
             <Route path="/admin/general-info" element={<GeneralInfoPage />} />
             <Route
               path="/admin/subscribed-users"
@@ -472,11 +499,11 @@ function App() {
 
             <Route path="/admin/blogs/:id" element={<EditBlogPage />} />
           </Route>
+          </Route>
 
           {/* Not Found */}
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
-      </Suspense>
     </Router>
   );
 }
