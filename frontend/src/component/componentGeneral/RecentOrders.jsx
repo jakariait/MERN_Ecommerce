@@ -12,12 +12,14 @@ import {
   Typography,
   Paper,
   TableContainer,
+  CircularProgress,
 } from "@mui/material";
 
 const RecentOrders = () => {
   const apiUrl = import.meta.env.VITE_API_URL;
   const { user, token } = useAuthUserStore();
   const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -39,6 +41,8 @@ const RecentOrders = () => {
         }
       } catch (error) {
         console.error("Failed to fetch orders:", error);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -60,7 +64,11 @@ const RecentOrders = () => {
         <button className={"cursor-pointer"}>View More</button>
       </div>
 
-      {orders.length === 0 ? (
+      {loading ? (
+        <div className="items-center justify-center flex min-h-[40vh]">
+          <CircularProgress />
+        </div>
+      ) : orders.length === 0 ? (
         <Typography>No recent orders found.</Typography>
       ) : (
         <TableContainer>

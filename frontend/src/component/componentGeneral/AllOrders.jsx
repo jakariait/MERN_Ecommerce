@@ -73,7 +73,10 @@ const AllOrders = () => {
       </div>
 
       {loading ? (
-        <CircularProgress />
+        <div className={"items-center justify-center flex min-h-[40vh]"}>
+          <CircularProgress />
+        </div>
+
       ) : orders.length === 0 ? (
         <Typography>No orders found.</Typography>
       ) : (
