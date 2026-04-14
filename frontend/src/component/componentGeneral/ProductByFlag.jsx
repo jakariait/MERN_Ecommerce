@@ -18,20 +18,19 @@ const ProductByFlag = () => {
 
   const hasFlags = flags && flags.length > 0;
   const hasProducts = Object.keys(homeProducts).length > 0;
-  const isReady = hasFlags && hasProducts;
 
-  if (!isReady)
+  if (!hasFlags && !hasProducts)
     return (
       <div className="xl:container xl:mx-auto p-4">
         <div className="flex items-center gap-4 my-6">
           <div className="flex-grow h-px bg-gray-300"></div>
-          <Skeleton height={24} width={150} />
+          <div className="h-6 w-32 bg-gray-200 rounded"></div>
           <div className="flex-grow h-px bg-gray-300"></div>
         </div>
         <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 mt-4">
           {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
             <div key={i} className="relative min-h-[250px]">
-              <Skeleton height={250} width="100%" />
+              <div className="h-[250px] w-full bg-gray-200 rounded"></div>
             </div>
           ))}
         </div>
