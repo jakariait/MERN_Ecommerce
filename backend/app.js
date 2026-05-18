@@ -9,8 +9,8 @@ const cookieParser = require("cookie-parser");
 const mongoose = require("mongoose");
 const path = require("path");
 const compression = require("compression");
-const { xss } = require("express-xss-sanitizer");
 const mongoSanitize = require("./middlewares/mongoSanitize");
+const xssMiddleware = require("./middlewares/xssMiddleware");
 
 // Routes
 const router = require("./routes/api");
@@ -54,14 +54,11 @@ const corsOptions = {
 // Trust proxy (needed for rate limiting behind proxies)
 app.set("trust proxy", 1);
 
-
 // Apply Sharp middleware BEFORE static serving
 app.use("/uploads", imageMiddleware);
 
-
 // Static file serving
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
-
 
 // Compression
 app.use(compression());
@@ -82,7 +79,7 @@ app.use(helmet());
 app.use(hpp());
 
 // Sanitize user input to prevent XSS attacks
-app.use(xss());
+app.use(xssMiddleware);
 
 // ---------------------------
 // Body Parsers
