@@ -228,7 +228,7 @@ const ChildCategoryAllinone = () => {
   }, [childCategories, searchTerm]);
 
   return (
-    <Box sx={{ p: 3 }}>
+    <Box>
       {/* Header Card */}
       <Paper elevation={2} sx={{ p: 3, mb: 3, borderRadius: 2 }}>
         <Box
