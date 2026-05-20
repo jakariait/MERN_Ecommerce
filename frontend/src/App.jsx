@@ -1,4 +1,9 @@
-import { BrowserRouter as Router, Routes, Route, Outlet } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Outlet,
+} from "react-router-dom";
 import { useEffect, lazy, Suspense } from "react";
 import TagManager from "react-gtm-module";
 
@@ -23,7 +28,11 @@ import { setFaviconFromApi } from "./utils/setFavicon.js";
 import Loading from "./component/skeleton/Loading.jsx";
 import UserLoading from "./component/skeleton/UserLoading.jsx";
 import { RoutePreloader } from "./component/componentGeneral/RoutePreloader.jsx";
-import { preloadAdminRoutes, preloadUserRoutes } from "./utils/routePreloader.js";
+import {
+  preloadAdminRoutes,
+  preloadUserRoutes,
+} from "./utils/routePreloader.js";
+import CategoryPage from "./pagesAdmin/CategoryPage.jsx";
 
 const AdminLoginWithPreload = () => {
   preloadAdminRoutes();
@@ -70,15 +79,7 @@ const AdminLogin = lazy(
   () => import("./component/componentAdmin/AdminLogin.jsx"),
 );
 const NotFoundPage = lazy(() => import("./pagesUser/NotFoundPage.jsx"));
-const AddNewCategoryPage = lazy(
-  () => import("./pagesAdmin/AddNewCategoryPage.jsx"),
-);
-const CategoryListPage = lazy(
-  () => import("./pagesAdmin/CategoryListPage.jsx"),
-);
-const EditCategoryPage = lazy(
-  () => import("./pagesAdmin/EditCategoryPage.jsx"),
-);
+
 const AddNewSubCategoryPage = lazy(
   () => import("./pagesAdmin/AddNewSubCategoryPage.jsx"),
 );
@@ -299,27 +300,27 @@ function App() {
       <RoutePreloader />
       <Routes>
         {/* Public Routes - preloaded, no loading */}
-          <Route path="/" element={<HomePage />} />
-          <Route path="/shop" element={<ShopPage />} />
-          <Route path="/product/:slug" element={<ProductDetailsPage />} />
-          <Route path="/contact-us" element={<ContactUsPage />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/register" element={<RegisterPage />} />
-          <Route path="/checkout" element={<CheckoutPage />} />
-          <Route path="/thank-you/:orderId" element={<ThankYouPage />} />
-          <Route path="/bkash-callback" element={<BkashCallbackPage />} />
-          <Route path="/about" element={<AboutUsPageUser />} />
-          <Route path="/termofservice" element={<TosPage />} />
-          <Route path="/privacypolicy" element={<PrivacyPolicyPage />} />
-          <Route path="/refundpolicy" element={<RefundPolicyPage />} />
-          <Route path="/shippinpolicy" element={<ShippingPolicyPage />} />
-          <Route path="/faqs" element={<FAQPage />} />
-          <Route path="/track-order" element={<TrackOrderPage />} />
-          <Route path="/blog" element={<BlogsPage />} />
-          <Route path="/blogs/:slug" element={<BlogDetailsPage />} />
-          <Route path="/forgot-password" element={<ForgetPasswordPage />} />
-          <Route path="/reset-password" element={<ResetPasswordPage />} />
-          <Route path="/admin/login" element={<AdminLoginWithPreload />} />
+        <Route path="/" element={<HomePage />} />
+        <Route path="/shop" element={<ShopPage />} />
+        <Route path="/product/:slug" element={<ProductDetailsPage />} />
+        <Route path="/contact-us" element={<ContactUsPage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
+        <Route path="/checkout" element={<CheckoutPage />} />
+        <Route path="/thank-you/:orderId" element={<ThankYouPage />} />
+        <Route path="/bkash-callback" element={<BkashCallbackPage />} />
+        <Route path="/about" element={<AboutUsPageUser />} />
+        <Route path="/termofservice" element={<TosPage />} />
+        <Route path="/privacypolicy" element={<PrivacyPolicyPage />} />
+        <Route path="/refundpolicy" element={<RefundPolicyPage />} />
+        <Route path="/shippinpolicy" element={<ShippingPolicyPage />} />
+        <Route path="/faqs" element={<FAQPage />} />
+        <Route path="/track-order" element={<TrackOrderPage />} />
+        <Route path="/blog" element={<BlogsPage />} />
+        <Route path="/blogs/:slug" element={<BlogDetailsPage />} />
+        <Route path="/forgot-password" element={<ForgetPasswordPage />} />
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
+        <Route path="/admin/login" element={<AdminLoginWithPreload />} />
 
         {/* Protected User Routes - User loading */}
         <Route element={<UserProtectedRoute />}>
@@ -362,15 +363,7 @@ function App() {
             />
 
             {/* Category Routes */}
-            <Route
-              path="/admin/addnewcategory"
-              element={<AddNewCategoryPage />}
-            />
-            <Route path="/admin/categorylist" element={<CategoryListPage />} />
-            <Route
-              path="/admin/edit-category/:id"
-              element={<EditCategoryPage />}
-            />
+            <Route path="/admin/category" element={<CategoryPage />} />
 
             {/* SubCategory Routes */}
             <Route
@@ -499,11 +492,11 @@ function App() {
 
             <Route path="/admin/blogs/:id" element={<EditBlogPage />} />
           </Route>
-          </Route>
+        </Route>
 
-          {/* Not Found */}
-          <Route path="*" element={<NotFoundPage />} />
-        </Routes>
+        {/* Not Found */}
+        <Route path="*" element={<NotFoundPage />} />
+      </Routes>
     </Router>
   );
 }

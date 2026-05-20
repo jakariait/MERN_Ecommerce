@@ -139,20 +139,12 @@ export const MENU_CONFIG = [
   },
   {
     section: "category",
-    label: "Category",
-    icon: FaThLarge,
-    permission: "category",
     items: [
       {
         type: "link",
-        label: "Add New Category",
-        path: "/admin/addnewcategory",
-        permission: "category",
-      },
-      {
-        type: "link",
-        label: "View All Categories",
-        path: "/admin/categorylist",
+        label: "Category",
+        icon: FaThLarge,
+        path: "/admin/category",
         permission: "category",
       },
     ],
@@ -201,7 +193,12 @@ export const MENU_CONFIG = [
     section: "products",
     label: "Manage Products",
     icon: FaTags,
-    permission: ["add_products", "delete_products", "view_products", "edit_products"],
+    permission: [
+      "add_products",
+      "delete_products",
+      "view_products",
+      "edit_products",
+    ],
     match: "any",
     items: [
       {
@@ -424,7 +421,9 @@ const muiSx = {
 
 function MenuItem({ item, countValue }) {
   const Icon = item.icon;
-  const count = item.countKey ? countValue[item.countKey] : countValue?.[item.showCount];
+  const count = item.countKey
+    ? countValue[item.countKey]
+    : countValue?.[item.showCount];
 
   return (
     <li>
@@ -446,7 +445,10 @@ function MenuAccordion({ item, countValue }) {
 
   return (
     <Accordion style={accordionStyles} sx={muiSx}>
-      <AccordionSummary expandIcon={<ExpandMoreIcon />} className="p-2 flex items-center">
+      <AccordionSummary
+        expandIcon={<ExpandMoreIcon />}
+        className="p-2 flex items-center"
+      >
         <Typography component="span">
           <div className="flex items-center gap-2">
             {Icon && <Icon />}
@@ -567,11 +569,12 @@ export default function SidebarMenu() {
                     <Link to={item.path} className="flex items-center gap-2">
                       {item.icon && <item.icon />}
                       <span>{item.label}</span>
-                      {item.showCount && countValues[item.showCount] !== undefined && (
-                        <span className="ml-auto bg-white/20 px-2 py-0.5 rounded-full text-xs">
-                          {countValues[item.showCount]}
-                        </span>
-                      )}
+                      {item.showCount &&
+                        countValues[item.showCount] !== undefined && (
+                          <span className="ml-auto bg-white/20 px-2 py-0.5 rounded-full text-xs">
+                            {countValues[item.showCount]}
+                          </span>
+                        )}
                     </Link>
                   </li>
                 </RequirePermission>
@@ -582,7 +585,10 @@ export default function SidebarMenu() {
       </ul>
 
       <li className="flex items-center space-x-2 p-2 rounded-md text-red-500 cursor-pointer mt-4">
-        <button onClick={handleLogout} className="flex items-center space-x-2 cursor-pointer">
+        <button
+          onClick={handleLogout}
+          className="flex items-center space-x-2 cursor-pointer"
+        >
           <FaSignOutAlt />
           <span>Logout</span>
         </button>

@@ -25,8 +25,6 @@ const wishlistSchema = new mongoose.Schema(
   { timestamps: true, versionKey: false }
 );
 
-wishlistSchema.index({ user: 1 });
-
 const WishlistModel = mongoose.model("Wishlist", wishlistSchema);
 
 module.exports = WishlistModel;

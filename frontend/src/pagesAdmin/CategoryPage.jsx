@@ -1,19 +1,21 @@
-import React from "react";
+import React from 'react';
 import LayoutAdmin from "../component/componentAdmin/LayoutAdmin.jsx";
 import Breadcrumb from "../component/componentAdmin/Breadcrumb.jsx";
-import EditCategory from "../component/componentAdmin/EditCategory.jsx";
 import RequirePermission from "../component/componentAdmin/RequirePermission.jsx";
-import CategoryManager from "../component/componentAdmin/CategoryManager.jsx";
+import AdminCategoryAllinone from "../component/componentAdmin/AdminCategoryAllinone.jsx";
 
-const EditCategoryPage = () => {
+const CategoryPage = () => {
   return (
     <LayoutAdmin>
-      <Breadcrumb pageDetails="CATEGORY" title="View All Categories" />
+      <Breadcrumb
+        pageDetails="CATEGORY"
+        title="View And Edit All Categories"
+      />
       <RequirePermission permission="category">
-        <EditCategory />
+        <AdminCategoryAllinone />
       </RequirePermission>
     </LayoutAdmin>
   );
 };
 
-export default EditCategoryPage;
+export default CategoryPage;

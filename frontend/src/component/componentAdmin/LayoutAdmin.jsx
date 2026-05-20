@@ -1,9 +1,6 @@
 import React from "react";
 import SidebarMenu from "./SidebarMenu.jsx";
 import Footer from "./footer.jsx";
-import Breadcrumb from "./Breadcrumb.jsx";
-import RequirePermission from "./RequirePermission.jsx";
-import AbandonedCartsContainer from "./AbandonedCartsContainer.jsx";
 
 const LayoutAdmin = ({ children, breadcrumbData }) => {
   return (
