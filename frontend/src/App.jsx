@@ -35,6 +35,7 @@ import {
 import CategoryPage from "./pagesAdmin/CategoryPage.jsx";
 import SubCategoryPage from "./pagesAdmin/SubCategoryPage.jsx";
 import ChildCategoryPage from "./pagesAdmin/ChildCategoryPage.jsx";
+import ProductOptionsPage from "./pagesAdmin/ProductOptionsPage.jsx";
 
 const AdminLoginWithPreload = () => {
   preloadAdminRoutes();
@@ -81,15 +82,6 @@ const AdminLogin = lazy(
   () => import("./component/componentAdmin/AdminLogin.jsx"),
 );
 const NotFoundPage = lazy(() => import("./pagesUser/NotFoundPage.jsx"));
-const AddNewProductSizePage = lazy(
-  () => import("./pagesAdmin/AddNewProductSizePage.jsx"),
-);
-const ProductSizeListPage = lazy(
-  () => import("./pagesAdmin/ProductSizeListPage.jsx"),
-);
-const EditProductSizePage = lazy(
-  () => import("./pagesAdmin/EditProductSizePage.jsx"),
-);
 const ProductFlagPage = lazy(() => import("./pagesAdmin/ProductFlagPage.jsx"));
 const ShopPage = lazy(() => import("./pagesUser/ShopPage.jsx"));
 const AddNewProductPage = lazy(
@@ -359,17 +351,10 @@ function App() {
 
             {/* Product Size Routes */}
             <Route
-              path="/admin/add-product-options"
-              element={<AddNewProductSizePage />}
-            />
-            <Route
               path="/admin/product-options"
-              element={<ProductSizeListPage />}
+              element={<ProductOptionsPage/>}
             />
-            <Route
-              path="/admin/edit-product-option/:id"
-              element={<EditProductSizePage />}
-            />
+
 
             {/* Product Flag Routes */}
             <Route path="/admin/product-flags" element={<ProductFlagPage />} />

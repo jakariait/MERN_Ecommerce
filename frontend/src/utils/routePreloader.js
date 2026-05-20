@@ -57,9 +57,6 @@ export const preloadAdminRoutes = () => {
     import("../pagesAdmin/ColorUpdaterPage.jsx"),
     import("../pagesAdmin/SocialLinkUpdaterPage.jsx"),
     import("../pagesAdmin/ContactRequestPage.jsx"),
-    import("../pagesAdmin/AddNewProductSizePage.jsx"),
-    import("../pagesAdmin/ProductSizeListPage.jsx"),
-    import("../pagesAdmin/EditProductSizePage.jsx"),
     import("../pagesAdmin/ProductFlagPage.jsx"),
     import("../pagesAdmin/AddNewProductPage.jsx"),
     import("../pagesAdmin/ViewAllProductPage.jsx"),
@@ -95,5 +92,6 @@ export const preloadAdminRoutes = () => {
     import("../pagesAdmin/CategoryPage.jsx"),
     import("../pagesAdmin/SubCategoryPage.jsx"),
     import("../pagesAdmin/ChildCategoryPage.jsx"),
+    import("../pagesAdmin/ProductOptionsPage.jsx"),
   ]).catch(() => {});
 };
