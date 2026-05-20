@@ -1,19 +1,18 @@
 import React from 'react';
 import LayoutAdmin from "../component/componentAdmin/LayoutAdmin.jsx";
 import Breadcrumb from "../component/componentAdmin/Breadcrumb.jsx";
-import EditSubCategory from "../component/componentAdmin/EditSubCategory.jsx";
 import RequirePermission from "../component/componentAdmin/RequirePermission.jsx";
-import AddSubCategory from "../component/componentAdmin/AddSubCategory.jsx";
+import SubCategoryAllinone from "../component/componentAdmin/SubCategoryAllinone.jsx";
 
-const EditSubCategoryPage = () => {
+const SubCategoryPage = () => {
   return (
     <LayoutAdmin>
-      <Breadcrumb pageDetails="SUB CATEGORY" title="Edit Sub Categories" />
+      <Breadcrumb pageDetails="SUB CATEGORY" title="View And Edit All Sub Categories" />
       <RequirePermission permission="sub_category">
-        <EditSubCategory/>
+        <SubCategoryAllinone/>
       </RequirePermission>
     </LayoutAdmin>
   );
 };
 
-export default EditSubCategoryPage;
+export default SubCategoryPage;

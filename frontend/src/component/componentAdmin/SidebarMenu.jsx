@@ -151,40 +151,24 @@ export const MENU_CONFIG = [
   },
   {
     section: "subcategory",
-    label: "Subcategory",
-    icon: FaBoxes,
-    permission: "sub_category",
     items: [
       {
         type: "link",
-        label: "Add New Sub Category",
-        path: "/admin/addnewsubcategory",
-        permission: "sub_category",
-      },
-      {
-        type: "link",
-        label: "View All SubCategories",
-        path: "/admin/subcategorylist",
+        label: "Subcategory",
+        icon: FaBoxes,
+        path: "/admin/category",
         permission: "sub_category",
       },
     ],
   },
   {
     section: "childcategory",
-    label: "Child Category",
-    icon: FaList,
-    permission: "child_category",
     items: [
       {
         type: "link",
-        label: "Add New Child Category",
-        path: "/admin/addnewchildcategory",
-        permission: "child_category",
-      },
-      {
-        type: "link",
-        label: "View All Child Categories",
-        path: "/admin/childcategorylist",
+        label: "Child Category",
+        icon: FaList,
+        path: "/admin/childcategory",
         permission: "child_category",
       },
     ],

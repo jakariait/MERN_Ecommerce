@@ -33,6 +33,8 @@ import {
   preloadUserRoutes,
 } from "./utils/routePreloader.js";
 import CategoryPage from "./pagesAdmin/CategoryPage.jsx";
+import SubCategoryPage from "./pagesAdmin/SubCategoryPage.jsx";
+import ChildCategoryPage from "./pagesAdmin/ChildCategoryPage.jsx";
 
 const AdminLoginWithPreload = () => {
   preloadAdminRoutes();
@@ -79,25 +81,6 @@ const AdminLogin = lazy(
   () => import("./component/componentAdmin/AdminLogin.jsx"),
 );
 const NotFoundPage = lazy(() => import("./pagesUser/NotFoundPage.jsx"));
-
-const AddNewSubCategoryPage = lazy(
-  () => import("./pagesAdmin/AddNewSubCategoryPage.jsx"),
-);
-const SubCategoryListPage = lazy(
-  () => import("./pagesAdmin/SubCategoryListPage.jsx"),
-);
-const EditSubCategoryPage = lazy(
-  () => import("./pagesAdmin/EditSubCategoryPage.jsx"),
-);
-const ChildCategoryListPage = lazy(
-  () => import("./pagesAdmin/ChildCategoryListPage.jsx"),
-);
-const AddNewChildCategoryPage = lazy(
-  () => import("./pagesAdmin/AddNewChildCategoryPage.jsx"),
-);
-const EditChildCategoryPage = lazy(
-  () => import("./pagesAdmin/EditChildCategoryPage.jsx"),
-);
 const AddNewProductSizePage = lazy(
   () => import("./pagesAdmin/AddNewProductSizePage.jsx"),
 );
@@ -366,31 +349,12 @@ function App() {
             <Route path="/admin/category" element={<CategoryPage />} />
 
             {/* SubCategory Routes */}
-            <Route
-              path="/admin/addnewsubcategory"
-              element={<AddNewSubCategoryPage />}
-            />
-            <Route
-              path="/admin/edit-subcategory/:id"
-              element={<EditSubCategoryPage />}
-            />
-            <Route
-              path="/admin/subcategorylist"
-              element={<SubCategoryListPage />}
-            />
+            <Route path="/admin/subcategory" element={<SubCategoryPage />} />
 
             {/* Child Category Routes */}
             <Route
-              path="/admin/childcategorylist"
-              element={<ChildCategoryListPage />}
-            />
-            <Route
-              path="/admin/addnewchildcategory"
-              element={<AddNewChildCategoryPage />}
-            />
-            <Route
-              path="/admin/edit-child-category/:id"
-              element={<EditChildCategoryPage />}
+              path="/admin/childcategory"
+              element={<ChildCategoryPage />}
             />
 
             {/* Product Size Routes */}

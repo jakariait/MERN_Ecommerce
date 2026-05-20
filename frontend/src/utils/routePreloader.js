@@ -5,7 +5,7 @@ const preloadedAdmin = { done: false };
 export const preloadPublicRoutes = () => {
   if (preloadedPublic.done) return;
   preloadedPublic.done = true;
-  
+
   Promise.all([
     import("../pagesUser/HomePage.jsx"),
     import("../pagesUser/ShopPage.jsx"),
@@ -35,7 +35,7 @@ export const preloadPublicRoutes = () => {
 export const preloadUserRoutes = () => {
   if (preloadedUser.done) return;
   preloadedUser.done = true;
-  
+
   Promise.all([
     import("../pagesUser/UserHomePage.jsx"),
     import("../pagesUser/UserAllOrdersPage.jsx"),
@@ -49,7 +49,7 @@ export const preloadUserRoutes = () => {
 export const preloadAdminRoutes = () => {
   if (preloadedAdmin.done) return;
   preloadedAdmin.done = true;
-  
+
   Promise.all([
     import("../pagesAdmin/GeneralInfoPage.jsx"),
     import("../pagesAdmin/SubscribedUsersPage.jsx"),
@@ -57,15 +57,6 @@ export const preloadAdminRoutes = () => {
     import("../pagesAdmin/ColorUpdaterPage.jsx"),
     import("../pagesAdmin/SocialLinkUpdaterPage.jsx"),
     import("../pagesAdmin/ContactRequestPage.jsx"),
-    import("../pagesAdmin/AddNewCategoryPage.jsx"),
-    import("../pagesAdmin/CategoryListPage.jsx"),
-    import("../pagesAdmin/EditCategoryPage.jsx"),
-    import("../pagesAdmin/AddNewSubCategoryPage.jsx"),
-    import("../pagesAdmin/SubCategoryListPage.jsx"),
-    import("../pagesAdmin/EditSubCategoryPage.jsx"),
-    import("../pagesAdmin/ChildCategoryListPage.jsx"),
-    import("../pagesAdmin/AddNewChildCategoryPage.jsx"),
-    import("../pagesAdmin/EditChildCategoryPage.jsx"),
     import("../pagesAdmin/AddNewProductSizePage.jsx"),
     import("../pagesAdmin/ProductSizeListPage.jsx"),
     import("../pagesAdmin/EditProductSizePage.jsx"),
@@ -101,5 +92,8 @@ export const preloadAdminRoutes = () => {
     import("../pagesAdmin/BlogsListPage.jsx"),
     import("../pagesAdmin/EditBlogPage.jsx"),
     import("../pagesAdmin/PathaoConfigPage.jsx"),
+    import("../pagesAdmin/CategoryPage.jsx"),
+    import("../pagesAdmin/SubCategoryPage.jsx"),
+    import("../pagesAdmin/ChildCategoryPage.jsx"),
   ]).catch(() => {});
 };
