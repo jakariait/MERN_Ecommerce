@@ -13,7 +13,7 @@ const PermissionsCheckboxGroup = ({
     { value: "home_page_seo", label: "Home Page SEO" },
 
     { value: "setup_config", label: "Configuration Setup" },
-    { value: "product_size", label: "Add Product Size" },
+    { value: "product_size", label: "Product Options" },
     { value: "product_flag", label: "Product Flag" },
     { value: "scroll_text", label: "Scroll Text" },
     { value: "delivery_charges", label: "Delivery Charges" },

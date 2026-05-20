@@ -101,13 +101,7 @@ export const MENU_CONFIG = [
       },
       {
         type: "link",
-        label: "Add New Product Options",
-        path: "/admin/add-product-options",
-        permission: "product_size",
-      },
-      {
-        type: "link",
-        label: "View All Product Options",
+        label: "Product Options",
         path: "/admin/product-options",
         permission: "product_size",
       },
