@@ -143,7 +143,7 @@ const ProductOptionsAllinone = () => {
   }, [productOptions, searchTerm]);
 
   return (
-    <Box sx={{ p: 3 }}>
+    <Box>
       {/* Header Card */}
       <Paper elevation={2} sx={{ p: 3, mb: 3, borderRadius: 2 }}>
         <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 2 }}>
