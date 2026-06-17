@@ -341,6 +341,25 @@ const homePageProducts = async (req, res) => {
 };
 
 
+const duplicateProduct = async (req, res) => {
+  try {
+    const product = await productService.duplicateProduct(req.params.id);
+
+    redisClient.del('/api/products');
+
+    res.status(201).json({
+      success: true,
+      message: "Product duplicated successfully!",
+      data: product,
+    });
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
 module.exports = {
   createProduct,
   getProductBySlug,
@@ -352,5 +371,6 @@ module.exports = {
   getSimilarProductsController,
   getAllProductsAdmin,
   getProductDetails,
-  homePageProducts
+  homePageProducts,
+  duplicateProduct,
 };

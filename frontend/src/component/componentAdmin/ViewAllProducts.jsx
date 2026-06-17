@@ -23,6 +23,7 @@ import ImageComponent from "../componentGeneral/ImageComponent.jsx";
 import { FaEye } from "react-icons/fa";
 import { FaRegEdit } from "react-icons/fa";
 import { MdDeleteOutline } from "react-icons/md";
+import { FaCopy } from "react-icons/fa";
 import { BsArrowsCollapse } from "react-icons/bs";
 import Skeleton from "react-loading-skeleton";
 import { Link } from "react-router-dom";
@@ -37,6 +38,7 @@ const ViewAllProducts = () => {
     error,
     fetchProductsAdmin,
     deleteProduct,
+    duplicateProduct,
   } = useProductStore();
 
   const [filters, setFilters] = useState({
@@ -114,6 +116,24 @@ const ViewAllProducts = () => {
     } finally {
       // Close the dialog after handling delete or error
       handleCloseDialog();
+    }
+  };
+
+  const handleDuplicate = async (id) => {
+    try {
+      await duplicateProduct(id);
+      setSnackbar({
+        open: true,
+        message: `Product duplicated successfully!`,
+        type: "success",
+      });
+      fetchProductsAdmin(filters);
+    } catch (err) {
+      setSnackbar({
+        open: true,
+        message: err.response?.data?.message || "Failed to duplicate product.",
+        type: "error",
+      });
     }
   };
 
@@ -269,6 +289,21 @@ const ViewAllProducts = () => {
                       </div>
                     </RequirePermission>
                     <RequirePermission
+                      permission="add_products"
+                      fallback={true}
+                    >
+                      <div
+                        className={
+                          "primaryBgColor py-1 flex justify-center items-center accentTextColor rounded-lg"
+                        }
+                      >
+                        <FaCopy
+                          onClick={() => handleDuplicate(product.id)}
+                          className={"w-5 h-5 cursor-pointer"}
+                        />
+                      </div>
+                    </RequirePermission>
+                    <RequirePermission
                       permission="delete_products"
                       fallback={true}
                     >
@@ -278,7 +313,7 @@ const ViewAllProducts = () => {
                         }
                       >
                         <MdDeleteOutline
-                          onClick={() => handleOpenDialog(product.productId)}
+                          onClick={() => handleOpenDialog(product.id)}
                           className={"w-5 h-5 cursor-pointer"}
                         />
                       </div>

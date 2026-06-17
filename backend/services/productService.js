@@ -697,6 +697,29 @@ const getHomePageProducts = async () => {
   }
 };
 
+const duplicateProduct = async (productId) => {
+  try {
+    const originalProduct = await ProductModel.findById(productId);
+    if (!originalProduct) throw new Error("Product not found");
+
+    const productData = originalProduct.toObject();
+
+    delete productData._id;
+    delete productData.productId;
+    delete productData.slug;
+    delete productData.createdAt;
+    delete productData.updatedAt;
+    delete productData.__v;
+
+    const newProduct = new ProductModel(productData);
+    await newProduct.save();
+
+    return newProduct;
+  } catch (error) {
+    throw new Error(error.message);
+  }
+};
+
 module.exports = {
   createProduct,
   getProducts,
@@ -708,4 +731,5 @@ module.exports = {
   getSimilarProducts,
   getProductDetailsService,
   getHomePageProducts,
+  duplicateProduct,
 };

@@ -451,6 +451,13 @@ router.delete(
   productController.deleteProduct,
 );
 
+router.post(
+  "/products/:id/duplicate",
+  adminProtect,
+  checkPermission("add_products"),
+  productController.duplicateProduct,
+);
+
 router.get(
   "/similar/:category/:productId",
   productController.getSimilarProductsController,

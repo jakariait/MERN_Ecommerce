@@ -144,6 +144,29 @@ const useProductStore = create((set) => ({
     }
   },
 
+  duplicateProduct: async (id) => {
+    set({ loading: true, error: null });
+
+    try {
+      const token = useAuthStore.getState().token;
+      if (!token) throw new Error("Unauthorized: No token found");
+
+      await axios.post(
+        `${apiUrl}/products/${id}/duplicate`,
+        {},
+        { headers: { Authorization: `Bearer ${token}` } },
+      );
+
+      set({ loading: false });
+    } catch (error) {
+      set({
+        error: error.response?.data?.message || "Failed to duplicate product",
+        loading: false,
+      });
+      throw error;
+    }
+  },
+
   fetchHomeProducts: async () => {
     set({ loading: true, error: null });
 
