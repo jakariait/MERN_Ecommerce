@@ -6,7 +6,7 @@ const targetURI = "";
 
 // Names of source and target databases
 const sourceDBName = "ClothingEcommerce";
-const targetDBName = "ClothingEcommerce";
+const targetDBName = "Zarif";
 
 async function duplicateDatabase() {
   const sourceClient = new MongoClient(sourceURI);
