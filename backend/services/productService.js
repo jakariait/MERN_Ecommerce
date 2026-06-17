@@ -702,18 +702,28 @@ const duplicateProduct = async (productId) => {
     const originalProduct = await ProductModel.findById(productId);
     if (!originalProduct) throw new Error("Product not found");
 
-    const productData = originalProduct.toObject();
+    const doc = originalProduct.toObject();
 
-    delete productData._id;
-    delete productData.productId;
-    delete productData.slug;
-    delete productData.createdAt;
-    delete productData.updatedAt;
-    delete productData.__v;
+    delete doc._id;
+    delete doc.productId;
+    delete doc.slug;
+    delete doc.createdAt;
+    delete doc.updatedAt;
+    delete doc.__v;
 
-    const newProduct = new ProductModel(productData);
+    const variantsData = doc.variants;
+    delete doc.variants;
+
+    const newProduct = new ProductModel(doc);
+
+    if (variantsData && variantsData.length > 0) {
+      newProduct.variants = variantsData.map((v) => {
+        const { _id, ...rest } = v;
+        return rest;
+      });
+    }
+
     await newProduct.save();
-
     return newProduct;
   } catch (error) {
     throw new Error(error.message);
