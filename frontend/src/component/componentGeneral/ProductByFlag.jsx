@@ -7,7 +7,7 @@ import Skeleton from "react-loading-skeleton";
 import { FaArrowRight } from "react-icons/fa";
 
 const ProductByFlag = () => {
-  const { homeProducts } = useProductStore();
+  const { homeProducts, loading } = useProductStore();
   const { flags, fetchFlags, loading: flagsLoading } = useFlagStore();
 
   useEffect(() => {
@@ -19,18 +19,28 @@ const ProductByFlag = () => {
   const hasFlags = flags && flags.length > 0;
   const hasProducts = Object.keys(homeProducts).length > 0;
 
-  if (!hasFlags && !hasProducts)
+  if (loading || flagsLoading || !hasFlags || !hasProducts)
     return (
       <div className="xl:container xl:mx-auto p-4">
         <div className="flex items-center gap-4 my-6">
-          <div className="flex-grow h-px bg-gray-300"></div>
-          <div className="h-6 w-32 bg-gray-200 rounded"></div>
-          <div className="flex-grow h-px bg-gray-300"></div>
+          <div className="grow h-px bg-gray-300"></div>
+          <div className="h-6 w-32 bg-gray-200 rounded animate-pulse"></div>
+          <div className="grow h-px bg-gray-300"></div>
         </div>
         <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 mt-4">
-          {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
-            <div key={i} className="relative min-h-[250px]">
-              <div className="h-[250px] w-full bg-gray-200 rounded"></div>
+          {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((i) => (
+            <div key={i} className="relative">
+              <Skeleton height={250} className="!rounded-lg" />
+              <div className="mt-2 mb-1">
+                <Skeleton height={14} width="80%" />
+              </div>
+              <div className="flex gap-2">
+                <Skeleton height={14} width={50} />
+                <Skeleton height={14} width={50} />
+              </div>
+              <div className="pt-3">
+                <Skeleton height={36} className="!rounded-lg" />
+              </div>
             </div>
           ))}
         </div>
