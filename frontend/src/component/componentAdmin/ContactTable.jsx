@@ -29,6 +29,7 @@ import {
 import { toast } from "sonner";
 import { Trash2, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 import useAuthAdminStore from "../../store/AuthAdminStore.js";
+import { SectionHeader } from "#component/componentAdmin/SectionHeader.jsx";
 
 const columns = [
   { id: "serialNumber", label: "S.No." },
@@ -130,12 +131,10 @@ const ContactTable = () => {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">Contact Requests</h1>
-        <p className="text-sm text-muted-foreground mt-1">
-          {contacts.length} total messages
-        </p>
-      </div>
+      <SectionHeader
+        title={"Contact Requests"}
+        description={`${contacts.length} total messages`}
+      />
 
       <Card className="shadow-md border-0">
         <CardContent className="p-0">

@@ -77,23 +77,22 @@ const AdminList = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">View and Create Admins</h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            {admins.length} total admins
-          </p>
-        </div>
-        <Link to="/admin/createadmin">
-          <Button>
-            <Plus className="size-4 mr-2" />
-            Create Admin
-          </Button>
-        </Link>
-      </div>
-
       <Card className="shadow-md border-0">
         <CardContent className="p-0">
+          <div className="flex items-center justify-between px-4 py-3 border-b border-muted-foreground/10">
+            <div>
+              <h1 className="text-lg font-semibold">View and Create Admins</h1>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                {admins.length} total admins
+              </p>
+            </div>
+            <Link to="/admin/createadmin">
+              <Button size="sm">
+                <Plus className="size-4 mr-1.5" />
+                Create Admin
+              </Button>
+            </Link>
+          </div>
           <Table>
             <TableHeader>
               <TableRow>

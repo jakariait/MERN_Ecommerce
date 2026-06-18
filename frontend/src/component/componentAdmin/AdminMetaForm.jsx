@@ -4,15 +4,10 @@ import useAuthAdminStore from "../../store/AuthAdminStore.js";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardContent,
-} from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { toast } from "sonner";
 import { Loader2, Plus, X } from "lucide-react";
+import { SectionHeader } from "#component/componentAdmin/SectionHeader.jsx";
 
 const apiURL = import.meta.env.VITE_API_URL;
 
@@ -106,16 +101,10 @@ const AdminMetaForm = () => {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">
-          Search Engine Optimization
-        </h1>
-        <p className="text-sm text-muted-foreground mt-1">
-          Manage home page meta title, description, and keywords.
-        </p>
-      </div>
-
-      <Separator />
+      <SectionHeader
+        title={"Search Engine Optimization"}
+        description={"Manage home page meta title, description, and keywords."}
+      />
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <Card>

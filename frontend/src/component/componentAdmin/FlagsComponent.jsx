@@ -6,12 +6,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardContent,
-} from "@/components/ui/card";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -39,6 +34,7 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import { SectionHeader } from "#component/componentAdmin/SectionHeader.jsx";
 
 const SortableFlag = ({ flag, onUpdate, onDelete }) => {
   const { attributes, listeners, setNodeRef, transform, transition } =
@@ -147,7 +143,9 @@ const SortableFlag = ({ flag, onUpdate, onDelete }) => {
                 >
                   <GripVertical className="size-4" />
                 </div>
-                <span className="text-sm font-medium truncate">{flag.name}</span>
+                <span className="text-sm font-medium truncate">
+                  {flag.name}
+                </span>
                 <Badge
                   variant={flag.isActive ? "default" : "secondary"}
                   className="shrink-0 text-[10px] px-1.5 py-0"
@@ -277,16 +275,10 @@ const FlagsComponent = () => {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">
-          Flags Management
-        </h1>
-        <p className="text-sm text-muted-foreground mt-1">
-          Create, edit, reorder and manage product flags.
-        </p>
-      </div>
-
-      <Separator />
+      <SectionHeader
+        title={" Flags Management"}
+        action={"Create, edit, reorder and manage product flags."}
+      />
 
       <Card>
         <CardHeader>
@@ -356,9 +348,7 @@ const FlagsComponent = () => {
           ) : (
             <>
               {error && (
-                <p className="text-sm text-destructive mb-4">
-                  Error: {error}
-                </p>
+                <p className="text-sm text-destructive mb-4">Error: {error}</p>
               )}
 
               <DndContext

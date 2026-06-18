@@ -1,10 +1,6 @@
-export function SectionHeader({
-  title,
-  description,
-  action,
-}) {
+export function SectionHeader({ title, description}) {
   return (
-    <div className="border-b border-border pb-3 text-center">
+    <div className="border-b border-border py-3 text-center">
       <div>
         <h1 className="text-xl font-bold tracking-tight text-foreground">
           {title}
@@ -17,9 +13,6 @@ export function SectionHeader({
         )}
       </div>
 
-      {action && (
-        <div className="mt-3 flex justify-center">{action}</div>
-      )}
     </div>
   );
 }

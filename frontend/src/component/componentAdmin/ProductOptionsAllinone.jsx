@@ -12,12 +12,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardContent,
-} from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -26,18 +21,17 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 import {
   Plus,
   Search,
-  Settings,
   Pencil,
   Trash2,
   Loader2,
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
+import { SectionHeader } from "@/component/componentAdmin/SectionHeader.jsx";
 
 const ProductOptionsAllinone = () => {
   const apiUrl = import.meta.env.VITE_API_URL;
@@ -152,10 +146,9 @@ const ProductOptionsAllinone = () => {
   const handleDelete = async () => {
     if (!optionToDelete) return;
     try {
-      await axios.delete(
-        `${apiUrl}/product-options/${optionToDelete._id}`,
-        { headers: { Authorization: `Bearer ${token}` } },
-      );
+      await axios.delete(`${apiUrl}/product-options/${optionToDelete._id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       toast.success("Product option deleted successfully!");
       fetchProductOptions();
     } catch (err) {
@@ -169,9 +162,7 @@ const ProductOptionsAllinone = () => {
   const filteredOptions = useMemo(() => {
     return productOptions
       .filter((opt) =>
-        (opt.name || "")
-          .toLowerCase()
-          .includes(searchTerm.toLowerCase()),
+        (opt.name || "").toLowerCase().includes(searchTerm.toLowerCase()),
       )
       .reverse();
   }, [productOptions, searchTerm]);
@@ -184,16 +175,10 @@ const ProductOptionsAllinone = () => {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">
-          Product Option Management
-        </h1>
-        <p className="text-sm text-muted-foreground mt-1">
-          {productOptions.length} total options
-        </p>
-      </div>
-
-      <Separator />
+      <SectionHeader
+        title="Product Option Management"
+        description={`${productOptions.length} total options`}
+      />
 
       <div className="flex items-center justify-between gap-4">
         <div className="relative flex-1 max-w-sm">
@@ -373,10 +358,7 @@ const ProductOptionsAllinone = () => {
             </div>
           </div>
           <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setDialogOpen(false)}
-            >
+            <Button variant="outline" onClick={() => setDialogOpen(false)}>
               Cancel
             </Button>
             <Button onClick={handleSave} disabled={isSubmitting}>
@@ -395,10 +377,7 @@ const ProductOptionsAllinone = () => {
         </DialogContent>
       </Dialog>
 
-      <Dialog
-        open={deleteDialogOpen}
-        onOpenChange={setDeleteDialogOpen}
-      >
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Confirm Delete</DialogTitle>
@@ -415,10 +394,7 @@ const ProductOptionsAllinone = () => {
             >
               Cancel
             </Button>
-            <Button
-              variant="destructive"
-              onClick={handleDelete}
-            >
+            <Button variant="destructive" onClick={handleDelete}>
               Delete
             </Button>
           </DialogFooter>

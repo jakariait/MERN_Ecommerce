@@ -19,12 +19,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardContent,
-} from "@/components/ui/card";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -44,6 +39,7 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
+import { SectionHeader } from "@/component/componentAdmin/SectionHeader.jsx";
 
 const SubCategoryAllinone = () => {
   const apiUrl = import.meta.env.VITE_API_URL;
@@ -205,16 +201,10 @@ const SubCategoryAllinone = () => {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">
-          Subcategory Management
-        </h1>
-        <p className="text-sm text-muted-foreground mt-1">
-          {subCategories.length} total subcategories
-        </p>
-      </div>
-
-      <Separator />
+      <SectionHeader
+        title={"Subcategory Management"}
+        action={`${subCategories.length} total subcategories`}
+      />
 
       <div className="flex items-center justify-between gap-4">
         <div className="relative flex-1 max-w-sm">
@@ -416,10 +406,7 @@ const SubCategoryAllinone = () => {
             )}
           </div>
           <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setDialogOpen(false)}
-            >
+            <Button variant="outline" onClick={() => setDialogOpen(false)}>
               Cancel
             </Button>
             <Button onClick={handleSave} disabled={isSubmitting}>

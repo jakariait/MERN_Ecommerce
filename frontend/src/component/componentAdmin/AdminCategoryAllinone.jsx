@@ -19,12 +19,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardContent,
-} from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -33,7 +28,6 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 import {
   Plus,
@@ -43,8 +37,8 @@ import {
   Loader2,
   ChevronLeft,
   ChevronRight,
-  FolderTree,
 } from "lucide-react";
+import { SectionHeader } from "@/component/componentAdmin/SectionHeader.jsx";
 
 const AdminCategoryAllinone = () => {
   const apiUrl = import.meta.env.VITE_API_URL;
@@ -177,16 +171,10 @@ const AdminCategoryAllinone = () => {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">
-          Category Management
-        </h1>
-        <p className="text-sm text-muted-foreground mt-1">
-          {categories.length} total categories
-        </p>
-      </div>
-
-      <Separator />
+      <SectionHeader
+        title={"Category Management"}
+        description={`${categories.length} total categories`}
+      />
 
       <div className="flex items-center justify-between gap-4">
         <div className="relative flex-1 max-w-sm">
@@ -257,9 +245,7 @@ const AdminCategoryAllinone = () => {
                         </TableCell>
                         <TableCell className="text-center">
                           <Badge
-                            variant={
-                              cat.showOnNavbar ? "default" : "secondary"
-                            }
+                            variant={cat.showOnNavbar ? "default" : "secondary"}
                           >
                             {cat.showOnNavbar ? "Yes" : "No"}
                           </Badge>
@@ -398,10 +384,7 @@ const AdminCategoryAllinone = () => {
             </div>
           </div>
           <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setDialogOpen(false)}
-            >
+            <Button variant="outline" onClick={() => setDialogOpen(false)}>
               Cancel
             </Button>
             <Button onClick={handleSave} disabled={isSubmitting}>

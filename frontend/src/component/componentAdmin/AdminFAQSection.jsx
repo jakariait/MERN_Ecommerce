@@ -24,6 +24,7 @@ import {
 import { toast } from "sonner";
 import { Plus, Edit, Trash2, Loader2 } from "lucide-react";
 import useAuthAdminStore from "../../store/AuthAdminStore.js";
+import {SectionHeader} from "#component/componentAdmin/SectionHeader.jsx";
 
 const defaultForm = {
   question: "",
@@ -121,23 +122,27 @@ const AdminFAQSection = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold tracking-tight">Manage FAQs</h1>
-        <Button onClick={() => handleOpen()}>
-          <Plus className="size-4 mr-2" />
-          Add FAQ
-        </Button>
-      </div>
 
-      {loading ? (
-        <div className="flex justify-center py-12">
-          <Loader2 className="size-6 animate-spin text-muted-foreground" />
-        </div>
-      ) : (
-        <div className="grid md:grid-cols-2 gap-6">
-          {faqs.map((faq) => (
-            <Card key={faq._id} className="shadow-md border-0">
-              <CardContent className="p-5">
+
+      <SectionHeader title={"Manage FAQs"} />
+      <Card className="shadow-md border-0">
+        <CardContent className="p-0">
+          <div className="flex items-center justify-between px-4 py-3 border-b border-muted-foreground/10">
+            <h3 className="text-lg font-semibold">All FAQs</h3>
+            <Button size="sm" onClick={() => handleOpen()}>
+              <Plus className="size-4 mr-1.5" />
+              Add FAQ
+            </Button>
+          </div>
+          {loading ? (
+            <div className="flex justify-center py-12">
+              <Loader2 className="size-6 animate-spin text-muted-foreground" />
+            </div>
+          ) : (
+            <div className="grid md:grid-cols-2 gap-6 p-4">
+              {faqs.map((faq) => (
+                <Card key={faq._id} className="shadow-sm border">
+                  <CardContent className="p-5">
                 <div className="flex justify-between items-start gap-4">
                   <div className="flex-1 min-w-0 space-y-2">
                     <p className="font-semibold leading-tight truncate">
@@ -176,6 +181,8 @@ const AdminFAQSection = () => {
           ))}
         </div>
       )}
+        </CardContent>
+      </Card>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent>

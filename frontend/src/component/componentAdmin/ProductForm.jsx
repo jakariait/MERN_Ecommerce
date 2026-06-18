@@ -33,20 +33,12 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-} from "@/components/ui/dialog";
+
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 import {
   Trash2,
@@ -58,6 +50,7 @@ import {
   ChevronDown,
 } from "lucide-react";
 import axios from "axios";
+import { SectionHeader } from "#component/componentAdmin/SectionHeader.jsx";
 
 const ProductForm = ({ isEdit: isEditMode }) => {
   const { slug } = useParams();
@@ -100,7 +93,12 @@ const ProductForm = ({ isEdit: isEditMode }) => {
   const [selectedFlags, setSelectedFlags] = useState([]);
   const [hasVariant, setHasVariant] = useState(true);
   const [variants, setVariants] = useState([
-    { attributes: [{ option: "", value: "" }], stock: "", price: "", discount: "" },
+    {
+      attributes: [{ option: "", value: "" }],
+      stock: "",
+      price: "",
+      discount: "",
+    },
   ]);
   const [isActive, setIsActive] = useState("true");
   const [freeShipping, setFreeShipping] = useState(false);
@@ -189,7 +187,12 @@ const ProductForm = ({ isEdit: isEditMode }) => {
         setHasVariant(true);
       } else {
         setVariants([
-          { attributes: [{ option: "", value: "" }], stock: "", price: "", discount: "" },
+          {
+            attributes: [{ option: "", value: "" }],
+            stock: "",
+            price: "",
+            discount: "",
+          },
         ]);
         setHasVariant(false);
       }
@@ -203,7 +206,12 @@ const ProductForm = ({ isEdit: isEditMode }) => {
   const handleAddVariant = () => {
     setVariants([
       ...variants,
-      { attributes: [{ option: "", value: "" }], stock: "", price: "", discount: "" },
+      {
+        attributes: [{ option: "", value: "" }],
+        stock: "",
+        price: "",
+        discount: "",
+      },
     ]);
   };
 
@@ -564,7 +572,14 @@ const ProductForm = ({ isEdit: isEditMode }) => {
         setImagePreview("");
         setSelectedImages([]);
         setImagePreviews([]);
-        setVariants([{ attributes: [{ option: "", value: "" }], stock: "", price: "", discount: "" }]);
+        setVariants([
+          {
+            attributes: [{ option: "", value: "" }],
+            stock: "",
+            price: "",
+            discount: "",
+          },
+        ]);
         setHasVariant(true);
         setIsActive("true");
         setFreeShipping(false);
@@ -621,11 +636,9 @@ const ProductForm = ({ isEdit: isEditMode }) => {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">
-          {isEditMode ? "Update Product" : "Add New Product"}
-        </h1>
-      </div>
+      <SectionHeader
+        title={`${isEditMode ? "Update Product" : "Add New Product"}`}
+      />
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="grid grid-cols-12 gap-6">
@@ -820,10 +833,7 @@ const ProductForm = ({ isEdit: isEditMode }) => {
                 {isEditMode && (
                   <div className="space-y-2">
                     <Label>Status</Label>
-                    <Select
-                      value={isActive}
-                      onValueChange={setIsActive}
-                    >
+                    <Select value={isActive} onValueChange={setIsActive}>
                       <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
@@ -1034,8 +1044,7 @@ const ProductForm = ({ isEdit: isEditMode }) => {
         <Card className="shadow-md border-0">
           <CardHeader>
             <CardTitle>
-              Product Images{" "}
-              <span className="text-destructive">*</span>
+              Product Images <span className="text-destructive">*</span>
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -1077,14 +1086,24 @@ const ProductForm = ({ isEdit: isEditMode }) => {
                         <div
                           key={`existing-${index}`}
                           draggable
-                          onDragStart={(e) => handleDragStart(e, index, "existing")}
+                          onDragStart={(e) =>
+                            handleDragStart(e, index, "existing")
+                          }
                           onDragOver={handleDragOver}
                           onDrop={(e) => handleDrop(e, index, "existing")}
                           onDragEnd={handleDragEnd}
                           className="relative w-[150px] h-[150px] rounded-lg overflow-hidden bg-muted/50 shadow-sm cursor-move"
                           style={{
-                            opacity: draggedIndex === index && dragSource === "existing" ? 0.5 : 1,
-                            outline: draggedIndex === index && dragSource === "existing" ? "2px dashed hsl(var(--muted-foreground))" : "none",
+                            opacity:
+                              draggedIndex === index &&
+                              dragSource === "existing"
+                                ? 0.5
+                                : 1,
+                            outline:
+                              draggedIndex === index &&
+                              dragSource === "existing"
+                                ? "2px dashed hsl(var(--muted-foreground))"
+                                : "none",
                           }}
                         >
                           <img
@@ -1114,8 +1133,14 @@ const ProductForm = ({ isEdit: isEditMode }) => {
                         onDragEnd={handleDragEnd}
                         className="relative w-[150px] h-[150px] rounded-lg overflow-hidden bg-muted/50 shadow-sm cursor-move"
                         style={{
-                          opacity: draggedIndex === index && dragSource === "new" ? 0.5 : 1,
-                          outline: draggedIndex === index && dragSource === "new" ? "2px dashed hsl(var(--muted-foreground))" : "none",
+                          opacity:
+                            draggedIndex === index && dragSource === "new"
+                              ? 0.5
+                              : 1,
+                          outline:
+                            draggedIndex === index && dragSource === "new"
+                              ? "2px dashed hsl(var(--muted-foreground))"
+                              : "none",
                         }}
                       >
                         <img
@@ -1412,7 +1437,12 @@ const ProductForm = ({ isEdit: isEditMode }) => {
         </Card>
 
         <div className="flex justify-center">
-          <Button type="submit" size="lg" disabled={submitting} className="min-w-[200px]">
+          <Button
+            type="submit"
+            size="lg"
+            disabled={submitting}
+            className="min-w-[200px]"
+          >
             {submitting ? (
               <>
                 <Loader2 className="size-4 mr-2 animate-spin" />

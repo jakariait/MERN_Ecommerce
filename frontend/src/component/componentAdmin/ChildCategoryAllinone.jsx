@@ -19,10 +19,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  Card,
-  CardContent,
-} from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -31,7 +28,6 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 import {
   Plus,
@@ -41,8 +37,8 @@ import {
   Loader2,
   ChevronLeft,
   ChevronRight,
-  FolderTree,
 } from "lucide-react";
+import { SectionHeader } from "@/component/componentAdmin/SectionHeader.jsx";
 
 const ChildCategoryAllinone = () => {
   const apiUrl = import.meta.env.VITE_API_URL;
@@ -239,16 +235,10 @@ const ChildCategoryAllinone = () => {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">
-          Child Category Management
-        </h1>
-        <p className="text-sm text-muted-foreground mt-1">
-          {childCategories.length} total child categories
-        </p>
-      </div>
-
-      <Separator />
+      <SectionHeader
+        title={"Child Category Management"}
+        description={`${childCategories.length} total child categories`}
+      />
 
       <div className="flex items-center justify-between gap-4">
         <div className="relative flex-1 max-w-sm">
@@ -358,7 +348,9 @@ const ChildCategoryAllinone = () => {
               {filteredChildCategories.length > rowsPerPage && (
                 <div className="flex items-center justify-between border-t border-muted-foreground/10 px-4 py-3">
                   <div className="flex items-center gap-2">
-                    <p className="text-sm text-muted-foreground">Rows per page:</p>
+                    <p className="text-sm text-muted-foreground">
+                      Rows per page:
+                    </p>
                     <Select
                       value={String(rowsPerPage)}
                       onValueChange={(value) => {
@@ -512,10 +504,7 @@ const ChildCategoryAllinone = () => {
             )}
           </div>
           <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setDialogOpen(false)}
-            >
+            <Button variant="outline" onClick={() => setDialogOpen(false)}>
               Cancel
             </Button>
             <Button onClick={handleSave} disabled={isSubmitting}>

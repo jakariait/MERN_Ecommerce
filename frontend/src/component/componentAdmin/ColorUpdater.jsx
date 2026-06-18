@@ -2,17 +2,12 @@ import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardContent,
-} from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { toast } from "sonner";
 import useColorStore from "../../store/ColorStore.js";
 import useAuthAdminStore from "../../store/AuthAdminStore.js";
 import { Loader2, RotateCcw } from "lucide-react";
+import { SectionHeader } from "#component/componentAdmin/SectionHeader.jsx";
 
 const DEFAULT_COLORS = {
   primaryColor: "#00395d",
@@ -23,14 +18,27 @@ const DEFAULT_COLORS = {
 
 const COLOR_FIELDS = [
   { label: "Primary Color", name: "primaryColor", desc: "Main brand color" },
-  { label: "Secondary Color", name: "secondaryColor", desc: "Secondary brand color" },
-  { label: "Accent Color", name: "accentColor", desc: "Text on dark backgrounds" },
-  { label: "Tertiary Color", name: "tertiaryColor", desc: "Highlight / accent" },
+  {
+    label: "Secondary Color",
+    name: "secondaryColor",
+    desc: "Secondary brand color",
+  },
+  {
+    label: "Accent Color",
+    name: "accentColor",
+    desc: "Text on dark backgrounds",
+  },
+  {
+    label: "Tertiary Color",
+    name: "tertiaryColor",
+    desc: "Highlight / accent",
+  },
 ];
 
 const ColorUpdater = () => {
   const { token } = useAuthAdminStore();
-  const { colors, isLoading, error, fetchColors, updateColors } = useColorStore();
+  const { colors, isLoading, error, fetchColors, updateColors } =
+    useColorStore();
 
   const [localColors, setLocalColors] = useState({ ...DEFAULT_COLORS });
   const [saving, setSaving] = useState(false);
@@ -66,16 +74,10 @@ const ColorUpdater = () => {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">
-          Website Theme Color
-        </h1>
-        <p className="text-sm text-muted-foreground mt-1">
-          Customize your brand colors across the site.
-        </p>
-      </div>
-
-      <Separator />
+      <SectionHeader
+        title={"Website Theme Color"}
+        description={"Customize your brand colors across the site."}
+      />
 
       <Card>
         <CardHeader>

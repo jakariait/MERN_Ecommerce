@@ -16,30 +16,90 @@ import useAuthAdminStore from "../../store/AuthAdminStore.js";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardContent,
-} from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
+import { SectionHeader } from "#component/componentAdmin/SectionHeader.jsx";
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
 const SOCIAL_PLATFORMS = [
-  { key: "facebook", icon: <FaFacebook className="size-5 shrink-0" style={{ color: "#1877F2" }} />, label: "Facebook" },
-  { key: "twitter", icon: <FaTwitter className="size-5 shrink-0" style={{ color: "#1DA1F2" }} />, label: "Twitter" },
-  { key: "instagram", icon: <FaInstagram className="size-5 shrink-0" style={{ color: "#E1306C" }} />, label: "Instagram" },
-  { key: "linkedin", icon: <FaLinkedin className="size-5 shrink-0" style={{ color: "#0077B5" }} />, label: "LinkedIn" },
-  { key: "messenger", icon: <FaFacebookMessenger className="size-5 shrink-0" style={{ color: "#00B2FF" }} />, label: "Messenger" },
-  { key: "whatsapp", icon: <FaWhatsapp className="size-5 shrink-0" style={{ color: "#25D366" }} />, label: "WhatsApp" },
-  { key: "telegram", icon: <FaTelegram className="size-5 shrink-0" style={{ color: "#0088CC" }} />, label: "Telegram" },
-  { key: "youtube", icon: <FaYoutube className="size-5 shrink-0" style={{ color: "#FF0000" }} />, label: "YouTube" },
-  { key: "tiktok", icon: <FaTiktok className="size-5 shrink-0" />, label: "TikTok" },
-  { key: "pinterest", icon: <FaPinterest className="size-5 shrink-0" style={{ color: "#E60023" }} />, label: "Pinterest" },
-  { key: "viber", icon: <FaViber className="size-5 shrink-0" style={{ color: "#7360F2" }} />, label: "Viber" },
+  {
+    key: "facebook",
+    icon: (
+      <FaFacebook className="size-5 shrink-0" style={{ color: "#1877F2" }} />
+    ),
+    label: "Facebook",
+  },
+  {
+    key: "twitter",
+    icon: (
+      <FaTwitter className="size-5 shrink-0" style={{ color: "#1DA1F2" }} />
+    ),
+    label: "Twitter",
+  },
+  {
+    key: "instagram",
+    icon: (
+      <FaInstagram className="size-5 shrink-0" style={{ color: "#E1306C" }} />
+    ),
+    label: "Instagram",
+  },
+  {
+    key: "linkedin",
+    icon: (
+      <FaLinkedin className="size-5 shrink-0" style={{ color: "#0077B5" }} />
+    ),
+    label: "LinkedIn",
+  },
+  {
+    key: "messenger",
+    icon: (
+      <FaFacebookMessenger
+        className="size-5 shrink-0"
+        style={{ color: "#00B2FF" }}
+      />
+    ),
+    label: "Messenger",
+  },
+  {
+    key: "whatsapp",
+    icon: (
+      <FaWhatsapp className="size-5 shrink-0" style={{ color: "#25D366" }} />
+    ),
+    label: "WhatsApp",
+  },
+  {
+    key: "telegram",
+    icon: (
+      <FaTelegram className="size-5 shrink-0" style={{ color: "#0088CC" }} />
+    ),
+    label: "Telegram",
+  },
+  {
+    key: "youtube",
+    icon: (
+      <FaYoutube className="size-5 shrink-0" style={{ color: "#FF0000" }} />
+    ),
+    label: "YouTube",
+  },
+  {
+    key: "tiktok",
+    icon: <FaTiktok className="size-5 shrink-0" />,
+    label: "TikTok",
+  },
+  {
+    key: "pinterest",
+    icon: (
+      <FaPinterest className="size-5 shrink-0" style={{ color: "#E60023" }} />
+    ),
+    label: "Pinterest",
+  },
+  {
+    key: "viber",
+    icon: <FaViber className="size-5 shrink-0" style={{ color: "#7360F2" }} />,
+    label: "Viber",
+  },
 ];
 
 const DEFAULT_LINKS = Object.fromEntries(
@@ -101,16 +161,10 @@ const SocialMediaLinks = () => {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">
-          Social Media Links
-        </h1>
-        <p className="text-sm text-muted-foreground mt-1">
-          Manage your social media presence links.
-        </p>
-      </div>
-
-      <Separator />
+      <SectionHeader
+        title={"Social Media Links"}
+        description={" Manage your social media presence links."}
+      />
 
       <form onSubmit={handleSubmit}>
         <Card>

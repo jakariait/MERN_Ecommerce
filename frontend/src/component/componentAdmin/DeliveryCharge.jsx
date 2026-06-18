@@ -12,12 +12,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardContent,
-} from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -26,9 +21,9 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
-import { Pencil, Trash2, Loader2, Banknote } from "lucide-react";
+import { Pencil, Trash2, Loader2 } from "lucide-react";
+import { SectionHeader } from "@/component/componentAdmin/SectionHeader.jsx";
 
 const DeliveryCharge = () => {
   const apiUrl = import.meta.env.VITE_API_URL;
@@ -100,10 +95,9 @@ const DeliveryCharge = () => {
 
   const handleDeleteConfirm = async () => {
     try {
-      await axios.delete(
-        `${apiUrl}/deleteShipping/${currentMethod._id}`,
-        { headers: { Authorization: `Bearer ${token}` } },
-      );
+      await axios.delete(`${apiUrl}/deleteShipping/${currentMethod._id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       fetchShippingMethods();
       setDeleteDialogOpen(false);
       toast.success("Delivery method deleted!");
@@ -122,16 +116,10 @@ const DeliveryCharge = () => {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">
-          Delivery Charge List
-        </h1>
-        <p className="text-sm text-muted-foreground mt-1">
-          {shippingMethods.length} shipping methods
-        </p>
-      </div>
-
-      <Separator />
+      <SectionHeader
+        title={"Delivery Charge List"}
+        description={`${shippingMethods.length} shipping methods`}
+      />
 
       <Card>
         <CardContent className="p-0">
@@ -156,9 +144,7 @@ const DeliveryCharge = () => {
               ) : (
                 shippingMethods.map((method) => (
                   <TableRow key={method._id}>
-                    <TableCell className="font-medium">
-                      {method.name}
-                    </TableCell>
+                    <TableCell className="font-medium">{method.name}</TableCell>
                     <TableCell>Tk. {method.value}</TableCell>
                     <TableCell className="text-right">
                       <div className="flex items-center justify-end gap-1">
@@ -215,10 +201,7 @@ const DeliveryCharge = () => {
             </div>
           </div>
           <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setEditDialogOpen(false)}
-            >
+            <Button variant="outline" onClick={() => setEditDialogOpen(false)}>
               Cancel
             </Button>
             <Button onClick={handleEditSave} disabled={saving}>

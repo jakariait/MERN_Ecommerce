@@ -22,10 +22,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  Card,
-  CardContent,
-} from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -40,7 +37,6 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 import {
   Search,
@@ -48,11 +44,10 @@ import {
   Pencil,
   Copy,
   Trash2,
-  Loader2,
   ChevronLeft,
   ChevronRight,
-  Package,
 } from "lucide-react";
+import { SectionHeader } from "@/component/componentAdmin/SectionHeader.jsx";
 
 const ViewAllProducts = () => {
   const {
@@ -132,13 +127,14 @@ const ViewAllProducts = () => {
       toast.success("Product duplicated successfully!");
       fetchProductsAdmin(filters);
     } catch (err) {
-      toast.error(err.response?.data?.message || "Failed to duplicate product.");
+      toast.error(
+        err.response?.data?.message || "Failed to duplicate product.",
+      );
     }
   };
 
-  const startItem = products.length > 0
-    ? (currentPage - 1) * filters.limit + 1
-    : 0;
+  const startItem =
+    products.length > 0 ? (currentPage - 1) * filters.limit + 1 : 0;
   const endItem = Math.min(
     currentPage * filters.limit,
     (currentPage - 1) * filters.limit + filteredProducts.length,
@@ -180,14 +176,14 @@ const ViewAllProducts = () => {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">Product List</h1>
-      </div>
+      <SectionHeader title={"Product List"} />
 
       <div className="grid grid-cols-3 gap-4">
         <Card className="shadow-md border-0 border-l-4 border-l-[#00395d]">
           <CardContent className="p-4">
-            <p className="text-3xl font-bold text-[#00395d]">{products.length}</p>
+            <p className="text-3xl font-bold text-[#00395d]">
+              {products.length}
+            </p>
             <p className="text-sm text-muted-foreground">Total Products</p>
           </CardContent>
         </Card>
@@ -331,7 +327,11 @@ const ViewAllProducts = () => {
                       <div className="flex gap-1 flex-wrap">
                         {product.flags?.length ? (
                           product.flags.map((flag, i) => (
-                            <Badge key={i} variant="secondary" className="text-xs">
+                            <Badge
+                              key={i}
+                              variant="secondary"
+                              className="text-xs"
+                            >
                               {flag.name}
                             </Badge>
                           ))
@@ -353,11 +353,7 @@ const ViewAllProducts = () => {
                       <div className="flex items-center justify-center gap-1">
                         <Tooltip>
                           <TooltipTrigger asChild>
-                            <Button
-                              variant="ghost"
-                              size="icon-xs"
-                              asChild
-                            >
+                            <Button variant="ghost" size="icon-xs" asChild>
                               <a
                                 href={`/product/${product.slug}`}
                                 target="_blank"
@@ -375,11 +371,7 @@ const ViewAllProducts = () => {
                         >
                           <Tooltip>
                             <TooltipTrigger asChild>
-                              <Button
-                                variant="ghost"
-                                size="icon-xs"
-                                asChild
-                              >
+                              <Button variant="ghost" size="icon-xs" asChild>
                                 <Link
                                   to={`/admin/edit-product/${product.slug}`}
                                 >
@@ -461,7 +453,10 @@ const ViewAllProducts = () => {
               if (totalPages > 1) pages.push(totalPages);
               return pages.map((p, i) =>
                 p === "..." ? (
-                  <span key={`ellipsis-${i}`} className="px-1 text-muted-foreground">
+                  <span
+                    key={`ellipsis-${i}`}
+                    className="px-1 text-muted-foreground"
+                  >
                     ...
                   </span>
                 ) : (
@@ -489,10 +484,7 @@ const ViewAllProducts = () => {
         </div>
       )}
 
-      <Dialog
-        open={deleteDialogOpen}
-        onOpenChange={setDeleteDialogOpen}
-      >
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Confirm Delete</DialogTitle>

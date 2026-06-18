@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "sonner";
 import useAuthAdminStore from "../../store/AuthAdminStore.js";
+import { SectionHeader } from "#component/componentAdmin/SectionHeader.jsx";
 
 const PageEditor = ({ title, endpoint }) => {
   const [content, setContent] = useState("");
@@ -52,11 +53,17 @@ const PageEditor = ({ title, endpoint }) => {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold tracking-tight">Edit {title}</h1>
+      <SectionHeader title={`Edit ${title}`} />
 
       <Card className="shadow-md border-0">
-        <CardContent className="p-4">
-          <Suspense fallback={<div className="py-8 text-center text-muted-foreground">Loading Editor...</div>}>
+        <CardContent>
+          <Suspense
+            fallback={
+              <div className="py-8 text-center text-muted-foreground">
+                Loading Editor...
+              </div>
+            }
+          >
             <Editor
               value={content}
               onTextChange={(e) => setContent(e.htmlValue)}
@@ -67,7 +74,7 @@ const PageEditor = ({ title, endpoint }) => {
         </CardContent>
       </Card>
 
-      <div className="flex justify-center">
+      <div className="flex justify-center pb-4">
         <Button onClick={handleSave} disabled={loading} className="w-96">
           {loading ? "Saving..." : "Save"}
         </Button>

@@ -21,9 +21,17 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { Edit, Trash2, ChevronLeft, ChevronRight, Plus, Loader2 } from "lucide-react";
+import {
+  Edit,
+  Trash2,
+  ChevronLeft,
+  ChevronRight,
+  Plus,
+  Loader2,
+} from "lucide-react";
 import { useNavigate, Link } from "react-router-dom";
 import AuthAdminStore from "../../store/AuthAdminStore.js";
+import { SectionHeader } from "#component/componentAdmin/SectionHeader.jsx";
 
 const BlogList = () => {
   const navigate = useNavigate();
@@ -81,23 +89,22 @@ const BlogList = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">Blog List</h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            {loading ? "..." : `${blogs.length} blogs`}
-          </p>
-        </div>
-        <Link to="/admin/create-blog">
-          <Button>
-            <Plus className="size-4 mr-2" />
-            Create Blog
-          </Button>
-        </Link>
-      </div>
+      <SectionHeader
+        title={"Blog List"}
+        description={loading ? "..." : `${blogs.length} blogs`}
+      />
 
       <Card className="shadow-md border-0">
         <CardContent className="p-0">
+          <div className="flex items-center justify-between px-4 py-3 border-b border-muted-foreground/10">
+            <h3 className="text-lg font-semibold">All Blogs</h3>
+            <Link to="/admin/create-blog">
+              <Button size="sm">
+                <Plus className="size-4 mr-1.5" />
+                Create Blog
+              </Button>
+            </Link>
+          </div>
           {loading ? (
             <div className="flex justify-center py-12">
               <Loader2 className="size-6 animate-spin text-muted-foreground" />
@@ -114,7 +121,9 @@ const BlogList = () => {
                     <TableHead className="w-[50px]">#</TableHead>
                     <TableHead>Title</TableHead>
                     <TableHead className="w-[120px]">Author</TableHead>
-                    <TableHead className="w-[100px] text-right">Actions</TableHead>
+                    <TableHead className="w-[100px] text-right">
+                      Actions
+                    </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -191,7 +200,10 @@ const BlogList = () => {
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setDeleteDialogOpen(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setDeleteDialogOpen(false)}
+            >
               Cancel
             </Button>
             <Button variant="destructive" onClick={handleConfirmDelete}>

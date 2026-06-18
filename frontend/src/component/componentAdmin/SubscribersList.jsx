@@ -23,6 +23,7 @@ import {
 import { toast } from "sonner";
 import { Search, Trash2, Download } from "lucide-react";
 import { CSVLink } from "react-csv";
+import { SectionHeader } from "#component/componentAdmin/SectionHeader.jsx";
 
 export default function SubscribersList() {
   const { subscribers, fetchSubscribers, deleteSubscriber, isLoading, error } =
@@ -65,12 +66,10 @@ export default function SubscribersList() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">Subscribed Users List</h1>
-        <p className="text-sm text-muted-foreground mt-1">
-          {subscribers.length} total subscribers
-        </p>
-      </div>
+      <SectionHeader
+        title={"Subscribed Users List"}
+        description={`${subscribers.length} total subscribers`}
+      />
 
       <div className="flex items-center justify-between gap-4">
         <div className="relative flex-1 max-w-sm">
@@ -121,7 +120,10 @@ export default function SubscribersList() {
               <TableBody>
                 {filteredSubscribers.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={4} className="text-center text-muted-foreground py-8">
+                    <TableCell
+                      colSpan={4}
+                      className="text-center text-muted-foreground py-8"
+                    >
                       No subscribers found.
                     </TableCell>
                   </TableRow>
@@ -177,7 +179,10 @@ export default function SubscribersList() {
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setDeleteDialogOpen(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setDeleteDialogOpen(false)}
+            >
               Cancel
             </Button>
             <Button variant="destructive" onClick={handleDelete}>

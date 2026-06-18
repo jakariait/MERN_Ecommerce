@@ -5,12 +5,15 @@ import RequirePermission from "../component/componentAdmin/RequirePermission.jsx
 
 const AdminListPage = () => {
   return (
-    <LayoutAdmin breadcrumbData={{pageDetails: "SYSTEM USERS", title: "View All System Users"}}>
+    <LayoutAdmin
+      breadcrumbData={{
+        pageDetails: "SYSTEM USERS",
+        title: "View All System Users",
+      }}
+    >
       <RequirePermission permission="admin-users">
         <AdminList />
-      </RequirePermission >
-
-
+      </RequirePermission>
     </LayoutAdmin>
   );
 };

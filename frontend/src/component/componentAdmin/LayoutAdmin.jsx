@@ -25,7 +25,7 @@ const LayoutAdmin = ({ children, breadcrumbData }) => {
           />
         )}
 
-        <main className="flex-1 p-3 lg:p-6">
+        <main className="flex-1 p-2 lg:p-2">
           <TooltipProvider>{children}</TooltipProvider>
         </main>
 

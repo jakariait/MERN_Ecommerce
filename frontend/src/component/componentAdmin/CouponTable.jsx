@@ -20,12 +20,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardContent,
-} from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -34,9 +29,9 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
-import { Plus, Pencil, Trash2, Loader2, Tag } from "lucide-react";
+import { Plus, Pencil, Trash2, Loader2 } from "lucide-react";
+import { SectionHeader } from "#component/componentAdmin/SectionHeader.jsx";
 
 const apiURL = import.meta.env.VITE_API_URL;
 
@@ -107,7 +102,9 @@ const CouponTable = () => {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      toast.success(isEdit ? "Coupon updated successfully" : "Coupon created successfully");
+      toast.success(
+        isEdit ? "Coupon updated successfully" : "Coupon created successfully",
+      );
       setFormOpen(false);
       fetchCoupons();
     } catch {
@@ -148,16 +145,10 @@ const CouponTable = () => {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">
-          Coupon Management
-        </h1>
-        <p className="text-sm text-muted-foreground mt-1">
-          {coupons.length} coupons
-        </p>
-      </div>
-
-      <Separator />
+      <SectionHeader
+        title={"Coupon Management"}
+        description={`${coupons.length} coupons`}
+      />
 
       <div className="flex justify-end">
         <Button onClick={handleCreate}>
@@ -198,7 +189,8 @@ const CouponTable = () => {
                       {coupon.code}
                     </TableCell>
                     <TableCell className="text-center">
-                      {coupon.type.charAt(0).toUpperCase() + coupon.type.slice(1)}
+                      {coupon.type.charAt(0).toUpperCase() +
+                        coupon.type.slice(1)}
                     </TableCell>
                     <TableCell className="text-center">
                       {coupon.type === "percentage"
@@ -302,7 +294,9 @@ const CouponTable = () => {
                 onChange={(e) =>
                   setFormData({ ...formData, value: e.target.value })
                 }
-                placeholder={formData.type === "percentage" ? "e.g. 20" : "e.g. 500"}
+                placeholder={
+                  formData.type === "percentage" ? "e.g. 20" : "e.g. 500"
+                }
                 required
               />
             </div>

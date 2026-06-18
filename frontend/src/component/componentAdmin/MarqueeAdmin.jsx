@@ -5,15 +5,11 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardContent,
-} from "@/components/ui/card";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 import { Plus, X, Loader2, MessagesSquare } from "lucide-react";
+import { SectionHeader } from "@/component/componentAdmin/SectionHeader.jsx";
 
 const MarqueeAdmin = () => {
   const { token } = useAuthAdminStore();
@@ -77,16 +73,10 @@ const MarqueeAdmin = () => {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">
-          Marquee Messages
-        </h1>
-        <p className="text-sm text-muted-foreground mt-1">
-          Manage scrolling announcement messages.
-        </p>
-      </div>
-
-      <Separator />
+      <SectionHeader
+        title={"Marquee Messages"}
+        description={"Manage scrolling announcement messages."}
+      />
 
       <form onSubmit={handleSubmit}>
         <Card>
