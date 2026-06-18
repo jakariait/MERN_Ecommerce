@@ -1,5 +1,5 @@
 import LayoutAdmin from "../component/componentAdmin/LayoutAdmin.jsx";
-import Breadcrumb from "../component/componentAdmin/Breadcrumb.jsx";
+
 import AllOrders from "../component/componentAdmin/AllOrders.jsx";
 import OrderStats from "../component/componentAdmin/OrderStats.jsx";
 import RequirePermission from "../component/componentAdmin/RequirePermission.jsx";
@@ -7,8 +7,7 @@ import AdminNewOrderCreate from "../component/componentAdmin/AdminNewOrderCreate
 
 const AllOrdersPage = () => {
   return (
-    <LayoutAdmin>
-      <Breadcrumb pageDetails="ORDERS" title="View All Orders" />
+    <LayoutAdmin breadcrumbData={{pageDetails: "ORDERS", title: "View All Orders"}}>
       {/* Order status totals */}
       <RequirePermission permission="view_orders">
 

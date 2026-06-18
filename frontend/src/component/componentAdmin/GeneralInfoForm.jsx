@@ -5,15 +5,11 @@ import useGeneralInfoStore from "../../store/GeneralInfoStore.js";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardContent,
-} from "@/components/ui/card";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 import { Plus, Trash2, ImagePlus } from "lucide-react";
+import { SectionHeader } from "@/component/componentAdmin/SectionHeader.jsx";
 
 export default function GeneralInfoForm() {
   const { token } = useAuthAdminStore();
@@ -233,15 +229,12 @@ export default function GeneralInfoForm() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">
-          General Information
-        </h1>
-        <p className="text-sm text-muted-foreground mt-1">
-          Manage your company details, logos, and contact information.
-        </p>
-      </div>
-
+      <SectionHeader
+        title={"General Information"}
+        description={
+          "Manage your company details, logos, and contact information."
+        }
+      />
       <Separator />
 
       <form onSubmit={handleSubmit} className="space-y-6">

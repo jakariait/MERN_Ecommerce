@@ -1,14 +1,12 @@
 import React from "react";
 import LayoutAdmin from "../component/componentAdmin/LayoutAdmin.jsx";
-import Breadcrumb from "../component/componentAdmin/Breadcrumb.jsx";
 import MarqueeAdmin from "../component/componentAdmin/MarqueeAdmin.jsx";
 import RequirePermission from "../component/componentAdmin/RequirePermission.jsx";
 
 const GeneralInfoPage = ({ pageDetails, title }) => {
   return (
-    <LayoutAdmin>
+    <LayoutAdmin breadcrumbData={{pageDetails: "WEBSITE CONFIG", title: "Scroll Text"}}>
       <div>
-        <Breadcrumb title={"Scroll Text"} pageDetails={"WEBSITE CONFIG"} />
         {/* Form Section */}
         <RequirePermission permission="scroll_text">
           <MarqueeAdmin />

@@ -1,6 +1,5 @@
 import React, {useEffect} from "react";
 import LayoutAdmin from "../component/componentAdmin/LayoutAdmin.jsx";
-import Breadcrumb from "../component/componentAdmin/Breadcrumb.jsx";
 import OrdersPieChart from "../component/componentAdmin/OrdersPieChart.jsx";
 import DailyOrdersChart from "../component/componentAdmin/DailyOrdersChart.jsx";
 import MostSoldProductsChart from "../component/componentAdmin/MostSoldProductsChart.jsx";
@@ -41,9 +40,8 @@ const DashboardPage = ({ pageDetails, title }) => {
 
 
   return (
-    <LayoutAdmin>
+    <LayoutAdmin breadcrumbData={{pageDetails: "WEBSITE CONFIG", title: "Dashboard"}}>
       <div>
-        <Breadcrumb title={"Dashboard"} pageDetails={"WEBSITE CONFIG"} />
 
         <RequirePermission permission="dashboard">
           <div className={"flex flex-col gap-8"}>

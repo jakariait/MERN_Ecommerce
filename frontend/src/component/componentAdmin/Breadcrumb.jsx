@@ -57,12 +57,12 @@ const Breadcrumb = ({ pageDetails, title }) => {
 
   return (
     <>
-      <div className="bg-white shadow-sm border-b border-muted-foreground/10 px-4 lg:px-6 py-3 flex items-center justify-between gap-4">
+      <div className="sticky top-0 z-20 bg-white shadow-sm border-b border-muted-foreground/10 flex items-center justify-between gap-4 px-4 lg:px-6 py-3">
         <div className="flex items-center gap-3 min-w-0">
           <button
             ref={hamburgerRef}
             onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="lg:hidden p-1.5 rounded-md hover:bg-muted transition-colors"
+            className="lg:hidden p-1.5 -ml-1 rounded-md hover:bg-muted transition-colors"
           >
             <Menu className="size-5" />
           </button>
@@ -136,7 +136,6 @@ const Breadcrumb = ({ pageDetails, title }) => {
         </div>
       </div>
 
-      {/* Mobile sidebar overlay */}
       <div
         className={`fixed inset-0 z-50 lg:hidden transition-all duration-300 ${
           isMenuOpen

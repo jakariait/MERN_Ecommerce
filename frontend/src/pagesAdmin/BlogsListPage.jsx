@@ -1,14 +1,12 @@
 import React from 'react';
 import LayoutAdmin from "../component/componentAdmin/LayoutAdmin.jsx";
-import Breadcrumb from "../component/componentAdmin/Breadcrumb.jsx";
 import BlogList from "../component/componentAdmin/BlogList.jsx";
 import RequirePermission from "../component/componentAdmin/RequirePermission.jsx";
 
 const BlogsListPage = () => {
   return (
-    <LayoutAdmin>
+    <LayoutAdmin breadcrumbData={{pageDetails: "BLOGS", title: "Create a Blog"}}>
       <div>
-        <Breadcrumb title={"Create a Blog"} pageDetails={"BLOGS"} />
         <RequirePermission permission="blogs">
           <BlogList/>
         </RequirePermission>

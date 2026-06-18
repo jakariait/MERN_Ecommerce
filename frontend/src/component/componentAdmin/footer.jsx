@@ -14,7 +14,7 @@ const Footer = () => {
   const currentYear = new Date().getFullYear();
 
   return (
-    <div className="shadow rounded-lg mt-6 p-4">
+    <div className="shadow rounded-lg p-3">
       <div className="flex justify-between items-center">
         <div>
           {currentYear} © {GeneralInfoListLoading || !GeneralInfoList ? "Loading..." : GeneralInfoList?.CompanyName}

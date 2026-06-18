@@ -1,5 +1,6 @@
 import React from "react";
 import SidebarMenu from "./SidebarMenu.jsx";
+import Breadcrumb from "./Breadcrumb.jsx";
 import Footer from "./footer.jsx";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -17,13 +18,18 @@ const LayoutAdmin = ({ children, breadcrumbData }) => {
       </div>
 
       <div className="lg:ml-65 flex flex-col min-h-screen">
-        <main className="flex-1">
-          <TooltipProvider>
-            <div className="p-3 lg:p-6">{children}</div>
-          </TooltipProvider>
+        {breadcrumbData && (
+          <Breadcrumb
+            pageDetails={breadcrumbData.pageDetails}
+            title={breadcrumbData.title}
+          />
+        )}
+
+        <main className="flex-1 p-3 lg:p-6">
+          <TooltipProvider>{children}</TooltipProvider>
         </main>
 
-        <footer className="border-t border-muted-foreground/10 bg-white">
+        <footer className="primaryBgColor accentTextColor">
           <Footer />
         </footer>
       </div>
