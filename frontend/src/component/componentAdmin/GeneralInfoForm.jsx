@@ -6,7 +6,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 import { Plus, Trash2, ImagePlus } from "lucide-react";
 import { SectionHeader } from "@/component/componentAdmin/SectionHeader.jsx";
@@ -235,7 +234,6 @@ export default function GeneralInfoForm() {
           "Manage your company details, logos, and contact information."
         }
       />
-      <Separator />
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <Card>
