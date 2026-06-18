@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback, useMemo } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import useProductStore from "../../store/useProductStore.js";
 import ImageComponent from "../componentGeneral/ImageComponent.jsx";
 import { Link } from "react-router-dom";
@@ -53,6 +53,9 @@ const ViewAllProducts = () => {
   const {
     products,
     totalPages,
+    totalProductsAdmin,
+    activeCount,
+    inactiveCount,
     currentPage,
     loading,
     error,
@@ -71,15 +74,6 @@ const ViewAllProducts = () => {
 
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedProductId, setSelectedProductId] = useState(null);
-
-  const activeCount = useMemo(
-    () => products.filter((p) => p.isActive).length,
-    [products],
-  );
-  const inactiveCount = useMemo(
-    () => products.filter((p) => !p.isActive).length,
-    [products],
-  );
 
   useEffect(() => {
     fetchProductsAdmin(filters);
@@ -176,15 +170,15 @@ const ViewAllProducts = () => {
 
   return (
     <div className="space-y-6">
-      <SectionHeader title={"Product List"} />
+      <SectionHeader title={"All Products"} />
 
       <div className="grid grid-cols-3 gap-4">
         <Card className="shadow-md border-0 border-l-4 border-l-[#00395d]">
           <CardContent className="p-4">
             <p className="text-3xl font-bold text-[#00395d]">
-              {products.length}
+              {totalProductsAdmin}
             </p>
-            <p className="text-sm text-muted-foreground">Total Products</p>
+            <p className="text-sm text-muted-foreground">All Products</p>
           </CardContent>
         </Card>
         <Card className="shadow-md border-0 border-l-4 border-l-green-500">
@@ -430,7 +424,7 @@ const ViewAllProducts = () => {
       {totalPages > 1 && (
         <div className="flex items-center justify-between bg-muted/30 rounded-lg p-3">
           <p className="text-sm text-muted-foreground">
-            Showing {startItem} to {endItem} of {products.length} products
+            Showing {startItem} to {endItem} of {totalProductsAdmin} products
           </p>
           <div className="flex items-center gap-1">
             <Button

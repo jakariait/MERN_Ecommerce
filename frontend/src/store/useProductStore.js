@@ -8,6 +8,8 @@ const useProductStore = create((set) => ({
   products: [],
   totalProducts: 0,
   totalProductsAdmin: 0,
+  activeCount: 0,
+  inactiveCount: 0,
   totalPages: 0,
   currentPage: 1,
   product: null,
@@ -50,6 +52,8 @@ const useProductStore = create((set) => ({
       set({
         products: response.data.products || [],
         totalProductsAdmin: response.data.totalProducts || 0,
+        activeCount: response.data.activeCount || 0,
+        inactiveCount: response.data.inactiveCount || 0,
         totalPages: response.data.totalPages || 0,
         currentPage: response.data.currentPage || 1,
         loading: false,

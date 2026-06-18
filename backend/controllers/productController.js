@@ -1,6 +1,7 @@
 const productService = require("../services/productService");
 const mongoose = require("mongoose");
 const redisClient = require('../config/redisClient');
+const ProductModel = require("../models/ProductModel");
 
 // Create a product
 const createProduct = async (req, res) => {
@@ -287,10 +288,17 @@ const getAllProductsAdmin = async (req, res) => {
       // Don't pass isActive filter here, meaning it will return all products
     });
 
+    const [activeCount, inactiveCount] = await Promise.all([
+      ProductModel.countDocuments({ isActive: true }),
+      ProductModel.countDocuments({ isActive: false }),
+    ]);
+
     res.status(200).json({
       success: true,
       message: "All products fetched successfully for Admin Panel",
       ...productsData, // Contains products, totalPages, totalProducts, currentPage
+      activeCount,
+      inactiveCount,
     });
   } catch (error) {
     res.status(500).json({
