@@ -16,10 +16,10 @@ const RequirePermission = ({ permission, children, fallback, match = "all" }) =>
       ? requiredPermissions.some((perm) => userPermissions.includes(perm))
       : requiredPermissions.every((perm) => userPermissions.includes(perm)));
 
-  // ⛔ Don't show loading spinner if fallback === true
-  if (!hasPermission && (loading || !Array.isArray(userPermissions))) {
-    if (fallback === true) return null;
+  // Always show children when fallback === true (used by sidebar)
+  if (fallback === true) return <>{children}</>;
 
+  if (!hasPermission && (loading || !Array.isArray(userPermissions))) {
     return (
       <Box
         sx={{
@@ -38,7 +38,6 @@ const RequirePermission = ({ permission, children, fallback, match = "all" }) =>
     return <>{children}</>;
   }
 
-  if (fallback === true) return null;
   if (fallback) return <>{fallback}</>;
 
   return (

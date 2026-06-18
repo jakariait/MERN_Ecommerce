@@ -29,7 +29,7 @@ import Typography from "@mui/material/Typography";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import useProductStore from "../../store/useProductStore.js";
 import useOrderStore from "../../store/useOrderStore.js";
-import React, { useEffect } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import RequirePermission from "./RequirePermission.jsx";
 import { CircularProgress } from "@mui/material";
 
@@ -418,11 +418,16 @@ function MenuItem({ item, countValue }) {
   );
 }
 
-function MenuAccordion({ item, countValue }) {
+function MenuAccordion({ item, countValue, expanded, onChange }) {
   const Icon = item.icon;
 
   return (
-    <Accordion style={accordionStyles} sx={muiSx}>
+    <Accordion
+      style={accordionStyles}
+      sx={muiSx}
+      expanded={expanded}
+      onChange={onChange}
+    >
       <AccordionSummary
         expandIcon={<ExpandMoreIcon />}
         className="p-2 flex items-center"
@@ -478,6 +483,21 @@ export default function SidebarMenu() {
     cancelledCount,
   };
 
+  const [expandedSections, setExpandedSections] = useState(() => {
+    const saved = localStorage.getItem("sidebar-expanded");
+    return saved ? JSON.parse(saved) : [];
+  });
+
+  const handleAccordionChange = useCallback((label) => (event, isExpanded) => {
+    setExpandedSections((prev) => {
+      const next = isExpanded
+        ? [...prev, label]
+        : prev.filter((l) => l !== label);
+      localStorage.setItem("sidebar-expanded", JSON.stringify(next));
+      return next;
+    });
+  }, []);
+
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -485,16 +505,8 @@ export default function SidebarMenu() {
     navigate("/admin/login");
   };
 
-  // if (loading) {
-  //   return (
-  //     <div className="w-64 mt-100 flex justify-center items-center">
-  //       <CircularProgress />
-  //     </div>
-  //   );
-  // }
-
   return (
-    <div className="w-fit p-4 h-screen overflow-y-auto">
+    <div className="w-65 p-4 h-screen overflow-y-auto">
       <ul>
         {MENU_CONFIG.map((section, sectionIdx) => {
           const singleItem = section.items?.length === 1 && !section.label;
@@ -529,7 +541,12 @@ export default function SidebarMenu() {
                 fallback={true}
               >
                 <li className="space-x-2 px-2 rounded-md cursor-pointer">
-                  <MenuAccordion item={section} countValue={countValues} />
+                  <MenuAccordion
+                    item={section}
+                    countValue={countValues}
+                    expanded={expandedSections.includes(section.label)}
+                    onChange={handleAccordionChange(section.label)}
+                  />
                 </li>
               </RequirePermission>
             );
