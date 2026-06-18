@@ -1,5 +1,9 @@
 import React, { useState } from "react";
-import { TextField, Snackbar, Alert } from "@mui/material";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent } from "@/components/ui/card";
+import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import useAuthAdminStore from "../../store/AuthAdminStore.js";
@@ -8,7 +12,6 @@ import PermissionsCheckboxGroup from "../../component/componentAdmin/Permissions
 const AdminCreate = () => {
   const apiUrl = import.meta.env.VITE_API_URL;
   const { token } = useAuthAdminStore();
-
 
   const navigate = useNavigate();
 
@@ -20,12 +23,6 @@ const AdminCreate = () => {
   });
   const [selectedPermissions, setSelectedPermissions] = useState([]);
   const [loading, setLoading] = useState(false);
-
-  const [snackbar, setSnackbar] = useState({
-    open: false,
-    message: "",
-    severity: "success",
-  });
 
   const handleChange = (e) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -39,99 +36,80 @@ const AdminCreate = () => {
         { ...formData, permissions: selectedPermissions },
         { headers: { Authorization: `Bearer ${token}` } },
       );
-      setSnackbar({
-        open: true,
-        message: "Admin created successfully",
-        severity: "success",
-      });
-      // Delay navigation by 2 seconds
+      toast.success("Admin created successfully");
       setTimeout(() => {
         navigate("/admin/adminlist");
       }, 2000);
     } catch (error) {
-      setSnackbar({
-        open: true,
-        message: error.response?.data?.message || "Failed to create admin",
-        severity: "error",
-      });
+      toast.error(error.response?.data?.message || "Failed to create admin");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className={"p-4 shadow rounded-lg"}>
-      <h1 className="border-l-4 primaryBorderColor primaryTextColor mb-6 pl-2 text-lg font-semibold">
-        Create New Admin
-      </h1>
+    <div className="space-y-6">
+      <h1 className="text-2xl font-bold tracking-tight">Create New Admin</h1>
 
-      <div className="flex gap-4">
-        <TextField
-          label="Name"
-          name="name"
-          value={formData.name}
-          onChange={handleChange}
-          fullWidth
-          margin="normal"
-        />
-        <TextField
-          label="Email"
-          name="email"
-          value={formData.email}
-          onChange={handleChange}
-          fullWidth
-          margin="normal"
-        />
-      </div>
-      <div className={"flex gap-4"}>
-        <TextField
-          label="Mobile No"
-          name="mobileNo"
-          value={formData.mobileNo}
-          onChange={handleChange}
-          fullWidth
-          margin="normal"
-        />
-        <TextField
-          label="Password"
-          name="password"
-          type="password"
-          value={formData.password}
-          onChange={handleChange}
-          fullWidth
-          margin="normal"
-        />
-      </div>
+      <Card className="shadow-md border-0">
+        <CardContent className="p-6 space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="name">Name</Label>
+              <Input
+                id="name"
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+                placeholder="Enter name"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                name="email"
+                type="email"
+                value={formData.email}
+                onChange={handleChange}
+                placeholder="Enter email"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="mobileNo">Mobile No</Label>
+              <Input
+                id="mobileNo"
+                name="mobileNo"
+                value={formData.mobileNo}
+                onChange={handleChange}
+                placeholder="Enter mobile number"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="password">Password</Label>
+              <Input
+                id="password"
+                name="password"
+                type="password"
+                value={formData.password}
+                onChange={handleChange}
+                placeholder="Enter password"
+              />
+            </div>
+          </div>
 
-      <PermissionsCheckboxGroup
-        selectedPermissions={selectedPermissions}
-        setSelectedPermissions={setSelectedPermissions}
-      />
-      <div className={"flex justify-center mt-4"}>
-        <button
-          className={
-            "primaryBgColor accentTextColor px-4 py-2 rounded-md cursor-pointer "
-          }
-          onClick={handleSubmit}
-          disabled={loading}
-        >
-          {loading ? "Creating..." : "Create Admin"}
-        </button>
-      </div>
+          <PermissionsCheckboxGroup
+            selectedPermissions={selectedPermissions}
+            setSelectedPermissions={setSelectedPermissions}
+          />
 
-      <Snackbar
-        anchorOrigin={{ vertical: "top", horizontal: "right" }} // 👈 this positions it
-        open={snackbar.open}
-        autoHideDuration={3000}
-        onClose={() => setSnackbar((prev) => ({ ...prev, open: false }))}
-      >
-        <Alert
-          severity={snackbar.severity}
-          onClose={() => setSnackbar((prev) => ({ ...prev, open: false }))}
-        >
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
+          <div className="flex justify-center pt-2">
+            <Button onClick={handleSubmit} disabled={loading}>
+              {loading ? "Creating..." : "Create Admin"}
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };

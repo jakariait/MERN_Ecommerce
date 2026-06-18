@@ -1,8 +1,12 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import Snackbar from "@mui/material/Snackbar";
-import Alert from "@mui/material/Alert";
 import useAuthAdminStore from "../../store/AuthAdminStore.js";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 const AdminPathaoConfig = () => {
   const [config, setConfig] = useState({
@@ -15,9 +19,7 @@ const AdminPathaoConfig = () => {
     isActive: false,
   });
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState("");
-  const [snackbarOpen, setSnackbarOpen] = useState(false);
-  const [severity, setSeverity] = useState("success");
+  const [fetching, setFetching] = useState(true);
 
   const { token } = useAuthAdminStore();
 
@@ -27,190 +29,142 @@ const AdminPathaoConfig = () => {
     const fetchConfig = async () => {
       try {
         const res = await axios.get(apiUrl, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
         });
         if (res.data.data) {
           setConfig(res.data.data);
         }
       } catch (error) {
         console.error("Failed to fetch Pathao config", error);
+      } finally {
+        setFetching(false);
       }
     };
     fetchConfig();
   }, [apiUrl, token]);
 
   const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setConfig((prev) => ({
-      ...prev,
-      [name]: type === "checkbox" ? checked : value,
-    }));
+    const { name, value } = e.target;
+    setConfig((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setMessage("");
     try {
-      const res = await axios.patch(apiUrl, config, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+      await axios.patch(apiUrl, config, {
+        headers: { Authorization: `Bearer ${token}` },
       });
-      if (res.data) {
-        setMessage("Pathao config updated successfully!");
-        setSeverity("success");
-        setSnackbarOpen(true);
-      }
+      toast.success("Pathao config updated successfully!");
     } catch (error) {
-      setMessage("Failed to update config.");
-      setSeverity("error");
-      setSnackbarOpen(true);
+      toast.error("Failed to update config.");
       console.error(error);
     }
     setLoading(false);
   };
 
-  const handleSnackbarClose = (event, reason) => {
-    if (reason === "clickaway") return;
-    setSnackbarOpen(false);
-  };
+  if (fetching) {
+    return (
+      <div className="flex justify-center py-12">
+        <Loader2 className="size-6 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
 
   return (
-    <div className="p-4 bg-white rounded-lg shadow">
-      <h1 className="border-l-4 primaryBorderColor primaryTextColor mb-6 pl-2 text-lg font-semibold">
-        Update Pathao Config
-      </h1>
-      <form onSubmit={handleSubmit} className="space-y-5">
-        <label className="block">
-          <span className="text-gray-700 font-semibold mb-1 block">
-            Base URL
-          </span>
-          <input
-            type="text"
-            name="baseUrl"
-            value={config.baseUrl}
-            onChange={handleChange}
-            className="w-full rounded-md border border-gray-300 px-4 py-2 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
-            placeholder="Pathao API Base URL"
-            required
-          />
-        </label>
+    <Card className="shadow-md border-0">
+      <CardHeader>
+        <CardTitle>Update Pathao Config</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="baseUrl">Base URL</Label>
+            <Input
+              id="baseUrl"
+              name="baseUrl"
+              value={config.baseUrl}
+              onChange={handleChange}
+              placeholder="Pathao API Base URL"
+              required
+            />
+          </div>
 
-        <label className="block">
-          <span className="text-gray-700 font-semibold mb-1 block">
-            Client ID
-          </span>
-          <input
-            type="text"
-            name="clientId"
-            value={config.clientId}
-            onChange={handleChange}
-            className="w-full rounded-md border border-gray-300 px-4 py-2 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
-            placeholder="Your Client ID"
-            required
-          />
-        </label>
+          <div className="space-y-2">
+            <Label htmlFor="clientId">Client ID</Label>
+            <Input
+              id="clientId"
+              name="clientId"
+              value={config.clientId}
+              onChange={handleChange}
+              placeholder="Your Client ID"
+              required
+            />
+          </div>
 
-        <label className="block">
-          <span className="text-gray-700 font-semibold mb-1 block">
-            Client Secret
-          </span>
-          <input
-            type="text"
-            name="clientSecret"
-            value={config.clientSecret}
-            onChange={handleChange}
-            className="w-full rounded-md border border-gray-300 px-4 py-2 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
-            placeholder="Your Client Secret"
-            required
-          />
-        </label>
+          <div className="space-y-2">
+            <Label htmlFor="clientSecret">Client Secret</Label>
+            <Input
+              id="clientSecret"
+              type="password"
+              name="clientSecret"
+              value={config.clientSecret}
+              onChange={handleChange}
+              placeholder="Your Client Secret"
+              required
+            />
+          </div>
 
-        <label className="block">
-          <span className="text-gray-700 font-semibold mb-1 block">
-            Username
-          </span>
-          <input
-            type="text"
-            name="username"
-            value={config.username}
-            onChange={handleChange}
-            className="w-full rounded-md border border-gray-300 px-4 py-2 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
-            placeholder="Your Username"
-            required
-          />
-        </label>
+          <div className="space-y-2">
+            <Label htmlFor="username">Username</Label>
+            <Input
+              id="username"
+              name="username"
+              value={config.username}
+              onChange={handleChange}
+              placeholder="Your Username"
+              required
+            />
+          </div>
 
-        <label className="block">
-          <span className="text-gray-700 font-semibold mb-1 block">
-            Password
-          </span>
-          <input
-            type="text"
-            name="password"
-            value={config.password}
-            onChange={handleChange}
-            className="w-full rounded-md border border-gray-300 px-4 py-2 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
-            placeholder="Your Password"
-            required
-          />
-        </label>
+          <div className="space-y-2">
+            <Label htmlFor="password">Password</Label>
+            <Input
+              id="password"
+              type="password"
+              name="password"
+              value={config.password}
+              onChange={handleChange}
+              placeholder="Your Password"
+              required
+            />
+          </div>
 
-        <label className="block">
-          <span className="text-gray-700 font-semibold mb-1 block">
-            Store ID
-          </span>
-          <input
-            type="text"
-            name="storeId"
-            value={config.storeId}
-            onChange={handleChange}
-            className="w-full rounded-md border border-gray-300 px-4 py-2 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
-            placeholder="Your Store ID"
-            required
-          />
-        </label>
+          <div className="space-y-2">
+            <Label htmlFor="storeId">Store ID</Label>
+            <Input
+              id="storeId"
+              name="storeId"
+              value={config.storeId}
+              onChange={handleChange}
+              placeholder="Your Store ID"
+              required
+            />
+          </div>
 
-        {/*<label className="flex items-center gap-3">*/}
-        {/*  <input*/}
-        {/*    type="checkbox"*/}
-        {/*    name="isActive"*/}
-        {/*    checked={config.isActive}*/}
-        {/*    onChange={handleChange}*/}
-        {/*    className="w-5 h-5 rounded border-gray-300 focus:ring-2 focus:ring-blue-500"*/}
-        {/*  />*/}
-        {/*  <span className="text-gray-700 font-medium">Active</span>*/}
-        {/*</label>*/}
-
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full px-4 py-2 primaryBgColor accentTextColor rounded-lg font-semibold cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed transition"
-        >
-          {loading ? "Saving..." : "Save Changes"}
-        </button>
-      </form>
-
-      {/* Snackbar for messages */}
-      <Snackbar
-        open={snackbarOpen}
-        autoHideDuration={4000}
-        onClose={handleSnackbarClose}
-        anchorOrigin={{ vertical: "top", horizontal: "right" }}
-      >
-        <Alert
-          onClose={handleSnackbarClose}
-          severity={severity}
-          sx={{ width: "100%" }}
-          variant="filled"
-        >
-          {message}
-        </Alert>
-      </Snackbar>
-    </div>
+          <Button type="submit" disabled={loading} className="w-full">
+            {loading ? (
+              <>
+                <Loader2 className="size-4 mr-2 animate-spin" />
+                Saving...
+              </>
+            ) : (
+              "Save Changes"
+            )}
+          </Button>
+        </form>
+      </CardContent>
+    </Card>
   );
 };
 

@@ -1,28 +1,27 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
   TableBody,
   TableCell,
-  TableContainer,
   TableHead,
+  TableHeader,
   TableRow,
-  Paper,
-  IconButton,
+} from "@/components/ui/table";
+import { Card, CardContent } from "@/components/ui/card";
+import {
   Dialog,
-  DialogActions,
   DialogContent,
-  DialogContentText,
+  DialogHeader,
   DialogTitle,
-  Snackbar,
-  Button,
-  CircularProgress,
-  Pagination,
-  Stack,
-} from "@mui/material";
-import MuiAlert from "@mui/material/Alert";
-import DeleteIcon from "@mui/icons-material/Delete";
-import EditIcon from "@mui/icons-material/Edit";
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { toast } from "sonner";
+import { Edit, Trash2, ChevronLeft, ChevronRight, Plus, Loader2 } from "lucide-react";
 import { useNavigate, Link } from "react-router-dom";
 import AuthAdminStore from "../../store/AuthAdminStore.js";
 
@@ -36,13 +35,8 @@ const BlogList = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(false);
 
-  const [dialogOpen, setDialogOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedBlogId, setSelectedBlogId] = useState(null);
-  const [snackbar, setSnackbar] = useState({
-    open: false,
-    message: "",
-    severity: "success",
-  });
 
   const fetchBlogs = async (page = 1) => {
     try {
@@ -55,11 +49,7 @@ const BlogList = () => {
       setTotalPages(res.data.totalPages || 1);
     } catch (error) {
       console.error("Failed to fetch blogs", error);
-      setSnackbar({
-        open: true,
-        message: "Failed to fetch blogs.",
-        severity: "error",
-      });
+      toast.error("Failed to fetch blogs.");
     } finally {
       setLoading(false);
     }
@@ -73,139 +63,143 @@ const BlogList = () => {
     navigate(`/admin/blogs/${id}`);
   };
 
-  const handleDeleteClick = (id) => {
-    setSelectedBlogId(id);
-    setDialogOpen(true);
-  };
-
   const handleConfirmDelete = async () => {
     try {
       await axios.delete(`${apiURL}/blog/${selectedBlogId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      setSnackbar({
-        open: true,
-        message: "Blog deleted successfully!",
-        severity: "success",
-      });
+      toast.success("Blog deleted successfully!");
       fetchBlogs(currentPage);
     } catch (error) {
       console.error("Delete error:", error);
-      setSnackbar({
-        open: true,
-        message: "Failed to delete blog.",
-        severity: "error",
-      });
+      toast.error("Failed to delete blog.");
     } finally {
-      setDialogOpen(false);
+      setDeleteDialogOpen(false);
       setSelectedBlogId(null);
     }
   };
 
-  const handlePageChange = (_, value) => {
-    setCurrentPage(value);
-  };
-
   return (
-    <div className="shadow rounded-lg p-10">
-      <div className="flex justify-center mb-4">
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight">Blog List</h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            {loading ? "..." : `${blogs.length} blogs`}
+          </p>
+        </div>
         <Link to="/admin/create-blog">
-          <Button variant="outlined">Create A Blog</Button>
+          <Button>
+            <Plus className="size-4 mr-2" />
+            Create Blog
+          </Button>
         </Link>
       </div>
 
-      <h1 className="border-l-4 mb-6 pl-2 text-lg font-semibold">Blog List</h1>
+      <Card className="shadow-md border-0">
+        <CardContent className="p-0">
+          {loading ? (
+            <div className="flex justify-center py-12">
+              <Loader2 className="size-6 animate-spin text-muted-foreground" />
+            </div>
+          ) : blogs.length === 0 ? (
+            <div className="text-center py-12 text-muted-foreground">
+              No blogs found.
+            </div>
+          ) : (
+            <>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-[50px]">#</TableHead>
+                    <TableHead>Title</TableHead>
+                    <TableHead className="w-[120px]">Author</TableHead>
+                    <TableHead className="w-[100px] text-right">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {blogs.map((blog, index) => (
+                    <TableRow key={blog._id}>
+                      <TableCell className="text-muted-foreground">
+                        {index + 1 + (currentPage - 1) * 10}
+                      </TableCell>
+                      <TableCell className="font-medium max-w-[400px] truncate">
+                        {blog.name}
+                      </TableCell>
+                      <TableCell>{blog.author}</TableCell>
+                      <TableCell className="text-right">
+                        <Button
+                          variant="ghost"
+                          size="icon-sm"
+                          onClick={() => handleEdit(blog._id)}
+                        >
+                          <Edit className="size-3.5" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon-sm"
+                          onClick={() => {
+                            setSelectedBlogId(blog._id);
+                            setDeleteDialogOpen(true);
+                          }}
+                          className="text-destructive hover:text-destructive"
+                        >
+                          <Trash2 className="size-3.5" />
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
 
-      {loading ? (
-        <div className="flex justify-center">
-          <CircularProgress />
-        </div>
-      ) : blogs.length === 0 ? (
-        <p className="text-center text-gray-500">No blogs found.</p>
-      ) : (
-        <TableContainer component={Paper}>
-          <Table sx={{ tableLayout: "fixed" }} aria-label="blogs table">
-            <TableHead>
-              <TableRow>
-                <TableCell sx={{ width: "5%" }}>#</TableCell>
-                <TableCell sx={{ width: "65%" }}>Title</TableCell>
-                <TableCell sx={{ width: "10%" }}>Author</TableCell>
-                <TableCell sx={{ width: "20%" }} align="right">
-                  Actions
-                </TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {blogs.map((blog, index) => (
-                <TableRow key={blog._id}>
-                  <TableCell>{index + 1 + (currentPage - 1) * 10}</TableCell>
-                  <TableCell>{blog.name}</TableCell>
-                  <TableCell>{blog.author}</TableCell>
-                  <TableCell align="right">
-                    <IconButton
-                      color="primary"
-                      onClick={() => handleEdit(blog._id)}
+              {totalPages > 1 && (
+                <div className="flex items-center justify-between border-t border-muted-foreground/10 px-4 py-3">
+                  <p className="text-sm text-muted-foreground">
+                    Page {currentPage} of {totalPages}
+                  </p>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      disabled={currentPage <= 1}
+                      onClick={() => setCurrentPage((p) => p - 1)}
                     >
-                      <EditIcon />
-                    </IconButton>
-                    <IconButton
-                      color="error"
-                      onClick={() => handleDeleteClick(blog._id)}
+                      <ChevronLeft className="size-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      disabled={currentPage >= totalPages}
+                      onClick={() => setCurrentPage((p) => p + 1)}
                     >
-                      <DeleteIcon />
-                    </IconButton>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      )}
+                      <ChevronRight className="size-4" />
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </>
+          )}
+        </CardContent>
+      </Card>
 
-      {/* Pagination */}
-      <Stack spacing={2} className="mt-4 items-center">
-        <Pagination
-          count={totalPages}
-          page={currentPage}
-          onChange={handlePageChange}
-          color="primary"
-        />
-      </Stack>
-
-      {/* Delete Confirmation Dialog */}
-      <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)}>
-        <DialogTitle>Confirm Delete</DialogTitle>
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <DialogContent>
-          <DialogContentText>
-            Are you sure you want to delete this blog?
-          </DialogContentText>
+          <DialogHeader>
+            <DialogTitle>Confirm Delete</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete this blog?
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDeleteDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={handleConfirmDelete}>
+              Delete
+            </Button>
+          </DialogFooter>
         </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setDialogOpen(false)} color="inherit">
-            Cancel
-          </Button>
-          <Button onClick={handleConfirmDelete} color="error">
-            Delete
-          </Button>
-        </DialogActions>
       </Dialog>
-
-      {/* Snackbar Notification */}
-      <Snackbar
-        open={snackbar.open}
-        autoHideDuration={3000}
-        onClose={() => setSnackbar((prev) => ({ ...prev, open: false }))}
-        anchorOrigin={{ vertical: "top", horizontal: "right" }}
-      >
-        <MuiAlert
-          elevation={6}
-          variant="filled"
-          severity={snackbar.severity}
-          sx={{ width: "100%" }}
-        >
-          {snackbar.message}
-        </MuiAlert>
-      </Snackbar>
     </div>
   );
 };

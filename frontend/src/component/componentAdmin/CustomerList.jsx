@@ -1,33 +1,47 @@
 import React, { useEffect, useState } from "react";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Badge } from "@/components/ui/badge";
 import {
-  Button,
-  Typography,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   Table,
   TableBody,
   TableCell,
-  TableContainer,
   TableHead,
+  TableHeader,
   TableRow,
-  TextField,
-  Paper,
+} from "@/components/ui/table";
+import { Card, CardContent } from "@/components/ui/card";
+import {
   Dialog,
-  DialogActions,
   DialogContent,
-  DialogContentText,
+  DialogHeader,
   DialogTitle,
-  Snackbar,
-  Alert,
-  Skeleton,
-} from "@mui/material";
-import { MdDeleteOutline } from "react-icons/md";
-import { BsArrowsCollapse } from "react-icons/bs";
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { toast } from "sonner";
+import {
+  Search,
+  Download,
+  Trash2,
+  ChevronLeft,
+  ChevronRight,
+  Loader2,
+  ArrowUpDown,
+} from "lucide-react";
 import axios from "axios";
 import useAuthAdminStore from "../../store/AuthAdminStore";
 import ImageComponent from "../componentGeneral/ImageComponent.jsx";
-
 import { saveAs } from "file-saver";
 import RequirePermission from "./RequirePermission.jsx";
-
 
 const CustomerList = () => {
   const { token } = useAuthAdminStore();
@@ -38,31 +52,20 @@ const CustomerList = () => {
   const [search, setSearch] = useState("");
   const [limit, setLimit] = useState(10);
   const [page, setPage] = useState(1);
-  const [openDialog, setOpenDialog] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedCustomerId, setSelectedCustomerId] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [snackbar, setSnackbar] = useState({
-    open: false,
-    message: "",
-    type: "success",
-  });
-  const [sortOrder, setSortOrder] = useState("desc"); // "asc" for ascending, "desc" for descending
+  const [sortOrder, setSortOrder] = useState("desc");
 
   const fetchCustomers = async () => {
     setLoading(true);
     try {
       const res = await axios.get(`${apiUrl}/getAllUsers`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { Authorization: `Bearer ${token}` },
       });
       setCustomers(res.data.users);
     } catch (err) {
-      setSnackbar({
-        open: true,
-        message: err.response?.data?.message || "Failed to fetch customers",
-        type: "error",
-      });
+      toast.error(err.response?.data?.message || "Failed to fetch customers");
     } finally {
       setLoading(false);
     }
@@ -73,14 +76,12 @@ const CustomerList = () => {
   }, []);
 
   useEffect(() => {
-    // Filter customers based on search input
     const filtered = customers.filter(
       (cus) =>
         cus.fullName?.toLowerCase().includes(search.toLowerCase()) ||
         cus.email?.toLowerCase().includes(search.toLowerCase()),
     );
 
-    // Sort customers based on createdAt and the selected sort order
     const sorted = filtered.sort((a, b) => {
       const dateA = new Date(a.createdAt);
       const dateB = new Date(b.createdAt);
@@ -90,37 +91,18 @@ const CustomerList = () => {
     setFilteredCustomers(sorted);
   }, [search, customers, sortOrder]);
 
-  const handleOpenDialog = (id) => {
-    setSelectedCustomerId(id);
-    setOpenDialog(true);
-  };
-
-  const handleCloseDialog = () => {
-    setOpenDialog(false);
-    setSelectedCustomerId(null);
-  };
-
   const handleDelete = async () => {
     try {
       await axios.delete(`${apiUrl}/deleteUser/${selectedCustomerId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { Authorization: `Bearer ${token}` },
       });
-      setSnackbar({
-        open: true,
-        message: "Customer deleted successfully",
-        type: "success",
-      });
+      toast.success("Customer deleted successfully");
       fetchCustomers();
     } catch (err) {
-      setSnackbar({
-        open: true,
-        message: err.response?.data?.message || "Failed to delete customer",
-        type: "error",
-      });
+      toast.error(err.response?.data?.message || "Failed to delete customer");
     } finally {
-      handleCloseDialog();
+      setDeleteDialogOpen(false);
+      setSelectedCustomerId(null);
     }
   };
 
@@ -136,16 +118,10 @@ const CustomerList = () => {
     ];
 
     const escapeCsv = (field) => {
-      if (field === null || field === undefined) {
-        return "";
-      }
+      if (field === null || field === undefined) return "";
       let str = String(field);
-      // Escape quotes by doubling them
       str = str.replace(/"/g, '""');
-      // If the field contains a comma, a quote, or a newline, wrap it in double quotes
-      if (str.search(/("|,|\n)/g) >= 0) {
-        str = `"${str}"`;
-      }
+      if (str.search(/("|,|\n)/g) >= 0) str = `"${str}"`;
       return str;
     };
 
@@ -156,9 +132,7 @@ const CustomerList = () => {
         cus.fullName || "N/A",
         cus.email || "N/A",
         cus.phone || "N/A",
-        cus.createdAt
-          ? new Date(cus.createdAt).toLocaleDateString()
-          : "N/A",
+        cus.createdAt ? new Date(cus.createdAt).toLocaleDateString() : "N/A",
         cus.accountDeletion?.requested ? "Yes" : "No",
         cus.accountDeletion?.requestedAt
           ? new Date(cus.accountDeletion.requestedAt).toLocaleString()
@@ -180,200 +154,219 @@ const CustomerList = () => {
   const totalPages = Math.ceil(filteredCustomers.length / limit);
 
   return (
-    <div className="p-4 shadow rounded-lg">
-      <div className={"flex  items-center justify-between"}>
-        <h1 className="border-l-4 primaryBorderColor primaryTextColor mb-6 pl-2 text-lg font-semibold ">
-          Customer List
-        </h1>
-        <button
-          className={
-            "primaryBgColor accentTextColor cursor-pointer px-4 py-2 rounded-lg"
-          }
-          onClick={handleExportExcel}
-        >
-          Download As Excel
-        </button>
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-bold tracking-tight">Customer List</h1>
+        <Button variant="outline" onClick={handleExportExcel}>
+          <Download className="size-4 mr-1" />
+          Download As CSV
+        </Button>
       </div>
 
-      <div className="flex justify-between items-center py-4 flex-wrap gap-4">
-        <TextField
-          label="Search by name or email"
-          value={search}
-          onChange={(e) => {
-            setSearch(e.target.value);
-            setPage(1);
-          }}
-          className="w-full md:w-96"
-        />
-        <div>
-          <div className="flex items-center gap-4 flex-wrap">
-            <div className="flex items-center gap-2">
-              <Typography>Show</Typography>
-              <div className="relative">
-                <select
-                  value={limit}
-                  onChange={(e) => {
-                    setLimit(Number(e.target.value));
-                    setPage(1);
-                  }}
-                  className="px-3 py-2 border border-gray-300 rounded-lg shadow-sm appearance-none pr-8 bg-white focus:outline-none"
-                >
-                  <option value={5}>5</option>
-                  <option value={10}>10</option>
-                  <option value={20}>20</option>
-                </select>
-                <BsArrowsCollapse className="absolute right-2 top-2.5 w-4 h-4 text-gray-500 pointer-events-none" />
-              </div>
-              <Typography>entries</Typography>
-            </div>
-
-            <div className="flex items-center gap-2 relative">
-              <select
-                value={sortOrder}
-                onChange={(e) => setSortOrder(e.target.value)}
-                className="px-3 py-2 border border-gray-300 rounded-lg shadow-sm appearance-none pr-8 bg-white focus:outline-none"
-              >
-                <option value="desc">Newest First</option>
-                <option value="asc">Oldest First</option>
-              </select>
-              <BsArrowsCollapse className="absolute right-2 top-2.5 w-4 h-4 text-gray-500 pointer-events-none" />
-            </div>
+      <div className="flex items-center justify-between gap-4 bg-muted/30 rounded-lg p-3">
+        <div className="relative flex-1 max-w-sm">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+          <Input
+            placeholder="Search by name or email"
+            value={search}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setPage(1);
+            }}
+            className="pl-9 bg-background"
+          />
+        </div>
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
+            <p className="text-sm text-muted-foreground whitespace-nowrap">Show</p>
+            <Select
+              value={String(limit)}
+              onValueChange={(value) => {
+                setLimit(Number(value));
+                setPage(1);
+              }}
+            >
+              <SelectTrigger className="w-16 h-8 bg-background">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="5">5</SelectItem>
+                <SelectItem value="10">10</SelectItem>
+                <SelectItem value="20">20</SelectItem>
+              </SelectContent>
+            </Select>
+            <p className="text-sm text-muted-foreground">entries</p>
+          </div>
+          <div className="flex items-center gap-2">
+            <Select value={sortOrder} onValueChange={setSortOrder}>
+              <SelectTrigger className="w-[130px] h-8 bg-background">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="desc">Newest First</SelectItem>
+                <SelectItem value="asc">Oldest First</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </div>
       </div>
 
-      <TableContainer component={Paper}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>SL No.</TableCell>
-              <TableCell>Image</TableCell>
-              <TableCell>Name</TableCell>
-              <TableCell>Email</TableCell>
-              <TableCell>Phone</TableCell>
-              <TableCell>Address</TableCell>
-              <TableCell>Reward Points</TableCell>
-              <TableCell>Joined</TableCell>
-              <TableCell>Account Deletion</TableCell>
-              <RequirePermission permission="delete_customers" fallback={true}>
-                <TableCell>Action</TableCell>
-              </RequirePermission>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {loading
-              ? Array.from({ length: limit }).map((_, i) => (
+      <Card className="shadow-md border-0">
+        <CardContent className="p-0">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-14">SL No.</TableHead>
+                <TableHead>Image</TableHead>
+                <TableHead>Name</TableHead>
+                <TableHead>Email</TableHead>
+                <TableHead>Phone</TableHead>
+                <TableHead className="hidden md:table-cell">Address</TableHead>
+                <TableHead className="hidden md:table-cell">Reward Points</TableHead>
+                <TableHead className="hidden md:table-cell">Joined</TableHead>
+                <TableHead>Account Deletion</TableHead>
+                <RequirePermission permission="delete_customers" fallback={true}>
+                  <TableHead className="text-center w-16">Action</TableHead>
+                </RequirePermission>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {loading ? (
+                Array.from({ length: limit }).map((_, i) => (
                   <TableRow key={i}>
-                    {Array.from({ length: 8 }).map((_, j) => (
+                    {Array.from({ length: 10 }).map((_, j) => (
                       <TableCell key={j}>
-                        <Skeleton variant="text" height={30} />
+                        <Skeleton className="h-5 w-full" />
                       </TableCell>
                     ))}
                   </TableRow>
                 ))
-              : paginatedCustomers.map((cus, index) => (
+              ) : paginatedCustomers.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={10} className="text-center text-muted-foreground py-8">
+                    No customers found.
+                  </TableCell>
+                </TableRow>
+              ) : (
+                paginatedCustomers.map((cus, index) => (
                   <TableRow key={cus._id}>
-                    <TableCell>{(page - 1) * limit + index + 1}</TableCell>
+                    <TableCell className="text-muted-foreground">
+                      {(page - 1) * limit + index + 1}
+                    </TableCell>
                     <TableCell>
                       {cus.userImage ? (
                         <ImageComponent
                           imageName={cus.userImage}
                           altName={cus.fullName}
-                          skeletonHeight={"40"}
-                          className={"w-20 object-cover"}
+                          skeletonHeight={40}
+                          className="w-16 h-16 object-cover rounded-lg shadow-sm"
                         />
                       ) : (
-                        "N/A"
+                        <span className="text-muted-foreground">N/A</span>
                       )}
                     </TableCell>
-                    <TableCell>{cus.fullName || "N/A"}</TableCell>
+                    <TableCell className="font-medium">
+                      {cus.fullName || "N/A"}
+                    </TableCell>
                     <TableCell>{cus.email || "N/A"}</TableCell>
                     <TableCell>{cus.phone || "N/A"}</TableCell>
-                    <TableCell>{cus.address || "N/A"}</TableCell>
-                    <TableCell>{cus.rewardPoints}</TableCell>
-                    <TableCell>
+                    <TableCell className="hidden md:table-cell">
+                      {cus.address || "N/A"}
+                    </TableCell>
+                    <TableCell className="hidden md:table-cell">
+                      {cus.rewardPoints}
+                    </TableCell>
+                    <TableCell className="hidden md:table-cell">
                       {cus.createdAt
                         ? new Date(cus.createdAt).toLocaleDateString()
                         : "N/A"}
                     </TableCell>
                     <TableCell>
                       {cus.accountDeletion?.requested ? (
-                        <span className="text-red-600 font-medium">
-                          Requested at{" "}
+                        <span className="text-destructive text-sm font-medium">
+                          Requested{" "}
                           {new Date(
                             cus.accountDeletion.requestedAt,
                           ).toLocaleString()}
                         </span>
                       ) : (
-                        <span className="text-green-600">Active</span>
+                        <Badge variant="secondary">Active</Badge>
                       )}
                     </TableCell>
                     <RequirePermission
                       permission="delete_customers"
                       fallback={true}
                     >
-                      <TableCell>
-                        <MdDeleteOutline
-                          className="text-red-600 cursor-pointer text-2xl"
-                          onClick={() => handleOpenDialog(cus._id)}
-                        />
+                      <TableCell className="text-center">
+                        <Button
+                          variant="ghost"
+                          size="icon-xs"
+                          onClick={() => {
+                            setSelectedCustomerId(cus._id);
+                            setDeleteDialogOpen(true);
+                          }}
+                          className="text-destructive hover:text-destructive"
+                        >
+                          <Trash2 className="size-3.5" />
+                        </Button>
                       </TableCell>
                     </RequirePermission>
                   </TableRow>
-                ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
 
-      {!loading && (
-        <div className="flex justify-center items-center my-4">
-          <Button onClick={() => setPage(page - 1)} disabled={page === 1}>
-            Previous
-          </Button>
-          <Typography mx={2}>
+      {!loading && totalPages > 1 && (
+        <div className="flex items-center justify-between bg-muted/30 rounded-lg p-3">
+          <p className="text-sm text-muted-foreground">
             Page {page} of {totalPages}
-          </Typography>
-          <Button
-            onClick={() => setPage(page + 1)}
-            disabled={page === totalPages}
-          >
-            Next
-          </Button>
+          </p>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              disabled={page === 1}
+              onClick={() => setPage(page - 1)}
+            >
+              <ChevronLeft className="size-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              disabled={page === totalPages}
+              onClick={() => setPage(page + 1)}
+            >
+              <ChevronRight className="size-4" />
+            </Button>
+          </div>
         </div>
       )}
 
-      {/* Delete Confirmation Dialog */}
-      <Dialog open={openDialog} onClose={handleCloseDialog}>
-        <DialogTitle>Confirm Delete</DialogTitle>
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <DialogContent>
-          <DialogContentText>
-            Are you sure you want to delete this customer? This action cannot be
-            undone.
-          </DialogContentText>
+          <DialogHeader>
+            <DialogTitle>Confirm Delete</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete this customer? This action cannot
+              be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setDeleteDialogOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={handleDelete}>
+              Delete
+            </Button>
+          </DialogFooter>
         </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseDialog}>Cancel</Button>
-          <Button onClick={handleDelete} color="error">
-            Delete
-          </Button>
-        </DialogActions>
       </Dialog>
-
-      {/* Snackbar for Alerts */}
-      <Snackbar
-        open={snackbar.open}
-        autoHideDuration={3000}
-        onClose={() => setSnackbar({ ...snackbar, open: false })}
-        anchorOrigin={{ vertical: "top", horizontal: "center" }}
-      >
-        <Alert
-          severity={snackbar.type}
-          onClose={() => setSnackbar({ ...snackbar, open: false })}
-          sx={{ width: "100%" }}
-        >
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
     </div>
   );
 };

@@ -1,72 +1,28 @@
 import React, { lazy, Suspense, useEffect, useRef, useState, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-const Editor = lazy(() => import("primereact/editor").then(module => ({ default: module.Editor })));
-import {
-  Box,
-  Typography,
-  Chip,
-  Button,
-  Snackbar,
-  Alert,
-  Switch,
-  FormControlLabel,
-} from "@mui/material";
-import axios from "axios";
-import useAuthAdminStore from "../../store/AuthAdminStore.js"; // Adjust if not using Zustand
-import ImageComponent from "../componentGeneral/ImageComponent.jsx";
-
-const CustomTextField = React.memo(
-  ({
-    label,
-    value,
-    onChange,
-    required,
-    multiline,
-    rows,
-    placeholder,
-    margin = "normal",
-    onKeyDown,
-  }) => {
-    return (
-      <div className={`mb-${margin === "normal" ? "4" : "2"}`}>
-        {label && (
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            {label}
-            {required && <span className="text-red-500 ml-1">*</span>}
-          </label>
-        )}
-        {multiline ? (
-          <textarea
-            value={value}
-            onChange={onChange}
-            onKeyDown={onKeyDown}
-            rows={rows}
-            placeholder={placeholder}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-          />
-        ) : (
-          <input
-            type="text"
-            value={value}
-            onChange={onChange}
-            onKeyDown={onKeyDown}
-            placeholder={placeholder}
-            required={required}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-          />
-        )}
-      </div>
-    );
-  },
+const Editor = lazy(() =>
+  import("primereact/editor").then((module) => ({
+    default: module.Editor,
+  })),
 );
-
-CustomTextField.displayName = "CustomTextField";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
+import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
+import { Card, CardContent } from "@/components/ui/card";
+import { toast } from "sonner";
+import { X, Upload } from "lucide-react";
+import axios from "axios";
+import useAuthAdminStore from "../../store/AuthAdminStore.js";
+import ImageComponent from "../componentGeneral/ImageComponent.jsx";
 
 const EditBlog = () => {
   const { id: blogId } = useParams();
   const navigate = useNavigate();
   const apiUrl = import.meta.env.VITE_API_URL;
-  const { token } = useAuthAdminStore(); // adjust if not Zustand
+  const { token } = useAuthAdminStore();
 
   const [formData, setFormData] = useState({
     name: "",
@@ -84,14 +40,8 @@ const EditBlog = () => {
   const [thumbnailImage, setThumbnailImage] = useState(null);
   const [imagePreview, setImagePreview] = useState("");
   const [isEditorReady, setIsEditorReady] = useState(false);
-  const [snackbar, setSnackbar] = useState({
-    open: false,
-    message: "",
-    severity: "success",
-  });
 
   const fileInputRef = useRef(null);
-  const editorRef = useRef(null);
 
   const handleInputChange = useCallback(
     (field) => (e) => {
@@ -179,11 +129,7 @@ const EditBlog = () => {
           setTimeout(() => setIsEditorReady(true), 100);
         } catch (error) {
           console.error("Error fetching blog:", error);
-          setSnackbar({
-            open: true,
-            message: "Failed to load blog data",
-            severity: "error",
-          });
+          toast.error("Failed to load blog data");
         }
       };
       fetchBlog();
@@ -208,9 +154,7 @@ const EditBlog = () => {
     submitData.append("metaDescription", formData.metaDescription);
     submitData.append("isActive", formData.isActive);
     formData.searchTags.forEach((tag) => submitData.append("searchTags", tag));
-    formData.metaKeywords.forEach((kw) =>
-      submitData.append("metaKeywords", kw),
-    );
+    formData.metaKeywords.forEach((kw) => submitData.append("metaKeywords", kw));
     if (thumbnailImage instanceof File) {
       submitData.append("thumbnailImage", thumbnailImage);
     }
@@ -219,178 +163,181 @@ const EditBlog = () => {
       await axios.patch(`${apiUrl}/blog/${blogId}`, submitData, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      setSnackbar({
-        open: true,
-        message: "Blog updated successfully!",
-        severity: "success",
-      });
+      toast.success("Blog updated successfully!");
       navigate("/admin/blogs");
     } catch (err) {
       console.error("Error updating blog:", err);
-      setSnackbar({
-        open: true,
-        message: "Failed to update blog.",
-        severity: "error",
-      });
+      toast.error("Failed to update blog.");
     }
   };
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="shadow rounded-lg p-4 xl:container xl:mx-auto"
-    >
-      <Typography variant="h5" className="mb-4">
-        Edit Blog
-      </Typography>
+    <div className="space-y-6">
+      <h1 className="text-2xl font-bold tracking-tight">Edit Blog</h1>
 
-      <div className="grid grid-cols-2 gap-4 items-center">
-        <div>
-          <CustomTextField
-            label="Title"
-            value={formData.name}
-            onChange={handleInputChange("name")}
-            required
-          />
-          <CustomTextField
-            label="Author"
-            value={formData.author}
-            onChange={handleInputChange("author")}
-            required
-          />
-          <Box mb={3}>
-            <FormControlLabel
-              control={
-                <Switch
-                  checked={formData.isActive}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      isActive: e.target.checked,
-                    }))
-                  }
-                  color="primary"
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <Card className="shadow-md border-0">
+          <CardContent className="p-6 space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="name">Title <span className="text-destructive">*</span></Label>
+                  <Input
+                    id="name"
+                    value={formData.name}
+                    onChange={handleInputChange("name")}
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="author">Author <span className="text-destructive">*</span></Label>
+                  <Input
+                    id="author"
+                    value={formData.author}
+                    onChange={handleInputChange("author")}
+                    required
+                  />
+                </div>
+                <div className="flex items-center gap-3">
+                  <Switch
+                    id="isActive"
+                    checked={formData.isActive}
+                    onCheckedChange={(checked) =>
+                      setFormData((prev) => ({ ...prev, isActive: checked }))
+                    }
+                  />
+                  <Label htmlFor="isActive" className={formData.isActive ? "text-primary font-medium" : "text-muted-foreground"}>
+                    {formData.isActive ? "Active" : "Inactive"}
+                  </Label>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label>Thumbnail Image</Label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  ref={fileInputRef}
+                  onChange={handleImageChange}
+                  className="text-sm text-muted-foreground file:mr-3 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-sm file:bg-muted file:text-foreground hover:file:bg-muted/80"
                 />
-              }
-              label={
-                <Typography
-                  variant="subtitle1"
-                  color={formData.isActive ? "primary" : "textSecondary"}
-                >
-                  {formData.isActive ? "Active" : "Inactive"}
-                </Typography>
-              }
-            />
-          </Box>
+                {imagePreview && (
+                  <div className="mt-2 rounded-md overflow-hidden border border-muted-foreground/20">
+                    {thumbnailImage ? (
+                      <img
+                        src={imagePreview}
+                        alt="Preview"
+                        className="max-h-40 object-contain"
+                      />
+                    ) : (
+                      <ImageComponent imageName={imagePreview} />
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="shadow-md border-0">
+          <CardContent className="p-6 space-y-2">
+            <Label>Blog Content</Label>
+            <Suspense fallback={<div className="py-8 text-center text-muted-foreground">Loading Editor...</div>}>
+              <Editor
+                value={formData.longDesc}
+                onTextChange={handleEditorChange}
+                style={{ height: "660px" }}
+              />
+            </Suspense>
+          </CardContent>
+        </Card>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <Card className="shadow-md border-0">
+            <CardContent className="p-6 space-y-2">
+              <Label>Tags</Label>
+              <Input
+                placeholder="Type a tag and press Enter"
+                value={tagInput}
+                onChange={(e) => setTagInput(e.target.value)}
+                onKeyDown={handleAddTag}
+              />
+              {formData.searchTags.length > 0 && (
+                <div className="flex flex-wrap gap-1.5 mt-2">
+                  {formData.searchTags.map((tag, i) => (
+                    <Badge key={i} variant="secondary">
+                      {tag}
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteTag(tag)}
+                        className="ml-1.5 hover:text-destructive"
+                      >
+                        <X className="size-3" />
+                      </button>
+                    </Badge>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card className="shadow-md border-0">
+            <CardContent className="p-6 space-y-2">
+              <Label>Meta Keywords</Label>
+              <Input
+                placeholder="Type a keyword and press Enter"
+                value={keywordInput}
+                onChange={(e) => setKeywordInput(e.target.value)}
+                onKeyDown={handleAddKeyword}
+              />
+              {formData.metaKeywords.length > 0 && (
+                <div className="flex flex-wrap gap-1.5 mt-2">
+                  {formData.metaKeywords.map((kw, i) => (
+                    <Badge key={i} variant="secondary">
+                      {kw}
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteKeyword(kw)}
+                        className="ml-1.5 hover:text-destructive"
+                      >
+                        <X className="size-3" />
+                      </button>
+                    </Badge>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card className="shadow-md border-0">
+            <CardContent className="p-6 space-y-2">
+              <Label>Meta Title</Label>
+              <Input
+                placeholder="Meta Title"
+                value={formData.metaTitle}
+                onChange={handleInputChange("metaTitle")}
+              />
+            </CardContent>
+          </Card>
         </div>
 
-        <Box mt={2}>
-          <Typography variant="subtitle1">Thumbnail Image</Typography>
-          <input
-            type="file"
-            accept="image/*"
-            ref={fileInputRef}
-            onChange={handleImageChange}
-          />
-          {imagePreview && (
-            <Box mt={1}>
-              <ImageComponent imageName={imagePreview} />
-            </Box>
-          )}
-        </Box>
-      </div>
+        <Card className="shadow-md border-0">
+          <CardContent className="p-6 space-y-2">
+            <Label>Meta Description</Label>
+            <Textarea
+              value={formData.metaDescription}
+              onChange={handleInputChange("metaDescription")}
+              rows={3}
+              placeholder="Meta description"
+            />
+          </CardContent>
+        </Card>
 
-      <Box my={2}>
-        <Typography variant="subtitle1">Blog Content</Typography>
-        <Suspense fallback={<div>Loading Editor...</div>}>
-          <Editor
-            ref={editorRef}
-            value={formData.longDesc}
-            onTextChange={handleEditorChange}
-            style={{ height: "660px" }}
-          />
-        </Suspense>
-      </Box>
-
-      <div className="grid grid-cols-3 gap-4">
-        <Box>
-          <Typography variant="subtitle1">Tags</Typography>
-          <CustomTextField
-            placeholder="Type a tag and press Enter"
-            value={tagInput}
-            onChange={(e) => setTagInput(e.target.value)}
-            onKeyDown={handleAddTag}
-          />
-          <Box display="flex" flexWrap="wrap" gap={1} mb={1}>
-            {formData.searchTags.map((tag, i) => (
-              <Chip
-                key={i}
-                label={tag}
-                onDelete={() => handleDeleteTag(tag)}
-                size="small"
-              />
-            ))}
-          </Box>
-        </Box>
-
-        <Box>
-          <Typography variant="subtitle1">Meta Keywords</Typography>
-          <CustomTextField
-            placeholder="Type a keyword and press Enter"
-            value={keywordInput}
-            onChange={(e) => setKeywordInput(e.target.value)}
-            onKeyDown={handleAddKeyword}
-          />
-          <Box display="flex" flexWrap="wrap" gap={1} mb={1}>
-            {formData.metaKeywords.map((kw, i) => (
-              <Chip
-                key={i}
-                label={kw}
-                onDelete={() => handleDeleteKeyword(kw)}
-                size="small"
-              />
-            ))}
-          </Box>
-        </Box>
-
-        <Box>
-          <Typography variant="subtitle1">Meta Title</Typography>
-          <CustomTextField
-            placeholder="Meta Title"
-            value={formData.metaTitle}
-            onChange={handleInputChange("metaTitle")}
-          />
-        </Box>
-      </div>
-
-      <CustomTextField
-        label="Meta Description"
-        value={formData.metaDescription}
-        onChange={handleInputChange("metaDescription")}
-        multiline
-        rows={3}
-      />
-
-      <Box mt={3}>
-        <Button variant="contained" color="primary" type="submit">
-          Update Blog
-        </Button>
-      </Box>
-
-      <Snackbar
-        open={snackbar.open}
-        autoHideDuration={4000}
-        onClose={() => setSnackbar({ ...snackbar, open: false })}
-      >
-        <Alert
-          severity={snackbar.severity}
-          onClose={() => setSnackbar({ ...snackbar, open: false })}
-          sx={{ width: "100%" }}
-        >
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
-    </form>
+        <div className="flex justify-center pb-6">
+          <Button type="submit">Update Blog</Button>
+        </div>
+      </form>
+    </div>
   );
 };
 

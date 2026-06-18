@@ -2,21 +2,37 @@ import { useEffect, useState } from "react";
 import ImageComponent from "../componentGeneral/ImageComponent.jsx";
 import CourierSummery from "./CourierSummery.jsx";
 import useAuthAdminStore from "../../store/AuthAdminStore.js";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   Dialog,
-  DialogActions,
   DialogContent,
-  DialogContentText,
+  DialogHeader,
   DialogTitle,
-  Button,
-  TextField,
-  MenuItem,
-  Snackbar,
-  Alert,
-  Checkbox,
-  IconButton,
-  Select,
-} from "@mui/material";
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { toast } from "sonner";
+import {
+  Search,
+  RotateCcw,
+  Trash2,
+  Pencil,
+  ShoppingCart,
+  ChevronLeft,
+  ChevronRight,
+  Loader2,
+} from "lucide-react";
 import RequirePermission from "./RequirePermission.jsx";
 
 const AbandonedCartsList = ({
@@ -36,25 +52,10 @@ const AbandonedCartsList = ({
   const someSelected =
     carts.some((cart) => selectedCarts.includes(cart._id)) && !allSelected;
 
-  const getStatusBadge = (status) => {
-    if (status === "converted") {
-      return (
-        <span className="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded">
-          Converted
-        </span>
-      );
-    }
-    return (
-      <span className="bg-yellow-100 text-yellow-800 text-xs font-medium px-2.5 py-0.5 rounded">
-        Abandoned
-      </span>
-    );
-  };
-
   return (
-    <div className="p-4 shadow rounded-lg">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="border-l-4 primaryBorderColor primaryTextColor pl-2 text-lg font-semibold">
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <h1 className="text-lg font-semibold">
           Incomplete Orders ({totalCount})
         </h1>
         {selectedCarts.length > 0 && (
@@ -63,11 +64,11 @@ const AbandonedCartsList = ({
             fallback={true}
           >
             <Button
-              variant="contained"
-              color="error"
-              size="small"
+              variant="destructive"
+              size="sm"
               onClick={() => onBulkDeleteRequest(selectedCarts)}
             >
+              <Trash2 className="size-3.5 mr-1" />
               Delete Selected ({selectedCarts.length})
             </Button>
           </RequirePermission>
@@ -75,174 +76,181 @@ const AbandonedCartsList = ({
       </div>
 
       {carts.length === 0 ? (
-        <p className="text-gray-600">No Incomplete Orders Found.</p>
+        <p className="text-muted-foreground">No Incomplete Orders Found.</p>
       ) : (
         <div className="space-y-4">
-          <div className="flex items-center gap-2 mb-2">
+          <div className="flex items-center gap-2">
             <Checkbox
               checked={allSelected}
-              indeterminate={someSelected}
-              onChange={() => onSelectAll(carts.map((c) => c._id))}
-              size="small"
+              onCheckedChange={() => onSelectAll(carts.map((c) => c._id))}
             />
-            <span className="text-sm text-gray-600">Select All</span>
+            <span className="text-sm text-muted-foreground">Select All</span>
           </div>
           {carts.map((cart) => (
-            <div
-              key={cart._id}
-              className="border border-gray-200 rounded-lg p-4 shadow-sm bg-white"
-            >
-              <div className="flex items-start gap-2 mb-2">
-                <Checkbox
-                  checked={selectedCarts.includes(cart._id)}
-                  onChange={() => onToggleSelect(cart._id)}
-                  disabled={cart.status === "converted"}
-                  size="small"
-                />
-                <div className="grid grid-cols-2 md:grid-cols-3 flex-1">
-                  <div>
-                    <h3 className="text-lg font-semibold mb-1">
-                      {cart.fullName || "Unnamed Customer"}
-                    </h3>
-                    <div className="text-sm text-gray-700 space-y-0.5">
-                      <p>
-                        <strong>Number:</strong> {cart.number || "N/A"}
-                      </p>
-                      <p>
-                        <strong>Email:</strong> {cart.email || "N/A"}
-                      </p>
-                      <p>
-                        <strong>Address:</strong> {cart.address || "N/A"}
-                      </p>
-                      <div className="mt-1">{getStatusBadge(cart.status)}</div>
-                    </div>
-                  </div>
-
-                  <div className="text-sm">
-                    <CourierSummery phone={cart.number} />
-                  </div>
-
-                  <div className="text-right flex flex-col mt-3 md:mt-0 items-end space-y-1">
-                    <p className="text-md font-semibold text-gray-800">
-                      Total: Tk.{cart.totalAmount?.toFixed(2) || "0.00"}
-                    </p>
-                    <p className="text-xs text-gray-400">
-                      {new Date(cart.createdAt).toLocaleString(undefined, {
-                        dateStyle: "medium",
-                        timeStyle: "short",
-                      })}
-                    </p>
-                    <div className="flex gap-1">
-                      {cart.status !== "converted" && (
-                        <>
-                          <RequirePermission
-                            permission="edit_incomplete_orders"
-                            fallback={true}
+            <Card key={cart._id} className="shadow-md border-0">
+              <CardContent className="p-4">
+                <div className="flex items-start gap-3 mb-3">
+                  <Checkbox
+                    checked={selectedCarts.includes(cart._id)}
+                    onCheckedChange={() => onToggleSelect(cart._id)}
+                    disabled={cart.status === "converted"}
+                    className="mt-1"
+                  />
+                  <div className="grid grid-cols-2 md:grid-cols-3 flex-1 gap-4">
+                    <div>
+                      <h3 className="font-semibold mb-1">
+                        {cart.fullName || "Unnamed Customer"}
+                      </h3>
+                      <div className="text-sm text-muted-foreground space-y-0.5">
+                        <p><strong>Number:</strong> {cart.number || "N/A"}</p>
+                        <p><strong>Email:</strong> {cart.email || "N/A"}</p>
+                        <p><strong>Address:</strong> {cart.address || "N/A"}</p>
+                        <div className="mt-1">
+                          <Badge
+                            variant={cart.status === "converted" ? "default" : "secondary"}
                           >
-                            <button
-                              onClick={() => onEditRequest(cart)}
-                              className="text-xs bg-blue-500 text-white rounded-md px-2 py-1 cursor-pointer hover:bg-blue-600"
-                            >
-                              Edit
-                            </button>
-                          </RequirePermission>
-                          <RequirePermission
-                            permission="edit_incomplete_orders"
-                            fallback={true}
-                          >
-                            <button
-                              onClick={() => onConvertRequest(cart)}
-                              className="text-xs bg-green-500 text-white rounded-md px-2 py-1 cursor-pointer hover:bg-green-600"
-                            >
-                              Convert
-                            </button>
-                          </RequirePermission>
-                        </>
-                      )}
-                      <RequirePermission
-                        permission="delete_incomplete_orders"
-                        fallback={true}
-                      >
-                        <button
-                          onClick={() => onDeleteRequest(cart._id)}
-                          className="text-xs primaryBgColor accentTextColor rounded-md px-2 py-1 cursor-pointer"
-                        >
-                          Delete
-                        </button>
-                      </RequirePermission>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {cart.cartItems.length > 0 ? (
-                <div className="grid md:grid-cols-2 gap-3 mt-3">
-                  {cart.cartItems.map((item) => (
-                    <div
-                      key={item._id}
-                      className="flex items-center space-x-3 border border-gray-100 rounded-md p-2"
-                    >
-                      <ImageComponent
-                        imageName={item.product?.thumbnailImage}
-                        altName={item.product?.name}
-                        skeletonHeight={50}
-                        className="w-16 h-16 rounded object-cover"
-                      />
-                       <div className="flex-1 text-sm">
-                         <p className="font-medium">
-                           {item.product?.name || "-"}
-                         </p>
-                         <p className="text-gray-500">
-                           {item.product?.category || "-"} |{" "}
-                           {item.variant?.displayName || "No variant"}
-                         </p>
-                        <p className="text-gray-700">
-                          Tk.{item.price?.toFixed(2) || "0.00"} ×{" "}
-                          {item.quantity} ={" "}
-                          <span className="font-semibold">
-                            Tk.
-                            {((item.price || 0) * (item.quantity || 0)).toFixed(
-                              2,
-                            )}
-                          </span>
-                        </p>
+                            {cart.status === "converted" ? "Converted" : "Abandoned"}
+                          </Badge>
+                        </div>
                       </div>
                     </div>
-                  ))}
+
+                    <div className="text-sm">
+                      <CourierSummery phone={cart.number} />
+                    </div>
+
+                    <div className="text-right flex flex-col items-end gap-1">
+                      <p className="font-semibold">
+                        Total: Tk.{cart.totalAmount?.toFixed(2) || "0.00"}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {new Date(cart.createdAt).toLocaleString(undefined, {
+                          dateStyle: "medium",
+                          timeStyle: "short",
+                        })}
+                      </p>
+                      <div className="flex gap-1 mt-1">
+                        {cart.status !== "converted" && (
+                          <>
+                            <RequirePermission
+                              permission="edit_incomplete_orders"
+                              fallback={true}
+                            >
+                              <Button
+                                size="sm"
+                                variant="secondary"
+                                onClick={() => onEditRequest(cart)}
+                              >
+                                <Pencil className="size-3 mr-1" />
+                                Edit
+                              </Button>
+                            </RequirePermission>
+                            <RequirePermission
+                              permission="edit_incomplete_orders"
+                              fallback={true}
+                            >
+                              <Button
+                                size="sm"
+                                onClick={() => onConvertRequest(cart)}
+                              >
+                                <ShoppingCart className="size-3 mr-1" />
+                                Convert
+                              </Button>
+                            </RequirePermission>
+                          </>
+                        )}
+                        <RequirePermission
+                          permission="delete_incomplete_orders"
+                          fallback={true}
+                        >
+                          <Button
+                            size="sm"
+                            variant="destructive"
+                            onClick={() => onDeleteRequest(cart._id)}
+                          >
+                            <Trash2 className="size-3 mr-1" />
+                            Delete
+                          </Button>
+                        </RequirePermission>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-              ) : (
-                <p className="text-sm text-gray-600 mt-2">No items in cart.</p>
-              )}
-            </div>
+
+                {cart.cartItems.length > 0 ? (
+                  <div className="grid md:grid-cols-2 gap-3 mt-3 pt-3 border-t border-muted-foreground/10">
+                    {cart.cartItems.map((item) => (
+                      <div
+                        key={item._id}
+                        className="flex items-center gap-3 rounded-md border border-muted-foreground/10 p-2"
+                      >
+                        <ImageComponent
+                          imageName={item.product?.thumbnailImage}
+                          altName={item.product?.name}
+                          skeletonHeight={50}
+                          className="w-16 h-16 rounded object-cover"
+                        />
+                        <div className="flex-1 text-sm">
+                          <p className="font-medium">
+                            {item.product?.name || "-"}
+                          </p>
+                          <p className="text-muted-foreground">
+                            {item.product?.category || "-"} |{" "}
+                            {item.variant?.displayName || "No variant"}
+                          </p>
+                          <p className="text-foreground">
+                            Tk.{item.price?.toFixed(2) || "0.00"} ×{" "}
+                            {item.quantity} ={" "}
+                            <span className="font-semibold">
+                              Tk.
+                              {((item.price || 0) * (item.quantity || 0)).toFixed(
+                                2,
+                              )}
+                            </span>
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm text-muted-foreground mt-2">No items in cart.</p>
+                )}
+              </CardContent>
+            </Card>
           ))}
 
-          {/* Pagination Controls */}
-          <div className="flex justify-center items-center gap-4 mt-6">
-            <button
-              onClick={() => onPageChange(page - 1)}
-              disabled={page === 1}
-              className="px-4 py-1 rounded primaryBgColor accentTextColor disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed"
-            >
-              Previous
-            </button>
-            <span className="text-gray-700">
-              Page {page} of {totalPages}
-            </span>
-            <button
-              onClick={() => onPageChange(page + 1)}
-              disabled={page === totalPages}
-              className="px-4 py-1 rounded primaryBgColor accentTextColor disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed"
-            >
-              Next
-            </button>
-          </div>
+          {totalPages > 1 && (
+            <div className="flex items-center justify-between bg-muted/30 rounded-lg p-3">
+              <p className="text-sm text-muted-foreground">
+                Page {page} of {totalPages}
+              </p>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  disabled={page === 1}
+                  onClick={() => onPageChange(page - 1)}
+                >
+                  <ChevronLeft className="size-4" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  disabled={page === totalPages}
+                  onClick={() => onPageChange(page + 1)}
+                >
+                  <ChevronRight className="size-4" />
+                </Button>
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>
   );
 };
 
-const EditCartDialog = ({ open, cart, onClose, onSave, shippingOptions }) => {
+const EditCartDialog = ({ open, cart, onClose, onSave }) => {
   const [formData, setFormData] = useState({
     fullName: "",
     number: "",
@@ -276,57 +284,65 @@ const EditCartDialog = ({ open, cart, onClose, onSave, shippingOptions }) => {
   };
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle>Edit Abandoned Cart</DialogTitle>
-      <DialogContent>
-        <div className="flex flex-col gap-4 mt-2" style={{ padding: "10px" }}>
-          <TextField
-            fullWidth
-            label="Full Name"
-            name="fullName"
-            value={formData.fullName}
-            onChange={handleChange}
-          />
-          <TextField
-            fullWidth
-            label="Number"
-            name="number"
-            value={formData.number}
-            onChange={handleChange}
-          />
-          <TextField
-            fullWidth
-            label="Email"
-            name="email"
-            type="email"
-            value={formData.email}
-            onChange={handleChange}
-          />
-          <TextField
-            fullWidth
-            label="Address"
-            name="address"
-            multiline
-            rows={2}
-            value={formData.address}
-            onChange={handleChange}
-          />
-          <TextField
-            fullWidth
-            label="Total Amount"
-            name="totalAmount"
-            type="number"
-            value={formData.totalAmount}
-            onChange={handleChange}
-          />
+    <Dialog open={open} onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>Edit Abandoned Cart</DialogTitle>
+          <DialogDescription>
+            Update the customer details for this cart.
+          </DialogDescription>
+        </DialogHeader>
+        <div className="space-y-4 py-2">
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Full Name</label>
+            <Input
+              name="fullName"
+              value={formData.fullName}
+              onChange={handleChange}
+            />
+          </div>
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Number</label>
+            <Input
+              name="number"
+              value={formData.number}
+              onChange={handleChange}
+            />
+          </div>
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Email</label>
+            <Input
+              name="email"
+              type="email"
+              value={formData.email}
+              onChange={handleChange}
+            />
+          </div>
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Address</label>
+            <textarea
+              name="address"
+              rows={2}
+              value={formData.address}
+              onChange={handleChange}
+              className="flex w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 resize-y"
+            />
+          </div>
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Total Amount</label>
+            <Input
+              name="totalAmount"
+              type="number"
+              value={formData.totalAmount}
+              onChange={handleChange}
+            />
+          </div>
         </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose}>Cancel</Button>
+          <Button onClick={handleSubmit}>Save</Button>
+        </DialogFooter>
       </DialogContent>
-      <DialogActions>
-        <Button onClick={onClose}>Cancel</Button>
-        <Button onClick={handleSubmit} variant="contained">
-          Save
-        </Button>
-      </DialogActions>
     </Dialog>
   );
 };
@@ -364,16 +380,12 @@ const ConvertToOrderDialog = ({
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]:
-        name === "shippingId" || name === "specialDiscount" ? value : value,
-    }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = () => {
     if (!formData.shippingId) {
-      alert("Please select a shipping method");
+      toast.warning("Please select a shipping method");
       return;
     }
     onConvert(cart._id, formData);
@@ -383,98 +395,115 @@ const ConvertToOrderDialog = ({
     formData.fullName.trim() && formData.address.trim() && formData.shippingId;
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle>Convert to Order</DialogTitle>
-      <DialogContent>
-        <DialogContentText className="mb-3">
-          Create an order from this abandoned cart. Stock will be deducted.
-        </DialogContentText>
-        <div className="flex flex-col gap-4" style={{ padding: "10px" }}>
-          <TextField
-            fullWidth
-            label="Full Name *"
-            name="fullName"
-            value={formData.fullName}
-            onChange={handleChange}
-            required
-            error={!formData.fullName.trim()}
-            helperText={
-              !formData.fullName.trim() ? "Full Name is required" : ""
-            }
-          />
-          <TextField
-            fullWidth
-            label="Number"
-            name="number"
-            value={formData.number}
-            onChange={handleChange}
-          />
-          <TextField
-            fullWidth
-            label="Email"
-            name="email"
-            type="email"
-            value={formData.email}
-            onChange={handleChange}
-          />
-          <TextField
-            fullWidth
-            label="Address *"
-            name="address"
-            multiline
-            rows={2}
-            value={formData.address}
-            onChange={handleChange}
-            required
-            error={!formData.address.trim()}
-            helperText={!formData.address.trim() ? "Address is required" : ""}
-          />
-          <TextField
-            fullWidth
-            select
-            label="Shipping Method"
-            name="shippingId"
-            value={formData.shippingId}
-            onChange={handleChange}
-          >
-            {shippingOptions.map((option) => (
-              <MenuItem key={option._id} value={option._id}>
-                {option.name} - Tk.{option.value}
-              </MenuItem>
-            ))}
-          </TextField>
-          <TextField
-            fullWidth
-            select
-            label="Payment Method"
-            name="paymentMethod"
-            value={formData.paymentMethod}
-            onChange={handleChange}
-            style={{ marginBottom: "8px" }}
-          >
-            <MenuItem value="cash_on_delivery">Cash on Delivery</MenuItem>
-          </TextField>
-          <TextField
-            fullWidth
-            label="Special Discount"
-            name="specialDiscount"
-            type="number"
-            value={formData.specialDiscount}
-            onChange={handleChange}
-          />
+    <Dialog open={open} onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>Convert to Order</DialogTitle>
+          <DialogDescription>
+            Create an order from this abandoned cart. Stock will be deducted.
+          </DialogDescription>
+        </DialogHeader>
+        <div className="space-y-4 py-2">
+          <div className="space-y-2">
+            <label className="text-sm font-medium">
+              Full Name <span className="text-destructive">*</span>
+            </label>
+            <Input
+              name="fullName"
+              value={formData.fullName}
+              onChange={handleChange}
+              required
+            />
+            {!formData.fullName.trim() && (
+              <p className="text-xs text-destructive">Full Name is required</p>
+            )}
+          </div>
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Number</label>
+            <Input
+              name="number"
+              value={formData.number}
+              onChange={handleChange}
+            />
+          </div>
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Email</label>
+            <Input
+              name="email"
+              type="email"
+              value={formData.email}
+              onChange={handleChange}
+            />
+          </div>
+          <div className="space-y-2">
+            <label className="text-sm font-medium">
+              Address <span className="text-destructive">*</span>
+            </label>
+            <textarea
+              name="address"
+              rows={2}
+              value={formData.address}
+              onChange={handleChange}
+              required
+              className="flex w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 resize-y"
+            />
+            {!formData.address.trim() && (
+              <p className="text-xs text-destructive">Address is required</p>
+            )}
+          </div>
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Shipping Method</label>
+            <Select
+              value={formData.shippingId}
+              onValueChange={(value) =>
+                setFormData((prev) => ({ ...prev, shippingId: value }))
+              }
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select shipping method" />
+              </SelectTrigger>
+              <SelectContent>
+                {shippingOptions.map((option) => (
+                  <SelectItem key={option._id} value={option._id}>
+                    {option.name} - Tk.{option.value}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Payment Method</label>
+            <Select
+              value={formData.paymentMethod}
+              onValueChange={(value) =>
+                setFormData((prev) => ({ ...prev, paymentMethod: value }))
+              }
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="cash_on_delivery">Cash on Delivery</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Special Discount</label>
+            <Input
+              name="specialDiscount"
+              type="number"
+              value={formData.specialDiscount}
+              onChange={handleChange}
+            />
+          </div>
         </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose}>Cancel</Button>
+          <Button onClick={handleSubmit} disabled={!isFormValid}>
+            Create Order
+          </Button>
+        </DialogFooter>
       </DialogContent>
-      <DialogActions>
-        <Button onClick={onClose}>Cancel</Button>
-        <Button
-          onClick={handleSubmit}
-          variant="contained"
-          color="success"
-          disabled={!isFormValid}
-        >
-          Create Order
-        </Button>
-      </DialogActions>
     </Dialog>
   );
 };
@@ -494,7 +523,6 @@ const AbandonedCartsContainer = () => {
   const [error, setError] = useState(null);
   const [shippingOptions, setShippingOptions] = useState([]);
 
-  // Stats state
   const [stats, setStats] = useState({
     totalCount: 0,
     abandonedCount: 0,
@@ -502,7 +530,6 @@ const AbandonedCartsContainer = () => {
     ratio: 0,
   });
 
-  // Filter state
   const [sort, setSort] = useState("desc");
   const [statusFilter, setStatusFilter] = useState("all");
   const [itemsPerPage, setItemsPerPage] = useState(10);
@@ -510,27 +537,16 @@ const AbandonedCartsContainer = () => {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
 
-  // Selection state
   const [selectedCarts, setSelectedCarts] = useState([]);
 
-  // Dialog state
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [selectedCartId, setSelectedCartId] = useState(null);
 
-  // Edit dialog state
   const [openEditDialog, setOpenEditDialog] = useState(false);
   const [editingCart, setEditingCart] = useState(null);
 
-  // Convert to order dialog state
   const [openConvertDialog, setOpenConvertDialog] = useState(false);
   const [convertingCart, setConvertingCart] = useState(null);
-
-  // Snackbar state
-  const [snackbar, setSnackbar] = useState({
-    open: false,
-    message: "",
-    severity: "success",
-  });
 
   const fetchAbandonedCarts = async (
     page = 1,
@@ -623,7 +639,6 @@ const AbandonedCartsContainer = () => {
     fetchStats();
   }, []);
 
-  // Selection handlers
   const handleToggleSelect = (cartId) => {
     setSelectedCarts((prev) =>
       prev.includes(cartId)
@@ -641,7 +656,6 @@ const AbandonedCartsContainer = () => {
     }
   };
 
-  // Delete handlers
   const handleDeleteRequest = (cartId) => {
     setSelectedCartId(cartId);
     setOpenDeleteDialog(true);
@@ -660,7 +674,7 @@ const AbandonedCartsContainer = () => {
         : `${apiUrl}/abandoned-cart/${selectedCartId}`;
 
       const res = await fetch(url, {
-        method: isBulk ? "DELETE" : "DELETE",
+        method: "DELETE",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
@@ -673,21 +687,16 @@ const AbandonedCartsContainer = () => {
       }
 
       const json = await res.json();
-      setSnackbar({ open: true, message: json.message, severity: "success" });
+      toast.success(json.message);
       setOpenDeleteDialog(false);
       setSelectedCartId(null);
       fetchAbandonedCarts(data.page, itemsPerPage, statusFilter);
       fetchStats();
     } catch (err) {
-      setSnackbar({
-        open: true,
-        message: "Error: " + err.message,
-        severity: "error",
-      });
+      toast.error("Error: " + err.message);
     }
   };
 
-  // Edit handlers
   const handleEditRequest = (cart) => {
     setEditingCart(cart);
     setOpenEditDialog(true);
@@ -709,21 +718,16 @@ const AbandonedCartsContainer = () => {
       }
 
       const json = await res.json();
-      setSnackbar({ open: true, message: json.message, severity: "success" });
+      toast.success(json.message);
       setOpenEditDialog(false);
       setEditingCart(null);
       fetchAbandonedCarts(data.page, itemsPerPage, statusFilter);
       fetchStats();
     } catch (err) {
-      setSnackbar({
-        open: true,
-        message: "Error: " + err.message,
-        severity: "error",
-      });
+      toast.error("Error: " + err.message);
     }
   };
 
-  // Convert handlers
   const handleConvertRequest = (cart) => {
     setConvertingCart(cart);
     setOpenConvertDialog(true);
@@ -749,17 +753,13 @@ const AbandonedCartsContainer = () => {
       }
 
       const json = await res.json();
-      setSnackbar({ open: true, message: json.message, severity: "success" });
+      toast.success(json.message);
       setOpenConvertDialog(false);
       setConvertingCart(null);
       fetchAbandonedCarts(data.page, itemsPerPage, statusFilter);
       fetchStats();
     } catch (err) {
-      setSnackbar({
-        open: true,
-        message: "Error: " + err.message,
-        severity: "error",
-      });
+      toast.error("Error: " + err.message);
     }
   };
 
@@ -767,22 +767,19 @@ const AbandonedCartsContainer = () => {
     fetchAbandonedCarts(newPage, itemsPerPage, statusFilter);
   };
 
-  const handleSortChange = (e) => {
-    const newSort = e.target.value;
-    setSort(newSort);
+  const handleSortChange = (value) => {
+    setSort(value);
     fetchAbandonedCarts(1, itemsPerPage, statusFilter);
   };
 
-  const handleStatusFilterChange = (e) => {
-    const newStatus = e.target.value;
-    setStatusFilter(newStatus);
-    fetchAbandonedCarts(1, itemsPerPage, newStatus);
+  const handleStatusFilterChange = (value) => {
+    setStatusFilter(value);
+    fetchAbandonedCarts(1, itemsPerPage, value);
   };
 
-  const handleItemsPerPageChange = (e) => {
-    const newLimit = parseInt(e.target.value);
-    setItemsPerPage(newLimit);
-    fetchAbandonedCarts(1, newLimit, statusFilter);
+  const handleItemsPerPageChange = (value) => {
+    setItemsPerPage(Number(value));
+    fetchAbandonedCarts(1, Number(value), statusFilter);
   };
 
   const handleSearchChange = (e) => {
@@ -814,118 +811,120 @@ const AbandonedCartsContainer = () => {
     fetchAbandonedCarts(1, 10, "all");
   };
 
-  const handleCloseSnackbar = () => {
-    setSnackbar({ ...snackbar, open: false });
-  };
-
   if (loading)
-    return <p className="text-center mt-10">Loading abandoned carts...</p>;
+    return (
+      <div className="flex justify-center py-12">
+        <Loader2 className="size-6 animate-spin text-muted-foreground" />
+      </div>
+    );
   if (error)
-    return <p className="text-center mt-10 text-red-600">Error: {error}</p>;
+    return <p className="text-center mt-10 text-destructive">Error: {error}</p>;
 
   return (
-    <>
-      {/* Stats Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-        <div className="bg-white p-4 rounded-lg shadow border-l-4 border-blue-500">
-          <p className="text-sm text-gray-500">Total Carts</p>
-          <p className="text-2xl font-bold text-gray-800">{stats.totalCount}</p>
-        </div>
-        <div className="bg-white p-4 rounded-lg shadow border-l-4 border-yellow-500">
-          <p className="text-sm text-gray-500">Abandoned</p>
-          <p className="text-2xl font-bold text-gray-800">
-            {stats.abandonedCount}
-          </p>
-        </div>
-        <div className="bg-white p-4 rounded-lg shadow border-l-4 border-green-500">
-          <p className="text-sm text-gray-500">Converted</p>
-          <p className="text-2xl font-bold text-gray-800">
-            {stats.convertedCount}
-          </p>
-        </div>
-        <div className="bg-white p-4 rounded-lg shadow border-l-4 border-purple-500">
-          <p className="text-sm text-gray-500">Conversion Ratio</p>
-          <p className="text-2xl font-bold text-gray-800">{stats.ratio}%</p>
-        </div>
+    <div className="space-y-6">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <Card className="shadow-md border-0 border-l-4 border-l-blue-500">
+          <CardContent className="p-4">
+            <p className="text-sm text-muted-foreground">Total Carts</p>
+            <p className="text-2xl font-bold">{stats.totalCount}</p>
+          </CardContent>
+        </Card>
+        <Card className="shadow-md border-0 border-l-4 border-l-amber-500">
+          <CardContent className="p-4">
+            <p className="text-sm text-muted-foreground">Abandoned</p>
+            <p className="text-2xl font-bold">{stats.abandonedCount}</p>
+          </CardContent>
+        </Card>
+        <Card className="shadow-md border-0 border-l-4 border-l-green-500">
+          <CardContent className="p-4">
+            <p className="text-sm text-muted-foreground">Converted</p>
+            <p className="text-2xl font-bold">{stats.convertedCount}</p>
+          </CardContent>
+        </Card>
+        <Card className="shadow-md border-0 border-l-4 border-l-purple-500">
+          <CardContent className="p-4">
+            <p className="text-sm text-muted-foreground">Conversion Ratio</p>
+            <p className="text-2xl font-bold">{stats.ratio}%</p>
+          </CardContent>
+        </Card>
       </div>
 
-      {/* Filters and Controls */}
-      <div className="bg-gray-50 p-4 flex items-center justify-center gap-4 rounded-lg mb-4">
-        {/* Row 1: Sort, Status, Search */}
-        <div className="flex flex-wrap gap-3 items-center mb-3">
+      <div className="bg-muted/30 rounded-lg p-4 space-y-3">
+        <div className="flex flex-wrap gap-3 items-center">
           <div className="flex items-center gap-2">
-            <label className="text-sm text-gray-600">Sort by Date:</label>
-            <Select
-              value={sort}
-              onChange={handleSortChange}
-              size="small"
-              sx={{ minWidth: 130 }}
-            >
-              <MenuItem value="desc">Newest First</MenuItem>
-              <MenuItem value="asc">Oldest First</MenuItem>
+            <label className="text-sm text-muted-foreground whitespace-nowrap">Sort by Date:</label>
+            <Select value={sort} onValueChange={handleSortChange}>
+              <SelectTrigger className="w-[130px] h-8 bg-background">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="desc">Newest First</SelectItem>
+                <SelectItem value="asc">Oldest First</SelectItem>
+              </SelectContent>
             </Select>
           </div>
           <div className="flex items-center gap-2">
-            <label className="text-sm text-gray-600">Status:</label>
-            <Select
-              value={statusFilter}
-              onChange={handleStatusFilterChange}
-              size="small"
-              sx={{ minWidth: 130 }}
-            >
-              <MenuItem value="all">All</MenuItem>
-              <MenuItem value="abandoned">Abandoned</MenuItem>
-              <MenuItem value="converted">Converted</MenuItem>
+            <label className="text-sm text-muted-foreground whitespace-nowrap">Status:</label>
+            <Select value={statusFilter} onValueChange={handleStatusFilterChange}>
+              <SelectTrigger className="w-[130px] h-8 bg-background">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All</SelectItem>
+                <SelectItem value="abandoned">Abandoned</SelectItem>
+                <SelectItem value="converted">Converted</SelectItem>
+              </SelectContent>
             </Select>
           </div>
-          <TextField
-            size="small"
-            placeholder="Search by number..."
-            value={searchQuery}
-            onChange={handleSearchChange}
-            onKeyDown={(e) => e.key === "Enter" && handleSearchSubmit(e)}
-            sx={{ minWidth: 180 }}
-          />
-          <Button variant="contained" size="small" onClick={handleSearchSubmit}>
-            Search
-          </Button>
+          <form onSubmit={handleSearchSubmit} className="flex items-center gap-2">
+            <Input
+              placeholder="Search by number..."
+              value={searchQuery}
+              onChange={handleSearchChange}
+              className="w-[180px] h-8 bg-background"
+            />
+            <Button type="submit" size="sm">
+              <Search className="size-3.5 mr-1" />
+              Search
+            </Button>
+          </form>
         </div>
 
-        {/* Row 2: Date Range, Reset, Items per page */}
         <div className="flex flex-wrap gap-3 items-center">
-          <TextField
-            type="date"
-            label="From Date"
-            value={startDate}
-            onChange={handleStartDateChange}
-            size="small"
-            InputLabelProps={{ shrink: true }}
-            sx={{ minWidth: 160 }}
-          />
-          <TextField
-            type="date"
-            label="To Date"
-            value={endDate}
-            onChange={handleEndDateChange}
-            size="small"
-            InputLabelProps={{ shrink: true }}
-            sx={{ minWidth: 160 }}
-          />
-          <Button variant="outlined" size="small" onClick={handleResetFilters}>
+          <div className="flex items-center gap-2">
+            <label className="text-sm text-muted-foreground whitespace-nowrap">From:</label>
+            <Input
+              type="date"
+              value={startDate}
+              onChange={handleStartDateChange}
+              className="w-[160px] h-8 bg-background"
+            />
+          </div>
+          <div className="flex items-center gap-2">
+            <label className="text-sm text-muted-foreground whitespace-nowrap">To:</label>
+            <Input
+              type="date"
+              value={endDate}
+              onChange={handleEndDateChange}
+              className="w-[160px] h-8 bg-background"
+            />
+          </div>
+          <Button variant="ghost" size="sm" onClick={handleResetFilters}>
+            <RotateCcw className="size-3.5 mr-1" />
             Reset
           </Button>
           <div className="flex items-center gap-2 ml-auto">
-            <label className="text-sm text-gray-600">Items per page:</label>
-            <Select
-              value={itemsPerPage}
-              onChange={handleItemsPerPageChange}
-              size="small"
-              sx={{ minWidth: 80 }}
-            >
-              <MenuItem value={5}>5</MenuItem>
-              <MenuItem value={10}>10</MenuItem>
-              <MenuItem value={25}>25</MenuItem>
-              <MenuItem value={50}>50</MenuItem>
+            <label className="text-sm text-muted-foreground whitespace-nowrap">Items per page:</label>
+            <Select value={String(itemsPerPage)} onValueChange={handleItemsPerPageChange}>
+              <SelectTrigger className="w-[80px] h-8 bg-background">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="5">5</SelectItem>
+                <SelectItem value="10">10</SelectItem>
+                <SelectItem value="25">25</SelectItem>
+                <SelectItem value="50">50</SelectItem>
+              </SelectContent>
             </Select>
           </div>
         </div>
@@ -943,32 +942,27 @@ const AbandonedCartsContainer = () => {
         onSelectAll={handleSelectAll}
       />
 
-      {/* Delete Dialog */}
-      <Dialog
-        open={openDeleteDialog}
-        onClose={() => setOpenDeleteDialog(false)}
-      >
-        <DialogTitle>Delete Abandoned Cart</DialogTitle>
+      <Dialog open={openDeleteDialog} onOpenChange={setOpenDeleteDialog}>
         <DialogContent>
-          <DialogContentText>
-            {Array.isArray(selectedCartId)
-              ? `Are you sure you want to delete ${selectedCartId.length} abandoned cart(s)? This action cannot be undone.`
-              : "Are you sure you want to delete this abandoned cart? This action cannot be undone."}
-          </DialogContentText>
+          <DialogHeader>
+            <DialogTitle>Delete Abandoned Cart</DialogTitle>
+            <DialogDescription>
+              {Array.isArray(selectedCartId)
+                ? `Are you sure you want to delete ${selectedCartId.length} abandoned cart(s)? This action cannot be undone.`
+                : "Are you sure you want to delete this abandoned cart? This action cannot be undone."}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setOpenDeleteDialog(false)}>
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={handleConfirmDelete}>
+              Delete
+            </Button>
+          </DialogFooter>
         </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setOpenDeleteDialog(false)}>Cancel</Button>
-          <Button
-            onClick={handleConfirmDelete}
-            color="error"
-            variant="contained"
-          >
-            Delete
-          </Button>
-        </DialogActions>
       </Dialog>
 
-      {/* Edit Dialog */}
       <EditCartDialog
         open={openEditDialog}
         cart={editingCart}
@@ -980,7 +974,6 @@ const AbandonedCartsContainer = () => {
         shippingOptions={shippingOptions}
       />
 
-      {/* Convert to Order Dialog */}
       <ConvertToOrderDialog
         open={openConvertDialog}
         cart={convertingCart}
@@ -991,19 +984,7 @@ const AbandonedCartsContainer = () => {
         onConvert={handleConvertToOrder}
         shippingOptions={shippingOptions}
       />
-
-      {/* Snackbar */}
-      <Snackbar
-        open={snackbar.open}
-        autoHideDuration={6000}
-        onClose={handleCloseSnackbar}
-        anchorOrigin={{ vertical: "top", horizontal: "right" }}
-      >
-        <Alert onClose={handleCloseSnackbar} severity={snackbar.severity}>
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
-    </>
+    </div>
   );
 };
 

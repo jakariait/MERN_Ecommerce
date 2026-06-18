@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { ResponsiveBar } from "@nivo/bar";
-import { Typography } from "@mui/material";
 import useOrderStore from "../../store/useOrderStore";
 import dayjs from "dayjs";
 
@@ -18,7 +17,6 @@ const MonthlyOrderStatusGroupedChart = () => {
     const now = dayjs();
     const monthlyData = {};
 
-    // Prepare 12 months structure
     for (let i = 11; i >= 0; i--) {
       const key = now.subtract(i, "month").format("YYYY-MM");
       monthlyData[key] = {
@@ -48,9 +46,9 @@ const MonthlyOrderStatusGroupedChart = () => {
 
   return (
     <div className="bg-white p-4 rounded-lg shadow overflow-hidden">
-      <Typography variant="h6" align="center" gutterBottom>
+      <h3 className="text-center font-semibold mb-2">
         Monthly Order Status (Last 12 Months)
-      </Typography>
+      </h3>
       <div className="h-[300px]">
         <ResponsiveBar
           data={chartData}
@@ -66,7 +64,6 @@ const MonthlyOrderStatusGroupedChart = () => {
                 ? "#f44336"
                 : "#ff9800"
           }
-
           axisLeft={{
             legend: "Number of Orders",
             legendPosition: "middle",

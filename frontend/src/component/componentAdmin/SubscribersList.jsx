@@ -1,26 +1,42 @@
 import React, { useState, useEffect } from "react";
-import { Snackbar, Alert } from "@mui/material"; // Import MUI Snackbar and Alert components
-import useNewsletterStore from "../../store/useNewsletterStore.js"; // Import your Zustand store
-import DataTable from "react-data-table-component";
-import { FaTrash } from "react-icons/fa";
+import useNewsletterStore from "../../store/useNewsletterStore.js";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Card, CardContent } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { toast } from "sonner";
+import { Search, Trash2, Download } from "lucide-react";
 import { CSVLink } from "react-csv";
 
 export default function SubscribersList() {
   const { subscribers, fetchSubscribers, deleteSubscriber, isLoading, error } =
-    useNewsletterStore(); // Use Zustand store
+    useNewsletterStore();
 
   const [search, setSearch] = useState("");
   const [filteredSubscribers, setFilteredSubscribers] = useState([]);
-  const [openSnackbar, setOpenSnackbar] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState("");
-  const [snackbarSeverity, setSnackbarSeverity] = useState("success");
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState(null);
 
-  // Fetch subscribers on component mount
   useEffect(() => {
-    fetchSubscribers(); // Fetch data when component is mounted
+    fetchSubscribers();
   }, [fetchSubscribers]);
 
-  // Filter subscribers based on search input
   useEffect(() => {
     setFilteredSubscribers(
       subscribers.filter((sub) =>
@@ -31,124 +47,145 @@ export default function SubscribersList() {
     );
   }, [search, subscribers]);
 
-  const handleDelete = async (row) => {
-    const email = row.email || row.Email;
-    if (!window.confirm("Are you sure you want to delete this subscriber?")) {
-      return;
-    }
+  const handleDelete = async () => {
+    if (!deleteTarget) return;
+    const email = deleteTarget.email || deleteTarget.Email;
+    await deleteSubscriber(email);
 
-    // Perform deletion
-    await deleteSubscriber(email); // Delete subscriber
-
-    // Check if there's an error in the store
     if (!error) {
-      // If no error occurred, show success message
-      setSnackbarMessage("Subscriber deleted successfully!");
-      setSnackbarSeverity("success");
-
-      // Refetch subscribers to ensure we have the updated list
+      toast.success("Subscriber deleted successfully!");
       fetchSubscribers();
     } else {
-      // If there was an error, show failure message
-      setSnackbarMessage("Failed to delete subscriber!");
-      setSnackbarSeverity("error");
+      toast.error("Failed to delete subscriber!");
     }
 
-    setOpenSnackbar(true); // Show the snackbar message
+    setDeleteDialogOpen(false);
+    setDeleteTarget(null);
   };
 
-  const columns = [
-    {
-      name: "SL",
-      selector: (row, index) => index + 1,
-      sortable: true,
-      width: "70px",
-    },
-    {
-      name: "Email",
-      selector: (row) => row.email || row.Email,
-      sortable: true,
-    },
-    {
-      name: "Subscribed On",
-      selector: (row) =>
-        row.createdAt
-          ? new Date(row.createdAt).toLocaleString("en-US", {
-              weekday: "long",
-              year: "numeric",
-              month: "long",
-              day: "numeric",
-              hour: "2-digit",
-              minute: "2-digit",
-            })
-          : "N/A",
-      sortable: true,
-    },
-    {
-      name: "Action",
-      width: "70px",
-      cell: (row) => (
-        <button onClick={() => handleDelete(row)} className="text-red-600">
-          <FaTrash />
-        </button>
-      ),
-    },
-  ];
-
   return (
-    <div className="p-4">
-      <h1 className="border-l-4 primaryBorderColor primaryTextColor mb-6 pl-2 text-lg font-semibold ">
-        Subscribed Users List
-      </h1>
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-2xl font-bold tracking-tight">Subscribed Users List</h1>
+        <p className="text-sm text-muted-foreground mt-1">
+          {subscribers.length} total subscribers
+        </p>
+      </div>
 
-      {/* Search & CSV Download */}
-      <div className="flex justify-between items-center mt-3">
-        <input
-          type="text"
-          placeholder="Search..."
-          className="border p-2 rounded-md w-1/3"
-          onChange={(e) => setSearch(e.target.value)}
-        />
+      <div className="flex items-center justify-between gap-4">
+        <div className="relative flex-1 max-w-sm">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+          <Input
+            placeholder="Search by email..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="pl-9"
+          />
+        </div>
         <CSVLink
           data={filteredSubscribers.map((sub) => ({
             Email: sub.email || sub.Email,
           }))}
           headers={[{ label: "Email", key: "Email" }]}
           filename={"subscribers.csv"}
-          className="primaryBgColor accentTextColor px-4 py-2 rounded-md"
         >
-          Download As Excel
+          <Button variant="outline" size="sm">
+            <Download className="size-4 mr-2" />
+            Download CSV
+          </Button>
         </CSVLink>
       </div>
 
-      {/* Display errors if any */}
-      {error && <p className="text-red-500 mt-2">{error}</p>}
+      {error && <p className="text-sm text-destructive">{error}</p>}
 
-      {/* Data Table */}
-      <DataTable
-        columns={columns}
-        data={filteredSubscribers}
-        pagination
-        responsive
-        className="mt-4"
-        progressPending={isLoading}
-      />
+      <Card className="shadow-md border-0">
+        <CardContent className="p-0">
+          {isLoading ? (
+            <div className="space-y-3 p-4">
+              <Skeleton className="h-8 w-full" />
+              <Skeleton className="h-8 w-full" />
+              <Skeleton className="h-8 w-full" />
+              <Skeleton className="h-8 w-full" />
+              <Skeleton className="h-8 w-full" />
+            </div>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-[70px]">SL</TableHead>
+                  <TableHead>Email</TableHead>
+                  <TableHead>Subscribed On</TableHead>
+                  <TableHead className="w-[70px]">Action</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredSubscribers.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={4} className="text-center text-muted-foreground py-8">
+                      No subscribers found.
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  filteredSubscribers.map((sub, index) => (
+                    <TableRow key={sub._id || index}>
+                      <TableCell className="text-muted-foreground">
+                        {index + 1}
+                      </TableCell>
+                      <TableCell className="font-medium">
+                        {sub.email || sub.Email}
+                      </TableCell>
+                      <TableCell>
+                        {sub.createdAt
+                          ? new Date(sub.createdAt).toLocaleString("en-US", {
+                              weekday: "long",
+                              year: "numeric",
+                              month: "long",
+                              day: "numeric",
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            })
+                          : "N/A"}
+                      </TableCell>
+                      <TableCell>
+                        <Button
+                          variant="ghost"
+                          size="icon-xs"
+                          onClick={() => {
+                            setDeleteTarget(sub);
+                            setDeleteDialogOpen(true);
+                          }}
+                          className="text-destructive hover:text-destructive"
+                        >
+                          <Trash2 className="size-3.5" />
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          )}
+        </CardContent>
+      </Card>
 
-      {/* MUI Snackbar */}
-      <Snackbar
-        open={openSnackbar}
-        autoHideDuration={3000} // Snackbar will close after 3 seconds
-        onClose={() => setOpenSnackbar(false)}
-        anchorOrigin={{ vertical: "top", horizontal: "right" }} // Position at top right
-      >
-        <Alert
-          onClose={() => setOpenSnackbar(false)}
-          severity={snackbarSeverity}
-          sx={{ width: "100%" }}
-        >
-          {snackbarMessage}
-        </Alert>
-      </Snackbar>
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Confirm Delete</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete this subscriber?
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDeleteDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={handleDelete}>
+              Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

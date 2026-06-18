@@ -1,50 +1,48 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import axios from "axios";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   Dialog,
-  DialogTitle,
   DialogContent,
-  DialogActions,
-  Button,
-  TextField,
-  Box,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import {
   Table,
   TableBody,
   TableCell,
-  TableContainer,
   TableHead,
+  TableHeader,
   TableRow,
-  Paper,
-  Select,
-  MenuItem,
-  FormControl,
-  InputLabel,
-  Card,
-  CardContent,
-  Grid,
-  IconButton,
-  Snackbar,
-  Alert,
-  CircularProgress,
-  Autocomplete,
-  Typography,
-} from "@mui/material";
-import { Delete as DeleteIcon, Add as AddIcon } from "@mui/icons-material";
+} from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+import { toast } from "sonner";
+import { Plus, Trash2, Search, Loader2 } from "lucide-react";
 import useOrderStore from "../../store/useOrderStore.js";
 
 const AdminNewOrderCreate = () => {
   const apiUrl = import.meta.env.VITE_API_URL;
   const { fetchAllOrders } = useOrderStore();
 
-  // Dialog state
   const [openDialog, setOpenDialog] = useState(false);
 
-  // Customer selection
   const [customers, setCustomers] = useState([]);
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [isGuest, setIsGuest] = useState(true);
+  const [customerSearch, setCustomerSearch] = useState("");
 
-  // Guest customer info
   const [guestInfo, setGuestInfo] = useState({
     fullName: "",
     mobileNo: "",
@@ -52,32 +50,26 @@ const AdminNewOrderCreate = () => {
     address: "",
   });
 
-  // Products
   const [products, setProducts] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [selectedVariant, setSelectedVariant] = useState(null);
   const [quantity, setQuantity] = useState(1);
+  const [productSearch, setProductSearch] = useState("");
 
-  // Order items cart
   const [orderItems, setOrderItems] = useState([]);
 
-  // Check if any product has free shipping
   const hasFreeShippingProduct = orderItems.some((item) => item.freeShipping);
 
-  // Shipping & Payment
   const [shippingOptions, setShippingOptions] = useState([]);
   const [selectedShipping, setSelectedShipping] = useState(null);
   const [paymentMethod, setPaymentMethod] = useState("cash_on_delivery");
   const [paymentStatus, setPaymentStatus] = useState("unpaid");
 
-  // Discounts
   const [specialDiscount, setSpecialDiscount] = useState(0);
   const [promoCode, setPromoCode] = useState("");
 
-  // Notes
   const [adminNote, setAdminNote] = useState("");
 
-  // Calculations
   const [calculatedTotals, setCalculatedTotals] = useState({
     subtotal: 0,
     vat: 0,
@@ -86,15 +78,8 @@ const AdminNewOrderCreate = () => {
   });
   const [vatPercentage, setVatPercentage] = useState(0);
 
-  // Loading & Alerts
   const [isLoading, setIsLoading] = useState(false);
-  const [snackbar, setSnackbar] = useState({
-    open: false,
-    message: "",
-    severity: "success",
-  });
 
-  // Form validation errors
   const [formErrors, setFormErrors] = useState({
     fullName: false,
     mobileNo: false,
@@ -103,14 +88,12 @@ const AdminNewOrderCreate = () => {
     selectedShipping: false,
   });
 
-  // Fetch initial data
   useEffect(() => {
     fetchProducts();
     fetchShippingOptions();
     fetchVatPercentage();
   }, []);
 
-  // Fetch customers when switching to registered user
   useEffect(() => {
     if (!isGuest) {
       fetchCustomers();
@@ -124,38 +107,28 @@ const AdminNewOrderCreate = () => {
   const fetchProducts = async () => {
     try {
       const res = await axios.get(`${apiUrl}/getAllProductsAdmin`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       });
       if (res.data?.success) {
         setProducts(res.data.products || []);
       } else {
-        showSnackbar("Failed to fetch products", "error");
+        toast.error("Failed to fetch products");
       }
     } catch (err) {
-      showSnackbar(
-        err.response?.data?.message || "Failed to fetch products",
-        "error",
-      );
+      toast.error(err.response?.data?.message || "Failed to fetch products");
     }
   };
 
   const fetchCustomers = async () => {
     try {
       const res = await axios.get(`${apiUrl}/getAllUsers`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       });
       if (res.data?.success) {
         setCustomers(res.data.users || []);
       }
     } catch (err) {
-      showSnackbar(
-        err.response?.data?.message || "Failed to fetch customers",
-        "error",
-      );
+      toast.error(err.response?.data?.message || "Failed to fetch customers");
     }
   };
 
@@ -166,7 +139,7 @@ const AdminNewOrderCreate = () => {
         setShippingOptions(res.data.data);
       }
     } catch (err) {
-      showSnackbar("Failed to fetch shipping options", "error");
+      toast.error("Failed to fetch shipping options");
     }
   };
 
@@ -184,54 +157,52 @@ const AdminNewOrderCreate = () => {
     }
   };
 
-  const showSnackbar = (message, severity = "success") => {
-    setSnackbar({ open: true, message, severity });
-  };
-
-  const handleCloseSnackbar = () => {
-    setSnackbar({ ...snackbar, open: false });
-  };
-
-  // Helper function to build variant name from attributes
   const getVariantName = (variant) => {
     if (!variant) return "Unknown";
-
-    // If variant has attributes, build name from them (e.g., "M - Red")
     if (variant.attributes && variant.attributes.length > 0) {
-      return variant.attributes
-        .map((attr) => attr.value) // attr.value is the actual value (e.g., "M", "Red")
-        .join(" - ");
+      return variant.attributes.map((attr) => attr.value).join(" - ");
     }
-
-    // Fallback to _id if no attributes
     return `Variant ${variant._id.slice(-4)}`;
   };
 
+  const filteredProducts = useMemo(() => {
+    if (!productSearch) return products;
+    return products.filter((p) =>
+      p.name?.toLowerCase().includes(productSearch.toLowerCase()),
+    );
+  }, [products, productSearch]);
+
+  const filteredCustomers = useMemo(() => {
+    if (!customerSearch) return customers;
+    return customers.filter(
+      (c) =>
+        c.fullName?.toLowerCase().includes(customerSearch.toLowerCase()) ||
+        c.email?.toLowerCase().includes(customerSearch.toLowerCase()),
+    );
+  }, [customers, customerSearch]);
+
   const handleAddProduct = () => {
     if (!selectedProduct) {
-      showSnackbar("Please select a product", "error");
+      toast.error("Please select a product");
       return;
     }
 
-    // Check if product has variants
     const hasVariants =
       selectedProduct.variants && selectedProduct.variants.length > 0;
 
     if (hasVariants && !selectedVariant) {
-      showSnackbar("Please select a variant", "error");
+      toast.error("Please select a variant");
       return;
     }
 
     if (quantity < 1) {
-      showSnackbar("Please enter a valid quantity", "error");
+      toast.error("Please enter a valid quantity");
       return;
     }
 
-    // Handle both products with and without variants
     let price, variantId, variantName;
 
     if (hasVariants) {
-      // Use discount price if available, otherwise use regular price (matching Checkout.jsx logic)
       price =
         selectedVariant.discount > 0
           ? selectedVariant.discount
@@ -239,7 +210,6 @@ const AdminNewOrderCreate = () => {
       variantId = selectedVariant._id;
       variantName = getVariantName(selectedVariant);
     } else {
-      // For products without variants, use discount price if available (matching Checkout.jsx logic)
       price =
         selectedProduct.finalDiscount > 0
           ? selectedProduct.finalDiscount
@@ -250,7 +220,7 @@ const AdminNewOrderCreate = () => {
 
     const newItem = {
       productId: selectedProduct._id,
-      productName: selectedProduct.name, // Use 'name' not 'productName'
+      productName: selectedProduct.name,
       variantId,
       variantName,
       quantity: parseInt(quantity),
@@ -262,7 +232,8 @@ const AdminNewOrderCreate = () => {
     setSelectedProduct(null);
     setSelectedVariant(null);
     setQuantity(1);
-    showSnackbar("Product added to order", "success");
+    setProductSearch("");
+    toast.success("Product added to order");
   };
 
   const handleRemoveItem = (index) => {
@@ -271,25 +242,22 @@ const AdminNewOrderCreate = () => {
 
   const calculateTotals = () => {
     const hasFreeShipping = orderItems.some((item) => item.freeShipping === true);
-    
+
     const subtotal = orderItems.reduce(
       (sum, item) => sum + (item.price || 0) * (item.quantity || 0),
       0,
     );
-    
-    // Use 'value' instead of 'deliveryCharge' - shipping model uses 'value' field
-    // If any product has freeShipping, delivery charge is 0
-    const deliveryCharge = hasFreeShipping ? 0 : (selectedShipping?.value || 0);
+
+    const deliveryCharge = hasFreeShipping
+      ? 0
+      : selectedShipping?.value || 0;
     const discount = parseFloat(specialDiscount) || 0;
 
-    // Calculate amount after discounts (matching Checkout.jsx logic)
     const amountAfterDiscount = subtotal - discount;
 
-    // VAT is calculated on the amount AFTER discounts (matching Checkout.jsx)
     const vatPercent = parseFloat(vatPercentage) || 0;
     const vat = Math.max(0, (amountAfterDiscount * vatPercent) / 100);
 
-    // Total = subtotal - discount + vat + delivery
     const total = Math.max(0, subtotal + deliveryCharge + vat - discount);
 
     setCalculatedTotals({
@@ -303,45 +271,43 @@ const AdminNewOrderCreate = () => {
   const handleCreateOrder = async () => {
     try {
       if (orderItems.length === 0) {
-        showSnackbar("Add at least one product to the order", "error");
+        toast.error("Add at least one product to the order");
         return;
       }
 
       if (!hasFreeShippingProduct && !selectedShipping) {
-        showSnackbar("Please select a shipping option", "error");
+        toast.error("Please select a shipping option");
         return;
       }
 
-      // Validate customer information
       if (isGuest) {
         if (!guestInfo.fullName?.trim()) {
-          showSnackbar("Full Name is required", "error");
+          toast.error("Full Name is required");
           return;
         }
         if (!guestInfo.mobileNo?.trim()) {
-          showSnackbar("Mobile Number is required", "error");
+          toast.error("Mobile Number is required");
           return;
         }
         if (!guestInfo.address?.trim()) {
-          showSnackbar("Address is required", "error");
+          toast.error("Address is required");
           return;
         }
       } else {
-        // For registered customers
         if (!selectedCustomer) {
-          showSnackbar("Please select a customer", "error");
+          toast.error("Please select a customer");
           return;
         }
         if (!selectedCustomer?.fullName?.trim()) {
-          showSnackbar("Customer Full Name is required", "error");
+          toast.error("Customer Full Name is required");
           return;
         }
         if (!selectedCustomer?.phone?.trim()) {
-          showSnackbar("Customer Mobile Number is required", "error");
+          toast.error("Customer Mobile Number is required");
           return;
         }
         if (!guestInfo.address?.trim()) {
-          showSnackbar("Address is required", "error");
+          toast.error("Address is required");
           return;
         }
       }
@@ -367,7 +333,9 @@ const AdminNewOrderCreate = () => {
               fullName: selectedCustomer?.fullName || "",
               address: guestInfo.address,
             },
-        shippingId: hasFreeShippingProduct ? shippingOptions[0]?._id : selectedShipping._id,
+        shippingId: hasFreeShippingProduct
+          ? shippingOptions[0]?._id
+          : selectedShipping._id,
         deliveryCharge: hasFreeShippingProduct ? 0 : selectedShipping.value,
         subtotalAmount: calculatedTotals.subtotal,
         vat: calculatedTotals.vat,
@@ -375,38 +343,37 @@ const AdminNewOrderCreate = () => {
         promoCode: promoCode || null,
         promoDiscount: 0,
         adminNote,
-        orderSource: "admin", // Mark as admin order
+        orderSource: "admin",
       };
 
-      const res = await axios.post(`${apiUrl}/orders/admin/create`, orderData, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
+      const res = await axios.post(
+        `${apiUrl}/orders/admin/create`,
+        orderData,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
         },
-      });
+      );
 
       if (res.data?.success) {
-        showSnackbar("Order created successfully!", "success");
-        // Refetch all orders to show the new order
+        toast.success("Order created successfully!");
         fetchAllOrders();
         handleCloseDialog();
       }
     } catch (err) {
-      showSnackbar(
+      toast.error(
         err.response?.data?.message || "Failed to create order",
-        "error",
       );
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleOpenDialog = () => {
-    setOpenDialog(true);
-  };
+  const handleOpenDialog = () => setOpenDialog(true);
 
   const handleCloseDialog = () => {
     setOpenDialog(false);
-    // Reset form
     setOrderItems([]);
     setSelectedCustomer(null);
     setGuestInfo({ fullName: "", mobileNo: "", email: "", address: "" });
@@ -418,6 +385,8 @@ const AdminNewOrderCreate = () => {
     setAdminNote("");
     setPaymentMethod("cash_on_delivery");
     setPaymentStatus("unpaid");
+    setProductSearch("");
+    setCustomerSearch("");
     setFormErrors({
       fullName: false,
       mobileNo: false,
@@ -427,7 +396,6 @@ const AdminNewOrderCreate = () => {
     });
   };
 
-  // Real-time form validation
   const validateForm = () => {
     const errors = {
       fullName: false,
@@ -448,13 +416,13 @@ const AdminNewOrderCreate = () => {
       if (!guestInfo.address?.trim()) errors.address = true;
     }
 
-    if (!hasFreeShippingProduct && !selectedShipping) errors.selectedShipping = true;
+    if (!hasFreeShippingProduct && !selectedShipping)
+      errors.selectedShipping = true;
 
     setFormErrors(errors);
     return !Object.values(errors).some((error) => error);
   };
 
-  // Trigger validation whenever relevant fields change
   useEffect(() => {
     if (openDialog) {
       validateForm();
@@ -467,50 +435,50 @@ const AdminNewOrderCreate = () => {
     selectedCustomer,
     selectedShipping,
     orderItems,
+    openDialog,
   ]);
 
-  return (
-    <Box sx={{ mb: 3 }}>
-      <Button
-        variant="contained"
-        color="primary"
-        onClick={handleOpenDialog}
-        sx={{ mb: 2 }}
-      >
-        + Create New Order
-      </Button>
+  const hasFormErrors = Object.values(formErrors).some((error) => error);
 
-      <Dialog
-        open={openDialog}
-        onClose={handleCloseDialog}
-        maxWidth="lg"
-        fullWidth
-      >
-        <DialogTitle>Create New Admin Order</DialogTitle>
-        <DialogContent dividers>
-          <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
-            {/* Customer Selection */}
-            <Card>
-              <CardContent>
-                <h3 className={"pb-5"}>Customer Information</h3>
-                <FormControl fullWidth sx={{ mb: 2 }}>
-                  <InputLabel>Customer Type</InputLabel>
+  return (
+    <div>
+      <Button onClick={handleOpenDialog}>+ Create New Order</Button>
+
+      <Dialog open={openDialog} onOpenChange={setOpenDialog}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Create New Admin Order</DialogTitle>
+          </DialogHeader>
+
+          <div className="space-y-6">
+            <Card className="shadow-sm border">
+              <CardContent className="p-4 space-y-4">
+                <h3 className="font-semibold">Customer Information</h3>
+                <div className="space-y-2">
+                  <Label>Customer Type</Label>
                   <Select
                     value={isGuest ? "guest" : "registered"}
-                    onChange={(e) => setIsGuest(e.target.value === "guest")}
-                    label="Customer Type"
+                    onValueChange={(value) =>
+                      setIsGuest(value === "guest")
+                    }
                   >
-                    <MenuItem value="guest">Guest Checkout</MenuItem>
-                    <MenuItem value="registered">Registered User</MenuItem>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="guest">Guest Checkout</SelectItem>
+                      <SelectItem value="registered">
+                        Registered User
+                      </SelectItem>
+                    </SelectContent>
                   </Select>
-                </FormControl>
+                </div>
 
                 {isGuest ? (
-                  <Grid container spacing={2}>
-                    <Grid item xs={12} sm={6}>
-                      <TextField
-                        fullWidth
-                        label="Full Name"
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label>Full Name</Label>
+                      <Input
                         value={guestInfo.fullName}
                         onChange={(e) =>
                           setGuestInfo({
@@ -518,16 +486,17 @@ const AdminNewOrderCreate = () => {
                             fullName: e.target.value,
                           })
                         }
-                        error={formErrors.fullName}
-                        helperText={
-                          formErrors.fullName ? "Full Name is required" : ""
-                        }
+                        className={formErrors.fullName ? "border-destructive" : ""}
                       />
-                    </Grid>
-                    <Grid item xs={12} sm={6}>
-                      <TextField
-                        fullWidth
-                        label="Mobile Number"
+                      {formErrors.fullName && (
+                        <p className="text-xs text-destructive">
+                          Full Name is required
+                        </p>
+                      )}
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Mobile Number</Label>
+                      <Input
                         value={guestInfo.mobileNo}
                         onChange={(e) =>
                           setGuestInfo({
@@ -535,16 +504,17 @@ const AdminNewOrderCreate = () => {
                             mobileNo: e.target.value,
                           })
                         }
-                        error={formErrors.mobileNo}
-                        helperText={
-                          formErrors.mobileNo ? "Mobile Number is required" : ""
-                        }
+                        className={formErrors.mobileNo ? "border-destructive" : ""}
                       />
-                    </Grid>
-                    <Grid item xs={12} sm={6}>
-                      <TextField
-                        fullWidth
-                        label="Email"
+                      {formErrors.mobileNo && (
+                        <p className="text-xs text-destructive">
+                          Mobile Number is required
+                        </p>
+                      )}
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Email</Label>
+                      <Input
                         type="email"
                         value={guestInfo.email}
                         onChange={(e) =>
@@ -554,11 +524,10 @@ const AdminNewOrderCreate = () => {
                           })
                         }
                       />
-                    </Grid>
-                    <Grid item xs={12} sm={6}>
-                      <TextField
-                        fullWidth
-                        label="Address"
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Address</Label>
+                      <Input
                         value={guestInfo.address}
                         onChange={(e) =>
                           setGuestInfo({
@@ -566,66 +535,70 @@ const AdminNewOrderCreate = () => {
                             address: e.target.value,
                           })
                         }
-                        error={formErrors.address}
-                        helperText={
-                          formErrors.address ? "Address is required" : ""
-                        }
+                        className={formErrors.address ? "border-destructive" : ""}
                       />
-                    </Grid>
-                  </Grid>
-                ) : (
-                  <>
-                    <Autocomplete
-                      options={customers}
-                      getOptionLabel={(option) =>
-                        `${option.fullName} (${option.email})`
-                      }
-                      value={selectedCustomer}
-                      onChange={(e, value) => {
-                        setSelectedCustomer(value);
-                        if (value) {
-                          setGuestInfo({
-                            fullName: value.fullName || "",
-                            mobileNo: value.phone || "",
-                            email: value.email || "",
-                            address: value.address || "",
-                          });
-                        }
-                      }}
-                      renderInput={(params) => (
-                        <TextField
-                          {...params}
-                          label="Select Customer"
-                          error={formErrors.selectedCustomer}
-                          helperText={
-                            formErrors.selectedCustomer
-                              ? "Customer is required"
-                              : ""
-                          }
-                        />
+                      {formErrors.address && (
+                        <p className="text-xs text-destructive">
+                          Address is required
+                        </p>
                       )}
-                    />
-                    {selectedCustomer && (
-                      <>
-                        <Box
-                          sx={{
-                            mt: 2,
-                            p: 2,
-                            bgcolor: "#f5f5f5",
-                            borderRadius: 1,
-                          }}
-                        >
-                          <Typography
-                            variant="body2"
-                            sx={{ mb: 2, fontWeight: "bold" }}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label>Select Customer</Label>
+                      <div className="relative">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+                        <Input
+                          placeholder="Search customers..."
+                          value={customerSearch}
+                          onChange={(e) => setCustomerSearch(e.target.value)}
+                          className="pl-9"
+                        />
+                      </div>
+                      <div className="max-h-40 overflow-y-auto border rounded-md">
+                        {filteredCustomers.map((cust) => (
+                          <button
+                            type="button"
+                            key={cust._id}
+                            className={`w-full text-left px-3 py-2 text-sm hover:bg-muted transition-colors ${
+                              selectedCustomer?._id === cust._id
+                                ? "bg-muted font-medium"
+                                : ""
+                            }`}
+                            onClick={() => {
+                              setSelectedCustomer(cust);
+                              setGuestInfo({
+                                fullName: cust.fullName || "",
+                                mobileNo: cust.phone || "",
+                                email: cust.email || "",
+                                address: cust.address || "",
+                              });
+                              setCustomerSearch("");
+                            }}
                           >
+                            {cust.fullName} ({cust.email})
+                          </button>
+                        ))}
+                        {filteredCustomers.length === 0 && (
+                          <p className="px-3 py-2 text-sm text-muted-foreground">
+                            No customers found
+                          </p>
+                        )}
+                      </div>
+                    </div>
+
+                    {selectedCustomer && (
+                      <Card className="bg-muted/30">
+                        <CardContent className="p-4 space-y-3">
+                          <p className="text-sm font-medium">
                             Customer Details (Editable)
-                          </Typography>
-                          <Grid container spacing={2}>
-                            <Grid item xs={12} sm={6}>
-                              <TextField
-                                fullWidth
-                                label="Full Name"
+                          </p>
+                          <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                              <Label>Full Name</Label>
+                              <Input
                                 value={guestInfo.fullName}
                                 onChange={(e) =>
                                   setGuestInfo({
@@ -633,18 +606,17 @@ const AdminNewOrderCreate = () => {
                                     fullName: e.target.value,
                                   })
                                 }
-                                error={formErrors.fullName}
-                                helperText={
-                                  formErrors.fullName
-                                    ? "Full Name is required"
-                                    : ""
-                                }
+                                className={formErrors.fullName ? "border-destructive" : ""}
                               />
-                            </Grid>
-                            <Grid item xs={12} sm={6}>
-                              <TextField
-                                fullWidth
-                                label="Mobile Number"
+                              {formErrors.fullName && (
+                                <p className="text-xs text-destructive">
+                                  Full Name is required
+                                </p>
+                              )}
+                            </div>
+                            <div className="space-y-2">
+                              <Label>Mobile Number</Label>
+                              <Input
                                 value={guestInfo.mobileNo}
                                 onChange={(e) =>
                                   setGuestInfo({
@@ -652,18 +624,17 @@ const AdminNewOrderCreate = () => {
                                     mobileNo: e.target.value,
                                   })
                                 }
-                                error={formErrors.mobileNo}
-                                helperText={
-                                  formErrors.mobileNo
-                                    ? "Mobile Number is required"
-                                    : ""
-                                }
+                                className={formErrors.mobileNo ? "border-destructive" : ""}
                               />
-                            </Grid>
-                            <Grid item xs={12} sm={6}>
-                              <TextField
-                                fullWidth
-                                label="Email"
+                              {formErrors.mobileNo && (
+                                <p className="text-xs text-destructive">
+                                  Mobile Number is required
+                                </p>
+                              )}
+                            </div>
+                            <div className="space-y-2">
+                              <Label>Email</Label>
+                              <Input
                                 type="email"
                                 value={guestInfo.email}
                                 onChange={(e) =>
@@ -673,11 +644,10 @@ const AdminNewOrderCreate = () => {
                                   })
                                 }
                               />
-                            </Grid>
-                            <Grid item xs={12} sm={6}>
-                              <TextField
-                                fullWidth
-                                label="Address"
+                            </div>
+                            <div className="space-y-2">
+                              <Label>Address</Label>
+                              <Input
                                 value={guestInfo.address}
                                 onChange={(e) =>
                                   setGuestInfo({
@@ -685,383 +655,346 @@ const AdminNewOrderCreate = () => {
                                     address: e.target.value,
                                   })
                                 }
-                                error={formErrors.address}
-                                helperText={
-                                  formErrors.address
-                                    ? "Address is required"
-                                    : ""
-                                }
+                                className={formErrors.address ? "border-destructive" : ""}
                               />
-                            </Grid>
-                          </Grid>
-                        </Box>
-                      </>
+                              {formErrors.address && (
+                                <p className="text-xs text-destructive">
+                                  Address is required
+                                </p>
+                              )}
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
                     )}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            <Card className="shadow-sm border">
+              <CardContent className="p-4 space-y-4">
+                <h3 className="font-semibold">Add Products</h3>
+                <div className="grid grid-cols-12 gap-4 items-end">
+                  <div className="col-span-5 space-y-2">
+                    <Label>Select Product</Label>
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+                      <Input
+                        placeholder="Search products..."
+                        value={productSearch}
+                        onChange={(e) => {
+                          setProductSearch(e.target.value);
+                          setSelectedProduct(null);
+                          setSelectedVariant(null);
+                        }}
+                        className="pl-9"
+                      />
+                    </div>
+                    {productSearch && (
+                      <div className="max-h-40 overflow-y-auto border rounded-md">
+                        {filteredProducts.map((p) => (
+                          <button
+                            type="button"
+                            key={p._id}
+                            className={`w-full text-left px-3 py-2 text-sm hover:bg-muted transition-colors ${
+                              selectedProduct?._id === p._id
+                                ? "bg-muted font-medium"
+                                : ""
+                            }`}
+                            onClick={() => {
+                              setSelectedProduct(p);
+                              setSelectedVariant(null);
+                            }}
+                          >
+                            {p.name}
+                            {p.freeShipping && (
+                              <Badge
+                                variant="outline"
+                                className="ml-2 text-[10px] text-green-600 border-green-300"
+                              >
+                                Free Shipping
+                              </Badge>
+                            )}
+                          </button>
+                        ))}
+                        {filteredProducts.length === 0 && (
+                          <p className="px-3 py-2 text-sm text-muted-foreground">
+                            No products found
+                          </p>
+                        )}
+                      </div>
+                    )}
+                  </div>
+
+                  {selectedProduct &&
+                    selectedProduct.variants &&
+                    selectedProduct.variants.length > 0 && (
+                      <div className="col-span-3 space-y-2">
+                        <Label>Variant</Label>
+                        <Select
+                          value={selectedVariant?._id || ""}
+                          onValueChange={(value) => {
+                            const variant = (
+                              selectedProduct.variants || []
+                            ).find((v) => v._id === value);
+                            setSelectedVariant(variant);
+                          }}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select variant" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {selectedProduct.variants.map((variant) => (
+                              <SelectItem
+                                key={variant._id}
+                                value={variant._id}
+                              >
+                                {getVariantName(variant)} - ৳
+                                {variant.discount > 0
+                                  ? variant.discount
+                                  : variant.price || 0}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    )}
+
+                  <div className="col-span-2 space-y-2">
+                    <Label>Quantity</Label>
+                    <Input
+                      type="number"
+                      value={quantity}
+                      onChange={(e) => setQuantity(e.target.value)}
+                      min={1}
+                    />
+                  </div>
+
+                  <div className="col-span-2">
+                    <Button
+                      className="w-full"
+                      onClick={handleAddProduct}
+                    >
+                      <Plus className="size-4 mr-2" />
+                      Add
+                    </Button>
+                  </div>
+                </div>
+
+                {orderItems.length > 0 && (
+                  <>
+                    <h3 className="font-semibold pt-2">Order Items</h3>
+                    <div className="border rounded-md">
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Product</TableHead>
+                            <TableHead>Variant</TableHead>
+                            <TableHead className="text-right">Price</TableHead>
+                            <TableHead className="text-right">Qty</TableHead>
+                            <TableHead className="text-right">Total</TableHead>
+                            <TableHead className="text-center w-16">Action</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {orderItems.map((item, index) => (
+                            <TableRow key={index}>
+                              <TableCell className="font-medium">
+                                {item.productName}
+                              </TableCell>
+                              <TableCell>{item.variantName}</TableCell>
+                              <TableCell className="text-right">
+                                ৳{item.price}
+                              </TableCell>
+                              <TableCell className="text-right">
+                                {item.quantity}
+                              </TableCell>
+                              <TableCell className="text-right">
+                                ৳{item.price * item.quantity}
+                              </TableCell>
+                              <TableCell className="text-center">
+                                <Button
+                                  variant="ghost"
+                                  size="icon-xs"
+                                  onClick={() => handleRemoveItem(index)}
+                                  className="text-destructive hover:text-destructive"
+                                >
+                                  <Trash2 className="size-3.5" />
+                                </Button>
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </div>
                   </>
                 )}
               </CardContent>
             </Card>
 
-            {/* Product Selection */}
-            <Card>
-              <CardContent>
-                <h3 className={"pb-5"}>Add Products</h3>
-                <Grid container spacing={2} sx={{ mb: 2 }}>
-                  <Grid item xs={12} sm={4}>
-                    <Autocomplete
-                      options={products}
-                      getOptionLabel={(option) => option.name || ""}
-                      value={selectedProduct}
-                      onChange={(e, value) => {
-                        setSelectedProduct(value);
-                        setSelectedVariant(null);
-                      }}
-                      renderOption={(props, option) => (
-                        <li {...props}>
-                          {option.name}
-                          {option.freeShipping && (
-                            <span
-                              style={{
-                                marginLeft: 8,
-                                color: "green",
-                                fontSize: "0.75rem",
-                              }}
-                            >
-                              (Free Shipping)
-                            </span>
-                          )}
-                        </li>
-                      )}
-                      renderInput={(params) => (
-                        <TextField
-                          {...params}
-                          label="Select Product"
-                          placeholder="Search products..."
-                        />
-                      )}
-                      noOptionsText="No products found"
-                      loading={!products || products.length === 0}
-                    />
-                  </Grid>
-
-                  {selectedProduct &&
-                    selectedProduct.variants &&
-                    selectedProduct.variants.length > 0 && (
-                      <Grid item xs={12} sm={4}>
-                        <FormControl fullWidth>
-                          <InputLabel>Variant</InputLabel>
-                          <Select
-                            value={selectedVariant?._id || ""}
-                            onChange={(e) => {
-                              const variant = (
-                                selectedProduct.variants || []
-                              ).find((v) => v._id === e.target.value);
-                              setSelectedVariant(variant);
-                            }}
-                            label="Variant"
-                          >
-                            {selectedProduct.variants &&
-                            selectedProduct.variants.length > 0 ? (
-                              selectedProduct.variants.map((variant) => (
-                                <MenuItem key={variant._id} value={variant._id}>
-                                  {getVariantName(variant)} - ৳
-                                  {variant.discount > 0
-                                    ? variant.discount
-                                    : variant.price || 0}
-                                </MenuItem>
-                              ))
-                            ) : (
-                              <MenuItem disabled>
-                                No variants available
-                              </MenuItem>
-                            )}
-                          </Select>
-                        </FormControl>
-                      </Grid>
-                    )}
-
-                  <Grid item xs={12} sm={2}>
-                    <TextField
-                      fullWidth
-                      label="Quantity"
-                      type="number"
-                      value={quantity}
-                      onChange={(e) => setQuantity(e.target.value)}
-                      inputProps={{ min: 1 }}
-                    />
-                  </Grid>
-
-                  <Grid item xs={12} sm={2}>
-                    <Button
-                      fullWidth
-                      variant="contained"
-                      startIcon={<AddIcon />}
-                      onClick={handleAddProduct}
-                      sx={{ mt: 1 }}
-                    >
-                      Add
-                    </Button>
-                  </Grid>
-                </Grid>
-
-                {/* Order Items Table */}
-                {orderItems.length > 0 && (
-                  <TableContainer component={Paper}>
-                    <Table>
-                      <TableHead>
-                        <TableRow sx={{ backgroundColor: "#f5f5f5" }}>
-                          <TableCell>Product</TableCell>
-                          <TableCell align="right">Variant</TableCell>
-                          <TableCell align="right">Price</TableCell>
-                          <TableCell align="right">Qty</TableCell>
-                          <TableCell align="right">Total</TableCell>
-                          <TableCell align="center">Action</TableCell>
-                        </TableRow>
-                      </TableHead>
-                      <TableBody>
-                        {orderItems.map((item, index) => (
-                          <TableRow key={index}>
-                            <TableCell>{item.productName}</TableCell>
-                            <TableCell align="right">
-                              {item.variantName}
-                            </TableCell>
-                            <TableCell align="right">৳{item.price}</TableCell>
-                            <TableCell align="right">{item.quantity}</TableCell>
-                            <TableCell align="right">
-                              ৳{item.price * item.quantity}
-                            </TableCell>
-                            <TableCell align="center">
-                              <IconButton
-                                size="small"
-                                color="error"
-                                onClick={() => handleRemoveItem(index)}
-                              >
-                                <DeleteIcon fontSize="small" />
-                              </IconButton>
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </TableContainer>
-                )}
-              </CardContent>
-            </Card>
-
-            {/* Shipping & Payment */}
-            <Card>
-              <CardContent>
-                <h3 className={"pb-5"}>Shipping & Payment</h3>
-                <Grid container spacing={2}>
-                  <Grid item xs={12} sm={6}>
+            <Card className="shadow-sm border">
+              <CardContent className="p-4 space-y-4">
+                <h3 className="font-semibold">Shipping & Payment</h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Shipping Option</Label>
                     {hasFreeShippingProduct ? (
-                      <TextField
-                        fullWidth
-                        label="Shipping Option"
+                      <Input
                         value="Free Shipping"
-                        InputProps={{
-                          readOnly: true,
-                        }}
-                        sx={{
-                          "& .MuiInputBase-input": {
-                            color: "green",
-                            fontWeight: "bold",
-                          },
-                        }}
+                        className="text-green-600 font-semibold"
+                        readOnly
                       />
                     ) : (
-                      <FormControl fullWidth error={formErrors.selectedShipping}>
-                        <InputLabel>Shipping Option</InputLabel>
-                        <Select
-                          value={selectedShipping?._id || ""}
-                          onChange={(e) => {
-                            const shipping = shippingOptions.find(
-                              (s) => s._id === e.target.value,
-                            );
-                            setSelectedShipping(shipping);
-                          }}
-                          label="Shipping Option"
+                      <Select
+                        value={selectedShipping?._id || ""}
+                        onValueChange={(value) => {
+                          const shipping = shippingOptions.find(
+                            (s) => s._id === value,
+                          );
+                          setSelectedShipping(shipping);
+                        }}
+                      >
+                        <SelectTrigger
+                          className={formErrors.selectedShipping ? "border-destructive" : ""}
                         >
+                          <SelectValue placeholder="Select shipping" />
+                        </SelectTrigger>
+                        <SelectContent>
                           {shippingOptions.map((option) => (
-                            <MenuItem key={option._id} value={option._id}>
+                            <SelectItem key={option._id} value={option._id}>
                               {option.name} - ৳{option.value}
-                            </MenuItem>
+                            </SelectItem>
                           ))}
-                        </Select>
-                        {formErrors.selectedShipping && (
-                          <Box
-                            sx={{
-                              color: "#d32f2f",
-                              fontSize: "0.75rem",
-                              mt: 0.5,
-                            }}
-                          >
-                            Shipping Option is required
-                          </Box>
-                        )}
-                      </FormControl>
+                        </SelectContent>
+                      </Select>
                     )}
-                  </Grid>
+                    {formErrors.selectedShipping && (
+                      <p className="text-xs text-destructive">
+                        Shipping Option is required
+                      </p>
+                    )}
+                  </div>
 
-                  <Grid item xs={12} sm={6}>
-                    <FormControl fullWidth>
-                      <InputLabel>Payment Method</InputLabel>
-                      <Select
-                        value={paymentMethod}
-                        onChange={(e) => setPaymentMethod(e.target.value)}
-                        label="Payment Method"
-                      >
-                        <MenuItem value="cash_on_delivery">
+                  <div className="space-y-2">
+                    <Label>Payment Method</Label>
+                    <Select
+                      value={paymentMethod}
+                      onValueChange={setPaymentMethod}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="cash_on_delivery">
                           Cash on Delivery
-                        </MenuItem>
-                      </Select>
-                    </FormControl>
-                  </Grid>
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
 
-                  <Grid item xs={12} sm={6}>
-                    <FormControl fullWidth>
-                      <InputLabel>Payment Status</InputLabel>
-                      <Select
-                        value={paymentStatus}
-                        onChange={(e) => setPaymentStatus(e.target.value)}
-                        label="Payment Status"
-                      >
-                        <MenuItem value="unpaid">Unpaid</MenuItem>
-                        <MenuItem value="paid">Paid</MenuItem>
-                      </Select>
-                    </FormControl>
-                  </Grid>
+                  <div className="space-y-2">
+                    <Label>Payment Status</Label>
+                    <Select
+                      value={paymentStatus}
+                      onValueChange={setPaymentStatus}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="unpaid">Unpaid</SelectItem>
+                        <SelectItem value="paid">Paid</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
 
-                  <Grid item xs={12} sm={6}>
-                    <TextField
-                      fullWidth
-                      label="Special Discount (৳)"
+                  <div className="space-y-2">
+                    <Label>Special Discount (৳)</Label>
+                    <Input
                       type="number"
                       value={specialDiscount}
                       onChange={(e) =>
-                        setSpecialDiscount(parseFloat(e.target.value) || 0)
+                        setSpecialDiscount(
+                          parseFloat(e.target.value) || 0,
+                        )
                       }
-                      inputProps={{ min: 0 }}
+                      min={0}
                     />
-                  </Grid>
-                </Grid>
+                  </div>
+                </div>
               </CardContent>
             </Card>
 
-            {/* Admin Notes */}
-            <TextField
-              fullWidth
-              multiline
-              rows={3}
-              label="Admin Notes"
-              value={adminNote}
-              onChange={(e) => setAdminNote(e.target.value)}
-              variant="outlined"
-            />
+            <div className="space-y-2">
+              <Label>Admin Notes</Label>
+              <Textarea
+                value={adminNote}
+                onChange={(e) => setAdminNote(e.target.value)}
+                rows={3}
+              />
+            </div>
 
-            {/* Order Summary */}
-            <Card>
-              <CardContent>
-                <h3>Order Summary</h3>
-                <Grid container spacing={2}>
-                  <Grid item xs={6}>
-                    <strong>Subtotal:</strong>
-                  </Grid>
-                  <Grid item xs={6} sx={{ textAlign: "right" }}>
-                    ৳{calculatedTotals.subtotal.toFixed(2)}
-                  </Grid>
-
+            <Card className="shadow-sm border">
+              <CardContent className="p-4">
+                <h3 className="font-semibold mb-3">Order Summary</h3>
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="font-medium">Subtotal:</span>
+                    <span>৳{calculatedTotals.subtotal.toFixed(2)}</span>
+                  </div>
                   {vatPercentage > 0 && (
-                    <>
-                      <Grid item xs={6}>
-                        <strong>VAT ({vatPercentage}%):</strong>
-                      </Grid>
-                      <Grid item xs={6} sx={{ textAlign: "right" }}>
-                        ৳{calculatedTotals.vat.toFixed(2)}
-                      </Grid>
-                    </>
+                    <div className="flex justify-between">
+                      <span className="font-medium">
+                        VAT ({vatPercentage}%):
+                      </span>
+                      <span>৳{calculatedTotals.vat.toFixed(2)}</span>
+                    </div>
                   )}
-
-                  <Grid item xs={6}>
-                    <strong>Delivery Charge:</strong>
-                  </Grid>
-                  <Grid item xs={6} sx={{ textAlign: "right" }}>
-                    {hasFreeShippingProduct ? (
-                      <span style={{ color: "green", fontWeight: "bold" }}>Free</span>
-                    ) : (
-                      `৳${calculatedTotals.deliveryCharge.toFixed(2)}`
-                    )}
-                  </Grid>
-
-                  <Grid item xs={6}>
-                    <strong>Discount:</strong>
-                  </Grid>
-                  <Grid item xs={6} sx={{ textAlign: "right" }}>
-                    -৳{specialDiscount.toFixed(2)}
-                  </Grid>
-
-                  <Grid
-                    item
-                    xs={6}
-                    sx={{
-                      borderTop: "2px solid #ddd",
-                      pt: 2,
-                      fontWeight: "bold",
-                    }}
-                  >
-                    Total:
-                  </Grid>
-                  <Grid
-                    item
-                    xs={6}
-                    sx={{
-                      textAlign: "right",
-                      borderTop: "2px solid #ddd",
-                      pt: 2,
-                      fontWeight: "bold",
-                      color: "#1976d2",
-                    }}
-                  >
-                    ৳{calculatedTotals.total.toFixed(2)}
-                  </Grid>
-                </Grid>
+                  <div className="flex justify-between">
+                    <span className="font-medium">Delivery Charge:</span>
+                    <span>
+                      {hasFreeShippingProduct ? (
+                        <span className="text-green-600 font-semibold">
+                          Free
+                        </span>
+                      ) : (
+                        `৳${calculatedTotals.deliveryCharge.toFixed(2)}`
+                      )}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="font-medium">Discount:</span>
+                    <span>-৳{specialDiscount.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between border-t pt-2 font-bold text-base">
+                    <span>Total:</span>
+                    <span className="text-primary">
+                      ৳{calculatedTotals.total.toFixed(2)}
+                    </span>
+                  </div>
+                </div>
               </CardContent>
             </Card>
-          </Box>
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={handleCloseDialog}>
+              Cancel
+            </Button>
+            <Button
+              onClick={handleCreateOrder}
+              disabled={isLoading || orderItems.length === 0 || hasFormErrors}
+            >
+              {isLoading ? (
+                <Loader2 className="size-4 animate-spin mr-2" />
+              ) : null}
+              Create Order
+            </Button>
+          </DialogFooter>
         </DialogContent>
-
-        <DialogActions>
-          <Button onClick={handleCloseDialog}>Cancel</Button>
-          <Button
-            onClick={handleCreateOrder}
-            variant="contained"
-            color="primary"
-            disabled={
-              isLoading ||
-              orderItems.length === 0 ||
-              Object.values(formErrors).some((error) => error)
-            }
-          >
-            {isLoading ? <CircularProgress size={24} /> : "Create Order"}
-          </Button>
-        </DialogActions>
       </Dialog>
-
-      <Snackbar
-        open={snackbar.open}
-        autoHideDuration={4000}
-        onClose={handleCloseSnackbar}
-        anchorOrigin={{ vertical: "top", horizontal: "right" }}
-      >
-        <Alert
-          onClose={handleCloseSnackbar}
-          severity={snackbar.severity}
-          sx={{ width: "100%" }}
-        >
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
-    </Box>
+    </div>
   );
 };
 

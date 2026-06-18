@@ -1,11 +1,10 @@
-import {
-  Box,
-  TextField,
-  Button,
-  Snackbar,
-  Alert,
-  CircularProgress,
-} from "@mui/material";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import { toast } from "sonner";
+import { Loader2 } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -21,35 +20,22 @@ const EditAdmin = () => {
   const [admin, setAdmin] = useState(null);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
-
-  const [snackbar, setSnackbar] = useState({
-    open: false,
-    severity: "success",
-    message: "",
-  });
+  const [selectedPermissions, setSelectedPermissions] = useState([]);
 
   const fetchAdmin = async () => {
     try {
       const res = await axios.get(`${apiUrl}/admin/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-
-      // Set password to empty so it's not shown in the input
       const adminData = { ...res.data.admin, password: "" };
-
       setAdmin(adminData);
       setSelectedPermissions(res.data.admin.permissions || []);
     } catch (error) {
-      setSnackbar({
-        open: true,
-        severity: "error",
-        message: "Failed to fetch admin data",
-      });
+      toast.error("Failed to fetch admin data");
     } finally {
       setLoading(false);
     }
   };
-  const [selectedPermissions, setSelectedPermissions] = useState([]);
 
   useEffect(() => {
     fetchAdmin();
@@ -77,19 +63,10 @@ const EditAdmin = () => {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      setSnackbar({
-        open: true,
-        severity: "success",
-        message: "Admin updated successfully",
-      });
-
+      toast.success("Admin updated successfully");
       setTimeout(() => navigate("/admin/adminlist"), 1000);
     } catch (error) {
-      setSnackbar({
-        open: true,
-        severity: "error",
-        message: error.response?.data?.message || "Failed to update admin",
-      });
+      toast.error(error.response?.data?.message || "Failed to update admin");
     } finally {
       setUpdating(false);
     }
@@ -97,85 +74,72 @@ const EditAdmin = () => {
 
   if (loading) {
     return (
-      <Box sx={{ textAlign: "center", mt: 5 }}>
-        <CircularProgress />
-      </Box>
+      <div className="flex justify-center py-12">
+        <Loader2 className="size-6 animate-spin text-muted-foreground" />
+      </div>
     );
   }
 
   return (
-    <div className={"p-4 shadow rounded-lg"}>
-      <h1 className="border-l-4 primaryBorderColor primaryTextColor mb-6 pl-2 text-lg font-semibold">
-        Edit Admin
-      </h1>
-      <div className={"grid grid-cols-2 gap-4"}>
-        <TextField
-          label="Name"
-          name="name"
-          value={admin.name}
-          onChange={handleChange}
-          fullWidth
-          margin="normal"
-        />
-        <TextField
-          label="Email"
-          name="email"
-          type="email"
-          value={admin.email}
-          onChange={handleChange}
-          fullWidth
-          margin="normal"
-        />
-        <TextField
-          label="Mobile No"
-          name="mobileNo"
-          value={admin.mobileNo || ""}
-          onChange={handleChange}
-          fullWidth
-          margin="normal"
-        />
-        <TextField
-          label="New Password (optional)"
-          name="password"
-          type="password"
-          value={admin.password || ""}
-          onChange={handleChange}
-          fullWidth
-          margin="normal"
-        />
-      </div>
+    <div className="space-y-6">
+      <h1 className="text-2xl font-bold tracking-tight">Edit Admin</h1>
 
-      <PermissionsCheckboxGroup
-        selectedPermissions={selectedPermissions}
-        setSelectedPermissions={setSelectedPermissions}
-      />
-      <div className={"flex items-center justify-center"}>
-        <button
-          onClick={handleSubmit}
-          disabled={updating}
-          className={
-            "primaryBgColor accentTextColor px-4 py-2 rounded-md mt-4 w-44 cursor-pointer"
-          }
-        >
-          {updating ? "Updating..." : "Update"}
-        </button>
-      </div>
+      <Card className="shadow-md border-0">
+        <CardContent className="p-6 space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="name">Name</Label>
+              <Input
+                id="name"
+                name="name"
+                value={admin.name}
+                onChange={handleChange}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                name="email"
+                type="email"
+                value={admin.email}
+                onChange={handleChange}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="mobileNo">Mobile No</Label>
+              <Input
+                id="mobileNo"
+                name="mobileNo"
+                value={admin.mobileNo || ""}
+                onChange={handleChange}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="password">New Password (optional)</Label>
+              <Input
+                id="password"
+                name="password"
+                type="password"
+                value={admin.password || ""}
+                onChange={handleChange}
+                placeholder="Leave blank to keep current password"
+              />
+            </div>
+          </div>
 
-      <Snackbar
-        open={snackbar.open}
-        autoHideDuration={3000}
-        onClose={() => setSnackbar({ ...snackbar, open: false })}
-        anchorOrigin={{ vertical: "top", horizontal: "right" }}
-      >
-        <Alert
-          onClose={() => setSnackbar({ ...snackbar, open: false })}
-          severity={snackbar.severity}
-          variant="filled"
-          sx={{ width: "100%" }}
-        >
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
+          <PermissionsCheckboxGroup
+            selectedPermissions={selectedPermissions}
+            setSelectedPermissions={setSelectedPermissions}
+          />
+
+          <div className="flex justify-center pt-2">
+            <Button onClick={handleSubmit} disabled={updating}>
+              {updating ? "Updating..." : "Update"}
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };

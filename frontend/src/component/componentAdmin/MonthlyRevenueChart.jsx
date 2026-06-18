@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { Typography } from "@mui/material";
 import { ResponsiveLine } from "@nivo/line";
 import useOrderStore from "../../store/useOrderStore";
 import dayjs from "dayjs";
@@ -18,7 +17,6 @@ const MonthlyRevenueChart = () => {
     const now = dayjs();
     const revenueMap = {};
 
-    // Initialize last 12 months
     for (let i = 11; i >= 0; i--) {
       const monthKey = now.subtract(i, "month").format("YYYY-MM");
       revenueMap[monthKey] = 0;
@@ -37,8 +35,8 @@ const MonthlyRevenueChart = () => {
       {
         id: "Revenue",
         data: Object.entries(revenueMap).map(([month, value]) => ({
-          x: dayjs(month).format("MMM YYYY"), // e.g., Jan 2025
-          y: parseFloat(value.toFixed(2)), // round to 2 decimals
+          x: dayjs(month).format("MMM YYYY"),
+          y: parseFloat(value.toFixed(2)),
         })),
       },
     ];
@@ -48,9 +46,9 @@ const MonthlyRevenueChart = () => {
 
   return (
     <div className="bg-white p-4 rounded-lg shadow overflow-hidden">
-      <Typography variant="h6" align="center" gutterBottom>
+      <h3 className="text-center font-semibold mb-2">
         Monthly Revenue (Last 12 Months)
-      </Typography>
+      </h3>
       <div className="h-[200px]">
         <ResponsiveLine
           data={monthlyRevenue}

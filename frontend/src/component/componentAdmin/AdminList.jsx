@@ -1,23 +1,25 @@
 import React, { useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
   TableBody,
   TableCell,
-  TableContainer,
   TableHead,
+  TableHeader,
   TableRow,
-  Paper,
-  CircularProgress,
-  Button,
+} from "@/components/ui/table";
+import { Card, CardContent } from "@/components/ui/card";
+import {
   Dialog,
-  DialogActions,
   DialogContent,
-  DialogContentText,
+  DialogHeader,
   DialogTitle,
-  Snackbar,
-  Alert,
-  Box,
-} from "@mui/material";
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { toast } from "sonner";
+import { Edit, Trash2, Plus, Loader2 } from "lucide-react";
 import axios from "axios";
 import useAuthAdminStore from "../../store/AuthAdminStore.js";
 import { Link } from "react-router-dom";
@@ -29,12 +31,6 @@ const AdminList = () => {
   const [admins, setAdmins] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Snackbar states
-  const [snackbarOpen, setSnackbarOpen] = useState(false);
-  const [snackbarSeverity, setSnackbarSeverity] = useState("success");
-  const [snackbarMessage, setSnackbarMessage] = useState("");
-
-  // Delete dialog
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [selectedAdminId, setSelectedAdminId] = useState(null);
 
@@ -46,152 +42,127 @@ const AdminList = () => {
     setLoading(true);
     try {
       const response = await axios.get(`${apiUrl}/admin/getall`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { Authorization: `Bearer ${token}` },
       });
       setAdmins(response.data.admins);
     } catch (error) {
-      showSnackbar("error", "Failed to fetch admins");
+      toast.error("Failed to fetch admins");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleDeleteClick = (adminId) => {
-    setSelectedAdminId(adminId);
-    setOpenDeleteDialog(true);
-  };
-
   const handleDeleteConfirm = async () => {
     try {
       await axios.delete(`${apiUrl}/admin/${selectedAdminId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { Authorization: `Bearer ${token}` },
       });
-      showSnackbar("success", "Admin deleted successfully");
+      toast.success("Admin deleted successfully");
       fetchAdmins();
     } catch (error) {
-      showSnackbar("error", "Failed to delete admin");
+      toast.error("Failed to delete admin");
     } finally {
       setOpenDeleteDialog(false);
       setSelectedAdminId(null);
     }
   };
 
-  const handleSnackbarClose = (_, reason) => {
-    if (reason === "clickaway") return;
-    setSnackbarOpen(false);
-  };
-
-  const showSnackbar = (severity, message) => {
-    setSnackbarSeverity(severity);
-    setSnackbarMessage(message);
-    setSnackbarOpen(true);
-  };
-
   if (loading) {
     return (
-      <Box sx={{ textAlign: "center", mt: 5 }}>
-        <CircularProgress />
-      </Box>
+      <div className="flex justify-center py-12">
+        <Loader2 className="size-6 animate-spin text-muted-foreground" />
+      </div>
     );
   }
 
   return (
-    <Paper sx={{ p: 3 }}>
-      <h1 className="border-l-4 primaryBorderColor primaryTextColor mb-6 pl-2 text-lg font-semibold">
-        View and Create Admins
-      </h1>
-      <div className="flex justify-center mb-4">
-        <Link
-          to="/admin/createadmin"
-          className="primaryBgColor accentTextColor px-4 py-2 rounded-md cursor-pointer"
-        >
-          Create Admin
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight">View and Create Admins</h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            {admins.length} total admins
+          </p>
+        </div>
+        <Link to="/admin/createadmin">
+          <Button>
+            <Plus className="size-4 mr-2" />
+            Create Admin
+          </Button>
         </Link>
       </div>
 
-      <TableContainer>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>SL</TableCell>
-              <TableCell>Name</TableCell>
-              <TableCell>Email</TableCell>
-              <TableCell>Mobile No.</TableCell>
-              <TableCell>Created At</TableCell>
-              <TableCell>Action</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {admins.map((admin, index) => (
-              <TableRow key={admin._id}>
-                <TableCell>{index + 1}</TableCell>
-                <TableCell>{admin.name}</TableCell>
-                <TableCell>{admin.email}</TableCell>
-                <TableCell>{admin.mobileNo || "-"}</TableCell>
-                <TableCell>
-                  {new Date(admin.createdAt).toLocaleString()}
-                </TableCell>
-                <TableCell>
-                  <div className="flex gap-2">
-                    <Link to={`/admin/edit/${admin._id}`}>
-                      <Button variant="outlined">Edit</Button>
-                    </Link>
-
-                    <Button
-                      variant="outlined"
-                      color="error"
-                      onClick={() => handleDeleteClick(admin._id)}
-                    >
-                      Delete
-                    </Button>
-                  </div>
-                </TableCell>
+      <Card className="shadow-md border-0">
+        <CardContent className="p-0">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>SL</TableHead>
+                <TableHead>Name</TableHead>
+                <TableHead>Email</TableHead>
+                <TableHead>Mobile No.</TableHead>
+                <TableHead>Created At</TableHead>
+                <TableHead className="text-right">Action</TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+            </TableHeader>
+            <TableBody>
+              {admins.map((admin, index) => (
+                <TableRow key={admin._id}>
+                  <TableCell className="text-muted-foreground">{index + 1}</TableCell>
+                  <TableCell className="font-medium">{admin.name}</TableCell>
+                  <TableCell>{admin.email}</TableCell>
+                  <TableCell>{admin.mobileNo || "-"}</TableCell>
+                  <TableCell className="text-muted-foreground">
+                    {new Date(admin.createdAt).toLocaleString()}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <div className="flex justify-end gap-2">
+                      <Link to={`/admin/edit/${admin._id}`}>
+                        <Button variant="outline" size="sm">
+                          <Edit className="size-3.5 mr-1" />
+                          Edit
+                        </Button>
+                      </Link>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          setSelectedAdminId(admin._id);
+                          setOpenDeleteDialog(true);
+                        }}
+                        className="text-destructive hover:text-destructive border-destructive/30 hover:border-destructive"
+                      >
+                        <Trash2 className="size-3.5 mr-1" />
+                        Delete
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
 
-      {/* Delete Dialog */}
-      <Dialog
-        open={openDeleteDialog}
-        onClose={() => setOpenDeleteDialog(false)}
-      >
-        <DialogTitle>Confirm Delete</DialogTitle>
+      <Dialog open={openDeleteDialog} onOpenChange={setOpenDeleteDialog}>
         <DialogContent>
-          <DialogContentText>
-            Are you sure you want to delete this admin?
-          </DialogContentText>
+          <DialogHeader>
+            <DialogTitle>Confirm Delete</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete this admin?
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setOpenDeleteDialog(false)}>
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={handleDeleteConfirm}>
+              Delete
+            </Button>
+          </DialogFooter>
         </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setOpenDeleteDialog(false)}>Cancel</Button>
-          <Button onClick={handleDeleteConfirm} color="error">
-            Delete
-          </Button>
-        </DialogActions>
       </Dialog>
-
-      {/* Snackbar */}
-      <Snackbar
-        open={snackbarOpen}
-        autoHideDuration={4000}
-        onClose={handleSnackbarClose}
-        anchorOrigin={{ vertical: "top", horizontal: "right" }}
-      >
-        <Alert
-          onClose={handleSnackbarClose}
-          severity={snackbarSeverity}
-          sx={{ width: "100%" }}
-          variant="filled"
-        >
-          {snackbarMessage}
-        </Alert>
-      </Snackbar>
-    </Paper>
+    </div>
   );
 };
 

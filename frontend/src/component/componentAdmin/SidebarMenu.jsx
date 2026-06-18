@@ -22,16 +22,11 @@ import {
 import { Link } from "react-router-dom";
 import useAuthAdminStore from "../../store/AuthAdminStore.js";
 import { useNavigate } from "react-router-dom";
-import Accordion from "@mui/material/Accordion";
-import AccordionSummary from "@mui/material/AccordionSummary";
-import AccordionDetails from "@mui/material/AccordionDetails";
-import Typography from "@mui/material/Typography";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import useProductStore from "../../store/useProductStore.js";
 import useOrderStore from "../../store/useOrderStore.js";
 import React, { useEffect, useState, useCallback } from "react";
 import RequirePermission from "./RequirePermission.jsx";
-import { CircularProgress } from "@mui/material";
+import { ChevronDown } from "lucide-react";
 
 export const MENU_CONFIG = [
   {
@@ -375,28 +370,6 @@ export const MENU_CONFIG = [
   },
 ];
 
-const accordionStyles = {
-  background: "transparent",
-  boxShadow: "none",
-  width: "100%",
-};
-
-const muiSx = {
-  color: "white",
-  "& .MuiAccordionSummary-root": {
-    backgroundColor: "transparent",
-    minHeight: "auto",
-    padding: "0",
-  },
-  "& .MuiAccordionDetails-root": {
-    backgroundColor: "transparent",
-    paddingLeft: "0",
-  },
-  "& .MuiSvgIcon-root": {
-    color: "white",
-  },
-};
-
 function MenuItem({ item, countValue }) {
   const Icon = item.icon;
   const count = item.countKey
@@ -405,7 +378,10 @@ function MenuItem({ item, countValue }) {
 
   return (
     <li>
-      <Link to={item.path} className="flex items-center gap-2">
+      <Link
+        to={item.path}
+        className="flex items-center gap-2 px-2 py-1.5 rounded-md hover:bg-white/5 transition-colors"
+      >
         {Icon && <Icon />}
         <span>{item.label}</span>
         {count !== undefined && (
@@ -422,31 +398,29 @@ function MenuAccordion({ item, countValue, expanded, onChange }) {
   const Icon = item.icon;
 
   return (
-    <Accordion
-      style={accordionStyles}
-      sx={muiSx}
-      expanded={expanded}
-      onChange={onChange}
-    >
-      <AccordionSummary
-        expandIcon={<ExpandMoreIcon />}
-        className="p-2 flex items-center"
+    <div>
+      <button
+        onClick={onChange}
+        className="flex items-center gap-2 w-full px-2 py-1.5 rounded-md hover:bg-white/5 transition-colors text-left"
       >
-        <Typography component="span">
-          <div className="flex items-center gap-2">
-            {Icon && <Icon />}
-            <span>{item.label}</span>
-          </div>
-        </Typography>
-      </AccordionSummary>
-      <AccordionDetails>
-        <ul className="space-y-2 pl-4">
+        {Icon && <Icon />}
+        <span className="flex-1">{item.label}</span>
+        <ChevronDown
+          className={`size-4 transition-transform duration-200 ${expanded ? "rotate-180" : ""}`}
+        />
+      </button>
+      <div
+        className={`overflow-hidden transition-all duration-200 ${
+          expanded ? "max-h-96" : "max-h-0"
+        }`}
+      >
+        <ul className="space-y-2 pl-4 pt-1">
           {item.items.map((subItem, idx) => (
             <MenuItem key={idx} item={subItem} countValue={countValue} />
           ))}
         </ul>
-      </AccordionDetails>
-    </Accordion>
+      </div>
+    </div>
   );
 }
 
@@ -488,11 +462,12 @@ export default function SidebarMenu() {
     return saved ? JSON.parse(saved) : [];
   });
 
-  const handleAccordionChange = useCallback((label) => (event, isExpanded) => {
+  const handleAccordionChange = useCallback((label) => () => {
     setExpandedSections((prev) => {
+      const isExpanded = prev.includes(label);
       const next = isExpanded
-        ? [...prev, label]
-        : prev.filter((l) => l !== label);
+        ? prev.filter((l) => l !== label)
+        : [...prev, label];
       localStorage.setItem("sidebar-expanded", JSON.stringify(next));
       return next;
     });
@@ -506,7 +481,7 @@ export default function SidebarMenu() {
   };
 
   return (
-    <div className="w-65 p-4 h-screen overflow-y-auto">
+    <div className="p-4">
       <ul>
         {MENU_CONFIG.map((section, sectionIdx) => {
           const singleItem = section.items?.length === 1 && !section.label;
@@ -522,8 +497,11 @@ export default function SidebarMenu() {
                 permission={item.permission}
                 fallback={true}
               >
-                <li className="flex items-center space-x-2 p-2 rounded-md cursor-pointer">
-                  <Link to={item.path} className="flex items-center gap-2">
+                <li>
+                  <Link
+                    to={item.path}
+                    className="flex items-center gap-2 px-2 py-1.5 rounded-md hover:bg-white/5 transition-colors"
+                  >
                     {Icon && <Icon />}
                     <span>{item.label}</span>
                   </Link>
@@ -540,7 +518,7 @@ export default function SidebarMenu() {
                 match={section.match}
                 fallback={true}
               >
-                <li className="space-x-2 px-2 rounded-md cursor-pointer">
+                <li>
                   <MenuAccordion
                     item={section}
                     countValue={countValues}
@@ -560,8 +538,11 @@ export default function SidebarMenu() {
                   permission={item.permission}
                   fallback={true}
                 >
-                  <li className="flex items-center space-x-2 p-2 rounded-md cursor-pointer">
-                    <Link to={item.path} className="flex items-center gap-2">
+                  <li>
+                    <Link
+                      to={item.path}
+                      className="flex items-center gap-2 px-2 py-1.5 rounded-md hover:bg-white/5 transition-colors"
+                    >
                       {item.icon && <item.icon />}
                       <span>{item.label}</span>
                       {item.showCount &&
@@ -579,10 +560,10 @@ export default function SidebarMenu() {
         })}
       </ul>
 
-      <li className="flex items-center space-x-2 p-2 rounded-md text-red-500 cursor-pointer mt-4">
+      <li>
         <button
           onClick={handleLogout}
-          className="flex items-center space-x-2 cursor-pointer"
+          className="flex items-center gap-2 w-full px-2 py-1.5 rounded-md text-red-500 hover:bg-white/5 transition-colors mt-4"
         >
           <FaSignOutAlt />
           <span>Logout</span>

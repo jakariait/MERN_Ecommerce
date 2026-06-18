@@ -7,22 +7,27 @@ import {
   Table,
   TableBody,
   TableCell,
-  TableContainer,
   TableHead,
+  TableHeader,
   TableRow,
-  Paper,
-  Button,
-  TextField,
+} from "@/components/ui/table";
+import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import {
   Dialog,
-  DialogTitle,
   DialogContent,
-  DialogActions,
-} from "@mui/material";
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { useRef } from "react";
 import OrderStatusUpdate from "./OrderStatusUpdate.jsx";
 import CourierStats from "./CourierStats.jsx";
 import RequirePermission from "./RequirePermission.jsx";
 import { debounce } from "lodash";
+import { Printer, Pencil, X, Plus, FileDown, Save } from "lucide-react";
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
@@ -44,11 +49,9 @@ const ViewOrder = () => {
   const [searchedProducts, setSearchedProducts] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(null);
 
-  // Helper function to get variant display name from attributes
   const getVariantDisplayName = (variant) => {
     if (!variant) return "N/A";
-    
-    // Handle new variant structure with attributes
+
     if (variant.attributes && Array.isArray(variant.attributes)) {
       const attributeValues = variant.attributes
         .map((attr) => attr.value)
@@ -57,12 +60,11 @@ const ViewOrder = () => {
         return attributeValues.join(" / ");
       }
     }
-    
-    // Fallback for old structure (if any legacy data exists)
+
     if (variant.size?.name) {
       return variant.size.name;
     }
-    
+
     return "N/A";
   };
 
@@ -103,19 +105,19 @@ const ViewOrder = () => {
 
   const getStatusColor = (status) =>
     ({
-      pending: { color: "orange", text: "Pending" },
-      intransit: { color: "blue", text: "In Transit" },
-      approved: { color: "teal", text: "Approved" },
-      delivered: { color: "green", text: "Delivered" },
-      cancelled: { color: "red", text: "Cancelled" },
-      returned: { color: "purple", text: "Returned" },
-    })[status] || { color: "gray", text: "Unknown" };
+      pending: { color: "text-amber-500", text: "Pending" },
+      intransit: { color: "text-blue-500", text: "In Transit" },
+      approved: { color: "text-teal-500", text: "Approved" },
+      delivered: { color: "text-green-500", text: "Delivered" },
+      cancelled: { color: "text-red-500", text: "Cancelled" },
+      returned: { color: "text-purple-500", text: "Returned" },
+    })[status] || { color: "text-muted-foreground", text: "Unknown" };
 
   const getPaymentStatusColor = (status) =>
     ({
-      unpaid: { color: "orange", text: "Unpaid" },
-      paid: { color: "green", text: "Paid" },
-    })[status] || { color: "gray", text: "Unknown" };
+      unpaid: { color: "text-amber-500", text: "Unpaid" },
+      paid: { color: "text-green-500", text: "Paid" },
+    })[status] || { color: "text-muted-foreground", text: "Unknown" };
 
   const getPaymentMethodText = (method) =>
     ({
@@ -163,7 +165,7 @@ const ViewOrder = () => {
       if (!editable.billingInfo) {
         editable.billingInfo = { ...editable.shippingInfo };
       }
-      setEditableOrder(editable); // Reset changes
+      setEditableOrder(editable);
     }
     setIsEditMode(!isEditMode);
   };
@@ -225,13 +227,11 @@ const ViewOrder = () => {
         ? product.finalDiscount
         : product.finalPrice;
 
-    // Create the new item with proper variant structure
     const newItem = {
       productId: product._id,
       variantId: variant ? variant._id : undefined,
       quantity: 1,
       price: price,
-      // For display purposes
       product: {
         _id: product._id,
         name: product.name,
@@ -246,6 +246,7 @@ const ViewOrder = () => {
     setProductSearchQuery("");
     setSearchedProducts([]);
   };
+
   const handleSave = async () => {
     try {
       const token = localStorage.getItem("token");
@@ -273,7 +274,7 @@ const ViewOrder = () => {
       });
 
       setIsEditMode(false);
-      await fetchOrder(); // Refresh data
+      await fetchOrder();
     } catch (err) {
       setError(
         err.response?.data?.message || err.message || "Failed to update order.",
@@ -282,7 +283,7 @@ const ViewOrder = () => {
   };
 
   if (loading) return <div className="p-4">Loading...</div>;
-  if (error) return <div className="p-4 text-red-500">{error}</div>;
+  if (error) return <div className="p-4 text-destructive">{error}</div>;
 
   const currentOrderData = isEditMode ? editableOrder : order;
   const orderStatusColor = getStatusColor(currentOrderData.orderStatus);
@@ -291,140 +292,130 @@ const ViewOrder = () => {
   );
 
   return (
-    <div>
-      <div className="flex justify-end gap-2 mb-4 no-print">
-        <RequirePermission permission="edit_orders">
-          <Button variant="contained" onClick={handleEditToggle}>
-            {isEditMode ? "Cancel" : "Edit Order"}
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-bold tracking-tight">Order Details</h1>
+        <div className="flex gap-2 no-print">
+          <RequirePermission permission="edit_orders">
+            <Button variant="outline" onClick={handleEditToggle}>
+              <Pencil className="size-4 mr-1" />
+              {isEditMode ? "Cancel" : "Edit Order"}
+            </Button>
+          </RequirePermission>
+          <Button variant="ghost" onClick={handlePrint}>
+            <Printer className="size-4 mr-1" />
+            Print Invoice
           </Button>
-        </RequirePermission>
-        <Button variant="outlined" onClick={handlePrint}>
-          Print Invoice
-        </Button>
+        </div>
       </div>
 
-      <div id="print-area" ref={printRef} className="p-4 shadow rounded-lg">
-        {/* Header */}
-        <div id="firstRow" className={"flex justify-between"}>
-          <h1 className="text-2xl">{GeneralInfoList.CompanyName}</h1>
-          <ImageComponent
-            imageName={GeneralInfoList.PrimaryLogo}
-            className="w-30"
-          />
-          <div className="text-2xl">
-            <h1>Invoice</h1>
+      <Card className="shadow-md border-0">
+        <CardContent className="p-6" id="print-area" ref={printRef}>
+          <div id="firstRow" className="flex items-center justify-between mb-6">
+            <h1 className="text-2xl font-bold">{GeneralInfoList.CompanyName}</h1>
+            <ImageComponent
+              imageName={GeneralInfoList.PrimaryLogo}
+              className="w-30"
+            />
+            <div className="text-2xl font-bold">Invoice</div>
           </div>
-        </div>
 
-        {/* Shipping and Order Details */}
-        <div id="secondRow">
-          <div>
-            <h2 className="font-bold text-xl">Shipping Info:</h2>
-            {isEditMode ? (
-              <div className="flex flex-col gap-2 mt-2">
-                <TextField
-                  label="Full Name"
-                  name="fullName"
-                  value={editableOrder.shippingInfo.fullName}
-                  onChange={handleShippingInfoChange}
-                  variant="standard"
-                />
-                <TextField
-                  label="Mobile No"
-                  name="mobileNo"
-                  value={editableOrder.shippingInfo.mobileNo}
-                  onChange={handleShippingInfoChange}
-                  variant="standard"
-                />
-                <TextField
-                  label="Email"
-                  name="email"
-                  value={editableOrder.shippingInfo.email}
-                  onChange={handleShippingInfoChange}
-                  variant="standard"
-                />
-                <TextField
-                  label="Address"
-                  name="address"
-                  value={editableOrder.shippingInfo.address}
-                  onChange={handleShippingInfoChange}
-                  variant="standard"
-                  multiline
-                />
-              </div>
-            ) : (
-              <div className="flex flex-col gap-0.5">
-                <p>{currentOrderData.shippingInfo.fullName}</p>
-                <p>{currentOrderData.shippingInfo.mobileNo}</p>
-                <p>{currentOrderData.shippingInfo.email}</p>
-                <p>{currentOrderData.shippingInfo.address}</p>
-              </div>
-            )}
-          </div>
-          <div
-            id="secondRowRight"
-            className={`flex flex-col gap-2 text-right ${
-              isEditMode ? "" : "-mt-25"
-            }`}
-          >
-            <p>
-              <strong>Order No:</strong> {currentOrderData.orderNo}
-            </p>
-            <p>
-              <strong>Order Date:</strong>{" "}
-              {new Date(currentOrderData.orderDate).toLocaleDateString()}
-            </p>
-            <p>
-              <strong>Status:</strong>{" "}
-              <span style={{ color: orderStatusColor.color }}>
-                {orderStatusColor.text}
-              </span>
-            </p>
-            <p>
-              <strong>Payment Method:</strong>{" "}
-              {getPaymentMethodText(currentOrderData.paymentMethod)}
-            </p>
-            <p>
-              <strong>Payment Status:</strong>{" "}
-              <span style={{ color: paymentStatusColor.color }}>
-                {paymentStatusColor.text}
-              </span>
-            </p>
-            {currentOrderData.paymentId && (
+          <div id="secondRow" className="flex justify-between mb-6 gap-8">
+            <div className="flex-1">
+              <h2 className="font-bold text-lg mb-2">Shipping Info:</h2>
+              {isEditMode ? (
+                <div className="space-y-2">
+                  <Input
+                    placeholder="Full Name"
+                    name="fullName"
+                    value={editableOrder.shippingInfo.fullName}
+                    onChange={handleShippingInfoChange}
+                  />
+                  <Input
+                    placeholder="Mobile No"
+                    name="mobileNo"
+                    value={editableOrder.shippingInfo.mobileNo}
+                    onChange={handleShippingInfoChange}
+                  />
+                  <Input
+                    placeholder="Email"
+                    name="email"
+                    value={editableOrder.shippingInfo.email}
+                    onChange={handleShippingInfoChange}
+                  />
+                  <textarea
+                    placeholder="Address"
+                    name="address"
+                    value={editableOrder.shippingInfo.address}
+                    onChange={handleShippingInfoChange}
+                    rows={2}
+                    className="flex w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 resize-y"
+                  />
+                </div>
+              ) : (
+                <div className="space-y-0.5">
+                  <p>{currentOrderData.shippingInfo.fullName}</p>
+                  <p className="text-muted-foreground">{currentOrderData.shippingInfo.mobileNo}</p>
+                  <p className="text-muted-foreground">{currentOrderData.shippingInfo.email}</p>
+                  <p className="text-muted-foreground">{currentOrderData.shippingInfo.address}</p>
+                </div>
+              )}
+            </div>
+            <div id="secondRowRight" className="text-right space-y-1">
               <p>
-                <strong>Payment ID:</strong>{" "}
-                <span className="text-sm">{currentOrderData.paymentId}</span>
+                <strong>Order No:</strong> {currentOrderData.orderNo}
               </p>
-            )}
-            {currentOrderData.transId && (
               <p>
-                <strong>Transaction ID:</strong> {currentOrderData.transId}
+                <strong>Order Date:</strong>{" "}
+                {new Date(currentOrderData.orderDate).toLocaleDateString()}
               </p>
-            )}
-            <p>
-              <strong>Delivery Method:</strong>{" "}
-              {getDeliveryMethodText(currentOrderData.deliveryMethod)}
-            </p>
+              <p>
+                <strong>Status:</strong>{" "}
+                <span className={orderStatusColor.color}>
+                  {orderStatusColor.text}
+                </span>
+              </p>
+              <p>
+                <strong>Payment Method:</strong>{" "}
+                {getPaymentMethodText(currentOrderData.paymentMethod)}
+              </p>
+              <p>
+                <strong>Payment Status:</strong>{" "}
+                <span className={paymentStatusColor.color}>
+                  {paymentStatusColor.text}
+                </span>
+              </p>
+              {currentOrderData.paymentId && (
+                <p>
+                  <strong>Payment ID:</strong>{" "}
+                  <span className="text-sm">{currentOrderData.paymentId}</span>
+                </p>
+              )}
+              {currentOrderData.transId && (
+                <p>
+                  <strong>Transaction ID:</strong> {currentOrderData.transId}
+                </p>
+              )}
+              <p>
+                <strong>Delivery Method:</strong>{" "}
+                {getDeliveryMethodText(currentOrderData.deliveryMethod)}
+              </p>
+            </div>
           </div>
-        </div>
 
-        {/* Items List */}
-        <div className="mt-6">
-          <TableContainer component={Paper}>
+          <div className="mt-6">
             <Table>
-              <TableHead>
+              <TableHeader>
                 <TableRow>
-                  <TableCell>SL</TableCell>
-                  <TableCell>Item</TableCell>
-                  <TableCell>Variant</TableCell>
-                  <TableCell>Quantity</TableCell>
-                  <TableCell>Unit Cost</TableCell>
-                  <TableCell>Total</TableCell>
-                  {isEditMode && (
-                    <TableCell className="no-print">Actions</TableCell>
-                  )}
+                  <TableHead>SL</TableHead>
+                  <TableHead>Item</TableHead>
+                  <TableHead>Variant</TableHead>
+                  <TableHead>Quantity</TableHead>
+                  <TableHead>Unit Cost</TableHead>
+                  <TableHead>Total</TableHead>
+                  {isEditMode && <TableHead className="no-print">Actions</TableHead>}
                 </TableRow>
-              </TableHead>
+              </TableHeader>
               <TableBody>
                 {currentOrderData.items.map((item, index) => {
                   const product = item.product || item.productId;
@@ -435,23 +426,26 @@ const ViewOrder = () => {
                     <TableRow key={item._id || index}>
                       <TableCell>{index + 1}</TableCell>
                       <TableCell>
-                        <div>{product.name}</div>
-                        <div>Category: {product.category?.name}</div>
-                        <div>Code: {product.productCode || "N/A"}</div>
+                        <div className="font-medium">{product.name}</div>
+                        <div className="text-sm text-muted-foreground">
+                          Category: {product.category?.name}
+                        </div>
+                        <div className="text-sm text-muted-foreground">
+                          Code: {product.productCode || "N/A"}
+                        </div>
                       </TableCell>
                       <TableCell>
                         {variant ? getVariantDisplayName(variant) : "N/A"}
                       </TableCell>
                       <TableCell>
                         {isEditMode ? (
-                          <TextField
+                          <Input
                             type="number"
                             value={item.quantity}
                             onChange={(e) =>
                               handleItemQuantityChange(index, e.target.value)
                             }
-                            style={{ width: "80px" }}
-                            variant="standard"
+                            className="w-20 h-8"
                           />
                         ) : (
                           item.quantity
@@ -462,10 +456,12 @@ const ViewOrder = () => {
                       {isEditMode && (
                         <TableCell className="no-print">
                           <Button
-                            color="error"
+                            variant="ghost"
+                            size="icon-xs"
                             onClick={() => handleRemoveItem(index)}
+                            className="text-destructive hover:text-destructive"
                           >
-                            Remove
+                            <X className="size-3.5" />
                           </Button>
                         </TableCell>
                       )}
@@ -474,231 +470,233 @@ const ViewOrder = () => {
                 })}
               </TableBody>
             </Table>
-          </TableContainer>
+            {isEditMode && (
+              <div className="flex justify-start mt-4">
+                <Button onClick={() => setAddProductModalOpen(true)}>
+                  <Plus className="size-4 mr-1" />
+                  Add Product
+                </Button>
+              </div>
+            )}
+          </div>
+
+          <div id="thirdRow" className="mt-6 flex justify-between gap-8">
+            <div>
+              <h2 className="font-bold text-lg mb-2">Billing Address:</h2>
+              {isEditMode ? (
+                <div className="space-y-2">
+                  <Input
+                    placeholder="Full Name"
+                    name="fullName"
+                    value={editableOrder.billingInfo?.fullName || ""}
+                    onChange={handleBillingInfoChange}
+                  />
+                  <textarea
+                    placeholder="Address"
+                    name="address"
+                    value={editableOrder.billingInfo?.address || ""}
+                    onChange={handleBillingInfoChange}
+                    rows={2}
+                    className="flex w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 resize-y"
+                  />
+                </div>
+              ) : (
+                <>
+                  <p>
+                    {currentOrderData.billingInfo?.fullName ||
+                      currentOrderData.shippingInfo.fullName}
+                  </p>
+                  <p className="text-muted-foreground">
+                    {currentOrderData.billingInfo?.address ||
+                      currentOrderData.shippingInfo.address}
+                  </p>
+                </>
+              )}
+            </div>
+            <div id="thirdRowRight" className="text-right space-y-1">
+              <p>Sub-total: Tk.{currentOrderData.subtotalAmount.toFixed(2)}</p>
+              {currentOrderData.promoDiscount > 0 && (
+                <p>
+                  Promo Discount: Tk.{currentOrderData.promoDiscount.toFixed(2)}
+                </p>
+              )}
+              {currentOrderData.rewardPointsUsed > 0 && (
+                <p>Reward Points Used: {currentOrderData.rewardPointsUsed}</p>
+              )}
+              {currentOrderData.vat > 0 && (
+                <p>VAT/TAX: {currentOrderData.vat.toFixed(2)}</p>
+              )}
+              <p>Delivery Charge: {currentOrderData.deliveryCharge.toFixed(2)}</p>
+              {currentOrderData.specialDiscount > 0 && (
+                <p>
+                  Special Discount Amount:{" "}
+                  {currentOrderData.specialDiscount.toFixed(2)}
+                </p>
+              )}
+              <p className="text-xl font-bold">
+                Total Order Amount: {currentOrderData.totalAmount.toFixed(2)}
+              </p>
+              {currentOrderData.advanceAmount > 0 && (
+                <p className="text-destructive">
+                  Advance: {currentOrderData.advanceAmount.toFixed(2)}
+                </p>
+              )}
+              <p className="text-xl font-bold">
+                Total Due Amount: {currentOrderData.dueAmount.toFixed(2)}
+              </p>
+            </div>
+          </div>
+
           {isEditMode && (
-            <div className="flex justify-start mt-4">
-              <Button
-                variant="contained"
-                onClick={() => setAddProductModalOpen(true)}
-              >
-                Add Product
+            <div className="flex justify-end gap-2 mt-6 no-print">
+              <Button onClick={handleSave}>
+                <Save className="size-4 mr-1" />
+                Save Changes
+              </Button>
+              <Button variant="outline" onClick={handleEditToggle}>
+                Cancel
               </Button>
             </div>
           )}
-        </div>
+        </CardContent>
+      </Card>
 
-        {/* Billing and Totals */}
-        <div id="thirdRow" className="mt-6 p-1 flex justify-between">
-          <div>
-            <h1>Billing Address:</h1>
-            {isEditMode ? (
-              <div className="flex flex-col gap-2 mt-2">
-                <TextField
-                  label="Full Name"
-                  name="fullName"
-                  value={editableOrder.billingInfo?.fullName || ""}
-                  onChange={handleBillingInfoChange}
-                  variant="standard"
-                />
-                <TextField
-                  label="Address"
-                  name="address"
-                  value={editableOrder.billingInfo?.address || ""}
-                  onChange={handleBillingInfoChange}
-                  variant="standard"
-                  multiline
-                />
-              </div>
-            ) : (
-              <>
-                <p>
-                  {currentOrderData.billingInfo?.fullName ||
-                    currentOrderData.shippingInfo.fullName}
-                </p>
-                <p>
-                  {currentOrderData.billingInfo?.address ||
-                    currentOrderData.shippingInfo.address}
-                </p>
-              </>
-            )}
-          </div>
-          <div id="thirdRowRight" className="flex flex-col gap-2 items-end">
-            <p>Sub-total: Tk.{currentOrderData.subtotalAmount.toFixed(2)}</p>
-            {currentOrderData.promoDiscount > 0 && (
-              <p>
-                Promo Discount: Tk.{currentOrderData.promoDiscount.toFixed(2)}
-              </p>
-            )}
-            {currentOrderData.rewardPointsUsed > 0 && (
-              <p>Reward Points Used: {currentOrderData.rewardPointsUsed}</p>
-            )}
-            {currentOrderData.vat > 0 && (
-              <p>VAT/TAX: {currentOrderData.vat.toFixed(2)}</p>
-            )}
-            <p>Delivery Charge: {currentOrderData.deliveryCharge.toFixed(2)}</p>
-            {currentOrderData.specialDiscount > 0 && (
-              <p>
-                Special Discount Amount:{" "}
-                {currentOrderData.specialDiscount.toFixed(2)}
-              </p>
-            )}
-            <p className="text-2xl">
-              Total Order Amount: {currentOrderData.totalAmount.toFixed(2)}
-            </p>
-            {currentOrderData.advanceAmount > 0 && (
-              <p className="text-red-500">
-                Advance: {currentOrderData.advanceAmount.toFixed(2)}
-              </p>
-            )}
-            <p className="text-2xl">
-              Total Due Amount: {currentOrderData.dueAmount.toFixed(2)}
-            </p>
-          </div>
-        </div>
-        {isEditMode && (
-          <div className="flex justify-end gap-2 mt-4 no-print">
-            <Button variant="contained" color="primary" onClick={handleSave}>
-              Save Changes
-            </Button>
-            <Button variant="outlined" onClick={handleEditToggle}>
-              Cancel
-            </Button>
-          </div>
-        )}
-      </div>
+      <RequirePermission permission="edit_orders">
+        <OrderStatusUpdate orderId={order._id} onUpdate={fetchOrder} />
+      </RequirePermission>
 
-      <div className="mt-6">
-        <RequirePermission permission="edit_orders">
-          <OrderStatusUpdate orderId={order._id} onUpdate={fetchOrder} />
-        </RequirePermission>
-      </div>
-      <div className="mt-6">
-        <CourierStats phone={order.shippingInfo.mobileNo} />
-      </div>
+      <CourierStats phone={order.shippingInfo.mobileNo} />
 
-      {/* Add Product Modal */}
       <Dialog
         open={isAddProductModalOpen}
-        onClose={() => setAddProductModalOpen(false)}
-        fullWidth
-        maxWidth="md"
+        onOpenChange={setAddProductModalOpen}
       >
-        <DialogTitle>Add Product to Order</DialogTitle>
-        <DialogContent>
-          <TextField
-            autoFocus
-            margin="dense"
-            label="Search for a product by name or code..."
-            type="text"
-            fullWidth
-            variant="standard"
-            value={productSearchQuery}
-            onChange={(e) => setProductSearchQuery(e.target.value)}
-          />
-          <TableContainer component={Paper} sx={{ mt: 2, maxHeight: 400 }}>
-            <Table stickyHeader>
-              <TableHead>
-                <TableRow>
-                  <TableCell>Product</TableCell>
-                  <TableCell>Stock</TableCell>
-                  <TableCell>Action</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {searchedProducts.length > 0 ? (
-                  searchedProducts.map((product) => (
-                    <TableRow key={product._id}>
-                      <TableCell>{product.name}</TableCell>
-
-                      <TableCell>
-                        {product.variants && product.variants.length > 0
-                          ? "Multiple Variants"
-                          : `Stock: ${product.finalStock}`}
-                      </TableCell>
-                      <TableCell>
-                        <Button
-                          onClick={() => {
-                            if (
-                              product.variants &&
-                              product.variants.length > 0
-                            ) {
-                              setSelectedProduct(product);
-                            } else {
-                              handleAddProduct(product);
-                            }
-                          }}
-                          disabled={
-                            !product.variants?.length && product.finalStock < 1
-                          }
-                        >
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Add Product to Order</DialogTitle>
+            <DialogDescription>
+              Search for a product by name or code.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <Input
+              autoFocus
+              placeholder="Search for a product by name or code..."
+              value={productSearchQuery}
+              onChange={(e) => setProductSearchQuery(e.target.value)}
+            />
+            <div className="max-h-[400px] overflow-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Product</TableHead>
+                    <TableHead>Stock</TableHead>
+                    <TableHead className="w-24">Action</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {searchedProducts.length > 0 ? (
+                    searchedProducts.map((product) => (
+                      <TableRow key={product._id}>
+                        <TableCell className="font-medium">
+                          {product.name}
+                        </TableCell>
+                        <TableCell>
                           {product.variants && product.variants.length > 0
-                            ? "Select Variant"
-                            : "Add"}
-                        </Button>
+                            ? "Multiple Variants"
+                            : `Stock: ${product.finalStock}`}
+                        </TableCell>
+                        <TableCell>
+                          <Button
+                            size="sm"
+                            onClick={() => {
+                              if (
+                                product.variants &&
+                                product.variants.length > 0
+                              ) {
+                                setSelectedProduct(product);
+                              } else {
+                                handleAddProduct(product);
+                              }
+                            }}
+                            disabled={
+                              !product.variants?.length && product.finalStock < 1
+                            }
+                          >
+                            {product.variants && product.variants.length > 0
+                              ? "Select Variant"
+                              : "Add"}
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  ) : (
+                    <TableRow>
+                      <TableCell colSpan={3} className="text-center text-muted-foreground">
+                        {productSearchQuery.length > 1
+                          ? "No products found."
+                          : "Type to search."}
                       </TableCell>
                     </TableRow>
-                  ))
-                ) : (
-                  <TableRow>
-                    <TableCell colSpan={3} align="center">
-                      {productSearchQuery.length > 1
-                        ? "No products found."
-                        : "Type to search."}
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </TableContainer>
+                  )}
+                </TableBody>
+              </Table>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setAddProductModalOpen(false)}>
+              Close
+            </Button>
+          </DialogFooter>
         </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setAddProductModalOpen(false)}>Close</Button>
-        </DialogActions>
       </Dialog>
 
-      {/* Variant Selection Modal */}
       <Dialog
         open={!!selectedProduct}
-        onClose={() => setSelectedProduct(null)}
-        fullWidth
-        maxWidth="sm"
+        onOpenChange={() => setSelectedProduct(null)}
       >
-        <DialogTitle>Select Variant for {selectedProduct?.name}</DialogTitle>
-        <DialogContent>
-          <TableContainer component={Paper}>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell>Variant</TableCell>
-                  <TableCell>Stock</TableCell>
-                  <TableCell>Action</TableCell>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Select Variant for {selectedProduct?.name}</DialogTitle>
+            <DialogDescription>
+              Choose a variant to add to this order.
+            </DialogDescription>
+          </DialogHeader>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Variant</TableHead>
+                <TableHead>Stock</TableHead>
+                <TableHead className="w-20">Action</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {selectedProduct?.variants?.map((variant) => (
+                <TableRow key={variant._id}>
+                  <TableCell>{getVariantDisplayName(variant)}</TableCell>
+                  <TableCell>{variant.stock}</TableCell>
+                  <TableCell>
+                    <Button
+                      size="sm"
+                      onClick={() => {
+                        handleAddProduct(selectedProduct, variant);
+                        setSelectedProduct(null);
+                      }}
+                      disabled={variant.stock < 1}
+                    >
+                      Add
+                    </Button>
+                  </TableCell>
                 </TableRow>
-              </TableHead>
-              <TableBody>
-                 {selectedProduct?.variants?.map((variant) => (
-                   <TableRow key={variant._id}>
-                     <TableCell>{getVariantDisplayName(variant)}</TableCell>
-                     <TableCell>{variant.stock}</TableCell>
-                     <TableCell>
-                       <Button
-                         onClick={() => {
-                           handleAddProduct(selectedProduct, variant);
-                           setSelectedProduct(null);
-                         }}
-                         disabled={variant.stock < 1}
-                       >
-                         Add
-                       </Button>
-                     </TableCell>
-                   </TableRow>
-                 ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
+              ))}
+            </TableBody>
+          </Table>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setSelectedProduct(null)}>
+              Cancel
+            </Button>
+          </DialogFooter>
         </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setSelectedProduct(null)}>Cancel</Button>
-        </DialogActions>
       </Dialog>
     </div>
   );

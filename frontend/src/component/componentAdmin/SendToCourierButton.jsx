@@ -1,13 +1,25 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   Dialog,
-  DialogTitle,
   DialogContent,
-  DialogActions,
-  Snackbar,
-  Alert,
-} from "@mui/material";
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Card, CardContent } from "@/components/ui/card";
+import { toast } from "sonner";
+import { Loader2 } from "lucide-react";
 import useCourierStatus from "../../store/useCourierStatus.js";
 import useAuthAdminStore from "../../store/AuthAdminStore.js";
 
@@ -16,7 +28,7 @@ const SendToCourierButton = ({ orderData, onSuccess }) => {
   const [open, setOpen] = useState(false);
   const [note, setNote] = useState(orderData.note || "");
   const [sent, setSent] = useState(orderData.courier_status || false);
-  const [showDeliveryStatus, setShowDeliveryStatus] = useState(false); // New state variable
+  const [showDeliveryStatus, setShowDeliveryStatus] = useState(false);
   const {
     status: deliveryStatus,
     loading: statusLoading,
@@ -24,12 +36,6 @@ const SendToCourierButton = ({ orderData, onSuccess }) => {
   } = useCourierStatus(orderData, sent, !sent);
   const [selectedCourier, setSelectedCourier] = useState("steadfast");
   const [pathaoStoreId, setPathaoStoreId] = useState(null);
-
-  const [snackbar, setSnackbar] = useState({
-    open: false,
-    message: "",
-    severity: "success",
-  });
 
   const apiURL = import.meta.env.VITE_API_URL;
   const { token } = useAuthAdminStore();
@@ -53,7 +59,7 @@ const SendToCourierButton = ({ orderData, onSuccess }) => {
 
   const handleButtonClick = () => {
     if (sent) {
-      setShowDeliveryStatus(true); // Set to true on click
+      setShowDeliveryStatus(true);
       refetch();
     } else {
       setOpen(true);
@@ -73,9 +79,7 @@ const SendToCourierButton = ({ orderData, onSuccess }) => {
           note,
         },
         {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
         },
       );
 
@@ -93,24 +97,17 @@ const SendToCourierButton = ({ orderData, onSuccess }) => {
               courierConsignmentId: result.data.consignment.consignment_id,
             },
             {
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
+              headers: { Authorization: `Bearer ${token}` },
             },
           );
 
-          setSnackbar({
-            open: true,
-            message: `✅ Order sent to Steadfast! Consignment ID: ${result.data.consignment.consignment_id}`,
-            severity: "success",
-          });
-
+          toast.success(`Order sent to Steadfast! Consignment ID: ${result.data.consignment.consignment_id}`);
           setSent(true);
           if (onSuccess) onSuccess();
           setOpen(false);
         } else if (statusCode === 400) {
           const errors = result.data.errors;
-          let errorMessage = "❌ Failed to send order:";
+          let errorMessage = "Failed to send order:";
           if (errors) {
             errorMessage +=
               "\n" +
@@ -118,31 +115,15 @@ const SendToCourierButton = ({ orderData, onSuccess }) => {
                 .map(([key, value]) => `${key}: ${value.join(", ")}`)
                 .join("\n");
           }
-          setSnackbar({
-            open: true,
-            message: errorMessage,
-            severity: "error",
-          });
+          toast.error(errorMessage);
         } else {
-          setSnackbar({
-            open: true,
-            message: "⚠️ Unknown status received from the server.",
-            severity: "warning",
-          });
+          toast.warning("Unknown status received from the server.");
         }
       } else {
-        setSnackbar({
-          open: true,
-          message: "❌ API call was not successful.",
-          severity: "error",
-        });
+        toast.error("API call was not successful.");
       }
     } catch (err) {
-      setSnackbar({
-        open: true,
-        message: "❌ Network error while sending order.",
-        severity: "error",
-      });
+      toast.error("Network error while sending order.");
       console.error(err);
     } finally {
       setLoading(false);
@@ -182,12 +163,7 @@ const SendToCourierButton = ({ orderData, onSuccess }) => {
           { headers: { Authorization: `Bearer ${token}` } },
         );
 
-        setSnackbar({
-          open: true,
-          message: `✅ Order sent to Pathao! Consignment ID: ${result.data.consignment_id}`,
-          severity: "success",
-        });
-
+        toast.success(`Order sent to Pathao! Consignment ID: ${result.data.consignment_id}`);
         setSent(true);
         if (onSuccess) onSuccess();
         setOpen(false);
@@ -200,24 +176,14 @@ const SendToCourierButton = ({ orderData, onSuccess }) => {
               .map(([key, value]) => `${key}: ${value.join(", ")}`)
               .join("\n")
           : "";
-        setSnackbar({
-          open: true,
-          message: `❌ ${errorMessage}${errorDetails}`,
-          severity: "error",
-        });
+        toast.error(`${errorMessage}${errorDetails}`);
       }
     } catch (err) {
       const errorMessage =
-        err.response?.data?.message ||
-        "❌ Network error while sending order to Pathao.";
-      setSnackbar({
-        open: true,
-        message: errorMessage,
-        severity: "error",
-      });
+        err.response?.data?.message || "Network error while sending order to Pathao.";
+      toast.error(errorMessage);
       console.error(err);
-    }
-    finally {
+    } finally {
       setLoading(false);
     }
   };
@@ -228,11 +194,7 @@ const SendToCourierButton = ({ orderData, onSuccess }) => {
       sendToSteadfast();
     } else if (selectedCourier === "pathao") {
       if (!pathaoStoreId) {
-        setSnackbar({
-          open: true,
-          message: "Pathao configuration is not loaded yet.",
-          severity: "error",
-        });
+        toast.error("Pathao configuration is not loaded yet.");
         setLoading(false);
         return;
       }
@@ -242,141 +204,92 @@ const SendToCourierButton = ({ orderData, onSuccess }) => {
 
   return (
     <>
-      <button
-        className={`primaryBgColor accentTextColor cursor-pointer px-4 py-2 w-48 rounded text-sm ${
-          sent ? "opacity-50" : ""
-        }`}
+      <Button
+        variant="default"
+        size="sm"
+        className={`w-48 ${sent ? "opacity-50" : ""}`}
         onClick={handleButtonClick}
         disabled={statusLoading}
       >
         {sent ? (
-          <>
-            {statusLoading ? (
-              <span className="flex items-center justify-center">
-                <span className="w-4 h-4 cursor-pointer border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-              </span>
-            ) : (
-              <>
-                {showDeliveryStatus && deliveryStatus ? (
-                  <>
-                    <span className="font-semibold">{deliveryStatus} {" "}</span>
-                    <span className="font-semibold">
-                      | {orderData.courierProvider}
-                    </span>
-                  </>
-                ) : (
-                  "Sent | Click to show status"
-                )}
-              </>
-            )}
-          </>
+          statusLoading ? (
+            <Loader2 className="size-4 animate-spin" />
+          ) : (
+            <>
+              {showDeliveryStatus && deliveryStatus
+                ? `${deliveryStatus} | ${orderData.courierProvider}`
+                : "Sent | Click to show status"}
+            </>
+          )
         ) : (
           "Send to Courier"
         )}
-      </button>
+      </Button>
 
-      <Dialog
-        open={open}
-        onClose={() => setOpen(false)}
-        maxWidth="sm"
-        fullWidth
-      >
-        <DialogTitle>Select Courier & Confirm</DialogTitle>
-        <DialogContent dividers>
-          <div className="flex flex-col gap-4">
-            <div>
-              <label className="block font-medium mb-1" htmlFor="courier">
-                Courier:
-              </label>
-              <select
-                id="courier"
-                value={selectedCourier}
-                onChange={(e) => setSelectedCourier(e.target.value)}
-                className="w-full px-3 py-2 border rounded"
-              >
-                <option value="steadfast">Steadfast</option>
-                <option value="pathao">Pathao</option>
-              </select>
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Select Courier & Confirm</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label>Courier:</Label>
+              <Select value={selectedCourier} onValueChange={setSelectedCourier}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="steadfast">Steadfast</SelectItem>
+                  <SelectItem value="pathao">Pathao</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
-            <div className="bg-white shadow rounded p-6 space-y-2">
-              <h1 className="text-2xl font-semibold text-gray-800 border-b pb-2">
-                Order Information
-              </h1>
-              <p className="text-gray-700">
-                <span className="font-medium">Invoice:</span>{" "}
-                {orderData.invoice}
-              </p>
-              <p className="text-gray-700">
-                <span className="font-medium">Recipient Name:</span>{" "}
-                {orderData.recipient_name}
-              </p>
-              <p className="text-gray-700">
-                <span className="font-medium">Recipient Phone:</span>{" "}
-                {orderData.recipient_phone}
-              </p>
-              <p className="text-gray-700">
-                <span className="font-medium">Recipient Address:</span>{" "}
-                {orderData.recipient_address}
-              </p>
-              <p className="text-gray-700">
-                <span className="font-medium">COD Amount:</span> Tk{" "}
-                {orderData.cod_amount}
-              </p>
-            </div>
+            <Card className="shadow-sm">
+              <CardContent className="p-4 space-y-2">
+                <h3 className="font-semibold border-b pb-1">Order Information</h3>
+                <p className="text-sm">
+                  <span className="font-medium">Invoice:</span> {orderData.invoice}
+                </p>
+                <p className="text-sm">
+                  <span className="font-medium">Recipient Name:</span> {orderData.recipient_name}
+                </p>
+                <p className="text-sm">
+                  <span className="font-medium">Recipient Phone:</span> {orderData.recipient_phone}
+                </p>
+                <p className="text-sm">
+                  <span className="font-medium">Recipient Address:</span> {orderData.recipient_address}
+                </p>
+                <p className="text-sm">
+                  <span className="font-medium">COD Amount:</span> Tk {orderData.cod_amount}
+                </p>
+              </CardContent>
+            </Card>
 
-            <div>
-              <label className="block font-medium mb-1" htmlFor="note">
-                Order Note:
-              </label>
-              <textarea
+            <div className="space-y-2">
+              <Label htmlFor="note">Order Note:</Label>
+              <Textarea
                 id="note"
-                rows="3"
+                rows={3}
                 value={note}
                 onChange={(e) => setNote(e.target.value)}
-                className="w-full px-3 py-2 bg-gray-100 rounded"
-              ></textarea>
+              />
             </div>
           </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setOpen(false)} disabled={loading}>
+              Cancel
+            </Button>
+            <Button
+              onClick={handleSend}
+              disabled={loading || (selectedCourier === "pathao" && !pathaoStoreId)}
+            >
+              {loading && <Loader2 className="size-4 animate-spin mr-2" />}
+              Send
+            </Button>
+          </DialogFooter>
         </DialogContent>
-
-        <DialogActions>
-          <button
-            className="px-4 py-2 bg-gray-300 cursor-pointer rounded hover:bg-gray-400"
-            onClick={() => setOpen(false)}
-            disabled={loading}
-          >
-            Cancel
-          </button>
-          <button
-            className="px-4 py-2  rounded primaryBgColor accentTextColor  cursor-pointer flex items-center gap-2"
-            onClick={handleSend}
-            disabled={
-              loading || (selectedCourier === "pathao" && !pathaoStoreId)
-            }
-          >
-            {loading && (
-              <span className="w-4 h-4 cursor-pointer border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-            )}
-            Send
-          </button>
-        </DialogActions>
       </Dialog>
-
-      <Snackbar
-        open={snackbar.open}
-        autoHideDuration={5000}
-        onClose={() => setSnackbar({ ...snackbar, open: false })}
-        anchorOrigin={{ vertical: "top", horizontal: "right" }}
-      >
-        <Alert
-          onClose={() => setSnackbar({ ...snackbar, open: false })}
-          severity={snackbar.severity}
-          sx={{ width: "100%" }}
-        >
-          <span style={{ whiteSpace: "pre-line" }}>{snackbar.message}</span>
-        </Alert>
-      </Snackbar>
     </>
   );
 };

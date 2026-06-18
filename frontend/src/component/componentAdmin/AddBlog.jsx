@@ -1,16 +1,18 @@
 import React, { lazy, Suspense, useRef, useState } from "react";
 import AuthAdminStore from "../../store/AuthAdminStore.js";
-const Editor = lazy(() => import("primereact/editor").then(module => ({ default: module.Editor })));
-import {
-  Box,
-  Typography,
-  Chip,
-  TextField,
-  InputAdornment,
-  Button,
-  Snackbar,
-  Alert,
-} from "@mui/material";
+const Editor = lazy(() =>
+  import("primereact/editor").then((module) => ({
+    default: module.Editor,
+  })),
+);
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
+import { Textarea } from "@/components/ui/textarea";
+import { Card, CardContent } from "@/components/ui/card";
+import { toast } from "sonner";
+import { X, Upload } from "lucide-react";
 import axios from "axios";
 
 const AddBlog = () => {
@@ -28,14 +30,8 @@ const AddBlog = () => {
   const [tagInput, setTagInput] = useState("");
   const [thumbnailImage, setThumbnailImage] = useState(null);
   const [imagePreview, setImagePreview] = useState("");
-  const [selectedImages, setSelectedImages] = useState([]);
-
-  const [snackbarOpen, setSnackbarOpen] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState("");
-  const [snackbarSeverity, setSnackbarSeverity] = useState("success");
 
   const fileInputRef = useRef(null);
-  const imagesInputRef = useRef(null);
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -49,7 +45,7 @@ const AddBlog = () => {
   const handleRemoveImage = () => {
     setThumbnailImage(null);
     setImagePreview("");
-    document.getElementById("thumbnail-upload").value = "";
+    if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
   const handleAddTag = (e) => {
@@ -82,10 +78,6 @@ const AddBlog = () => {
     );
   };
 
-  const handleSnackbarClose = () => {
-    setSnackbarOpen(false);
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -109,11 +101,8 @@ const AddBlog = () => {
         },
       });
 
-      setSnackbarMessage("Blog created successfully!");
-      setSnackbarSeverity("success");
-      setSnackbarOpen(true);
+      toast.success("Blog created successfully!");
 
-      // Reset all fields
       setName("");
       setAuthor("");
       setLongDesc("");
@@ -123,274 +112,209 @@ const AddBlog = () => {
       setMetaKeywords([]);
       setThumbnailImage(null);
       setImagePreview("");
-      setSelectedImages([]);
-
-      if (fileInputRef.current) fileInputRef.current.value = "";
-      if (imagesInputRef.current) imagesInputRef.current.value = "";
     } catch (error) {
-      setSnackbarMessage("Failed to create blog. Please try again.");
-      setSnackbarSeverity("error");
-      setSnackbarOpen(true);
+      toast.error("Failed to create blog. Please try again.");
     }
   };
 
   return (
-    <div className="shadow rounded-lg p-3">
-      <h1 className="border-l-4 primaryBorderColor primaryTextColor mb-6 pl-2 text-lg font-semibold">
-        Add New Blog
-      </h1>
-      <form onSubmit={handleSubmit}>
-        <div className="md:grid grid-cols-12 gap-8 p-3">
-          <div className="col-span-8">
-            <TextField
-              label="Blog Title"
-              fullWidth
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-              margin="normal"
-            />
+    <div className="space-y-6">
+      <h1 className="text-2xl font-bold tracking-tight">Add New Blog</h1>
 
-            <TextField
-              label="Author"
-              fullWidth
-              value={author}
-              onChange={(e) => setAuthor(e.target.value)}
-              required
-              margin="normal"
-            />
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <div className="grid grid-cols-12 gap-6">
+          <div className="col-span-8 space-y-6">
+            <Card className="shadow-md border-0">
+              <CardContent className="p-6 space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="name">Blog Title <span className="text-destructive">*</span></Label>
+                  <Input
+                    id="name"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    required
+                    placeholder="Enter blog title"
+                  />
+                </div>
 
-            <h1 className="py-3 pl-1">Blog Content</h1>
-            <Suspense fallback={<div>Loading Editor...</div>}>
-              <Editor
-                value={longDesc}
-                onTextChange={(e) => setLongDesc(e.htmlValue)}
-                style={{ height: "260px" }}
-              />
-            </Suspense>
+                <div className="space-y-2">
+                  <Label htmlFor="author">Author <span className="text-destructive">*</span></Label>
+                  <Input
+                    id="author"
+                    value={author}
+                    onChange={(e) => setAuthor(e.target.value)}
+                    required
+                    placeholder="Enter author name"
+                  />
+                </div>
 
-            <Box mb={2}>
-              <Box
-                display="flex"
-                flexDirection="column"
-                gap={1}
-                margin="normal"
-              >
-                <TextField
-                  label="Tags"
-                  fullWidth
-                  placeholder="Type a tag and press Enter"
-                  value={tagInput}
-                  onChange={(e) => setTagInput(e.target.value)}
-                  onKeyDown={handleAddTag}
-                  variant="outlined"
-                  margin="normal"
-                  InputProps={{
-                    startAdornment: searchTags.length > 0 && (
-                      <InputAdornment position="start">
-                        {/* Display all the chips inside the text field */}
-                        <Box gap={1}>
-                          {searchTags.map((tag, index) => (
-                            <Chip
-                              key={index}
-                              label={tag}
-                              onDelete={() => handleDeleteTag(tag)}
-                              size="small"
-                              style={{
-                                margin: "2px",
-                                backgroundColor: "#e0e0e0",
-                              }}
-                            />
-                          ))}
-                        </Box>
-                      </InputAdornment>
-                    ),
-                  }}
-                />
-              </Box>
-            </Box>
-          </div>
-          <div className="col-span-4">
-            {/* Thumbnail Image Upload */}
-            <Box mb={2}>
-              <Typography>
-                Blog Thumbnail Image{" "}
-                <span style={{ color: "red", fontSize: "18px" }}>*</span>
-              </Typography>
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleImageChange}
-                style={{
-                  display: "inline-block", // Hide the default file input
-                }}
-                id="thumbnail-upload"
-                name="thumbnailImage"
-                ref={fileInputRef} // Attach the ref here
-                required={true}
-              />
-              <label
-                htmlFor="thumbnail-upload"
-                style={{
-                  display: "block",
-                  height: "210px",
-                  marginTop: "10px",
-                  border: "2px solid #aaa",
-                  cursor: "pointer",
-                  textAlign: "center",
-                  position: "relative",
-                  backgroundImage: imagePreview
-                    ? `url(${imagePreview})`
-                    : "none", // Use backgroundImage
-                  backgroundColor: imagePreview ? "transparent" : "#f0f0f0", // Use backgroundColor
-                  backgroundSize: "contain", // Changed to contain
-                  backgroundRepeat: "no-repeat", // Prevent background from repeating
-                  backgroundPosition: "center", // Center the image
-                  color: imagePreview ? "transparent" : "#000",
-                }}
-              >
-                {imagePreview ? (
-                  <>
-                    <Typography
-                      variant="body2"
-                      sx={{
-                        position: "absolute",
-                        bottom: "10px",
-                        left: "50%",
-                        transform: "translateX(-50%)",
-                      }}
-                    >
-                      Image Selected
-                    </Typography>
-                    {/* Remove Button */}
-                    <Button
-                      variant="contained"
-                      color="secondary"
-                      sx={{
-                        position: "absolute",
-                        top: "10px",
-                        right: "10px",
-                        padding: "5px 10px",
-                        fontSize: "12px",
-                        zIndex: 10,
-                      }}
-                      onClick={handleRemoveImage}
-                    >
-                      Remove
-                    </Button>
-                  </>
-                ) : (
-                  <Typography
-                    variant="body2"
-                    sx={{
-                      position: "absolute",
-                      top: "50%",
-                      left: "50%",
-                      transform: "translate(-50%, -50%)",
-                    }}
+                <div className="space-y-2">
+                  <Label>Blog Content</Label>
+                  <Suspense
+                    fallback={
+                      <div className="py-8 text-center text-muted-foreground">
+                        Loading Editor...
+                      </div>
+                    }
                   >
-                    Click to upload an image
-                  </Typography>
-                )}
-              </label>
-            </Box>
+                    <Editor
+                      value={longDesc}
+                      onTextChange={(e) => setLongDesc(e.htmlValue)}
+                      style={{ height: "260px" }}
+                    />
+                  </Suspense>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="shadow-md border-0">
+              <CardContent className="p-6 space-y-4">
+                <div className="space-y-2">
+                  <Label>Tags</Label>
+                  <Input
+                    placeholder="Type a tag and press Enter"
+                    value={tagInput}
+                    onChange={(e) => setTagInput(e.target.value)}
+                    onKeyDown={handleAddTag}
+                  />
+                  {searchTags.length > 0 && (
+                    <div className="flex flex-wrap gap-1.5 mt-2">
+                      {searchTags.map((tag, index) => (
+                        <Badge key={index} variant="secondary">
+                          {tag}
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteTag(tag)}
+                            className="ml-1.5 hover:text-destructive"
+                          >
+                            <X className="size-3" />
+                          </button>
+                        </Badge>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          <div className="col-span-4 space-y-6">
+            <Card className="shadow-md border-0">
+              <CardContent className="p-6 space-y-4">
+                <div className="space-y-2">
+                  <Label>
+                    Blog Thumbnail Image <span className="text-destructive">*</span>
+                  </Label>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageChange}
+                    className="hidden"
+                    id="thumbnail-upload"
+                    ref={fileInputRef}
+                    required
+                  />
+                  <label
+                    htmlFor="thumbnail-upload"
+                    className="relative flex items-center justify-center h-[210px] border-2 border-dashed border-muted-foreground/30 rounded-lg cursor-pointer bg-muted/10 hover:bg-muted/20 transition-colors overflow-hidden"
+                  >
+                    {imagePreview ? (
+                      <>
+                        <img
+                          src={imagePreview}
+                          alt="Preview"
+                          className="size-full object-contain"
+                        />
+                        <Button
+                          type="button"
+                          variant="secondary"
+                          size="sm"
+                          className="absolute top-2 right-2"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            handleRemoveImage();
+                          }}
+                        >
+                          <X className="size-3 mr-1" />
+                          Remove
+                        </Button>
+                        <span className="absolute bottom-2 left-1/2 -translate-x-1/2 text-xs text-muted-foreground bg-background/80 px-2 py-0.5 rounded">
+                          Image Selected
+                        </span>
+                      </>
+                    ) : (
+                      <div className="flex flex-col items-center gap-2 text-muted-foreground">
+                        <Upload className="size-8" />
+                        <span className="text-sm">Click to upload an image</span>
+                      </div>
+                    )}
+                  </label>
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </div>
 
-        <div className={"shadow rounded-lg p-3 mt-3"}>
-          <h1>
-            Blog SEO Information{" "}
-            <span className={"text-red-500"}>(Optional)</span>{" "}
-          </h1>
-          <div className={"grid grid-cols-2 gap-4"}>
-            {/* Meta Title */}
-            <TextField
-              label="Meta Title"
-              fullWidth
-              value={metaTitle}
-              onChange={(e) => setMetaTitle(e.target.value)}
-              margin="normal"
-            />
-            {/* Meta Keywords Input */}
-            <Box mb={2}>
-              <Box
-                display="flex"
-                flexDirection="column"
-                gap={1}
-                margin="normal"
-              >
-                <TextField
-                  label="Met Keywords"
-                  fullWidth
+        <Card className="shadow-md border-0">
+          <CardContent className="p-6 space-y-4">
+            <h2 className="text-lg font-semibold">
+              Blog SEO Information{" "}
+              <span className="text-sm font-normal text-muted-foreground">(Optional)</span>
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="metaTitle">Meta Title</Label>
+                <Input
+                  id="metaTitle"
+                  value={metaTitle}
+                  onChange={(e) => setMetaTitle(e.target.value)}
+                  placeholder="Meta title"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Meta Keywords</Label>
+                <Input
                   placeholder="Type a keyword and press Enter"
                   value={keywordInput}
                   onChange={(e) => setKeywordInput(e.target.value)}
                   onKeyDown={handleAddKeyword}
-                  variant="outlined"
-                  margin="normal"
-                  InputProps={{
-                    startAdornment: metaKeywords.length > 0 && (
-                      <InputAdornment position="start">
-                        {/* Display all the chips inside the text field */}
-                        <Box gap={1}>
-                          {metaKeywords.map((keyword, index) => (
-                            <Chip
-                              key={index}
-                              label={keyword}
-                              onDelete={() => handleDeleteKeyword(keyword)}
-                              size="small"
-                              style={{
-                                margin: "2px",
-                                backgroundColor: "#e0e0e0",
-                              }}
-                            />
-                          ))}
-                        </Box>
-                      </InputAdornment>
-                    ),
-                  }}
                 />
-              </Box>
-            </Box>
-          </div>
+                {metaKeywords.length > 0 && (
+                  <div className="flex flex-wrap gap-1.5 mt-2">
+                    {metaKeywords.map((keyword, index) => (
+                      <Badge key={index} variant="secondary">
+                        {keyword}
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteKeyword(keyword)}
+                          className="ml-1.5 hover:text-destructive"
+                        >
+                          <X className="size-3" />
+                        </button>
+                      </Badge>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="metaDescription">Meta Description</Label>
+              <Textarea
+                id="metaDescription"
+                value={metaDescription}
+                onChange={(e) => setMetaDescription(e.target.value)}
+                rows={4}
+                placeholder="Meta description"
+                className="resize-y"
+              />
+            </div>
+          </CardContent>
+        </Card>
 
-          {/* Meta Description */}
-          <TextField
-            label="Meta Description"
-            fullWidth
-            multiline
-            rows={4}
-            value={metaDescription}
-            onChange={(e) => setMetaDescription(e.target.value)}
-            margin="none"
-            InputProps={{
-              style: { resize: "vertical", overflow: "auto" }, // This makes it resizable
-            }}
-          />
+        <div className="flex justify-center pb-6">
+          <Button type="submit">Create Blog</Button>
         </div>
-
-        <div className={"flex justify-center mt-10 mb-10"}>
-          <Button variant="contained" type="submit" color="primary">
-            Create Blog
-          </Button>
-        </div>
-
       </form>
-
-      <Snackbar
-        open={snackbarOpen}
-        autoHideDuration={4000}
-        onClose={handleSnackbarClose}
-        anchorOrigin={{ vertical: "top", horizontal: "right" }}
-      >
-        <Alert
-          severity={snackbarSeverity}
-          sx={{ width: "100%" }}
-          onClose={handleSnackbarClose}
-        >
-          {snackbarMessage}
-        </Alert>
-      </Snackbar>
     </div>
   );
 };

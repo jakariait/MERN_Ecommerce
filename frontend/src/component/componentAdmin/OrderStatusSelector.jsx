@@ -1,41 +1,24 @@
 import React, { useEffect, useState } from "react";
 import useAuthAdminStore from "../../store/AuthAdminStore.js";
-import { Snackbar, Alert } from "@mui/material";
-import Skeleton from "react-loading-skeleton";
-import Select from "react-select";
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { toast } from "sonner";
 
 const statusOptions = [
-  { value: "pending", label: "Pending", color: "blue" }, // yellow-400
-  { value: "approved", label: "Approved", color: "#34D399" }, // green-400
-  { value: "intransit", label: "In Transit", color: "#60A5FA" }, // blue-400
-  { value: "delivered", label: "Delivered", color: "green" }, // purple-400
-  { value: "returned", label: "Returned", color: "#F87171" }, // red-400
-  { value: "cancelled", label: "Cancelled", color: "red" }, // gray-400
+  { value: "pending", label: "Pending" },
+  { value: "approved", label: "Approved" },
+  { value: "intransit", label: "In Transit" },
+  { value: "delivered", label: "Delivered" },
+  { value: "returned", label: "Returned" },
+  { value: "cancelled", label: "Cancelled" },
 ];
-
-// Custom style for react-select to color options and selected value
-const customStyles = {
-  control: (provided) => ({
-    ...provided,
-    minWidth: 150,
-    backgroundColor: "#f3f4f6", // gray-100
-  }),
-  option: (provided, state) => ({
-    ...provided,
-    backgroundColor: state.isSelected
-      ? state.data.color
-      : state.isFocused
-        ? "#e0e7ff" // light blue on hover
-        : "white",
-    color: state.isSelected ? "white" : "black",
-    cursor: "pointer",
-  }),
-  singleValue: (provided, state) => ({
-    ...provided,
-    color: state.data.color,
-    fontWeight: "bold",
-  }),
-};
 
 const OrderStatusSelector = ({ orderId, refetchOrders }) => {
   const { token } = useAuthAdminStore();
@@ -44,10 +27,6 @@ const OrderStatusSelector = ({ orderId, refetchOrders }) => {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [orderStatus, setOrderStatus] = useState("pending");
-
-  const [openSnackbar, setOpenSnackbar] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState("");
-  const [snackbarSeverity, setSnackbarSeverity] = useState("success");
 
   useEffect(() => {
     if (!orderId) return;
@@ -64,15 +43,11 @@ const OrderStatusSelector = ({ orderId, refetchOrders }) => {
         if (res.ok && data.success) {
           setOrderStatus(data.order.orderStatus || "pending");
         } else {
-          setSnackbarMessage(data.message || "Failed to load order status");
-          setSnackbarSeverity("error");
-          setOpenSnackbar(true);
+          toast.error(data.message || "Failed to load order status");
         }
       } catch (err) {
         console.error(err);
-        setSnackbarMessage("Error fetching order status.");
-        setSnackbarSeverity("error");
-        setOpenSnackbar(true);
+        toast.error("Error fetching order status.");
       } finally {
         setLoading(false);
       }
@@ -96,67 +71,41 @@ const OrderStatusSelector = ({ orderId, refetchOrders }) => {
       const data = await res.json();
 
       if (res.ok && data.success) {
-        setSnackbarMessage("Order status updated successfully!");
-        setSnackbarSeverity("success");
-        setOpenSnackbar(true);
-        if (refetchOrders) refetchOrders(); // 🔁 Call the refetch
-
+        toast.success("Order status updated successfully!");
+        if (refetchOrders) refetchOrders();
       } else {
-        setSnackbarMessage(data.message || "Failed to update status");
-        setSnackbarSeverity("error");
-        setOpenSnackbar(true);
+        toast.error(data.message || "Failed to update status");
       }
     } catch (err) {
       console.error(err);
-      setSnackbarMessage("Something went wrong while updating status.");
-      setSnackbarSeverity("error");
-      setOpenSnackbar(true);
+      toast.error("Something went wrong while updating status.");
     } finally {
       setSubmitting(false);
     }
   };
 
   if (loading) {
-    return <Skeleton height={40} width={180} />;
+    return <Skeleton className="h-10 w-[180px]" />;
   }
 
-  // Find the selected option object for react-select
-  const selectedOption = statusOptions.find(
-    (opt) => opt.value === orderStatus
-  );
-
   return (
-    <div className="flex items-center gap-4">
-      <Select
-        options={statusOptions}
-        value={selectedOption}
-        onChange={(selected) => setOrderStatus(selected.value)}
-        styles={customStyles}
-        isDisabled={submitting}
-      />
+    <div className="flex items-center gap-3">
+      <Select value={orderStatus} onValueChange={setOrderStatus}>
+        <SelectTrigger className="min-w-[150px]">
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          {statusOptions.map((opt) => (
+            <SelectItem key={opt.value} value={opt.value}>
+              {opt.label}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
 
-      <button
-        onClick={handleSubmit}
-        disabled={submitting}
-        className="primaryBgColor accentTextColor px-4 py-2 rounded-md disabled:opacity-50 cursor-pointer"
-      >
+      <Button onClick={handleSubmit} disabled={submitting} size="sm">
         {submitting ? "Saving..." : "Save"}
-      </button>
-
-      <Snackbar
-        open={openSnackbar}
-        autoHideDuration={6000}
-        onClose={() => setOpenSnackbar(false)}
-        anchorOrigin={{ vertical: "top", horizontal: "right" }}
-      >
-        <Alert
-          onClose={() => setOpenSnackbar(false)}
-          severity={snackbarSeverity}
-          sx={{ width: "100%" }}
-        >
-          {snackbarMessage}
-        </Alert>
-      </Snackbar>
+      </Button>
     </div>
   );
 };

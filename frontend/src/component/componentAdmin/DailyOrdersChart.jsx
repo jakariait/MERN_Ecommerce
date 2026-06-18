@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { Paper, Typography } from "@mui/material";
 import { ResponsiveLine } from "@nivo/line";
 import useOrderStore from "../../store/useOrderStore";
 import dayjs from "dayjs";
@@ -46,10 +45,10 @@ const DailyOrdersChart = () => {
   }, [allOrders]);
 
   return (
-    <Paper className="p-4 rounded-lg shadow">
-      <Typography variant="h6" align="center" gutterBottom>
+    <div className="bg-white p-4 rounded-lg shadow overflow-hidden">
+      <h3 className="text-center font-semibold mb-2">
         Daily Orders (Last 30 Days)
-      </Typography>
+      </h3>
       <div style={{ height: 200 }}>
         <ResponsiveLine
           data={chartData}
@@ -87,7 +86,7 @@ const DailyOrdersChart = () => {
           )}
         />
       </div>
-    </Paper>
+    </div>
   );
 };
 

@@ -1,14 +1,20 @@
 import React, { useEffect, useState } from "react";
-import { Typography, ToggleButton, ToggleButtonGroup } from "@mui/material";
 import { ResponsivePie } from "@nivo/pie";
+import { Button } from "@/components/ui/button";
 import useOrderStore from "../../store/useOrderStore.js";
 import dayjs from "dayjs";
+
+const timeframeLabels = {
+  weekly: "Weekly",
+  monthly: "Monthly",
+  yearly: "Yearly",
+  lifetime: "Lifetime",
+};
 
 const MostSoldProductsPieChart = () => {
   const { fetchAllOrdersWithoutPagination, allOrders } = useOrderStore();
   const [productSales, setProductSales] = useState([]);
   const [totalSold, setTotalSold] = useState(0);
-  const [hoveredSlice, setHoveredSlice] = useState(null);
   const [timeframe, setTimeframe] = useState("monthly");
 
   useEffect(() => {
@@ -33,7 +39,6 @@ const MostSoldProductsPieChart = () => {
           dayjs(order.createdAt).isAfter(now.startOf("year")),
         );
       } else {
-        // lifetime - no filtering
         filteredOrders = allOrders;
       }
 
@@ -69,23 +74,23 @@ const MostSoldProductsPieChart = () => {
   return (
     <div className="relative bg-white rounded-lg shadow py-6 px-4 overflow-hidden">
       <div className="text-center mb-6">
-        <Typography variant="h6">Best Selling Products</Typography>
-        <p className="text-gray-500 font-medium">
+        <h3 className="font-semibold">Best Selling Products</h3>
+        <p className="text-sm text-muted-foreground font-medium">
           Total Items Sold: {totalSold}
         </p>
 
-        <ToggleButtonGroup
-          color="primary"
-          value={timeframe}
-          exclusive
-          onChange={(e, value) => value && setTimeframe(value)}
-          size="small"
-        >
-          <ToggleButton value="weekly">Weekly</ToggleButton>
-          <ToggleButton value="monthly">Monthly</ToggleButton>
-          <ToggleButton value="yearly">Yearly</ToggleButton>
-          <ToggleButton value="lifetime">Lifetime</ToggleButton>
-        </ToggleButtonGroup>
+        <div className="flex justify-center gap-1 mt-3">
+          {Object.entries(timeframeLabels).map(([value, label]) => (
+            <Button
+              key={value}
+              variant={timeframe === value ? "default" : "outline"}
+              size="sm"
+              onClick={() => setTimeframe(value)}
+            >
+              {label}
+            </Button>
+          ))}
+        </div>
       </div>
 
       <div className="relative h-[300px] w-full">
@@ -99,8 +104,6 @@ const MostSoldProductsPieChart = () => {
           colors={{ scheme: "category10" }}
           enableArcLabels={false}
           enableArcLinkLabels={false}
-          onMouseEnter={(data) => setHoveredSlice(data)}
-          onMouseLeave={() => setHoveredSlice(null)}
         />
       </div>
     </div>

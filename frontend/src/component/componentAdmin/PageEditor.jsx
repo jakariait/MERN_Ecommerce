@@ -1,30 +1,19 @@
 import React, { Suspense, lazy, useEffect, useState } from "react";
-const Editor = lazy(() => import("primereact/editor").then(module => ({ default: module.Editor })));
+const Editor = lazy(() =>
+  import("primereact/editor").then((module) => ({
+    default: module.Editor,
+  })),
+);
 import axios from "axios";
-import Snackbar from "@mui/material/Snackbar";
-import MuiAlert from "@mui/material/Alert";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { toast } from "sonner";
 import useAuthAdminStore from "../../store/AuthAdminStore.js";
 
-
-const Alert = React.forwardRef(function Alert(props, ref) {
-  return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
-});
-
-/**
- * Reusable page editor for CMS-like editable pages
- *
- * @param {string} title - Title of the section (e.g. "About Us")
- * @param {string} endpoint - API endpoint to GET and PATCH content
- */
 const PageEditor = ({ title, endpoint }) => {
   const [content, setContent] = useState("");
   const [loading, setLoading] = useState(false);
-  const [snackbarOpen, setSnackbarOpen] = useState(false);
-  const [snackbarError, setSnackbarError] = useState("");
-
   const { token } = useAuthAdminStore();
-
-
 
   useEffect(() => {
     const fetchContent = async () => {
@@ -49,64 +38,40 @@ const PageEditor = ({ title, endpoint }) => {
         `${import.meta.env.VITE_API_URL}/pagecontent/${endpoint}`,
         { content },
         {
-          headers: {
-            Authorization: `Bearer ${token}`, // Pass token here
-          },
-        }
+          headers: { Authorization: `Bearer ${token}` },
+        },
       );
-      setSnackbarError("");
-      setSnackbarOpen(true);
+      toast.success(`${title} updated successfully!`);
     } catch (err) {
       console.error(`Update error for ${title}:`, err);
-      setSnackbarError("Update failed.");
-      setSnackbarOpen(true);
+      toast.error("Update failed.");
     } finally {
       setLoading(false);
     }
   };
 
-
-  const handleSnackbarClose = (_, reason) => {
-    if (reason === "clickaway") return;
-    setSnackbarOpen(false);
-  };
-
   return (
-    <div className="p-4 shadow rounded-lg">
-      <h1 className="border-l-4 primaryBorderColor primaryTextColor mb-6 pl-2 text-lg font-semibold">
-        Edit {title}
-      </h1>
-      <Suspense fallback={<div>Loading Editor...</div>}>
-        <Editor
-          value={content}
-          onTextChange={(e) => setContent(e.htmlValue)}
-          style={{ height: "500px" }}
-          readOnly={loading}
-        />
-      </Suspense>
-      <div className={"flex justify-center items-center"}>
-        <button
-          onClick={handleSave}
-          disabled={loading}
-          className="mt-4 primaryBgColor accentTextColor cursor-pointer  px-4 py-2 rounded w-96 items-center disabled:opacity-50"
-        >
-          {loading ? "Saving..." : "Save"}
-        </button>
-      </div>
+    <div className="space-y-6">
+      <h1 className="text-2xl font-bold tracking-tight">Edit {title}</h1>
 
-      <Snackbar
-        open={snackbarOpen}
-        autoHideDuration={3000}
-        onClose={handleSnackbarClose}
-        anchorOrigin={{ vertical: "top", horizontal: "right" }}
-      >
-        <Alert
-          onClose={handleSnackbarClose}
-          severity={snackbarError ? "error" : "success"}
-        >
-          {snackbarError || `${title} updated successfully!`}
-        </Alert>
-      </Snackbar>
+      <Card className="shadow-md border-0">
+        <CardContent className="p-4">
+          <Suspense fallback={<div className="py-8 text-center text-muted-foreground">Loading Editor...</div>}>
+            <Editor
+              value={content}
+              onTextChange={(e) => setContent(e.htmlValue)}
+              style={{ height: "500px" }}
+              readOnly={loading}
+            />
+          </Suspense>
+        </CardContent>
+      </Card>
+
+      <div className="flex justify-center">
+        <Button onClick={handleSave} disabled={loading} className="w-96">
+          {loading ? "Saving..." : "Save"}
+        </Button>
+      </div>
     </div>
   );
 };
