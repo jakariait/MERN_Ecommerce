@@ -1,7 +1,18 @@
 import React, { useState, useEffect } from "react";
 import useAuthAdminStore from "../../store/AuthAdminStore.js";
-import Snackbar from "@mui/material/Snackbar";
-import Alert from "@mui/material/Alert";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+} from "@/components/ui/card";
+import { toast } from "sonner";
+import { Loader2, Hash } from "lucide-react";
 
 const apiURL = import.meta.env.VITE_API_URL;
 
@@ -9,10 +20,6 @@ const UpdateGTM = () => {
   const [gtmId, setGtmId] = useState("");
   const [isActive, setIsActive] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [snackbarOpen, setSnackbarOpen] = useState(false);
-  const [snackbarSeverity, setSnackbarSeverity] = useState("success"); // "success" | "error"
-  const [snackbarMessage, setSnackbarMessage] = useState("");
-
   const { token } = useAuthAdminStore();
 
   useEffect(() => {
@@ -24,7 +31,7 @@ const UpdateGTM = () => {
         setGtmId(data.googleTagManagerId || "");
         setIsActive(data.isActive || false);
       } catch {
-        // ignore errors here
+        // ignore
       }
     };
     fetchGTM();
@@ -49,91 +56,67 @@ const UpdateGTM = () => {
 
       if (!res.ok) throw new Error(`Error: ${res.statusText}`);
 
-      setSnackbarSeverity("success");
-      setSnackbarMessage("GTM config updated successfully.");
-      setSnackbarOpen(true);
+      toast.success("GTM config updated successfully.");
     } catch (error) {
-      setSnackbarSeverity("error");
-      setSnackbarMessage(error.message || "Failed to update GTM config.");
-      setSnackbarOpen(true);
+      toast.error(error.message || "Failed to update GTM config.");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleSnackbarClose = (event, reason) => {
-    if (reason === "clickaway") return;
-    setSnackbarOpen(false);
-  };
-
   return (
-    <>
-      <div className="max-w-md   p-6 bg-white rounded-lg shadow-md border border-gray-200">
-        <h1 className="border-l-4 primaryBorderColor primaryTextColor mb-6 pl-2 text-lg font-semibold ">
-          Update GTM Configuration
-        </h1>
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <Hash className="size-5" />
+          GTM Configuration
+        </CardTitle>
+        <CardDescription>
+          Google Tag Manager integration settings
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div>
-            <label
-              htmlFor="gtmId"
-              className="block text-gray-700 mb-2 font-medium"
-            >
-              Google Tag Manager ID
-            </label>
-            <input
+          <div className="space-y-2">
+            <Label htmlFor="gtmId">Google Tag Manager ID</Label>
+            <Input
               id="gtmId"
-              type="text"
               value={gtmId}
               onChange={(e) => setGtmId(e.target.value)}
               placeholder="GTM-XXXXXXX"
               required
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none "
             />
           </div>
 
-          <div className="flex items-center space-x-3">
-            <input
+          <div className="flex items-center justify-between rounded-lg border p-4">
+            <div>
+              <Label htmlFor="isActive" className="text-sm font-medium">
+                Active
+              </Label>
+              <p className="text-xs text-muted-foreground">
+                Enable or disable GTM tracking
+              </p>
+            </div>
+            <Switch
               id="isActive"
-              type="checkbox"
               checked={isActive}
-              onChange={(e) => setIsActive(e.target.checked)}
-              className="h-5 w-5 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+              onCheckedChange={setIsActive}
             />
-            <label
-              htmlFor="isActive"
-              className="text-gray-700 font-medium cursor-pointer"
-            >
-              Active
-            </label>
           </div>
 
-          <button
-            type="submit"
-            disabled={loading}
-            className={`w-full px-4 py-2 cursor-pointer primaryBgColor rounded-md accentTextColor font-semibold transition  ${
-              loading ? "cursor-not-allowed" : ""
-            }`}
-          >
-            {loading ? "Updating..." : "Update"}
-          </button>
+          <Button type="submit" className="w-full" disabled={loading}>
+            {loading ? (
+              <>
+                <Loader2 className="size-4 mr-1 animate-spin" />
+                Updating...
+              </>
+            ) : (
+              "Update"
+            )}
+          </Button>
         </form>
-      </div>
-
-      <Snackbar
-        open={snackbarOpen}
-        autoHideDuration={4000}
-        onClose={handleSnackbarClose}
-        anchorOrigin={{ vertical: "top", horizontal: "right" }}
-      >
-        <Alert
-          onClose={handleSnackbarClose}
-          severity={snackbarSeverity}
-          sx={{ width: "100%" }}
-        >
-          {snackbarMessage}
-        </Alert>
-      </Snackbar>
-    </>
+      </CardContent>
+    </Card>
   );
 };
 

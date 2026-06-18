@@ -1,17 +1,23 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import useAuthAdminStore from "../../store/AuthAdminStore";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardContent,
+} from "@/components/ui/card";
+import { toast } from "sonner";
+import { Loader2, Percent } from "lucide-react";
 
-const UpdateFreeDeliveryAmount = () => {
+const UpdateTaxPercentage = () => {
   const [amount, setAmount] = useState("");
   const [currentValue, setCurrentValue] = useState(null);
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
-  const [snackbar, setSnackbar] = useState({
-    open: false,
-    message: "",
-    type: "success",
-  });
   const { token } = useAuthAdminStore();
   const apiUrl = import.meta.env.VITE_API_URL;
 
@@ -33,9 +39,10 @@ const UpdateFreeDeliveryAmount = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!amount.trim()) return alert("Please enter a valid Percentage");
+    if (!amount.trim()) return toast.error("Please enter a valid percentage");
+
+    setLoading(true);
     try {
-      setLoading(true);
       await axios.patch(
         `${apiUrl}/updateVatPercentage`,
         { value: Number(amount) },
@@ -43,65 +50,65 @@ const UpdateFreeDeliveryAmount = () => {
       );
       setCurrentValue(Number(amount));
       setAmount("");
-      setSnackbar({
-        open: true,
-        message: "Tax/VAT Percentage amount updated successfully",
-        type: "success",
-      });
+      toast.success("Tax/VAT percentage updated successfully");
     } catch (err) {
-      console.error("Update failed", err);
-      setSnackbar({
-        open: true,
-        message: "Something went wrong while updating",
-        type: "error",
-      });
+      toast.error("Something went wrong while updating");
     } finally {
       setLoading(false);
-      setTimeout(() => setSnackbar((prev) => ({ ...prev, open: false })), 3000);
     }
   };
 
   return (
-    <>
-      <div className=" bg-white shadow-md rounded-xl p-4">
-        <h1 className="border-l-4 primaryBorderColor primaryTextColor mb-4 pl-2 text-lg font-semibold">
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <Percent className="size-5" />
           Tax/VAT Percentage Settings
-        </h1>
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
         <form onSubmit={handleSubmit} className="space-y-5">
-          <p className="text-sm text-gray-700">
-            Current Tax/VAT Percentage:{" "}
-            <span className="font-semibold primaryTextColor">
-              {fetching ? "Loading..." : `${currentValue}%`}
-            </span>
-            <p>Set 0 to deactivate Tax/VAT</p>
-          </p>
-          <div className="flex flex-col space-y-4">
-            <input
+          <div className="rounded-lg bg-muted/50 p-4 text-sm">
+            <p className="text-muted-foreground">
+              Current Tax/VAT Percentage:
+            </p>
+            <p className="text-2xl font-bold text-foreground mt-1">
+              {fetching ? (
+                <Loader2 className="size-5 animate-spin inline" />
+              ) : (
+                `${currentValue}%`
+              )}
+            </p>
+            <p className="text-xs text-muted-foreground mt-1">
+              Set 0 to deactivate Tax/VAT
+            </p>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="amount">New Percentage</Label>
+            <Input
+              id="amount"
               type="number"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
               placeholder="e.g. 10"
-              className=" px-4 py-2 border border-gray-300 rounded-md focus:outline-none"
             />
-            <button
-              type="submit"
-              disabled={loading}
-              className={`px-6 py-2 cursor-pointer rounded-md primaryBgColor accentTextColor`}
-            >
-              {loading ? "Updating..." : "Update Percentage"}
-            </button>
           </div>
+
+          <Button type="submit" className="w-full" disabled={loading}>
+            {loading ? (
+              <>
+                <Loader2 className="size-4 mr-1 animate-spin" />
+                Updating...
+              </>
+            ) : (
+              "Update Percentage"
+            )}
+          </Button>
         </form>
-      </div>
-      {snackbar.open && (
-        <div
-          className={`fixed top-5 right-5 px-4 py-3 rounded-md shadow-md text-white transition-all duration-300 ${snackbar.type === "success" ? "bg-green-600" : "bg-red-600"}`}
-        >
-          {snackbar.message}
-        </div>
-      )}
-    </>
+      </CardContent>
+    </Card>
   );
 };
 
-export default UpdateFreeDeliveryAmount;
+export default UpdateTaxPercentage;

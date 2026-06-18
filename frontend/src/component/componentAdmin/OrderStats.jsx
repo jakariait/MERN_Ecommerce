@@ -1,22 +1,23 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { Box, Card, CardContent, Typography, Stack } from "@mui/material";
-
-import HourglassEmptyIcon from "@mui/icons-material/HourglassEmpty";
-import TaskAltIcon from "@mui/icons-material/TaskAlt";
-import LocalShippingIcon from "@mui/icons-material/LocalShipping";
-import DoneAllIcon from "@mui/icons-material/DoneAll";
-import ReplayIcon from "@mui/icons-material/Replay";
-import CancelIcon from "@mui/icons-material/Cancel";
+import { Card, CardContent } from "@/components/ui/card";
+import {
+  Hourglass,
+  CheckCircle,
+  Truck,
+  CheckCheck,
+  RotateCcw,
+  XCircle,
+} from "lucide-react";
 import useAuthAdminStore from "../../store/AuthAdminStore.js";
 
-const statusIcons = {
-  pending: <HourglassEmptyIcon color="warning" fontSize="large" />,
-  approved: <TaskAltIcon color="info" fontSize="large" />,
-  intransit: <LocalShippingIcon color="primary" fontSize="large" />,
-  delivered: <DoneAllIcon color="success" fontSize="large" />,
-  returned: <ReplayIcon color="secondary" fontSize="large" />,
-  cancelled: <CancelIcon color="error" fontSize="large" />,
+const statusConfig = {
+  pending: { icon: Hourglass, color: "text-amber-500" },
+  approved: { icon: CheckCircle, color: "text-blue-500" },
+  intransit: { icon: Truck, color: "text-primary" },
+  delivered: { icon: CheckCheck, color: "text-green-500" },
+  returned: { icon: RotateCcw, color: "text-purple-500" },
+  cancelled: { icon: XCircle, color: "text-destructive" },
 };
 
 const OrderStats = () => {
@@ -70,32 +71,25 @@ const OrderStats = () => {
   }, []);
 
   return (
-    <Box
-      display="grid"
-      gridTemplateColumns={{
-        xs: "repeat(2, 1fr)",
-        sm: "repeat(3, 1fr)",
-        lg: "repeat(6, 1fr)",
-      }}
-      gap={2}
-      my={4}
-    >
-      {Object.entries(amountByStatus).map(([status, amount]) => (
-        <Card key={status} elevation={1}>
-          <CardContent sx={{ textAlign: "center" }}>
-            <Stack spacing={1} alignItems="center">
-              {statusIcons[status]}
-              <Typography variant="body1" sx={{ textTransform: "capitalize" }}>
+    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-6 gap-3 my-6">
+      {Object.entries(amountByStatus).map(([status, amount]) => {
+        const config = statusConfig[status];
+        const Icon = config?.icon || Hourglass;
+        return (
+          <Card key={status} className="shadow-md border-0">
+            <CardContent className="text-center space-y-2 py-5">
+              <Icon className={`size-8 mx-auto ${config?.color || ""}`} />
+              <p className="text-sm text-muted-foreground capitalize">
                 Total {status} Orders
-              </Typography>
-              <Typography variant="h6" fontWeight={600}>
+              </p>
+              <p className="text-lg font-semibold">
                 Tk. {amount.toFixed(2)}
-              </Typography>
-            </Stack>
-          </CardContent>
-        </Card>
-      ))}
-    </Box>
+              </p>
+            </CardContent>
+          </Card>
+        );
+      })}
+    </div>
   );
 };
 

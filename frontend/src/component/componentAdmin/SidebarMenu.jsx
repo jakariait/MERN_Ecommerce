@@ -150,7 +150,7 @@ export const MENU_CONFIG = [
         type: "link",
         label: "Subcategory",
         icon: FaBoxes,
-        path: "/admin/category",
+        path: "/admin/subcategory",
         permission: "sub_category",
       },
     ],

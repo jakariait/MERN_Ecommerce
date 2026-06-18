@@ -1,38 +1,58 @@
 import React, { useEffect, useState, useCallback, useMemo } from "react";
+import useProductStore from "../../store/useProductStore.js";
+import ImageComponent from "../componentGeneral/ImageComponent.jsx";
+import { Link } from "react-router-dom";
+import RequirePermission from "./RequirePermission.jsx";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
-  Button,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   Table,
   TableBody,
   TableCell,
-  TableContainer,
   TableHead,
+  TableHeader,
   TableRow,
-  Paper,
-  TextField,
-  Typography,
+} from "@/components/ui/table";
+import {
+  Card,
+  CardContent,
+} from "@/components/ui/card";
+import {
   Dialog,
-  DialogTitle,
   DialogContent,
-  DialogContentText,
-  DialogActions,
-  Snackbar,
-  Alert,
-  Chip,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import {
   Tooltip,
-  Pagination,
-  InputAdornment,
-  IconButton,
-  Select,
-  MenuItem,
-  FormControl,
-} from "@mui/material";
-import useProductStore from "../../store/useProductStore.js";
-import ImageComponent from "../componentGeneral/ImageComponent.jsx";
-import { FaEye, FaRegEdit, FaCopy, FaSearch } from "react-icons/fa";
-import { MdDeleteOutline } from "react-icons/md";
-import Skeleton from "react-loading-skeleton";
-import { Link } from "react-router-dom";
-import RequirePermission from "./RequirePermission.jsx";
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { Separator } from "@/components/ui/separator";
+import { toast } from "sonner";
+import {
+  Search,
+  Eye,
+  Pencil,
+  Copy,
+  Trash2,
+  Loader2,
+  ChevronLeft,
+  ChevronRight,
+  Package,
+} from "lucide-react";
 
 const ViewAllProducts = () => {
   const {
@@ -51,15 +71,11 @@ const ViewAllProducts = () => {
     limit: 10,
     search: "",
   });
+
   const [filteredProducts, setFilteredProducts] = useState([]);
 
-  const [openDialog, setOpenDialog] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedProductId, setSelectedProductId] = useState(null);
-  const [snackbar, setSnackbar] = useState({
-    open: false,
-    message: "",
-    type: "success",
-  });
 
   const activeCount = useMemo(
     () => products.filter((p) => p.isActive).length,
@@ -84,8 +100,7 @@ const ViewAllProducts = () => {
     );
   }, [filters.search, products]);
 
-  const handleFilterChange = useCallback((e) => {
-    const { name, value } = e.target;
+  const handleFilterChange = useCallback((name, value) => {
     setFilters((prev) => ({ ...prev, [name]: value, page: 1 }));
   }, []);
 
@@ -95,437 +110,410 @@ const ViewAllProducts = () => {
 
   const handleOpenDialog = (id) => {
     setSelectedProductId(id);
-    setOpenDialog(true);
-  };
-
-  const handleCloseDialog = () => {
-    setOpenDialog(false);
-    setSelectedProductId(null);
+    setDeleteDialogOpen(true);
   };
 
   const handleDelete = async () => {
     try {
       await deleteProduct(selectedProductId);
-      setSnackbar({
-        open: true,
-        message: `Product ID ${selectedProductId} deleted successfully!`,
-        type: "success",
-      });
+      toast.success(`Product ID ${selectedProductId} deleted successfully!`);
       fetchProductsAdmin(filters);
     } catch (err) {
-      setSnackbar({
-        open: true,
-        message: err.response?.data?.message || "Failed to delete product.",
-        type: "error",
-      });
+      toast.error(err.response?.data?.message || "Failed to delete product.");
     } finally {
-      handleCloseDialog();
+      setDeleteDialogOpen(false);
+      setSelectedProductId(null);
     }
   };
 
   const handleDuplicate = async (id) => {
     try {
       await duplicateProduct(id);
-      setSnackbar({
-        open: true,
-        message: `Product duplicated successfully!`,
-        type: "success",
-      });
+      toast.success("Product duplicated successfully!");
       fetchProductsAdmin(filters);
     } catch (err) {
-      setSnackbar({
-        open: true,
-        message: err.response?.data?.message || "Failed to duplicate product.",
-        type: "error",
-      });
+      toast.error(err.response?.data?.message || "Failed to duplicate product.");
     }
   };
 
-  if (loading)
+  const startItem = products.length > 0
+    ? (currentPage - 1) * filters.limit + 1
+    : 0;
+  const endItem = Math.min(
+    currentPage * filters.limit,
+    (currentPage - 1) * filters.limit + filteredProducts.length,
+  );
+
+  if (loading) {
     return (
-      <div className="p-6">
-        <div className="flex items-center justify-between mb-6">
-          <Skeleton height={32} width={200} />
+      <div className="p-6 space-y-6">
+        <Skeleton className="h-8 w-48" />
+        <div className="grid grid-cols-3 gap-4">
+          <Skeleton className="h-24" />
+          <Skeleton className="h-24" />
+          <Skeleton className="h-24" />
         </div>
-        <div className="grid grid-cols-3 gap-4 mb-6">
-          <Skeleton height={90} />
-          <Skeleton height={90} />
-          <Skeleton height={90} />
+        <div className="flex items-center justify-between">
+          <Skeleton className="h-10 w-80" />
+          <Skeleton className="h-10 w-40" />
         </div>
-        <div className="flex items-center justify-between mb-4">
-          <Skeleton height={40} width={320} />
-          <Skeleton height={40} width={200} />
-        </div>
-        <Skeleton height={400} className="rounded-lg" />
-        <div className="flex justify-between items-center mt-4">
-          <Skeleton height={20} width={200} />
-          <Skeleton height={32} width={300} />
+        <Skeleton className="h-[400px] rounded-lg" />
+        <div className="flex items-center justify-between">
+          <Skeleton className="h-5 w-48" />
+          <Skeleton className="h-8 w-72" />
         </div>
       </div>
     );
+  }
 
-  if (error) return (
-    <div className="p-6">
-      <Alert severity="error">{error}</Alert>
-    </div>
-  );
+  if (error) {
+    return (
+      <div className="p-6">
+        <Card className="border-destructive/50">
+          <CardContent className="py-4">
+            <p className="text-destructive font-medium">{error}</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
-    <div className="p-6">
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-xl font-bold primaryTextColor">Product List</h1>
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-2xl font-bold tracking-tight">Product List</h1>
       </div>
 
-      <div className="grid grid-cols-3 gap-4 mb-6">
-        <div className="bg-white shadow-sm rounded-xl p-4 border-l-4 border-[#00395d]">
-          <Typography variant="h4" fontWeight={700} color="#00395d">
-            {products.length}
-          </Typography>
-          <Typography variant="body2" color="textSecondary">
-            Total Products
-          </Typography>
-        </div>
-        <div className="bg-white shadow-sm rounded-xl p-4 border-l-4 border-green-500">
-          <Typography variant="h4" fontWeight={700} color="#16a34a">
-            {activeCount}
-          </Typography>
-          <Typography variant="body2" color="textSecondary">
-            Active
-          </Typography>
-        </div>
-        <div className="bg-white shadow-sm rounded-xl p-4 border-l-4 border-red-500">
-          <Typography variant="h4" fontWeight={700} color="#dc2626">
-            {inactiveCount}
-          </Typography>
-          <Typography variant="body2" color="textSecondary">
-            Inactive
-          </Typography>
-        </div>
+      <div className="grid grid-cols-3 gap-4">
+        <Card className="shadow-md border-0 border-l-4 border-l-[#00395d]">
+          <CardContent className="p-4">
+            <p className="text-3xl font-bold text-[#00395d]">{products.length}</p>
+            <p className="text-sm text-muted-foreground">Total Products</p>
+          </CardContent>
+        </Card>
+        <Card className="shadow-md border-0 border-l-4 border-l-green-500">
+          <CardContent className="p-4">
+            <p className="text-3xl font-bold text-green-600">{activeCount}</p>
+            <p className="text-sm text-muted-foreground">Active</p>
+          </CardContent>
+        </Card>
+        <Card className="shadow-md border-0 border-l-4 border-l-red-500">
+          <CardContent className="p-4">
+            <p className="text-3xl font-bold text-red-600">{inactiveCount}</p>
+            <p className="text-sm text-muted-foreground">Inactive</p>
+          </CardContent>
+        </Card>
       </div>
 
-      <div className="flex items-center justify-between mb-4">
-        <TextField
-          placeholder="Search products..."
-          name="search"
-          value={filters.search}
-          onChange={handleFilterChange}
-          variant="outlined"
-          size="small"
-          sx={{ minWidth: 320 }}
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <FaSearch className="text-gray-400" />
-              </InputAdornment>
-            ),
-          }}
-        />
+      <div className="flex items-center justify-between gap-4 bg-muted/30 rounded-lg p-3">
+        <div className="relative flex-1 max-w-sm">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+          <Input
+            placeholder="Search products..."
+            value={filters.search}
+            onChange={(e) => handleFilterChange("search", e.target.value)}
+            className="pl-9 bg-background"
+          />
+        </div>
         <div className="flex items-center gap-2">
-          <Typography variant="body2" color="textSecondary">
-            Show
-          </Typography>
-          <FormControl size="small" sx={{ minWidth: 80 }}>
-            <Select
-              value={filters.limit}
-              onChange={handleFilterChange}
-              name="limit"
-            >
-              <MenuItem value={5}>5</MenuItem>
-              <MenuItem value={10}>10</MenuItem>
-              <MenuItem value={20}>20</MenuItem>
-            </Select>
-          </FormControl>
-          <Typography variant="body2" color="textSecondary">
-            entries
-          </Typography>
+          <p className="text-sm text-muted-foreground">Show</p>
+          <Select
+            value={String(filters.limit)}
+            onValueChange={(value) => handleFilterChange("limit", value)}
+          >
+            <SelectTrigger className="w-16 h-8 bg-background">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {[5, 10, 20].map((n) => (
+                <SelectItem key={n} value={String(n)}>
+                  {n}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <p className="text-sm text-muted-foreground">entries</p>
         </div>
       </div>
 
-      <TableContainer
-        component={Paper}
-        sx={{
-          boxShadow: "0 1px 3px rgba(0,0,0,0.08)",
-          borderRadius: 2,
-          border: "1px solid #e5e7eb",
-        }}
-      >
-        <Table>
-          <TableHead>
-            <TableRow sx={{ backgroundColor: "#f8fafc" }}>
-              <TableCell sx={{ fontWeight: 600, color: "#475569" }}>#</TableCell>
-              <TableCell sx={{ fontWeight: 600, color: "#475569" }}>ID</TableCell>
-              <TableCell sx={{ fontWeight: 600, color: "#475569" }}>Image</TableCell>
-              <TableCell sx={{ fontWeight: 600, color: "#475569" }}>Product</TableCell>
-              <TableCell sx={{ fontWeight: 600, color: "#475569" }}>Category</TableCell>
-              <TableCell sx={{ fontWeight: 600, color: "#475569" }}>Price</TableCell>
-              <TableCell sx={{ fontWeight: 600, color: "#475569", display: { xs: "none", md: "table-cell" } }}>
-                Stock
-              </TableCell>
-              <TableCell sx={{ fontWeight: 600, color: "#475569", display: { xs: "none", md: "table-cell" } }}>
-                Flags
-              </TableCell>
-              <TableCell sx={{ fontWeight: 600, color: "#475569" }}>Status</TableCell>
-              <TableCell sx={{ fontWeight: 600, color: "#475569" }} align="center">
-                Actions
-              </TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {filteredProducts.length === 0 ? (
+      <Card className="shadow-md border-0">
+        <CardContent className="p-0">
+          <Table>
+            <TableHeader>
               <TableRow>
-                <TableCell colSpan={10} align="center" sx={{ py: 8 }}>
-                  <Typography variant="body1" color="textSecondary">
-                    No products found
-                  </Typography>
-                </TableCell>
+                <TableHead className="w-10">#</TableHead>
+                <TableHead>ID</TableHead>
+                <TableHead>Image</TableHead>
+                <TableHead>Product</TableHead>
+                <TableHead>Category</TableHead>
+                <TableHead>Price</TableHead>
+                <TableHead className="hidden md:table-cell">Stock</TableHead>
+                <TableHead className="hidden md:table-cell">Flags</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead className="text-center w-[140px]">Actions</TableHead>
               </TableRow>
-            ) : (
-              filteredProducts.map((product, index) => (
-                <TableRow
-                  key={product.id}
-                  hover
-                  sx={{
-                    "&:last-child td, &:last-child th": { border: 0 },
-                    transition: "background-color 0.15s",
-                    "&:hover": { backgroundColor: "#f1f5f9" },
-                  }}
-                >
-                  <TableCell>
-                    <Typography variant="body2" color="textSecondary">
+            </TableHeader>
+            <TableBody>
+              {filteredProducts.length === 0 ? (
+                <TableRow>
+                  <TableCell
+                    colSpan={10}
+                    className="text-center text-muted-foreground py-8"
+                  >
+                    No products found
+                  </TableCell>
+                </TableRow>
+              ) : (
+                filteredProducts.map((product, index) => (
+                  <TableRow key={product.id}>
+                    <TableCell className="text-muted-foreground text-sm">
                       {index + 1}
-                    </Typography>
-                  </TableCell>
-                  <TableCell>
-                    <Typography
-                      variant="body2"
-                      sx={{ fontFamily: "monospace", color: "#6b7280" }}
-                    >
-                      #{product.productId}
-                    </Typography>
-                  </TableCell>
-                  <TableCell>
-                    <div className="relative group">
+                    </TableCell>
+                    <TableCell>
+                      <code className="text-sm text-muted-foreground">
+                        #{product.productId}
+                      </code>
+                    </TableCell>
+                    <TableCell>
                       <ImageComponent
                         imageName={product?.thumbnailImage}
                         altName={product?.name}
                         skeletonHeight={30}
-                        className="w-16 h-16 object-cover rounded-lg border border-gray-200"
+                        className="w-16 h-16 object-cover rounded-lg shadow-sm"
                       />
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <Typography variant="body2" fontWeight={500}>
+                    </TableCell>
+                    <TableCell className="font-medium">
                       {product?.name}
-                    </Typography>
-                  </TableCell>
-                  <TableCell>
-                    <Chip
-                      label={product.category?.name || "—"}
-                      size="small"
-                      variant="outlined"
-                      sx={{ borderRadius: 1, fontWeight: 500 }}
-                    />
-                  </TableCell>
-                  <TableCell>
-                    {product.variants?.length ? (
-                      <div>
-                        <Typography variant="body2" fontWeight={600}>
-                          ৳{Math.min(...product.variants.map((v) => v.price))}
-                        </Typography>
-                        <Typography variant="caption" color="textSecondary">
-                          {product.variants.length} var.
-                        </Typography>
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="outline">
+                        {product.category?.name || "\u2014"}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      {product.variants?.length ? (
+                        <div>
+                          <p className="font-semibold">
+                            ৳{Math.min(...product.variants.map((v) => v.price))}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            {product.variants.length} var.
+                          </p>
+                        </div>
+                      ) : (
+                        <div>
+                          <p className="font-semibold">৳{product.finalPrice}</p>
+                          {product.finalDiscount > 0 && (
+                            <p className="text-xs text-destructive line-through">
+                              ৳{product.finalDiscount}
+                            </p>
+                          )}
+                        </div>
+                      )}
+                    </TableCell>
+                    <TableCell className="hidden md:table-cell">
+                      <div className="flex items-center gap-1.5">
+                        <span
+                          className={`w-2 h-2 rounded-full ${
+                            product.finalStock > 0
+                              ? "bg-green-500"
+                              : "bg-red-500"
+                          }`}
+                        />
+                        <span className="text-sm text-muted-foreground">
+                          {product.finalStock > 0
+                            ? `${product.finalStock} in stock`
+                            : "Out of stock"}
+                        </span>
                       </div>
-                    ) : (
-                      <div>
-                        <Typography variant="body2" fontWeight={600}>
-                          ৳{product.finalPrice}
-                        </Typography>
-                        {product.finalDiscount > 0 && (
-                          <Typography
-                            variant="caption"
-                            sx={{ color: "#ef4444", textDecoration: "line-through" }}
-                          >
-                            ৳{product.finalDiscount}
-                          </Typography>
+                    </TableCell>
+                    <TableCell className="hidden md:table-cell">
+                      <div className="flex gap-1 flex-wrap">
+                        {product.flags?.length ? (
+                          product.flags.map((flag, i) => (
+                            <Badge key={i} variant="secondary" className="text-xs">
+                              {flag.name}
+                            </Badge>
+                          ))
+                        ) : (
+                          <span className="text-sm text-muted-foreground">
+                            \u2014
+                          </span>
                         )}
                       </div>
-                    )}
-                  </TableCell>
-                  <TableCell sx={{ display: { xs: "none", md: "table-cell" } }}>
-                    <div className="flex items-center gap-1.5">
-                      <div
-                        className={`w-2 h-2 rounded-full ${
-                          product.finalStock > 0 ? "bg-green-500" : "bg-red-500"
-                        }`}
-                      />
-                      <Typography variant="body2" color="textSecondary">
-                        {product.finalStock > 0
-                          ? `${product.finalStock} in stock`
-                          : "Out of stock"}
-                      </Typography>
-                    </div>
-                  </TableCell>
-                  <TableCell sx={{ display: { xs: "none", md: "table-cell" } }}>
-                    <div className="flex gap-1 flex-wrap">
-                      {product.flags?.length ? (
-                        product.flags.map((flag, i) => (
-                          <Chip
-                            key={i}
-                            label={flag.name}
-                            size="small"
-                            variant="outlined"
-                            color="primary"
-                            sx={{ borderRadius: 1 }}
-                          />
-                        ))
-                      ) : (
-                        <Typography variant="caption" color="textSecondary">
-                          —
-                        </Typography>
-                      )}
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <Chip
-                      label={product.isActive ? "Active" : "Inactive"}
-                      size="small"
-                      color={product.isActive ? "success" : "default"}
-                      sx={{
-                        borderRadius: 1,
-                        fontWeight: 500,
-                        backgroundColor: product.isActive
-                          ? "#dcfce7"
-                          : "#f3f4f6",
-                        color: product.isActive ? "#16a34a" : "#6b7280",
-                      }}
-                    />
-                  </TableCell>
-                  <TableCell align="center">
-                    <div className="flex gap-1 justify-center">
-                      <Tooltip title="View Product">
-                        <IconButton
-                          size="small"
-                          component="a"
-                          href={`/product/${product.slug}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          sx={{ color: "#00395d" }}
+                    </TableCell>
+                    <TableCell>
+                      <Badge
+                        variant={product.isActive ? "default" : "secondary"}
+                      >
+                        {product.isActive ? "Active" : "Inactive"}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center justify-center gap-1">
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="icon-xs"
+                              asChild
+                            >
+                              <a
+                                href={`/product/${product.slug}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              >
+                                <Eye className="size-3.5" />
+                              </a>
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>View Product</TooltipContent>
+                        </Tooltip>
+                        <RequirePermission
+                          permission="edit_products"
+                          fallback={true}
                         >
-                          <FaEye className="w-4 h-4" />
-                        </IconButton>
-                      </Tooltip>
-                      <RequirePermission
-                        permission="edit_products"
-                        fallback={true}
-                      >
-                        <Tooltip title="Edit Product">
-                          <IconButton
-                            size="small"
-                            component={Link}
-                            to={`/admin/edit-product/${product.slug}`}
-                            sx={{ color: "#00395d" }}
-                          >
-                            <FaRegEdit className="w-4 h-4" />
-                          </IconButton>
-                        </Tooltip>
-                      </RequirePermission>
-                      <RequirePermission
-                        permission="add_products"
-                        fallback={true}
-                      >
-                        <Tooltip title="Duplicate">
-                          <IconButton
-                            size="small"
-                            onClick={() => handleDuplicate(product.id)}
-                            sx={{ color: "#00395d" }}
-                          >
-                            <FaCopy className="w-4 h-4" />
-                          </IconButton>
-                        </Tooltip>
-                      </RequirePermission>
-                      <RequirePermission
-                        permission="delete_products"
-                        fallback={true}
-                      >
-                        <Tooltip title="Delete">
-                          <IconButton
-                            size="small"
-                            onClick={() => handleOpenDialog(product.id)}
-                            sx={{ color: "#ef4444" }}
-                          >
-                            <MdDeleteOutline className="w-4 h-4" />
-                          </IconButton>
-                        </Tooltip>
-                      </RequirePermission>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
-      </TableContainer>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="icon-xs"
+                                asChild
+                              >
+                                <Link
+                                  to={`/admin/edit-product/${product.slug}`}
+                                >
+                                  <Pencil className="size-3.5" />
+                                </Link>
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>Edit Product</TooltipContent>
+                          </Tooltip>
+                        </RequirePermission>
+                        <RequirePermission
+                          permission="add_products"
+                          fallback={true}
+                        >
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="icon-xs"
+                                onClick={() => handleDuplicate(product.id)}
+                              >
+                                <Copy className="size-3.5" />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>Duplicate</TooltipContent>
+                          </Tooltip>
+                        </RequirePermission>
+                        <RequirePermission
+                          permission="delete_products"
+                          fallback={true}
+                        >
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="icon-xs"
+                                onClick={() => handleOpenDialog(product.id)}
+                                className="text-destructive hover:text-destructive"
+                              >
+                                <Trash2 className="size-3.5" />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>Delete</TooltipContent>
+                          </Tooltip>
+                        </RequirePermission>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
 
-      <div className="flex justify-between items-center mt-4">
-        <Typography variant="body2" color="textSecondary">
-          Showing{" "}
-          {products.length > 0
-            ? (currentPage - 1) * filters.limit + 1
-            : 0}{" "}
-          to{" "}
-          {Math.min(
-            currentPage * filters.limit,
-            (currentPage - 1) * filters.limit + filteredProducts.length,
-          )}{" "}
-          of {products.length} products
-        </Typography>
-        <Pagination
-          count={totalPages}
-          page={currentPage}
-          onChange={(_, page) => handlePageChange(page)}
-          color="primary"
-          shape="rounded"
-          size="medium"
-          sx={{
-            "& .MuiPaginationItem-root": {
-              fontWeight: 500,
-            },
-          }}
-        />
-      </div>
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between bg-muted/30 rounded-lg p-3">
+          <p className="text-sm text-muted-foreground">
+            Showing {startItem} to {endItem} of {products.length} products
+          </p>
+          <div className="flex items-center gap-1">
+            <Button
+              variant="ghost"
+              size="sm"
+              disabled={currentPage <= 1}
+              onClick={() => handlePageChange(currentPage - 1)}
+            >
+              <ChevronLeft className="size-4" />
+            </Button>
+            {(() => {
+              const pages = [];
+              const delta = 1;
+              const left = Math.max(2, currentPage - delta);
+              const right = Math.min(totalPages - 1, currentPage + delta);
+              pages.push(1);
+              if (left > 2) pages.push("...");
+              for (let i = left; i <= right; i++) pages.push(i);
+              if (right < totalPages - 1) pages.push("...");
+              if (totalPages > 1) pages.push(totalPages);
+              return pages.map((p, i) =>
+                p === "..." ? (
+                  <span key={`ellipsis-${i}`} className="px-1 text-muted-foreground">
+                    ...
+                  </span>
+                ) : (
+                  <Button
+                    key={p}
+                    variant={p === currentPage ? "default" : "ghost"}
+                    size="sm"
+                    className="min-w-9"
+                    onClick={() => handlePageChange(p)}
+                  >
+                    {p}
+                  </Button>
+                ),
+              );
+            })()}
+            <Button
+              variant="ghost"
+              size="sm"
+              disabled={currentPage >= totalPages}
+              onClick={() => handlePageChange(currentPage + 1)}
+            >
+              <ChevronRight className="size-4" />
+            </Button>
+          </div>
+        </div>
+      )}
 
-      <Dialog open={openDialog} onClose={handleCloseDialog}>
-        <DialogTitle>Confirm Delete</DialogTitle>
-        <DialogContent>
-          <DialogContentText>
-            Are you sure you want to delete this product? This action cannot be
-            undone.
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseDialog} color="primary">
-            Cancel
-          </Button>
-          <Button onClick={handleDelete} color="error" variant="contained">
-            Delete
-          </Button>
-        </DialogActions>
-      </Dialog>
-
-      <Snackbar
-        open={snackbar.open}
-        autoHideDuration={3000}
-        onClose={() => setSnackbar({ ...snackbar, open: false })}
-        anchorOrigin={{ vertical: "top", horizontal: "right" }}
+      <Dialog
+        open={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
       >
-        <Alert
-          severity={snackbar.type}
-          onClose={() => setSnackbar({ ...snackbar, open: false })}
-        >
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Confirm Delete</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete this product? This action cannot
+              be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setDeleteDialogOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={handleDelete}>
+              Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

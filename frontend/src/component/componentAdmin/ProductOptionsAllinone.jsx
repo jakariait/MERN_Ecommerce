@@ -1,31 +1,43 @@
 import React, { useEffect, useState, useMemo } from "react";
 import axios from "axios";
+import useAuthAdminStore from "../../store/AuthAdminStore.js";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import {
   Table,
   TableBody,
   TableCell,
-  TableContainer,
   TableHead,
+  TableHeader,
   TableRow,
-  Paper,
-  IconButton,
-  Snackbar,
-  Alert,
-  TextField,
-  TablePagination,
-  CircularProgress,
-  Button,
-  Typography,
-  Chip,
+} from "@/components/ui/table";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardContent,
+} from "@/components/ui/card";
+import {
   Dialog,
-  DialogTitle,
   DialogContent,
-  DialogActions,
-  InputAdornment,
-  Box,
-} from "@mui/material";
-import { Delete, Edit, Add, Search, Settings } from "@mui/icons-material";
-import useAuthAdminStore from "../../store/AuthAdminStore.js";
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Separator } from "@/components/ui/separator";
+import { toast } from "sonner";
+import {
+  Plus,
+  Search,
+  Settings,
+  Pencil,
+  Trash2,
+  Loader2,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
 
 const ProductOptionsAllinone = () => {
   const apiUrl = import.meta.env.VITE_API_URL;
@@ -33,10 +45,9 @@ const ProductOptionsAllinone = () => {
 
   const [productOptions, setProductOptions] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" });
   const [searchTerm, setSearchTerm] = useState("");
   const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const rowsPerPage = 10;
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
@@ -47,20 +58,18 @@ const ProductOptionsAllinone = () => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [optionToDelete, setOptionToDelete] = useState(null);
 
-  const showSnackbar = (message, severity = "success") => {
-    setSnackbar({ open: true, message, severity });
-  };
-
   const fetchProductOptions = () => {
     setLoading(true);
     axios
-      .get(`${apiUrl}/product-options`, { headers: { Authorization: `Bearer ${token}` } })
+      .get(`${apiUrl}/product-options`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
       .then((res) => {
         setProductOptions(res.data.productOptions || []);
         setLoading(false);
       })
       .catch(() => {
-        showSnackbar("Error fetching product options.", "error");
+        toast.error("Error fetching product options.");
         setLoading(false);
       });
   };
@@ -79,37 +88,57 @@ const ProductOptionsAllinone = () => {
   const handleOpenEdit = (option) => {
     setIsEdit(true);
     setEditId(option._id);
-    setFormData({ name: option.name, values: (option.values || []).join(", ") });
+    setFormData({
+      name: option.name,
+      values: (option.values || []).join(", "),
+    });
     setDialogOpen(true);
   };
 
   const handleSave = async () => {
     if (!formData.name.trim() || !formData.values.trim()) {
-      showSnackbar("Name and values are required.", "warning");
+      toast.warning("Name and values are required.");
       return;
     }
-    const valuesArray = formData.values.split(",").map((v) => v.trim()).filter((v) => v);
+    const valuesArray = formData.values
+      .split(",")
+      .map((v) => v.trim())
+      .filter((v) => v);
     if (valuesArray.length === 0) {
-      showSnackbar("At least one value is required.", "warning");
+      toast.warning("At least one value is required.");
       return;
     }
     setIsSubmitting(true);
     try {
       if (isEdit) {
-        await axios.put(`${apiUrl}/product-options/${editId}`, { name: formData.name, values: valuesArray }, {
-          headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-        });
-        showSnackbar("Product option updated successfully!");
+        await axios.put(
+          `${apiUrl}/product-options/${editId}`,
+          { name: formData.name, values: valuesArray },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          },
+        );
+        toast.success("Product option updated successfully!");
       } else {
-        await axios.post(`${apiUrl}/product-options`, { name: formData.name, values: valuesArray }, {
-          headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-        });
-        showSnackbar("Product option added successfully!");
+        await axios.post(
+          `${apiUrl}/product-options`,
+          { name: formData.name, values: valuesArray },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          },
+        );
+        toast.success("Product option added successfully!");
       }
       setDialogOpen(false);
       fetchProductOptions();
     } catch (err) {
-      showSnackbar(err.response?.data?.message || "Operation failed.", "error");
+      toast.error(err.response?.data?.message || "Operation failed.");
     } finally {
       setIsSubmitting(false);
     }
@@ -123,13 +152,14 @@ const ProductOptionsAllinone = () => {
   const handleDelete = async () => {
     if (!optionToDelete) return;
     try {
-      await axios.delete(`${apiUrl}/product-options/${optionToDelete._id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      showSnackbar("Product option deleted successfully!");
+      await axios.delete(
+        `${apiUrl}/product-options/${optionToDelete._id}`,
+        { headers: { Authorization: `Bearer ${token}` } },
+      );
+      toast.success("Product option deleted successfully!");
       fetchProductOptions();
     } catch (err) {
-      showSnackbar("Failed to delete product option.", "error");
+      toast.error("Failed to delete product option.");
     } finally {
       setDeleteDialogOpen(false);
       setOptionToDelete(null);
@@ -138,194 +168,263 @@ const ProductOptionsAllinone = () => {
 
   const filteredOptions = useMemo(() => {
     return productOptions
-      .filter((opt) => (opt.name || "").toLowerCase().includes(searchTerm.toLowerCase()))
+      .filter((opt) =>
+        (opt.name || "")
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase()),
+      )
       .reverse();
   }, [productOptions, searchTerm]);
 
+  const pageCount = Math.ceil(filteredOptions.length / rowsPerPage);
+  const paginatedOptions = filteredOptions.slice(
+    page * rowsPerPage,
+    page * rowsPerPage + rowsPerPage,
+  );
+
   return (
-    <Box>
-      {/* Header Card */}
-      <Paper elevation={2} sx={{ p: 3, mb: 3, borderRadius: 2 }}>
-        <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 2 }}>
-          <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-            <Box sx={{ bgcolor: "primary.main", p: 1.5, borderRadius: 2, display: "flex" }}>
-              <Settings sx={{ color: "white" }} />
-            </Box>
-            <Box>
-              <Typography variant="h5" fontWeight={700} color="text.primary">
-                Product Option Management
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                {productOptions.length} total options
-              </Typography>
-            </Box>
-          </Box>
-          <Button variant="contained" startIcon={<Add />} onClick={handleOpenCreate} sx={{ borderRadius: 2 }}>
-            Add Option
-          </Button>
-        </Box>
-      </Paper>
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-2xl font-bold tracking-tight">
+          Product Option Management
+        </h1>
+        <p className="text-sm text-muted-foreground mt-1">
+          {productOptions.length} total options
+        </p>
+      </div>
 
-      {/* Search & Filter Card */}
-      <Paper elevation={1} sx={{ p: 2, mb: 3, borderRadius: 2 }}>
-        <TextField
-          placeholder="Search by name..."
-          fullWidth
-          value={searchTerm}
-          onChange={(e) => { setSearchTerm(e.target.value); setPage(0); }}
-          size="small"
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <Search color="action" />
-              </InputAdornment>
-            ),
-          }}
-          sx={{ "& .MuiOutlinedInput-root": { borderRadius: 2 } }}
-        />
-      </Paper>
+      <Separator />
 
-      {/* Table Card */}
-      <Paper elevation={2} sx={{ borderRadius: 2, overflow: "hidden" }}>
-        {loading ? (
-          <Box sx={{ display: "flex", justifyContent: "center", py: 6 }}>
-            <CircularProgress />
-          </Box>
-        ) : (
-          <>
-            <TableContainer>
+      <div className="flex items-center justify-between gap-4">
+        <div className="relative flex-1 max-w-sm">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+          <Input
+            placeholder="Search by name..."
+            value={searchTerm}
+            onChange={(e) => {
+              setSearchTerm(e.target.value);
+              setPage(0);
+            }}
+            className="pl-9"
+          />
+        </div>
+        <Button onClick={handleOpenCreate}>
+          <Plus className="size-4 mr-1" />
+          Add Option
+        </Button>
+      </div>
+
+      <Card>
+        <CardContent className="p-0">
+          {loading ? (
+            <div className="flex justify-center py-12">
+              <Loader2 className="size-6 animate-spin text-muted-foreground" />
+            </div>
+          ) : (
+            <>
               <Table>
-                <TableHead>
-                  <TableRow sx={{ bgcolor: "grey.100" }}>
-                    <TableCell sx={{ fontWeight: 600 }}>Name</TableCell>
-                    <TableCell sx={{ fontWeight: 600 }}>Values</TableCell>
-                    <TableCell sx={{ fontWeight: 600 }} align="center">Actions</TableCell>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-[200px]">Name</TableHead>
+                    <TableHead>Values</TableHead>
+                    <TableHead className="w-[100px] text-right">
+                      Actions
+                    </TableHead>
                   </TableRow>
-                </TableHead>
+                </TableHeader>
                 <TableBody>
-                  {filteredOptions.length === 0 ? (
+                  {paginatedOptions.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={3} align="center" sx={{ py: 4 }}>
-                        <Typography color="text.secondary">No product options found.</Typography>
+                      <TableCell
+                        colSpan={3}
+                        className="text-center text-muted-foreground py-8"
+                      >
+                        No product options found.
                       </TableCell>
                     </TableRow>
                   ) : (
-                    filteredOptions
-                      .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                      .map((opt) => (
-                        <TableRow key={opt._id} hover>
-                          <TableCell>
-                            <Typography fontWeight={500}>{opt.name || "N/A"}</Typography>
-                          </TableCell>
-                          <TableCell>
-                            <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
-                              {(opt.values || []).map((val, idx) => (
-                                <Chip key={idx} label={val} size="small" variant="outlined" />
-                              ))}
-                            </Box>
-                          </TableCell>
-                          <TableCell align="center">
-                            <IconButton onClick={() => handleOpenEdit(opt)} color="primary" size="small">
-                              <Edit fontSize="small" />
-                            </IconButton>
-                            <IconButton onClick={() => confirmDelete(opt)} color="error" size="small">
-                              <Delete fontSize="small" />
-                            </IconButton>
-                          </TableCell>
-                        </TableRow>
-                      ))
+                    paginatedOptions.map((opt) => (
+                      <TableRow key={opt._id}>
+                        <TableCell className="font-medium">
+                          {opt.name || "N/A"}
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex flex-wrap gap-1">
+                            {(opt.values || []).map((val, idx) => (
+                              <Badge key={idx} variant="outline">
+                                {val}
+                              </Badge>
+                            ))}
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <div className="flex items-center justify-end gap-1">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => handleOpenEdit(opt)}
+                            >
+                              <Pencil className="size-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => confirmDelete(opt)}
+                              className="text-destructive hover:text-destructive"
+                            >
+                              <Trash2 className="size-4" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))
                   )}
                 </TableBody>
               </Table>
-            </TableContainer>
-            <TablePagination
-              rowsPerPageOptions={[5, 10, 25]}
-              component="div"
-              count={filteredOptions.length}
-              rowsPerPage={rowsPerPage}
-              page={page}
-              onPageChange={(e, newPage) => setPage(newPage)}
-              onRowsPerPageChange={(e) => { setRowsPerPage(parseInt(e.target.value, 10)); setPage(0); }}
-              sx={{ borderTop: "1px solid", borderColor: "divider" }}
-            />
-          </>
-        )}
-      </Paper>
 
-      {/* Add/Edit Dialog */}
-      <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} maxWidth="sm" fullWidth>
-        <DialogTitle sx={{ borderBottom: "1px solid", borderColor: "divider" }}>
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-            {isEdit ? <Edit color="primary" /> : <Add color="primary" />}
-            <Typography variant="h6" fontWeight={600}>
+              {filteredOptions.length > rowsPerPage && (
+                <div className="flex items-center justify-between border-t border-muted-foreground/10 px-4 py-3">
+                  <p className="text-sm text-muted-foreground">
+                    Page {page + 1} of {pageCount}
+                  </p>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      disabled={page === 0}
+                      onClick={() => setPage((p) => p - 1)}
+                    >
+                      <ChevronLeft className="size-4" />
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      disabled={page >= pageCount - 1}
+                      onClick={() => setPage((p) => p + 1)}
+                    >
+                      <ChevronRight className="size-4" />
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </>
+          )}
+        </CardContent>
+      </Card>
+
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
               {isEdit ? "Edit Product Option" : "Add New Product Option"}
-            </Typography>
-          </Box>
-        </DialogTitle>
-        <DialogContent sx={{ pt: 3 }}>
-          <TextField
-            label="Name"
-            fullWidth
-            value={formData.name}
-            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-            required
-            error={!formData.name.trim()}
-            helperText={!formData.name.trim() ? "Name is required" : ""}
-            placeholder="e.g., Size, Color"
-            sx={{ mb: 2, mt:2 }}
-          />
-          <TextField
-            label="Values (comma-separated)"
-            fullWidth
-            value={formData.values}
-            onChange={(e) => setFormData({ ...formData, values: e.target.value })}
-            required
-            error={!formData.values.trim()}
-            helperText={!formData.values.trim() ? "At least one value is required" : "e.g., S, M, L, XL"}
-            placeholder="e.g., Small, Medium, Large"
-          />
+            </DialogTitle>
+            <DialogDescription>
+              {isEdit
+                ? "Update the name and values for this option."
+                : "Create a new product option with comma-separated values."}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <div className="space-y-2">
+              <label
+                htmlFor="name"
+                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              >
+                Name
+              </label>
+              <Input
+                id="name"
+                value={formData.name}
+                onChange={(e) =>
+                  setFormData({ ...formData, name: e.target.value })
+                }
+                placeholder="e.g., Size, Color"
+                required
+              />
+              {!formData.name.trim() && (
+                <p className="text-xs text-destructive">Name is required</p>
+              )}
+            </div>
+            <div className="space-y-2">
+              <label
+                htmlFor="values"
+                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              >
+                Values (comma-separated)
+              </label>
+              <Input
+                id="values"
+                value={formData.values}
+                onChange={(e) =>
+                  setFormData({ ...formData, values: e.target.value })
+                }
+                placeholder="e.g., Small, Medium, Large"
+                required
+              />
+              {!formData.values.trim() ? (
+                <p className="text-xs text-destructive">
+                  At least one value is required
+                </p>
+              ) : (
+                <p className="text-xs text-muted-foreground">
+                  e.g., S, M, L, XL
+                </p>
+              )}
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setDialogOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button onClick={handleSave} disabled={isSubmitting}>
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="size-4 mr-1 animate-spin" />
+                  Saving...
+                </>
+              ) : isEdit ? (
+                "Update"
+              ) : (
+                "Save"
+              )}
+            </Button>
+          </DialogFooter>
         </DialogContent>
-        <DialogActions sx={{ px: 3, pb: 2 }}>
-          <Button onClick={() => setDialogOpen(false)} color="inherit">Cancel</Button>
-          <Button
-            onClick={handleSave}
-            variant="contained"
-            disabled={isSubmitting}
-            startIcon={isSubmitting ? <CircularProgress size={18} color="inherit" /> : null}
-          >
-            {isSubmitting ? "Saving..." : isEdit ? "Update" : "Save"}
-          </Button>
-        </DialogActions>
       </Dialog>
 
-      {/* Delete Confirmation Dialog */}
-      <Dialog open={deleteDialogOpen} onClose={() => setDeleteDialogOpen(false)}>
-        <DialogTitle sx={{ bgcolor: "error.main", color: "white" }}>
-          Confirm Delete
-        </DialogTitle>
-        <DialogContent sx={{ pt: 2 }}>
-          <Typography>
-            Are you sure you want to delete option <strong>{optionToDelete?.name}</strong>? This action cannot be undone.
-          </Typography>
-        </DialogContent>
-        <DialogActions sx={{ px: 3, pb: 2 }}>
-          <Button onClick={() => setDeleteDialogOpen(false)} color="inherit">Cancel</Button>
-          <Button onClick={handleDelete} color="error" variant="contained">Delete</Button>
-        </DialogActions>
-      </Dialog>
-
-      {/* Snackbar */}
-      <Snackbar
-        anchorOrigin={{ vertical: "top", horizontal: "right" }}
-        open={snackbar.open}
-        autoHideDuration={3000}
-        onClose={() => setSnackbar({ ...snackbar, open: false })}
+      <Dialog
+        open={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
       >
-        <Alert severity={snackbar.severity} variant="filled" sx={{ width: "100%" }}>
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
-    </Box>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Confirm Delete</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete option{" "}
+              <strong>{optionToDelete?.name}</strong>? This action cannot be
+              undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setDeleteDialogOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleDelete}
+            >
+              Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
   );
 };
 

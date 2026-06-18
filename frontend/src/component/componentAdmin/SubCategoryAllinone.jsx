@@ -1,35 +1,49 @@
 import React, { useEffect, useState, useMemo } from "react";
 import axios from "axios";
+import useAuthAdminStore from "../../store/AuthAdminStore.js";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   Table,
   TableBody,
   TableCell,
-  TableContainer,
   TableHead,
+  TableHeader,
   TableRow,
-  Paper,
-  IconButton,
-  Snackbar,
-  Alert,
-  TextField,
-  TablePagination,
-  CircularProgress,
-  Button,
-  Select,
-  MenuItem,
-  FormControl,
-  InputLabel,
-  Typography,
-  Chip,
+} from "@/components/ui/table";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardContent,
+} from "@/components/ui/card";
+import {
   Dialog,
-  DialogTitle,
   DialogContent,
-  DialogActions,
-  InputAdornment,
-  Box,
-} from "@mui/material";
-import { Delete, Edit, Add, Search, List } from "@mui/icons-material";
-import useAuthAdminStore from "../../store/AuthAdminStore.js";
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Separator } from "@/components/ui/separator";
+import { toast } from "sonner";
+import {
+  Plus,
+  Search,
+  Pencil,
+  Trash2,
+  Loader2,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
 
 const SubCategoryAllinone = () => {
   const apiUrl = import.meta.env.VITE_API_URL;
@@ -38,41 +52,44 @@ const SubCategoryAllinone = () => {
   const [subCategories, setSubCategories] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" });
   const [searchTerm, setSearchTerm] = useState("");
   const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const rowsPerPage = 10;
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
   const [editId, setEditId] = useState(null);
-  const [formData, setFormData] = useState({ name: "", category: "", isActive: true });
+  const [formData, setFormData] = useState({
+    name: "",
+    category: "",
+    isActive: true,
+  });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [subCategoryToDelete, setSubCategoryToDelete] = useState(null);
 
-  const showSnackbar = (message, severity = "success") => {
-    setSnackbar({ open: true, message, severity });
-  };
-
   const fetchSubCategories = () => {
     setLoading(true);
     axios
-      .get(`${apiUrl}/sub-category`, { headers: { Authorization: `Bearer ${token}` } })
+      .get(`${apiUrl}/sub-category`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
       .then((res) => {
         setSubCategories(res.data.subCategories || []);
         setLoading(false);
       })
       .catch(() => {
-        showSnackbar("Error fetching subcategories.", "error");
+        toast.error("Error fetching subcategories.");
         setLoading(false);
       });
   };
 
   const fetchCategories = () => {
     axios
-      .get(`${apiUrl}/category`, { headers: { Authorization: `Bearer ${token}` } })
+      .get(`${apiUrl}/category`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
       .then((res) => setCategories(res.data.categories || []))
       .catch(() => {});
   };
@@ -102,33 +119,44 @@ const SubCategoryAllinone = () => {
 
   const handleSave = async () => {
     if (!formData.name.trim() || !formData.category) {
-      showSnackbar("Name and category are required.", "warning");
+      toast.warning("Name and category are required.");
       return;
     }
     setIsSubmitting(true);
     try {
       if (isEdit) {
-        await axios.put(`${apiUrl}/sub-category/${editId}`, {
-          name: formData.name,
-          category: formData.category,
-          isActive: formData.isActive,
-        }, {
-          headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-        });
-        showSnackbar("Subcategory updated successfully!");
+        await axios.put(
+          `${apiUrl}/sub-category/${editId}`,
+          {
+            name: formData.name,
+            category: formData.category,
+            isActive: formData.isActive,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          },
+        );
+        toast.success("Subcategory updated successfully!");
       } else {
-        await axios.post(`${apiUrl}/sub-category`, {
-          name: formData.name,
-          category: formData.category,
-        }, {
-          headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-        });
-        showSnackbar("Subcategory added successfully!");
+        await axios.post(
+          `${apiUrl}/sub-category`,
+          { name: formData.name, category: formData.category },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          },
+        );
+        toast.success("Subcategory added successfully!");
       }
       setDialogOpen(false);
       fetchSubCategories();
     } catch (err) {
-      showSnackbar(err.response?.data?.message || "Operation failed.", "error");
+      toast.error(err.response?.data?.message || "Operation failed.");
     } finally {
       setIsSubmitting(false);
     }
@@ -145,10 +173,10 @@ const SubCategoryAllinone = () => {
       await axios.delete(`${apiUrl}/sub-category/${subCategoryToDelete._id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      showSnackbar("Subcategory deleted successfully!");
+      toast.success("Subcategory deleted successfully!");
       fetchSubCategories();
-    } catch (err) {
-      showSnackbar("Failed to delete subcategory.", "error");
+    } catch {
+      toast.error("Failed to delete subcategory.");
     } finally {
       setDeleteDialogOpen(false);
       setSubCategoryToDelete(null);
@@ -157,219 +185,283 @@ const SubCategoryAllinone = () => {
 
   const filteredSubCategories = useMemo(() => {
     return subCategories
-      .filter((subCat) =>
-        (subCat.name || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (subCat.category?.name || "").toLowerCase().includes(searchTerm.toLowerCase())
+      .filter(
+        (subCat) =>
+          (subCat.name || "")
+            .toLowerCase()
+            .includes(searchTerm.toLowerCase()) ||
+          (subCat.category?.name || "")
+            .toLowerCase()
+            .includes(searchTerm.toLowerCase()),
       )
       .reverse();
   }, [subCategories, searchTerm]);
 
+  const pageCount = Math.ceil(filteredSubCategories.length / rowsPerPage);
+  const paginated = filteredSubCategories.slice(
+    page * rowsPerPage,
+    page * rowsPerPage + rowsPerPage,
+  );
+
   return (
-    <Box>
-      {/* Header Card */}
-      <Paper elevation={2} sx={{ p: 3, mb: 3, borderRadius: 2 }}>
-        <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 2 }}>
-          <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-            <Box sx={{ bgcolor: "primary.main", p: 1.5, borderRadius: 2, display: "flex" }}>
-              <List sx={{ color: "white" }} />
-            </Box>
-            <Box>
-              <Typography variant="h5" fontWeight={700} color="text.primary">
-                Subcategory Management
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                {subCategories.length} total subcategories
-              </Typography>
-            </Box>
-          </Box>
-          <Button variant="contained" startIcon={<Add />} onClick={handleOpenCreate} sx={{ borderRadius: 2 }}>
-            Add Subcategory
-          </Button>
-        </Box>
-      </Paper>
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-2xl font-bold tracking-tight">
+          Subcategory Management
+        </h1>
+        <p className="text-sm text-muted-foreground mt-1">
+          {subCategories.length} total subcategories
+        </p>
+      </div>
 
-      {/* Search & Filter Card */}
-      <Paper elevation={1} sx={{ p: 2, mb: 3, borderRadius: 2 }}>
-        <TextField
-          placeholder="Search subcategories..."
-          fullWidth
-          value={searchTerm}
-          onChange={(e) => { setSearchTerm(e.target.value); setPage(0); }}
-          size="small"
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <Search color="action" />
-              </InputAdornment>
-            ),
-          }}
-          sx={{ "& .MuiOutlinedInput-root": { borderRadius: 2 } }}
-        />
-      </Paper>
+      <Separator />
 
-      {/* Table Card */}
-      <Paper elevation={2} sx={{ borderRadius: 2, overflow: "hidden" }}>
-        {loading ? (
-          <Box sx={{ display: "flex", justifyContent: "center", py: 6 }}>
-            <CircularProgress />
-          </Box>
-        ) : (
-          <>
-            <TableContainer>
+      <div className="flex items-center justify-between gap-4">
+        <div className="relative flex-1 max-w-sm">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+          <Input
+            placeholder="Search subcategories..."
+            value={searchTerm}
+            onChange={(e) => {
+              setSearchTerm(e.target.value);
+              setPage(0);
+            }}
+            className="pl-9"
+          />
+        </div>
+        <Button onClick={handleOpenCreate}>
+          <Plus className="size-4 mr-1" />
+          Add Subcategory
+        </Button>
+      </div>
+
+      <Card>
+        <CardContent className="p-0">
+          {loading ? (
+            <div className="flex justify-center py-12">
+              <Loader2 className="size-6 animate-spin text-muted-foreground" />
+            </div>
+          ) : (
+            <>
               <Table>
-                <TableHead>
-                  <TableRow sx={{ bgcolor: "grey.100" }}>
-                    <TableCell sx={{ fontWeight: 600 }}>Subcategory Name</TableCell>
-                    <TableCell sx={{ fontWeight: 600 }} align="center">Category</TableCell>
-                    <TableCell sx={{ fontWeight: 600 }} align="center">Active</TableCell>
-                    <TableCell sx={{ fontWeight: 600 }} align="center">Actions</TableCell>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Subcategory Name</TableHead>
+                    <TableHead className="text-center w-[200px]">
+                      Category
+                    </TableHead>
+                    <TableHead className="text-center w-[100px]">
+                      Active
+                    </TableHead>
+                    <TableHead className="text-center w-[100px]">
+                      Actions
+                    </TableHead>
                   </TableRow>
-                </TableHead>
+                </TableHeader>
                 <TableBody>
-                  {filteredSubCategories.length === 0 ? (
+                  {paginated.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={4} align="center" sx={{ py: 4 }}>
-                        <Typography color="text.secondary">No subcategories found.</Typography>
+                      <TableCell
+                        colSpan={4}
+                        className="text-center text-muted-foreground py-8"
+                      >
+                        No subcategories found.
                       </TableCell>
                     </TableRow>
                   ) : (
-                    filteredSubCategories
-                      .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                      .map((subCat) => (
-                        <TableRow key={subCat._id} hover>
-                          <TableCell>
-                            <Typography fontWeight={500}>{subCat.name || "N/A"}</Typography>
-                          </TableCell>
-                          <TableCell align="center">
-                            <Chip label={subCat.category?.name || "N/A"} size="small" variant="outlined" />
-                          </TableCell>
-                          <TableCell align="center">
-                            <Chip
-                              label={subCat.isActive ? "Yes" : "No"}
-                              color={subCat.isActive ? "success" : "default"}
-                              size="small"
-                              variant="outlined"
-                            />
-                          </TableCell>
-                          <TableCell align="center">
-                            <IconButton onClick={() => handleOpenEdit(subCat)} color="primary" size="small">
-                              <Edit fontSize="small" />
-                            </IconButton>
-                            <IconButton onClick={() => confirmDelete(subCat)} color="error" size="small">
-                              <Delete fontSize="small" />
-                            </IconButton>
-                          </TableCell>
-                        </TableRow>
-                      ))
+                    paginated.map((subCat) => (
+                      <TableRow key={subCat._id}>
+                        <TableCell className="font-medium">
+                          {subCat.name || "N/A"}
+                        </TableCell>
+                        <TableCell className="text-center">
+                          <Badge variant="outline">
+                            {subCat.category?.name || "N/A"}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="text-center">
+                          <Badge
+                            variant={subCat.isActive ? "default" : "secondary"}
+                          >
+                            {subCat.isActive ? "Yes" : "No"}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="text-center">
+                          <div className="flex items-center justify-center gap-1">
+                            <Button
+                              variant="ghost"
+                              size="icon-xs"
+                              onClick={() => handleOpenEdit(subCat)}
+                            >
+                              <Pencil className="size-3.5" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon-xs"
+                              onClick={() => confirmDelete(subCat)}
+                              className="text-destructive hover:text-destructive"
+                            >
+                              <Trash2 className="size-3.5" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))
                   )}
                 </TableBody>
               </Table>
-            </TableContainer>
-            <TablePagination
-              rowsPerPageOptions={[5, 10, 25]}
-              component="div"
-              count={filteredSubCategories.length}
-              rowsPerPage={rowsPerPage}
-              page={page}
-              onPageChange={(e, newPage) => setPage(newPage)}
-              onRowsPerPageChange={(e) => { setRowsPerPage(parseInt(e.target.value, 10)); setPage(0); }}
-              sx={{ borderTop: "1px solid", borderColor: "divider" }}
-            />
-          </>
-        )}
-      </Paper>
 
-      {/* Add/Edit Dialog */}
-      <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} maxWidth="sm" fullWidth>
-        <DialogTitle sx={{ borderBottom: "1px solid", borderColor: "divider" }}>
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-            {isEdit ? <Edit color="primary" /> : <Add color="primary" />}
-            <Typography variant="h6" fontWeight={600}>
-              {isEdit ? "Edit Subcategory" : "Add New Subcategory"}
-            </Typography>
-          </Box>
-        </DialogTitle>
-        <DialogContent sx={{ pt: 3 }}>
-          <TextField
-            label="Subcategory Name"
-            fullWidth
-            value={formData.name}
-            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-            required
-            error={!formData.name.trim()}
-            helperText={!formData.name.trim() ? "Subcategory name is required" : ""}
-            sx={{ mb: 2, mt:2 }}
-          />
-          <FormControl fullWidth sx={{ mb: 2 }}>
-            <InputLabel>Category</InputLabel>
-            <Select
-              value={formData.category}
-              onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-              label="Category"
-            >
-              <MenuItem value="">Select a Category</MenuItem>
-              {categories.map((cat) => (
-                <MenuItem key={cat._id} value={cat._id}>
-                  {cat.name}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-          {isEdit && (
-            <FormControl fullWidth>
-              <InputLabel>Active</InputLabel>
-              <Select
-                value={formData.isActive}
-                onChange={(e) => setFormData({ ...formData, isActive: e.target.value })}
-                label="Active"
-              >
-                <MenuItem value={true}>Yes</MenuItem>
-                <MenuItem value={false}>No</MenuItem>
-              </Select>
-            </FormControl>
+              {filteredSubCategories.length > rowsPerPage && (
+                <div className="flex items-center justify-between border-t border-muted-foreground/10 px-4 py-3">
+                  <p className="text-sm text-muted-foreground">
+                    Page {page + 1} of {pageCount}
+                  </p>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      disabled={page === 0}
+                      onClick={() => setPage((p) => p - 1)}
+                    >
+                      <ChevronLeft className="size-4" />
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      disabled={page >= pageCount - 1}
+                      onClick={() => setPage((p) => p + 1)}
+                    >
+                      <ChevronRight className="size-4" />
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </>
           )}
+        </CardContent>
+      </Card>
+
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>
+              {isEdit ? "Edit Subcategory" : "Add New Subcategory"}
+            </DialogTitle>
+            <DialogDescription>
+              {isEdit
+                ? "Update the subcategory details."
+                : "Create a new subcategory."}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <div className="space-y-2">
+              <label className="text-sm font-medium leading-none">
+                Subcategory Name
+              </label>
+              <Input
+                value={formData.name}
+                onChange={(e) =>
+                  setFormData({ ...formData, name: e.target.value })
+                }
+                placeholder="e.g. Smartphones"
+                required
+              />
+              {!formData.name.trim() && (
+                <p className="text-xs text-destructive">
+                  Subcategory name is required
+                </p>
+              )}
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Category</label>
+              <Select
+                value={formData.category}
+                onValueChange={(value) =>
+                  setFormData({ ...formData, category: value })
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a Category" />
+                </SelectTrigger>
+                <SelectContent>
+                  {categories.map((cat) => (
+                    <SelectItem key={cat._id} value={cat._id}>
+                      {cat.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            {isEdit && (
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Active</label>
+                <Select
+                  value={String(formData.isActive)}
+                  onValueChange={(value) =>
+                    setFormData({
+                      ...formData,
+                      isActive: value === "true",
+                    })
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="true">Yes</SelectItem>
+                    <SelectItem value="false">No</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setDialogOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button onClick={handleSave} disabled={isSubmitting}>
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="size-4 mr-1 animate-spin" />
+                  Saving...
+                </>
+              ) : isEdit ? (
+                "Update"
+              ) : (
+                "Save"
+              )}
+            </Button>
+          </DialogFooter>
         </DialogContent>
-        <DialogActions sx={{ px: 3, pb: 2 }}>
-          <Button onClick={() => setDialogOpen(false)} color="inherit">Cancel</Button>
-          <Button
-            onClick={handleSave}
-            variant="contained"
-            disabled={isSubmitting}
-            startIcon={isSubmitting ? <CircularProgress size={18} color="inherit" /> : null}
-          >
-            {isSubmitting ? "Saving..." : isEdit ? "Update" : "Save"}
-          </Button>
-        </DialogActions>
       </Dialog>
 
-      {/* Delete Confirmation Dialog */}
-      <Dialog open={deleteDialogOpen} onClose={() => setDeleteDialogOpen(false)}>
-        <DialogTitle sx={{ bgcolor: "error.main", color: "white" }}>
-          Confirm Delete
-        </DialogTitle>
-        <DialogContent sx={{ pt: 2 }}>
-          <Typography>
-            Are you sure you want to delete <strong>{subCategoryToDelete?.name}</strong>? This action cannot be undone.
-          </Typography>
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Confirm Delete</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete{" "}
+              <strong>{subCategoryToDelete?.name}</strong>? This action cannot
+              be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setDeleteDialogOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={handleDelete}>
+              Delete
+            </Button>
+          </DialogFooter>
         </DialogContent>
-        <DialogActions sx={{ px: 3, pb: 2 }}>
-          <Button onClick={() => setDeleteDialogOpen(false)} color="inherit">Cancel</Button>
-          <Button onClick={handleDelete} color="error" variant="contained">Delete</Button>
-        </DialogActions>
       </Dialog>
-
-      {/* Snackbar */}
-      <Snackbar
-        anchorOrigin={{ vertical: "top", horizontal: "right" }}
-        open={snackbar.open}
-        autoHideDuration={3000}
-        onClose={() => setSnackbar({ ...snackbar, open: false })}
-      >
-        <Alert severity={snackbar.severity} variant="filled" sx={{ width: "100%" }}>
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
-    </Box>
+    </div>
   );
 };
 

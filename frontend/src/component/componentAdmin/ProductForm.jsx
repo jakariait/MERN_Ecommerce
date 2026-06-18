@@ -10,34 +10,54 @@ import useProductStore from "../../store/useProductStore.js";
 const Editor = lazy(() =>
   import("primereact/editor").then((module) => ({ default: module.Editor })),
 );
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
-  Box,
-  MenuItem,
   Select,
-  Typography,
-  Chip,
-  Input,
-  ListItemText,
-  Checkbox,
-  FormHelperText,
-  FormControl,
-  TextField,
-  InputAdornment,
-  Button,
-  InputLabel,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   Table,
-  TableHead,
   TableBody,
-  TableRow,
   TableCell,
-  Switch,
-  Snackbar,
-  Alert,
-  IconButton,
-} from "@mui/material";
-import DeleteIcon from "@mui/icons-material/Delete";
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Separator } from "@/components/ui/separator";
+import { toast } from "sonner";
+import {
+  Trash2,
+  Plus,
+  Upload,
+  X,
+  Image,
+  Loader2,
+  ChevronDown,
+} from "lucide-react";
 import axios from "axios";
-import Skeleton from "react-loading-skeleton";
 
 const ProductForm = ({ isEdit: isEditMode }) => {
   const { slug } = useParams();
@@ -52,7 +72,6 @@ const ProductForm = ({ isEdit: isEditMode }) => {
   const { token } = AuthAdminStore();
   const navigate = useNavigate();
 
-  // Form state
   const [name, setName] = useState("");
   const [shortDesc, setShortDesc] = useState("");
   const [longDesc, setLongDesc] = useState("");
@@ -86,18 +105,14 @@ const ProductForm = ({ isEdit: isEditMode }) => {
   const [isActive, setIsActive] = useState("true");
   const [freeShipping, setFreeShipping] = useState(false);
 
-  // State specific to update mode
   const [existingImages, setExistingImages] = useState([]);
   const [imagesToDelete, setImagesToDelete] = useState([]);
   const [draggedImage, setDraggedImage] = useState(null);
   const [draggedIndex, setDraggedIndex] = useState(null);
-  const [dragSource, setDragSource] = useState(null); // 'existing' or 'new'
+  const [dragSource, setDragSource] = useState(null);
 
-  // UI state
-  const [snackbarOpen, setSnackbarOpen] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState("");
-  const [snackbarSeverity, setSnackbarSeverity] = useState("success");
   const [errors, setErrors] = useState({});
+  const [submitting, setSubmitting] = useState(false);
 
   const fileInputRef = useRef(null);
   const imagesInputRef = useRef(null);
@@ -160,10 +175,12 @@ const ProductForm = ({ isEdit: isEditMode }) => {
       if (product.variants && product.variants.length > 0) {
         setVariants(
           product.variants.map((v) => ({
-            attributes: v.attributes ? v.attributes.map((attr) => ({
-              option: attr.option ? attr.option._id : "",
-              value: attr.value || "",
-            })) : [],
+            attributes: v.attributes
+              ? v.attributes.map((attr) => ({
+                  option: attr.option ? attr.option._id : "",
+                  value: attr.value || "",
+                }))
+              : [],
             stock: v.stock,
             price: v.price,
             discount: v.discount || "",
@@ -242,7 +259,6 @@ const ProductForm = ({ isEdit: isEditMode }) => {
     }
   };
 
-  // Drag and drop handlers for reordering
   const handleDragStart = (e, index, source) => {
     setDraggedIndex(index);
     setDragSource(source);
@@ -256,8 +272,7 @@ const ProductForm = ({ isEdit: isEditMode }) => {
 
   const handleDrop = (e, targetIndex, targetSource) => {
     e.preventDefault();
-    
-    // Only reorder within the same source (existing or new)
+
     if (dragSource !== targetSource) {
       setDraggedIndex(null);
       setDragSource(null);
@@ -273,16 +288,16 @@ const ProductForm = ({ isEdit: isEditMode }) => {
     } else if (dragSource === "new") {
       const newSelectedImages = [...selectedImages];
       const newPreviews = [...imagePreviews];
-      
+
       const draggedImageItem = newSelectedImages[draggedIndex];
       const draggedPreview = newPreviews[draggedIndex];
-      
+
       newSelectedImages.splice(draggedIndex, 1);
       newPreviews.splice(draggedIndex, 1);
-      
+
       newSelectedImages.splice(targetIndex, 0, draggedImageItem);
       newPreviews.splice(targetIndex, 0, draggedPreview);
-      
+
       setSelectedImages(newSelectedImages);
       setImagePreviews(newPreviews);
     }
@@ -327,42 +342,44 @@ const ProductForm = ({ isEdit: isEditMode }) => {
     setSearchTags(searchTags.filter((tag) => tag !== tagToDelete));
   };
 
-  const handleCategoryChange = (e) => {
-    const categoryId = e.target.value;
-    setSelectedCategory(categoryId);
+  const handleCategoryChange = (value) => {
+    setSelectedCategory(value);
     setSelectedSubCategory("");
     setFilteredSubCategories([]);
     setSelectedChildCategory("");
     setFilteredChildCategories([]);
 
-    if (categoryId) {
+    if (value) {
       const filtered = subCategories.filter(
-        (sub) => sub.category._id === categoryId,
+        (sub) => sub.category._id === value,
       );
       setFilteredSubCategories(filtered);
     }
   };
 
-  const handleSubCategoryChange = (e) => {
-    const subCategoryId = e.target.value;
-    setSelectedSubCategory(subCategoryId);
+  const handleSubCategoryChange = (value) => {
+    setSelectedSubCategory(value);
     setSelectedChildCategory("");
     setFilteredChildCategories([]);
 
-    if (subCategoryId) {
+    if (value) {
       const filtered = childCategories.filter(
-        (child) => child.subCategory._id === subCategoryId,
+        (child) => child.subCategory._id === value,
       );
       setFilteredChildCategories(filtered);
     }
   };
 
-  const handleChildCategoryChange = (e) => {
-    setSelectedChildCategory(e.target.value);
+  const handleChildCategoryChange = (value) => {
+    setSelectedChildCategory(value);
   };
 
-  const handleFlagChange = (e) => {
-    setSelectedFlags(e.target.value);
+  const handleFlagToggle = (flagId) => {
+    setSelectedFlags((prev) =>
+      prev.includes(flagId)
+        ? prev.filter((id) => id !== flagId)
+        : [...prev, flagId],
+    );
   };
 
   const handleFinalPriceChange = (e) => {
@@ -411,10 +428,6 @@ const ProductForm = ({ isEdit: isEditMode }) => {
     );
   };
 
-  const handleSnackbarClose = () => {
-    setSnackbarOpen(false);
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setErrors({});
@@ -438,6 +451,7 @@ const ProductForm = ({ isEdit: isEditMode }) => {
       return;
     }
 
+    setSubmitting(true);
     const formData = new FormData();
     formData.append("name", name);
     formData.append("shortDesc", shortDesc);
@@ -521,13 +535,13 @@ const ProductForm = ({ isEdit: isEditMode }) => {
             "Content-Type": "multipart/form-data",
           },
         });
-        setSnackbarMessage("Product updated successfully!");
+        toast.success("Product updated successfully!");
         setImagesToDelete([]);
       } else {
         await axios.post(`${apiUrl}/products`, formData, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        setSnackbarMessage("Product created successfully!");
+        toast.success("Product created successfully!");
         setName("");
         setShortDesc("");
         setLongDesc("");
@@ -558,477 +572,506 @@ const ProductForm = ({ isEdit: isEditMode }) => {
         if (imagesInputRef.current) imagesInputRef.current.value = "";
       }
 
-      setSnackbarSeverity("success");
-      setSnackbarOpen(true);
-
       setTimeout(() => {
         navigate("/admin/viewallproducts");
       }, 3000);
     } catch (error) {
-      setSnackbarMessage(
+      toast.error(
         isEditMode ? "Failed to update product." : "Failed to create product.",
       );
-      setSnackbarSeverity("error");
-      setSnackbarOpen(true);
       if (error.response && error.response.data) {
         setErrors(error.response.data);
       } else {
         console.error("An unexpected error occurred:", error);
       }
+    } finally {
+      setSubmitting(false);
     }
   };
 
   if (isEditMode && !product) {
     return (
-      <div>
-        <div className={"grid grid-cols-6 gap-6"}>
-          <div className={"col-span-4"}>
-            <Skeleton height={50} width={"100%"} />
-            <Skeleton height={150} width={"100%"} />
-            <Skeleton height={50} width={"100%"} />
-            <Skeleton height={100} width={"100%"} />
-            <Skeleton height={50} width={"100%"} />
+      <div className="space-y-6">
+        <div className="grid grid-cols-6 gap-6">
+          <div className="col-span-4 space-y-4">
+            <Skeleton className="h-12 w-full" />
+            <Skeleton className="h-36 w-full" />
+            <Skeleton className="h-12 w-full" />
+            <Skeleton className="h-24 w-full" />
+            <Skeleton className="h-12 w-full" />
           </div>
-          <div className={"col-span-2 "}>
-            <Skeleton height={150} width={"100%"} />
-            <Skeleton height={50} width={"100%"} />
-            <Skeleton height={50} width={"100%"} />
-            <Skeleton height={100} width={"100%"} />
-            <Skeleton height={50} width={"100%"} />
+          <div className="col-span-2 space-y-4">
+            <Skeleton className="h-36 w-full" />
+            <Skeleton className="h-12 w-full" />
+            <Skeleton className="h-12 w-full" />
+            <Skeleton className="h-24 w-full" />
+            <Skeleton className="h-12 w-full" />
           </div>
         </div>
-        <Skeleton height={250} width={"100%"} />
-        <Skeleton height={200} width={"100%"} />
-        <div className={"grid grid-cols-2 gap-6"}>
-          <Skeleton height={50} width={"100%"} />
-          <Skeleton height={50} width={"100%"} />
+        <Skeleton className="h-60 w-full" />
+        <Skeleton className="h-48 w-full" />
+        <div className="grid grid-cols-2 gap-6">
+          <Skeleton className="h-12 w-full" />
+          <Skeleton className="h-12 w-full" />
         </div>
-        <Skeleton height={200} width={"100%"} />
+        <Skeleton className="h-48 w-full" />
       </div>
     );
   }
 
   return (
-    <div className={"shadow rounded-lg p-3"}>
-      <h1 className="border-l-4 primaryBorderColor primaryTextColor mb-6 pl-2 text-lg font-semibold">
-        {isEditMode ? "Update Product" : "Add New Product"}
-      </h1>
-      <form onSubmit={handleSubmit}>
-        <div className={"md:grid grid-cols-12 gap-8 p-3"}>
-          <div className={"col-span-8"}>
-            <TextField
-              label="Product Name"
-              fullWidth
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-              margin="normal"
-            />
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-2xl font-bold tracking-tight">
+          {isEditMode ? "Update Product" : "Add New Product"}
+        </h1>
+      </div>
 
-            <h1 className={"py-3 pl-1"}>Short Description</h1>
-            <Editor
-              value={shortDesc}
-              onTextChange={(e) => setShortDesc(e.htmlValue)}
-              style={{ height: "260px" }}
-            />
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <div className="grid grid-cols-12 gap-6">
+          <div className="col-span-12 lg:col-span-8 space-y-6">
+            <Card className="shadow-md border-0">
+              <CardHeader>
+                <CardTitle>Basic Information</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="name">
+                    Product Name <span className="text-destructive">*</span>
+                  </Label>
+                  <Input
+                    id="name"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    required
+                  />
+                  {errors.name && (
+                    <p className="text-xs text-destructive">{errors.name}</p>
+                  )}
+                </div>
 
-            <h1 className={"py-3 pl-1"}>Long Description</h1>
-            <Editor
-              value={longDesc}
-              onTextChange={(e) => setLongDesc(e.htmlValue)}
-              style={{ height: "260px" }}
-            />
+                <div className="space-y-2">
+                  <Label>Short Description</Label>
+                  <Editor
+                    value={shortDesc}
+                    onTextChange={(e) => setShortDesc(e.htmlValue)}
+                    style={{ height: "260px" }}
+                  />
+                </div>
 
-            <Box mb={2}>
-              <Box
-                display="flex"
-                flexDirection="column"
-                gap={1}
-                margin="normal"
-              >
-                <TextField
-                  label="Search Tags"
-                  fullWidth
-                  placeholder="Type a tag and press Enter"
-                  value={tagInput}
-                  onChange={(e) => setTagInput(e.target.value)}
-                  onKeyDown={handleAddTag}
-                  variant="outlined"
-                  margin="normal"
-                  InputProps={{
-                    startAdornment: searchTags.length > 0 && (
-                      <InputAdornment position="start">
-                        <Box gap={1}>
-                          {searchTags.map((tag, index) => (
-                            <Chip
-                              key={index}
-                              label={tag}
-                              onDelete={() => handleDeleteTag(tag)}
-                              size="small"
-                              style={{
-                                margin: "2px",
-                                backgroundColor: "#e0e0e0",
-                              }}
-                            />
-                          ))}
-                        </Box>
-                      </InputAdornment>
-                    ),
-                  }}
-                />
-              </Box>
-              <TextField
-                label="Video URL"
-                fullWidth
-                value={videoUrl}
-                onChange={(e) => setVideoUrl(e.target.value)}
-                margin="normal"
-              />
-            </Box>
+                <div className="space-y-2">
+                  <Label>Long Description</Label>
+                  <Editor
+                    value={longDesc}
+                    onTextChange={(e) => setLongDesc(e.htmlValue)}
+                    style={{ height: "260px" }}
+                  />
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="shadow-md border-0">
+              <CardHeader>
+                <CardTitle>Search Tags & Media</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label>Search Tags</Label>
+                  <Input
+                    placeholder="Type a tag and press Enter"
+                    value={tagInput}
+                    onChange={(e) => setTagInput(e.target.value)}
+                    onKeyDown={handleAddTag}
+                  />
+                  {searchTags.length > 0 && (
+                    <div className="flex flex-wrap gap-1.5 mt-2">
+                      {searchTags.map((tag, index) => (
+                        <Badge
+                          key={index}
+                          variant="secondary"
+                          className="gap-1 pr-1"
+                        >
+                          {tag}
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteTag(tag)}
+                            className="ml-1 hover:text-destructive"
+                          >
+                            <X className="size-3" />
+                          </button>
+                        </Badge>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Video URL</Label>
+                  <Input
+                    value={videoUrl}
+                    onChange={(e) => setVideoUrl(e.target.value)}
+                  />
+                </div>
+              </CardContent>
+            </Card>
           </div>
-          <div className={"col-span-4"}>
-            <Box mb={2}>
-              <Typography>
-                Product Thumbnail Image{" "}
-                <span style={{ color: "red", fontSize: "18px" }}>*</span>
-              </Typography>
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleImageChange}
-                style={{ display: "inline-block" }}
-                id="thumbnail-upload"
-                name="thumbnailImage"
-                ref={fileInputRef}
-                required={!isEditMode}
-              />
-              <label
-                htmlFor="thumbnail-upload"
-                style={{
-                  display: "block",
-                  height: "210px",
-                  marginTop: "10px",
-                  border: "2px solid #aaa",
-                  cursor: "pointer",
-                  textAlign: "center",
-                  position: "relative",
-                  backgroundImage: imagePreview
-                    ? `url(${imagePreview})`
-                    : "none",
-                  backgroundColor: imagePreview ? "transparent" : "#f0f0f0",
-                  backgroundSize: "contain",
-                  backgroundRepeat: "no-repeat",
-                  backgroundPosition: "center",
-                  color: imagePreview ? "transparent" : "#000",
-                }}
-              >
-                {imagePreview ? (
-                  <>
-                    <Typography
-                      variant="body2"
-                      sx={{
-                        position: "absolute",
-                        bottom: "10px",
-                        left: "50%",
-                        transform: "translateX(-50%)",
-                      }}
-                    >
-                      Image Selected
-                    </Typography>
-                    <Button
-                      variant="contained"
-                      color="secondary"
-                      sx={{
-                        position: "absolute",
-                        top: "10px",
-                        right: "10px",
-                        padding: "5px 10px",
-                        fontSize: "12px",
-                        zIndex: 10,
-                      }}
-                      onClick={handleRemoveThumbnail}
-                    >
-                      Remove
-                    </Button>
-                  </>
-                ) : (
-                  <Typography
-                    variant="body2"
-                    sx={{
-                      position: "absolute",
-                      top: "50%",
-                      left: "50%",
-                      transform: "translate(-50%, -50%)",
-                    }}
-                  >
-                    Click to upload an image
-                  </Typography>
+
+          <div className="col-span-12 lg:col-span-4 space-y-6">
+            <Card className="shadow-md border-0">
+              <CardHeader>
+                <CardTitle>Thumbnail Image</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                  className="hidden"
+                  id="thumbnail-upload"
+                  name="thumbnailImage"
+                  ref={fileInputRef}
+                  required={!isEditMode}
+                />
+                <Label
+                  htmlFor="thumbnail-upload"
+                  className="block relative cursor-pointer"
+                >
+                  {imagePreview ? (
+                    <div className="relative h-48 rounded-lg overflow-hidden bg-muted">
+                      <img
+                        src={imagePreview}
+                        alt="Thumbnail preview"
+                        className="w-full h-full object-contain"
+                      />
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        size="sm"
+                        className="absolute top-2 right-2"
+                        onClick={handleRemoveThumbnail}
+                      >
+                        <X className="size-3 mr-1" />
+                        Remove
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="h-48 rounded-lg border-2 border-dashed border-muted-foreground/30 flex flex-col items-center justify-center gap-2 text-muted-foreground hover:border-muted-foreground/50 transition-colors">
+                      <Upload className="size-8" />
+                      <p className="text-sm">Click to upload an image</p>
+                    </div>
+                  )}
+                </Label>
+                {errors.thumbnailImage && (
+                  <p className="text-xs text-destructive">
+                    {errors.thumbnailImage}
+                  </p>
                 )}
-              </label>
-              {errors.thumbnailImage && (
-                <FormHelperText error>{errors.thumbnailImage}</FormHelperText>
-              )}
-            </Box>
+              </CardContent>
+            </Card>
 
             {!hasVariant && (
-              <>
-                <TextField
-                  label="Price (In BDT)"
-                  type="number"
-                  fullWidth
-                  value={finalPrice}
-                  onChange={handleFinalPriceChange}
-                  margin="normal"
-                  required={!hasVariant}
-                />
-                <TextField
-                  label="Discount Price"
-                  type="number"
-                  fullWidth
-                  value={finalDiscount}
-                  onChange={handleDiscountChange}
-                  margin="normal"
-                />
-                <TextField
-                  label="Stock"
-                  type="number"
-                  fullWidth
-                  value={finalStock}
-                  onChange={handleFinalStockChange}
-                  required={!hasVariant}
-                  margin="normal"
-                />
-              </>
+              <Card className="shadow-md border-0">
+                <CardHeader>
+                  <CardTitle>Pricing & Stock</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="finalPrice">
+                      Price (In BDT) <span className="text-destructive">*</span>
+                    </Label>
+                    <Input
+                      id="finalPrice"
+                      type="number"
+                      value={finalPrice}
+                      onChange={handleFinalPriceChange}
+                      required={!hasVariant}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="finalDiscount">Discount Price</Label>
+                    <Input
+                      id="finalDiscount"
+                      type="number"
+                      value={finalDiscount}
+                      onChange={handleDiscountChange}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="finalStock">
+                      Stock <span className="text-destructive">*</span>
+                    </Label>
+                    <Input
+                      id="finalStock"
+                      type="number"
+                      value={finalStock}
+                      onChange={handleFinalStockChange}
+                      required={!hasVariant}
+                    />
+                  </div>
+                </CardContent>
+              </Card>
             )}
 
-            {isEditMode && (
-              <Box sx={{ minWidth: 200, my: 2 }}>
-                <FormControl fullWidth>
-                  <InputLabel id="status-select-label">Status</InputLabel>
-                  <Select
-                    labelId="status-select-label"
-                    id="status-select"
-                    value={isActive}
-                    label="Status"
-                    onChange={(e) => setIsActive(e.target.value)}
-                  >
-                    <MenuItem value="true">Active</MenuItem>
-                    <MenuItem value="false">Inactive</MenuItem>
-                  </Select>
-                </FormControl>
-              </Box>
-            )}
-
-            <Box sx={{ my: 2, display: "flex", alignItems: "center", gap: 1 }}>
-              <Typography>Free Shipping</Typography>
-              <Switch
-                checked={freeShipping}
-                onChange={(e) => setFreeShipping(e.target.checked)}
-              />
-            </Box>
-
-            <TextField
-              label="Reward Points"
-              type="number"
-              fullWidth
-              value={rewardPoints}
-              onChange={handleRewardPointsChange}
-              margin="normal"
-            />
-            <TextField
-              label="Purchase Price"
-              type="number"
-              fullWidth
-              value={purchasePrice}
-              onChange={handlePurchasePriceChange}
-              margin="normal"
-            />
-            <TextField
-              label="Product Code"
-              fullWidth
-              value={productCode}
-              onChange={(e) => setProductCode(e.target.value)}
-              margin="normal"
-            />
-
-            <FormControl
-              fullWidth
-              error={Boolean(errors.category)}
-              margin="normal"
-            >
-              <InputLabel required>Select Category</InputLabel>
-              <Select
-                value={selectedCategory}
-                onChange={handleCategoryChange}
-                required
-                label="Select Category"
-              >
-                {categories.map((category) => (
-                  <MenuItem key={category._id} value={category._id}>
-                    {category.name}
-                  </MenuItem>
-                ))}
-              </Select>
-              {errors.category && (
-                <FormHelperText>{errors.category}</FormHelperText>
-              )}
-            </FormControl>
-
-            <FormControl
-              fullWidth
-              error={Boolean(errors.subCategory)}
-              margin="normal"
-              disabled={!selectedCategory}
-            >
-              <InputLabel>Select Sub Category</InputLabel>
-              <Select
-                value={selectedSubCategory}
-                onChange={handleSubCategoryChange}
-                label="Select Sub Category"
-              >
-                {filteredSubCategories.length > 0 ? (
-                  filteredSubCategories.map((sub) => (
-                    <MenuItem key={sub._id} value={sub._id}>
-                      {sub.name}
-                    </MenuItem>
-                  ))
-                ) : (
-                  <MenuItem disabled>No subcategories available</MenuItem>
-                )}
-              </Select>
-            </FormControl>
-
-            <FormControl
-              fullWidth
-              error={Boolean(errors.childCategory)}
-              margin="normal"
-              disabled={!selectedSubCategory}
-            >
-              <InputLabel>Select Child Category</InputLabel>
-              <Select
-                value={selectedChildCategory}
-                onChange={handleChildCategoryChange}
-                label="Select Child Category"
-              >
-                {filteredChildCategories.length > 0 ? (
-                  filteredChildCategories.map((child) => (
-                    <MenuItem key={child._id} value={child._id}>
-                      {child.name}
-                    </MenuItem>
-                  ))
-                ) : (
-                  <MenuItem disabled>No child categories available</MenuItem>
-                )}
-              </Select>
-            </FormControl>
-
-            <Box mb={2}>
-              <Typography>Select Flags</Typography>
-              <Select
-                multiple
-                fullWidth
-                value={selectedFlags}
-                onChange={handleFlagChange}
-                input={<Input />}
-                renderValue={(selected) => (
-                  <div>
-                    {" "}
-                    {selected.map((flagId) => {
-                      const flag = flags.find((f) => f._id === flagId);
-                      return flag ? (
-                        <Chip
-                          key={flag._id}
-                          label={flag.name}
-                          style={{ margin: 2 }}
-                        />
-                      ) : null;
-                    })}{" "}
+            <Card className="shadow-md border-0">
+              <CardHeader>
+                <CardTitle>Settings</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {isEditMode && (
+                  <div className="space-y-2">
+                    <Label>Status</Label>
+                    <Select
+                      value={isActive}
+                      onValueChange={setIsActive}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="true">Active</SelectItem>
+                        <SelectItem value="false">Inactive</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
                 )}
-              >
-                {flags.map((flag) => (
-                  <MenuItem key={flag._id} value={flag._id}>
-                    {" "}
-                    <Checkbox
-                      checked={selectedFlags.indexOf(flag._id) > -1}
-                    />{" "}
-                    <ListItemText primary={flag.name} />{" "}
-                  </MenuItem>
-                ))}
-              </Select>
-            </Box>
+
+                <div className="flex items-center gap-2">
+                  <Switch
+                    id="freeShipping"
+                    checked={freeShipping}
+                    onCheckedChange={setFreeShipping}
+                  />
+                  <Label htmlFor="freeShipping">Free Shipping</Label>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="rewardPoints">Reward Points</Label>
+                  <Input
+                    id="rewardPoints"
+                    type="number"
+                    value={rewardPoints}
+                    onChange={handleRewardPointsChange}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="purchasePrice">Purchase Price</Label>
+                  <Input
+                    id="purchasePrice"
+                    type="number"
+                    value={purchasePrice}
+                    onChange={handlePurchasePriceChange}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="productCode">Product Code</Label>
+                  <Input
+                    id="productCode"
+                    value={productCode}
+                    onChange={(e) => setProductCode(e.target.value)}
+                  />
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="shadow-md border-0">
+              <CardHeader>
+                <CardTitle>Category</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label>
+                    Select Category <span className="text-destructive">*</span>
+                  </Label>
+                  <Select
+                    value={selectedCategory}
+                    onValueChange={handleCategoryChange}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select a category" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {categories.map((category) => (
+                        <SelectItem key={category._id} value={category._id}>
+                          {category.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {errors.category && (
+                    <p className="text-xs text-destructive">
+                      {errors.category}
+                    </p>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Select Sub Category</Label>
+                  <Select
+                    value={selectedSubCategory}
+                    onValueChange={handleSubCategoryChange}
+                    disabled={!selectedCategory}
+                  >
+                    <SelectTrigger>
+                      <SelectValue
+                        placeholder={
+                          selectedCategory
+                            ? "Select a subcategory"
+                            : "Select a category first"
+                        }
+                      />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {filteredSubCategories.length > 0 ? (
+                        filteredSubCategories.map((sub) => (
+                          <SelectItem key={sub._id} value={sub._id}>
+                            {sub.name}
+                          </SelectItem>
+                        ))
+                      ) : (
+                        <SelectItem value="" disabled>
+                          No subcategories available
+                        </SelectItem>
+                      )}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Select Child Category</Label>
+                  <Select
+                    value={selectedChildCategory}
+                    onValueChange={handleChildCategoryChange}
+                    disabled={!selectedSubCategory}
+                  >
+                    <SelectTrigger>
+                      <SelectValue
+                        placeholder={
+                          selectedSubCategory
+                            ? "Select a child category"
+                            : "Select a subcategory first"
+                        }
+                      />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {filteredChildCategories.length > 0 ? (
+                        filteredChildCategories.map((child) => (
+                          <SelectItem key={child._id} value={child._id}>
+                            {child.name}
+                          </SelectItem>
+                        ))
+                      ) : (
+                        <SelectItem value="" disabled>
+                          No child categories available
+                        </SelectItem>
+                      )}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="shadow-md border-0">
+              <CardHeader>
+                <CardTitle>Flags</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      role="combobox"
+                      className="w-full justify-between"
+                    >
+                      {selectedFlags.length > 0
+                        ? `${selectedFlags.length} flag(s) selected`
+                        : "Select flags"}
+                      <ChevronDown className="size-4 opacity-50" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-full p-2" align="start">
+                    <div className="space-y-1">
+                      {flags.map((flag) => (
+                        <div
+                          key={flag._id}
+                          className="flex items-center gap-2 px-2 py-1.5 rounded-md hover:bg-muted cursor-pointer"
+                          onClick={() => handleFlagToggle(flag._id)}
+                        >
+                          <Checkbox
+                            checked={selectedFlags.includes(flag._id)}
+                            onCheckedChange={() => handleFlagToggle(flag._id)}
+                          />
+                          <Label className="cursor-pointer">{flag.name}</Label>
+                        </div>
+                      ))}
+                      {flags.length === 0 && (
+                        <p className="text-sm text-muted-foreground px-2">
+                          No flags available
+                        </p>
+                      )}
+                    </div>
+                  </PopoverContent>
+                </Popover>
+
+                {selectedFlags.length > 0 && (
+                  <div className="flex flex-wrap gap-1.5 mt-3">
+                    {selectedFlags.map((flagId) => {
+                      const flag = flags.find((f) => f._id === flagId);
+                      return flag ? (
+                        <Badge key={flag._id} variant="secondary">
+                          {flag.name}
+                        </Badge>
+                      ) : null;
+                    })}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
           </div>
         </div>
 
-        <div className={"shadow rounded-lg p-3 mt-3"}>
-          <Box mb={2}>
-            <Typography>
+        <Card className="shadow-md border-0">
+          <CardHeader>
+            <CardTitle>
               Product Images{" "}
-              <span style={{ color: "red", fontSize: "18px" }}>*</span>
-            </Typography>
+              <span className="text-destructive">*</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
             <input
               type="file"
               accept="image/*"
               multiple
               onChange={handleMultipleImagesChange}
-              style={{ display: "block" }}
+              className="hidden"
               id="multi-image-upload"
               name="images"
               ref={imagesInputRef}
               required={!isEditMode && selectedImages.length === 0}
             />
-            <label
+            <Label
               htmlFor="multi-image-upload"
-              style={{
-                marginTop: "10px",
-                border: "2px solid #aaa",
-                cursor: "pointer",
-                textAlign: "center",
-                position: "relative",
-                backgroundColor:
-                  existingImages.length + selectedImages.length > 0
-                    ? "transparent"
-                    : "#f0f0f0",
-                overflow: "hidden",
-                padding: "10px",
-                display: "flex",
-                gap: "15px",
-                flexWrap: "wrap",
-                alignItems: "center",
-                justifyContent: "center",
-                minHeight: "150px",
-              }}
+              className="block relative cursor-pointer"
             >
               {existingImages.length > 0 || selectedImages.length > 0 ? (
-                <>
+                <div className="relative min-h-[150px] rounded-lg border-2 border-dashed border-muted-foreground/30 p-4">
                   {selectedImages.length > 0 && (
-                    <button
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="sm"
+                      className="absolute top-2 right-2 z-10"
                       onClick={(e) => {
                         e.stopPropagation();
                         handleRemoveAllNewImages();
                       }}
-                      type="button"
-                      style={{
-                        position: "absolute",
-                        top: "5px",
-                        right: "5px",
-                        background: "red",
-                        color: "white",
-                        border: "none",
-                        borderRadius: "5px",
-                        padding: "5px",
-                        fontSize: "12px",
-                        cursor: "pointer",
-                      }}
                     >
+                      <X className="size-3 mr-1" />
                       {isEditMode ? "Remove New Images" : "Remove All"}
-                    </button>
+                    </Button>
                   )}
-                  <div
-                    className={
-                      "flex gap-5 flex-wrap mt-7 justify-center items-center"
-                    }
-                  >
+                  <div className="flex gap-4 flex-wrap mt-2 justify-center items-center">
                     {isEditMode &&
                       existingImages.map((image, index) => (
                         <div
@@ -1038,40 +1081,24 @@ const ProductForm = ({ isEdit: isEditMode }) => {
                           onDragOver={handleDragOver}
                           onDrop={(e) => handleDrop(e, index, "existing")}
                           onDragEnd={handleDragEnd}
+                          className="relative w-[150px] h-[150px] rounded-lg overflow-hidden bg-muted/50 shadow-sm cursor-move"
                           style={{
-                            width: "150px",
-                            height: "150px",
-                            marginTop: "5px",
-                            backgroundImage: `url(${imageUrl}/${image})`,
-                            backgroundSize: "contain",
-                            backgroundPosition: "center",
-                            borderRadius: "5px",
-                            position: "relative",
-                            backgroundRepeat: "no-repeat",
-                            cursor: "move",
                             opacity: draggedIndex === index && dragSource === "existing" ? 0.5 : 1,
-                            transition: "opacity 0.2s",
-                            border: draggedIndex === index && dragSource === "existing" ? "2px dashed #ccc" : "none",
+                            outline: draggedIndex === index && dragSource === "existing" ? "2px dashed hsl(var(--muted-foreground))" : "none",
                           }}
                         >
+                          <img
+                            src={`${imageUrl}/${image}`}
+                            alt={`Existing ${index}`}
+                            className="w-full h-full object-contain"
+                          />
                           <button
+                            type="button"
                             onClick={(e) => {
                               e.stopPropagation();
                               handleRemoveExistingImage(index);
                             }}
-                            type="button"
-                            style={{
-                              position: "absolute",
-                              top: "-5px",
-                              right: "-5px",
-                              background: "red",
-                              color: "white",
-                              border: "none",
-                              borderRadius: "50%",
-                              width: "20px",
-                              height: "20px",
-                              cursor: "pointer",
-                            }}
+                            className="absolute -top-1.5 -right-1.5 bg-destructive text-destructive-foreground rounded-full w-5 h-5 flex items-center justify-center text-xs hover:bg-destructive/90"
                           >
                             ×
                           </button>
@@ -1085,184 +1112,169 @@ const ProductForm = ({ isEdit: isEditMode }) => {
                         onDragOver={handleDragOver}
                         onDrop={(e) => handleDrop(e, index, "new")}
                         onDragEnd={handleDragEnd}
+                        className="relative w-[150px] h-[150px] rounded-lg overflow-hidden bg-muted/50 shadow-sm cursor-move"
                         style={{
-                          width: "150px",
-                          height: "150px",
-                          marginTop: "5px",
-                          backgroundImage: `url(${image})`,
-                          backgroundSize: "contain",
-                          backgroundPosition: "center",
-                          borderRadius: "5px",
-                          position: "relative",
-                          backgroundRepeat: "no-repeat",
-                          cursor: "move",
                           opacity: draggedIndex === index && dragSource === "new" ? 0.5 : 1,
-                          transition: "opacity 0.2s",
-                          border: draggedIndex === index && dragSource === "new" ? "2px dashed #ccc" : "none",
+                          outline: draggedIndex === index && dragSource === "new" ? "2px dashed hsl(var(--muted-foreground))" : "none",
                         }}
                       >
-                         <button
-                           onClick={(e) => {
-                             e.stopPropagation();
-                             handleRemoveImages(index);
-                           }}
-                           type="button"
-                          style={{
-                            position: "absolute",
-                            top: "-5px",
-                            right: "-5px",
-                            background: "red",
-                            color: "white",
-                            border: "none",
-                            borderRadius: "50%",
-                            width: "20px",
-                            height: "20px",
-                            cursor: "pointer",
+                        <img
+                          src={image}
+                          alt={`New ${index}`}
+                          className="w-full h-full object-contain"
+                        />
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleRemoveImages(index);
                           }}
+                          className="absolute -top-1.5 -right-1.5 bg-destructive text-destructive-foreground rounded-full w-5 h-5 flex items-center justify-center text-xs hover:bg-destructive/90"
                         >
                           ×
                         </button>
                       </div>
                     ))}
+                    <Label
+                      htmlFor="multi-image-upload"
+                      className="w-[150px] h-[150px] rounded-lg border-2 border-dashed border-muted-foreground/30 flex flex-col items-center justify-center gap-1 text-muted-foreground hover:border-muted-foreground/50 transition-colors cursor-pointer"
+                    >
+                      <Plus className="size-6" />
+                      <p className="text-xs">Add more</p>
+                    </Label>
                   </div>
-                </>
+                </div>
               ) : (
-                <Typography
-                  variant="body2"
-                  sx={{
-                    position: "absolute",
-                    top: "50%",
-                    left: "50%",
-                    transform: "translate(-50%, -50%)",
-                  }}
-                >
-                  Click to upload images
-                </Typography>
+                <div className="min-h-[150px] rounded-lg border-2 border-dashed border-muted-foreground/30 flex flex-col items-center justify-center gap-2 text-muted-foreground hover:border-muted-foreground/50 transition-colors">
+                  <Image className="size-8" />
+                  <p className="text-sm">Click to upload images</p>
+                </div>
               )}
-            </label>
+            </Label>
             {errors.images && (
-              <FormHelperText error>{errors.images}</FormHelperText>
+              <p className="text-xs text-destructive">{errors.images}</p>
             )}
-          </Box>
-        </div>
+          </CardContent>
+        </Card>
 
-        <div className={"shadow rounded-lg p-3 mt-3"}>
-          <Box border={1} p={2} borderRadius={2}>
-            <div className="flex flex-col items-center">
-              <Typography variant="h6" align="center">
-                Product Has Variant?
-              </Typography>
-              <Switch checked={hasVariant} onChange={handleToggle} />
+        <Card className="shadow-md border-0">
+          <CardHeader>
+            <CardTitle>Product Variants</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex flex-col items-center gap-2">
+              <Label>Product Has Variant?</Label>
+              <Switch checked={hasVariant} onCheckedChange={handleToggle} />
             </div>
 
             {hasVariant && (
               <>
-                <Typography
-                  variant="h6"
-                  align="center"
-                  color="error"
-                  fontWeight={400}
-                  sx={{ mb: 1 }}
-                >
+                <p className="text-center text-sm text-destructive">
                   Product Variant (Insert the Base Variant First)
-                </Typography>
+                </p>
 
-                <Box sx={{ overflowX: "auto" }}>
-                  <Table sx={{ minWidth: 600 }}>
-                    <TableHead>
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
                       <TableRow>
-                        <TableCell>Attributes</TableCell>
-                        <TableCell>Stock *</TableCell>
-                        <TableCell>Price *</TableCell>
-                        <TableCell>Disc. Price *</TableCell>
-                        <TableCell>Action</TableCell>
+                        <TableHead>Attributes</TableHead>
+                        <TableHead className="w-24">Stock *</TableHead>
+                        <TableHead className="w-24">Price *</TableHead>
+                        <TableHead className="w-28">Disc. Price</TableHead>
+                        <TableHead className="w-16">Action</TableHead>
                       </TableRow>
-                    </TableHead>
+                    </TableHeader>
                     <TableBody>
                       {variants.map((variant, index) => (
                         <TableRow key={index}>
                           <TableCell>
-                            {variant.attributes.map((attr, attrIndex) => (
-                              <Box
-                                key={attrIndex}
-                                display="flex"
-                                alignItems="center"
-                                gap={1}
-                                mb={1}
-                              >
-                                <TextField
-                                  select
-                                  label="Option"
-                                  value={attr.option}
-                                  onChange={(e) => {
-                                    const updatedVariants = [...variants];
-                                    updatedVariants[index].attributes[
-                                      attrIndex
-                                    ].option = e.target.value;
-                                    updatedVariants[index].attributes[
-                                      attrIndex
-                                    ].value = "";
-                                    setVariants(updatedVariants);
-                                  }}
-                                  sx={{ width: "120px" }}
+                            <div className="space-y-2">
+                              {variant.attributes.map((attr, attrIndex) => (
+                                <div
+                                  key={attrIndex}
+                                  className="flex items-center gap-1.5"
                                 >
-                                  {productOptions.map((option) => (
-                                    <MenuItem
-                                      key={option._id}
-                                      value={option._id}
-                                    >
-                                      {option.name}
-                                    </MenuItem>
-                                  ))}
-                                </TextField>
-                                <TextField
-                                  select
-                                  label="Value"
-                                  value={attr.value}
-                                  onChange={(e) => {
-                                    const updatedVariants = [...variants];
-                                    updatedVariants[index].attributes[
-                                      attrIndex
-                                    ].value = e.target.value;
-                                    setVariants(updatedVariants);
-                                  }}
-                                  sx={{ width: "120px" }}
-                                  disabled={!attr.option}
-                                >
-                                  {attr.option &&
-                                    productOptions
-                                      .find((o) => o._id === attr.option)
-                                      ?.values?.map((val) => (
-                                        <MenuItem key={val} value={val}>
-                                          {val}
-                                        </MenuItem>
+                                  <Select
+                                    value={attr.option}
+                                    onValueChange={(value) => {
+                                      const updatedVariants = [...variants];
+                                      updatedVariants[index].attributes[
+                                        attrIndex
+                                      ].option = value;
+                                      updatedVariants[index].attributes[
+                                        attrIndex
+                                      ].value = "";
+                                      setVariants(updatedVariants);
+                                    }}
+                                  >
+                                    <SelectTrigger className="w-[120px]">
+                                      <SelectValue placeholder="Option" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      {productOptions.map((option) => (
+                                        <SelectItem
+                                          key={option._id}
+                                          value={option._id}
+                                        >
+                                          {option.name}
+                                        </SelectItem>
                                       ))}
-                                </TextField>
-                                <IconButton
-                                  color="error"
-                                  size="small"
-                                  onClick={() =>
-                                    handleRemoveAttribute(index, attrIndex)
-                                  }
-                                >
-                                  <DeleteIcon />
-                                </IconButton>
-                              </Box>
-                            ))}
-                            <Button
-                              variant="outlined"
-                              size="small"
-                              onClick={() => handleAddAttribute(index)}
-                            >
-                              + Add Attribute
-                            </Button>
+                                    </SelectContent>
+                                  </Select>
+                                  <Select
+                                    value={attr.value}
+                                    onValueChange={(value) => {
+                                      const updatedVariants = [...variants];
+                                      updatedVariants[index].attributes[
+                                        attrIndex
+                                      ].value = value;
+                                      setVariants(updatedVariants);
+                                    }}
+                                    disabled={!attr.option}
+                                  >
+                                    <SelectTrigger className="w-[120px]">
+                                      <SelectValue placeholder="Value" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      {attr.option &&
+                                        productOptions
+                                          .find((o) => o._id === attr.option)
+                                          ?.values?.map((val) => (
+                                            <SelectItem key={val} value={val}>
+                                              {val}
+                                            </SelectItem>
+                                          ))}
+                                    </SelectContent>
+                                  </Select>
+                                  <Button
+                                    variant="ghost"
+                                    size="icon-xs"
+                                    type="button"
+                                    onClick={() =>
+                                      handleRemoveAttribute(index, attrIndex)
+                                    }
+                                    className="text-destructive hover:text-destructive"
+                                  >
+                                    <Trash2 className="size-3.5" />
+                                  </Button>
+                                </div>
+                              ))}
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                type="button"
+                                onClick={() => handleAddAttribute(index)}
+                              >
+                                <Plus className="size-3 mr-1" />
+                                Add Attribute
+                              </Button>
+                            </div>
                           </TableCell>
                           <TableCell>
-                            <TextField
+                            <Input
                               type="number"
-                              fullWidth
                               value={variant.stock}
-                              required={true}
+                              required
                               onChange={(e) => {
                                 const value = e.target.value;
                                 if (value >= 0 || value === "") {
@@ -1271,14 +1283,14 @@ const ProductForm = ({ isEdit: isEditMode }) => {
                                   setVariants(updatedVariants);
                                 }
                               }}
+                              className="w-20"
                             />
                           </TableCell>
                           <TableCell>
-                            <TextField
+                            <Input
                               type="number"
-                              fullWidth
                               value={variant.price}
-                              required={true}
+                              required
                               onChange={(e) => {
                                 const value = e.target.value;
                                 if (value >= 0 || value === "") {
@@ -1287,12 +1299,12 @@ const ProductForm = ({ isEdit: isEditMode }) => {
                                   setVariants(updatedVariants);
                                 }
                               }}
+                              className="w-20"
                             />
                           </TableCell>
                           <TableCell>
-                            <TextField
+                            <Input
                               type="number"
-                              fullWidth
                               value={variant.discount}
                               onChange={(e) => {
                                 const value = e.target.value;
@@ -1302,127 +1314,115 @@ const ProductForm = ({ isEdit: isEditMode }) => {
                                   setVariants(updatedVariants);
                                 }
                               }}
+                              className="w-20"
                             />
                           </TableCell>
                           <TableCell>
                             <Button
-                              color="error"
-                              fullWidth
+                              variant="ghost"
+                              size="icon-xs"
+                              type="button"
                               onClick={() => handleRemoveVariant(index)}
+                              className="text-destructive hover:text-destructive"
                             >
-                              <DeleteIcon />
+                              <Trash2 className="size-3.5" />
                             </Button>
                           </TableCell>
                         </TableRow>
                       ))}
                     </TableBody>
                   </Table>
-                </Box>
-                <Box display="flex" justifyContent="center" mt={2}>
+                </div>
+
+                <div className="flex justify-center">
                   <Button
-                    variant="contained"
-                    color="primary"
+                    variant="outline"
+                    type="button"
                     onClick={handleAddVariant}
                   >
-                    + Add Another Variant
+                    <Plus className="size-4 mr-1" />
+                    Add Another Variant
                   </Button>
-                </Box>
+                </div>
               </>
             )}
-          </Box>
-        </div>
+          </CardContent>
+        </Card>
 
-        <div className={"shadow rounded-lg p-3 mt-3"}>
-          <h1>
-            Product SEO Information{" "}
-            <span className={"text-red-500"}>(Optional)</span>
-          </h1>
-          <div className={"grid grid-cols-2 gap-4"}>
-            <TextField
-              label="Meta Title"
-              fullWidth
-              value={metaTitle}
-              onChange={(e) => setMetaTitle(e.target.value)}
-              margin="normal"
-            />
-            <Box mb={2}>
-              <Box
-                display="flex"
-                flexDirection="column"
-                gap={1}
-                margin="normal"
-              >
-                <TextField
-                  label="Meta Keywords"
-                  fullWidth
+        <Card className="shadow-md border-0">
+          <CardHeader>
+            <CardTitle>
+              Product SEO Information{" "}
+              <span className="text-muted-foreground font-normal text-sm">
+                (Optional)
+              </span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="metaTitle">Meta Title</Label>
+                <Input
+                  id="metaTitle"
+                  value={metaTitle}
+                  onChange={(e) => setMetaTitle(e.target.value)}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Meta Keywords</Label>
+                <Input
                   placeholder="Type a keyword and press Enter"
                   value={keywordInput}
                   onChange={(e) => setKeywordInput(e.target.value)}
                   onKeyDown={handleAddKeyword}
-                  variant="outlined"
-                  margin="normal"
-                  InputProps={{
-                    startAdornment: metaKeywords.length > 0 && (
-                      <InputAdornment position="start">
-                        <Box gap={1}>
-                          {metaKeywords.map((keyword, index) => (
-                            <Chip
-                              key={index}
-                              label={keyword}
-                              onDelete={() => handleDeleteKeyword(keyword)}
-                              size="small"
-                              style={{
-                                margin: "2px",
-                                backgroundColor: "#e0e0e0",
-                              }}
-                            />
-                          ))}
-                        </Box>
-                      </InputAdornment>
-                    ),
-                  }}
                 />
-              </Box>
-            </Box>
-          </div>
-          <TextField
-            label="Meta Description"
-            fullWidth
-            multiline
-            rows={4}
-            value={metaDescription}
-            onChange={(e) => setMetaDescription(e.target.value)}
-            margin="none"
-            InputProps={{ style: { resize: "vertical", overflow: "auto" } }}
-          />
-        </div>
+                {metaKeywords.length > 0 && (
+                  <div className="flex flex-wrap gap-1.5 mt-2">
+                    {metaKeywords.map((keyword, index) => (
+                      <Badge
+                        key={index}
+                        variant="secondary"
+                        className="gap-1 pr-1"
+                      >
+                        {keyword}
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteKeyword(keyword)}
+                          className="ml-1 hover:text-destructive"
+                        >
+                          <X className="size-3" />
+                        </button>
+                      </Badge>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="metaDescription">Meta Description</Label>
+              <textarea
+                id="metaDescription"
+                value={metaDescription}
+                onChange={(e) => setMetaDescription(e.target.value)}
+                rows={4}
+                className="flex w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 resize-y"
+              />
+            </div>
+          </CardContent>
+        </Card>
 
-        <div className={"flex justify-center items-center m-8"}>
-          <Button
-            variant="contained"
-            color="primary"
-            type="submit"
-            fullWidth
-            className="mt-4"
-          >
-            {isEditMode ? "Update Product" : "Add Product"}
+        <div className="flex justify-center">
+          <Button type="submit" size="lg" disabled={submitting} className="min-w-[200px]">
+            {submitting ? (
+              <>
+                <Loader2 className="size-4 mr-2 animate-spin" />
+                {isEditMode ? "Updating..." : "Adding..."}
+              </>
+            ) : (
+              <>{isEditMode ? "Update Product" : "Add Product"}</>
+            )}
           </Button>
         </div>
-
-        <Snackbar
-          open={snackbarOpen}
-          autoHideDuration={6000}
-          onClose={handleSnackbarClose}
-          anchorOrigin={{ vertical: "top", horizontal: "right" }}
-        >
-          <Alert
-            onClose={handleSnackbarClose}
-            severity={snackbarSeverity}
-            sx={{ width: "100%" }}
-          >
-            {snackbarMessage}
-          </Alert>
-        </Snackbar>
       </form>
     </div>
   );

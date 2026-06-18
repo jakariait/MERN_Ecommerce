@@ -1,19 +1,28 @@
 import React, { useEffect, useState } from "react";
 import useFlagStore from "../../store/useFlagStore";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
-  Button,
-  Box,
-  Typography,
-  TextField,
-  Checkbox,
-  FormControlLabel,
-  Snackbar,
+  Card,
+  CardHeader,
+  CardTitle,
+  CardContent,
+} from "@/components/ui/card";
+import {
   Dialog,
-  DialogActions,
   DialogContent,
+  DialogHeader,
   DialogTitle,
-} from "@mui/material";
-import Skeleton from "react-loading-skeleton";
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Separator } from "@/components/ui/separator";
+import { toast } from "sonner";
+import { GripVertical, Plus, Pencil, Trash2, Loader2 } from "lucide-react";
 import {
   DndContext,
   closestCenter,
@@ -31,9 +40,7 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 
-import { DragIndicator as DragIndicatorIcon } from "@mui/icons-material";
-
-const SortableFlag = ({ flag }) => {
+const SortableFlag = ({ flag, onUpdate, onDelete }) => {
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({ id: flag._id });
 
@@ -42,175 +49,176 @@ const SortableFlag = ({ flag }) => {
     transition,
   };
 
-  const { updateFlag, deleteFlag, fetchFlags } = useFlagStore();
+  const [editing, setEditing] = useState(false);
+  const [updateFlagName, setUpdateFlagName] = useState(flag.name);
+  const [updateIsActive, setUpdateIsActive] = useState(flag.isActive);
+  const [updating, setUpdating] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
-  const [updateFlagName, setUpdateFlagName] = useState("");
-  const [updateIsActive, setUpdateIsActive] = useState(true);
-  const [selectedFlagId, setSelectedFlagId] = useState(null);
-  const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
-  const [flagToDelete, setFlagToDelete] = useState(null);
-  const [openSnackbar, setOpenSnackbar] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState("");
-  const [snackbarSeverity, setSnackbarSeverity] = useState("success");
-
-  const showSnackbar = (message, severity) => {
-    setSnackbarMessage(message);
-    setSnackbarSeverity(severity);
-    setOpenSnackbar(true);
+  const handleStartEdit = () => {
+    setUpdateFlagName(flag.name);
+    setUpdateIsActive(flag.isActive);
+    setEditing(true);
   };
 
-  const handleSelectFlagForUpdate = (id, name, isActive) => {
-    setSelectedFlagId(id);
-    setUpdateFlagName(name);
-    setUpdateIsActive(isActive);
-  };
-
-  const handleUpdateFlag = async () => {
-    if (!selectedFlagId || !updateFlagName) return;
+  const handleSave = async () => {
+    if (!updateFlagName.trim()) return;
+    setUpdating(true);
     try {
-      await updateFlag(selectedFlagId, {
+      await onUpdate(flag._id, {
         name: updateFlagName,
         isActive: updateIsActive,
       });
-      setUpdateFlagName("");
-      setUpdateIsActive(true);
-      setSelectedFlagId(null);
-      fetchFlags();
-      showSnackbar("Flag updated successfully!", "success");
-    } catch (err) {
-      showSnackbar("Failed to update flag", "error");
+      setEditing(false);
+      toast.success("Flag updated successfully!");
+    } catch {
+      toast.error("Failed to update flag");
+    } finally {
+      setUpdating(false);
     }
   };
 
-  const openDeleteConfirmation = (id) => {
-    setFlagToDelete(id);
-    setOpenDeleteDialog(true);
-  };
-
-  const closeDeleteConfirmation = () => {
-    setOpenDeleteDialog(false);
-    setFlagToDelete(null);
-  };
-
-  const handleDeleteFlag = async () => {
+  const handleDelete = async () => {
     try {
-      await deleteFlag(flagToDelete);
-      setOpenDeleteDialog(false);
-      setFlagToDelete(null);
-      fetchFlags();
-      showSnackbar("Flag deleted successfully!", "success");
-    } catch (err) {
-      showSnackbar("Failed to delete flag", "error");
-      setOpenDeleteDialog(false);
+      await onDelete(flag._id);
+      setDeleteDialogOpen(false);
+      toast.success("Flag deleted successfully!");
+    } catch {
+      toast.error("Failed to delete flag");
     }
   };
 
   return (
     <div ref={setNodeRef} style={style}>
-      <Box className="flex justify-between bg-gray-100 items-center p-4 rounded-md">
-        <Box className="flex items-center">
-          <div
-            {...attributes}
-            {...listeners}
-            style={{ cursor: "grab", touchAction: "none" }}
-          >
-            <DragIndicatorIcon />
-          </div>
-          <Typography variant="body1" className="font-medium ml-2">
-            {flag.name} ({flag.isActive ? "Active" : "Inactive"})
-          </Typography>
-        </Box>
-        <Box className="flex items-center justify-center lg:gap-10">
-          <Button
-            variant="outlined"
-            color="primary"
-            onClick={() =>
-              handleSelectFlagForUpdate(flag._id, flag.name, flag.isActive)
-            }
-            className="mr-2"
-          >
-            Update
-          </Button>
-          <Button
-            variant="outlined"
-            color="error"
-            onClick={() => openDeleteConfirmation(flag._id)}
-          >
-            Delete
-          </Button>
-        </Box>
-      </Box>
-      {selectedFlagId === flag._id && (
-        <Box className="my-4">
-          <TextField
-            label="Update Flag Name"
-            variant="outlined"
-            value={updateFlagName}
-            onChange={(e) => setUpdateFlagName(e.target.value)}
-            fullWidth
-            className="rounded-md"
-          />
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={updateIsActive}
-                onChange={(e) => setUpdateIsActive(e.target.checked)}
-                color="primary"
-              />
-            }
-            label="Active"
-            className="mt-2"
-          />
-          <Button
-            variant="contained"
-            color="secondary"
-            onClick={handleUpdateFlag}
-            className="mt-2"
-          >
-            Update Flag
-          </Button>
-        </Box>
-      )}
-      <Dialog open={openDeleteDialog} onClose={closeDeleteConfirmation}>
-        <DialogTitle>Delete Flag</DialogTitle>
+      <Card className={editing ? "border-primary/50" : ""}>
+        <CardContent className="p-2">
+          {editing ? (
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <div
+                  {...attributes}
+                  {...listeners}
+                  className="cursor-grab touch-none text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  <GripVertical className="size-4" />
+                </div>
+                <Input
+                  value={updateFlagName}
+                  onChange={(e) => setUpdateFlagName(e.target.value)}
+                  placeholder="Flag name"
+                  className="flex-1 h-8"
+                />
+              </div>
+              <div className="flex items-center gap-2">
+                <Checkbox
+                  id={`flag-active-${flag._id}`}
+                  checked={updateIsActive}
+                  onCheckedChange={(checked) => setUpdateIsActive(!!checked)}
+                />
+                <Label htmlFor={`flag-active-${flag._id}`}>Active</Label>
+              </div>
+              <div className="flex items-center gap-2">
+                <Button size="sm" onClick={handleSave} disabled={updating}>
+                  {updating ? (
+                    <>
+                      <Loader2 className="size-3 mr-1 animate-spin" />
+                      Saving...
+                    </>
+                  ) : (
+                    "Save"
+                  )}
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => setEditing(false)}
+                >
+                  Cancel
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2 min-w-0">
+                <div
+                  {...attributes}
+                  {...listeners}
+                  className="cursor-grab touch-none text-muted-foreground hover:text-foreground transition-colors shrink-0"
+                >
+                  <GripVertical className="size-4" />
+                </div>
+                <span className="text-sm font-medium truncate">{flag.name}</span>
+                <Badge
+                  variant={flag.isActive ? "default" : "secondary"}
+                  className="shrink-0 text-[10px] px-1.5 py-0"
+                >
+                  {flag.isActive ? "Active" : "Inactive"}
+                </Badge>
+              </div>
+              <div className="flex items-center gap-1 shrink-0">
+                <Button
+                  variant="ghost"
+                  size="icon-xs"
+                  onClick={handleStartEdit}
+                >
+                  <Pencil className="size-3.5" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon-xs"
+                  onClick={() => setDeleteDialogOpen(true)}
+                  className="text-destructive hover:text-destructive"
+                >
+                  <Trash2 className="size-3.5" />
+                </Button>
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <DialogContent>
-          <Typography>Are you sure you want to delete this flag?</Typography>
+          <DialogHeader>
+            <DialogTitle>Delete Flag</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete this flag? This action cannot be
+              undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setDeleteDialogOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={handleDelete}>
+              Delete
+            </Button>
+          </DialogFooter>
         </DialogContent>
-        <DialogActions>
-          <Button onClick={closeDeleteConfirmation} color="primary">
-            Cancel
-          </Button>
-          <Button
-            onClick={handleDeleteFlag}
-            color="secondary"
-            variant="contained"
-          >
-            Delete
-          </Button>
-        </DialogActions>
       </Dialog>
-      <Snackbar
-        open={openSnackbar}
-        autoHideDuration={3000}
-        onClose={() => setOpenSnackbar(false)}
-        message={snackbarMessage}
-        severity={snackbarSeverity}
-        anchorOrigin={{ vertical: "top", horizontal: "right" }}
-        sx={{ zIndex: 9999 }}
-      />
     </div>
   );
 };
 
 const FlagsComponent = () => {
-  const { flags, loading, error, fetchFlags, createFlag, updateFlagPositions } =
-    useFlagStore();
+  const {
+    flags,
+    loading,
+    error,
+    fetchFlags,
+    createFlag,
+    updateFlag,
+    deleteFlag,
+    updateFlagPositions,
+  } = useFlagStore();
 
   const [newFlagName, setNewFlagName] = useState("");
-  const [openSnackbar, setOpenSnackbar] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState("");
-  const [snackbarSeverity, setSnackbarSeverity] = useState("success");
   const [items, setItems] = useState([]);
+  const [creating, setCreating] = useState(false);
+  const [savingOrder, setSavingOrder] = useState(false);
 
   useEffect(() => {
     fetchFlags();
@@ -229,7 +237,6 @@ const FlagsComponent = () => {
 
   const handleDragEnd = (event) => {
     const { active, over } = event;
-
     if (active.id !== over.id) {
       setItems((items) => {
         const oldIndex = items.findIndex((item) => item._id === active.id);
@@ -240,118 +247,152 @@ const FlagsComponent = () => {
   };
 
   const handleCreateFlag = async () => {
-    if (!newFlagName) return;
+    if (!newFlagName.trim()) return;
+    setCreating(true);
     try {
-      await createFlag({ name: newFlagName, isActive: true });
+      await createFlag({ name: newFlagName.trim(), isActive: true });
       setNewFlagName("");
       fetchFlags();
-      showSnackbar("Flag created successfully!", "success");
-    } catch (err) {
-      showSnackbar("Failed to create flag", "error");
+      toast.success("Flag created successfully!");
+    } catch {
+      toast.error("Failed to create flag");
+    } finally {
+      setCreating(false);
     }
   };
 
   const handleSaveChanges = async () => {
+    setSavingOrder(true);
     try {
       const flagIds = items.map((item) => item._id);
       await updateFlagPositions(flagIds);
-      fetchFlags(); // Re-fetch flags to update the UI with the new order
-      showSnackbar("Flag order updated successfully!", "success");
-    } catch (error) {
-      showSnackbar("Failed to update flag order.", "error");
+      fetchFlags();
+      toast.success("Flag order updated successfully!");
+    } catch {
+      toast.error("Failed to update flag order.");
+    } finally {
+      setSavingOrder(false);
     }
   };
 
-  const showSnackbar = (message, severity) => {
-    setSnackbarMessage(message);
-    setSnackbarSeverity(severity);
-    setOpenSnackbar(true);
-  };
-
   return (
-    <Box className="p-4 shadow rounded-lg">
-      <h1 className="border-l-4 primaryBorderColor primaryTextColor mb-6 pl-2 text-lg font-semibold ">
-        Flags Management
-      </h1>
-      {loading && items.length === 0 ? (
-        <>
-          <div className={"grid grid-cols-2 gap-10"}>
-            <Skeleton height={50} width={"100%"} />
-            <Skeleton height={50} width={"100%"} />
-          </div>
-          <div className={"grid grid-cols-2 gap-10 mt-4 mb-4"}>
-            <Skeleton height={50} width={"100%"} />
-            <Skeleton height={50} width={"100%"} />
-          </div>
-          <Skeleton height={100} width={"100%"} className={"mb-4"} />
-          <Skeleton height={100} width={"100%"} className={"mb-4"} />
-          <Skeleton height={100} width={"100%"} className={"mb-4"} />
-          <Skeleton height={100} width={"100%"} className={"mb-4"} />
-        </>
-      ) : (
-        <>
-          {error && <Typography color="error">Error: {error}</Typography>}
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-2xl font-bold tracking-tight">
+          Flags Management
+        </h1>
+        <p className="text-sm text-muted-foreground mt-1">
+          Create, edit, reorder and manage product flags.
+        </p>
+      </div>
 
-          <Box className="my-4 grid grid-cols-2 gap-20 space-x-2">
-            <TextField
-              label="Enter Flag Name"
-              variant="outlined"
+      <Separator />
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Create New Flag</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center gap-3">
+            <Input
               value={newFlagName}
               onChange={(e) => setNewFlagName(e.target.value)}
-              fullWidth
-              className="rounded-md"
+              placeholder="Enter flag name"
+              onKeyDown={(e) => e.key === "Enter" && handleCreateFlag()}
+              className="max-w-sm"
             />
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={handleCreateFlag}
-              className="ml-2"
-            >
-              Create Flag
+            <Button onClick={handleCreateFlag} disabled={creating}>
+              {creating ? (
+                <>
+                  <Loader2 className="size-4 mr-1 animate-spin" />
+                  Creating...
+                </>
+              ) : (
+                <>
+                  <Plus className="size-4 mr-1" />
+                  Create Flag
+                </>
+              )}
             </Button>
-          </Box>
+          </div>
+        </CardContent>
+      </Card>
 
-          <DndContext
-            sensors={sensors}
-            collisionDetection={closestCenter}
-            onDragEnd={handleDragEnd}
-          >
-            <SortableContext
-              items={items.map((i) => i._id)}
-              strategy={verticalListSortingStrategy}
-            >
-              <Box className="space-y-4">
-                {items.map((flag) => (
-                  <SortableFlag key={flag._id} flag={flag} />
-                ))}
-              </Box>
-            </SortableContext>
-          </DndContext>
-
-          <div className={"mt-4 flex items-center justify-center gap-10"}>
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <CardTitle>All Flags</CardTitle>
             {items.length > 0 && (
               <Button
-                variant="contained"
-                color="secondary"
+                variant="outline"
+                size="sm"
                 onClick={handleSaveChanges}
+                disabled={savingOrder}
               >
-                Save Order
+                {savingOrder ? (
+                  <>
+                    <Loader2 className="size-3 mr-1 animate-spin" />
+                    Saving...
+                  </>
+                ) : (
+                  "Save Order"
+                )}
               </Button>
             )}
           </div>
+        </CardHeader>
+        <CardContent>
+          {loading && items.length === 0 ? (
+            <div className="space-y-3">
+              {[...Array(5)].map((_, i) => (
+                <div key={i} className="flex items-center gap-3">
+                  <Skeleton className="size-5 rounded" />
+                  <Skeleton className="h-5 flex-1" />
+                  <Skeleton className="h-8 w-20" />
+                  <Skeleton className="h-8 w-20" />
+                </div>
+              ))}
+            </div>
+          ) : (
+            <>
+              {error && (
+                <p className="text-sm text-destructive mb-4">
+                  Error: {error}
+                </p>
+              )}
 
-          <Snackbar
-            open={openSnackbar}
-            autoHideDuration={3000}
-            onClose={() => setOpenSnackbar(false)}
-            message={snackbarMessage}
-            severity={snackbarSeverity}
-            anchorOrigin={{ vertical: "top", horizontal: "right" }}
-            sx={{ zIndex: 9999 }}
-          />
-        </>
-      )}
-    </Box>
+              <DndContext
+                sensors={sensors}
+                collisionDetection={closestCenter}
+                onDragEnd={handleDragEnd}
+              >
+                <SortableContext
+                  items={items.map((i) => i._id)}
+                  strategy={verticalListSortingStrategy}
+                >
+                  <div className="space-y-1.5">
+                    {items.map((flag) => (
+                      <SortableFlag
+                        key={flag._id}
+                        flag={flag}
+                        onUpdate={updateFlag}
+                        onDelete={deleteFlag}
+                      />
+                    ))}
+                  </div>
+                </SortableContext>
+              </DndContext>
+
+              {items.length === 0 && !loading && (
+                <p className="text-sm text-muted-foreground text-center py-8">
+                  No flags created yet.
+                </p>
+              )}
+            </>
+          )}
+        </CardContent>
+      </Card>
+    </div>
   );
 };
 

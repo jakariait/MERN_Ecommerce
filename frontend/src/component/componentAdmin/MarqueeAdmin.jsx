@@ -1,20 +1,25 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import Snackbar from "@mui/material/Snackbar";
-import Alert from "@mui/material/Alert";
 import useAuthAdminStore from "../../store/AuthAdminStore.js";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardContent,
+} from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import { toast } from "sonner";
+import { Plus, X, Loader2, MessagesSquare } from "lucide-react";
 
 const MarqueeAdmin = () => {
   const { token } = useAuthAdminStore();
   const [messages, setMessages] = useState([""]);
   const [isActive, setIsActive] = useState(true);
-  const [loading, setLoading] = useState(false);
-
-  const [snackbar, setSnackbar] = useState({
-    open: false,
-    message: "",
-    severity: "success",
-  });
+  const [saving, setSaving] = useState(false);
 
   const API_URL = `${import.meta.env.VITE_API_URL}/marquee`;
 
@@ -22,9 +27,7 @@ const MarqueeAdmin = () => {
     const fetchMarquee = async () => {
       try {
         const res = await axios.get(API_URL, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
         });
         if (res.data) {
           setMessages(res.data.messages || [""]);
@@ -52,7 +55,7 @@ const MarqueeAdmin = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
+    setSaving(true);
     try {
       await axios.patch(
         API_URL,
@@ -64,91 +67,98 @@ const MarqueeAdmin = () => {
           },
         },
       );
-      setSnackbar({
-        open: true,
-        message: "Marquee updated successfully!",
-        severity: "success",
-      });
-    } catch (err) {
-      setSnackbar({
-        open: true,
-        message: "Failed to update marquee.",
-        severity: "error",
-      });
+      toast.success("Marquee updated successfully!");
+    } catch {
+      toast.error("Failed to update marquee.");
     } finally {
-      setLoading(false);
+      setSaving(false);
     }
   };
 
   return (
-    <div className="mx-auto p-6 bg-white rounded shadow">
-      <h1 className="border-l-4 primaryBorderColor primaryTextColor mb-6 pl-2 text-lg font-semibold">
-        Update Marquee Messages
-      </h1>
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-2xl font-bold tracking-tight">
+          Marquee Messages
+        </h1>
+        <p className="text-sm text-muted-foreground mt-1">
+          Manage scrolling announcement messages.
+        </p>
+      </div>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        {messages.map((msg, index) => (
-          <div key={index} className="flex gap-2">
-            <input
-              type="text"
-              value={msg}
-              onChange={(e) => handleInputChange(index, e.target.value)}
-              className="flex-1 bg-gray-100 rounded px-3 py-2"
-              placeholder={`Message ${index + 1}`}
-              required
-            />
-            <button
+      <Separator />
+
+      <form onSubmit={handleSubmit}>
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <MessagesSquare className="size-5" />
+              Messages
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {messages.map((msg, index) => (
+              <div key={index} className="flex items-center gap-2">
+                <Input
+                  value={msg}
+                  onChange={(e) => handleInputChange(index, e.target.value)}
+                  placeholder={`Message ${index + 1}`}
+                  required
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => removeMessage(index)}
+                  className="text-destructive hover:text-destructive shrink-0"
+                  disabled={messages.length === 1}
+                >
+                  <X className="size-4" />
+                </Button>
+              </div>
+            ))}
+
+            <Button
               type="button"
-              onClick={() => removeMessage(index)}
-              className="text-red-500 cursor-pointer"
+              variant="outline"
+              size="sm"
+              onClick={addMessage}
             >
-              ✕
-            </button>
-          </div>
-        ))}
+              <Plus className="size-4 mr-1" />
+              Add Message
+            </Button>
+          </CardContent>
+        </Card>
 
-        <button
-          type="button"
-          onClick={addMessage}
-          className="primaryBgColor accentTextColor px-3 py-1 rounded cursor-pointer"
-        >
-          + Add Message
-        </button>
+        <Card className="mt-6">
+          <CardHeader>
+            <CardTitle>Settings</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center gap-2">
+              <Checkbox
+                id="isActive"
+                checked={isActive}
+                onCheckedChange={(checked) => setIsActive(!!checked)}
+              />
+              <Label htmlFor="isActive">Active</Label>
+            </div>
+          </CardContent>
+        </Card>
 
-        <div className="flex items-center gap-2 mt-4">
-          <label className="font-medium">Active:</label>
-          <input
-            type="checkbox"
-            checked={isActive}
-            onChange={() => setIsActive(!isActive)}
-          />
-        </div>
-
-        <div className={"flex justify-center"}>
-          <button
-            type="submit"
-            disabled={loading}
-            className="primaryBgColor accentTextColor px-5 py-2 rounded cursor-pointer"
-          >
-            {loading ? "Saving..." : "Save Changes"}
-          </button>
+        <div className="flex justify-end mt-6">
+          <Button type="submit" size="lg" disabled={saving}>
+            {saving ? (
+              <>
+                <Loader2 className="size-4 mr-1 animate-spin" />
+                Saving...
+              </>
+            ) : (
+              "Save Changes"
+            )}
+          </Button>
         </div>
       </form>
-
-      <Snackbar
-        open={snackbar.open}
-        autoHideDuration={3000}
-        onClose={() => setSnackbar({ ...snackbar, open: false })}
-        anchorOrigin={{ vertical: "top", horizontal: "right" }}
-      >
-        <Alert
-          onClose={() => setSnackbar({ ...snackbar, open: false })}
-          severity={snackbar.severity}
-          sx={{ width: "100%" }}
-        >
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
     </div>
   );
 };

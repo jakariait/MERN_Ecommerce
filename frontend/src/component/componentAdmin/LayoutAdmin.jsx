@@ -2,6 +2,7 @@ import React from "react";
 import SidebarMenu from "./SidebarMenu.jsx";
 import Footer from "./footer.jsx";
 import { Toaster } from "@/components/ui/sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
 const LayoutAdmin = ({ children, breadcrumbData }) => {
   return (
@@ -14,7 +15,7 @@ const LayoutAdmin = ({ children, breadcrumbData }) => {
 
       {/* Main Content */}
       <div className="flex-1 lg:ml-65  p-2 lg:p-4">
-        <main>{children}</main>
+        <main><TooltipProvider>{children}</TooltipProvider></main>
       </div>
       <div className="mb-3 lg:ml-65 mr-3">
         <Footer />

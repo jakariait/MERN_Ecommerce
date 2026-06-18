@@ -1,31 +1,45 @@
 import React, { useEffect, useState } from "react";
+import axios from "axios";
+import useAuthAdminStore from "../../store/AuthAdminStore.js";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   Table,
   TableBody,
   TableCell,
-  TableContainer,
   TableHead,
+  TableHeader,
   TableRow,
-  Paper,
-  Chip,
-  CircularProgress,
-  Typography,
-  IconButton,
-  Snackbar,
-  Alert,
+} from "@/components/ui/table";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardContent,
+} from "@/components/ui/card";
+import {
   Dialog,
-  DialogTitle,
   DialogContent,
-  DialogActions,
-  Button,
-  TextField,
-  MenuItem,
-} from "@mui/material";
-import { Edit, Delete, Add } from "@mui/icons-material";
-import axios from "axios";
-import useAuthAdminStore from "../../store/AuthAdminStore.js";
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Separator } from "@/components/ui/separator";
+import { toast } from "sonner";
+import { Plus, Pencil, Trash2, Loader2, Tag } from "lucide-react";
 
 const apiURL = import.meta.env.VITE_API_URL;
+
 const formatDate = (dateStr) => new Date(dateStr).toLocaleDateString();
 
 const defaultCoupon = {
@@ -42,12 +56,7 @@ const CouponTable = () => {
   const { token } = useAuthAdminStore();
   const [coupons, setCoupons] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [snackbar, setSnackbar] = useState({
-    open: false,
-    message: "",
-    severity: "success",
-  });
+  const [saving, setSaving] = useState(false);
 
   const [formOpen, setFormOpen] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
@@ -56,21 +65,14 @@ const CouponTable = () => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [couponToDelete, setCouponToDelete] = useState(null);
 
-  const capitalizeFirst = (str) => str.charAt(0).toUpperCase() + str.slice(1);
-
-  const showSnackbar = (message, severity = "success") => {
-    setSnackbar({ open: true, message, severity });
-  };
-
   const fetchCoupons = async () => {
     try {
       const response = await axios.get(`${apiURL}/getAllCoupons`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setCoupons(response.data.data || []);
-    } catch (err) {
-      showSnackbar("Failed to load coupons.", "error");
-      setError("Failed to load coupons.");
+    } catch {
+      toast.error("Failed to load coupons.");
     } finally {
       setLoading(false);
     }
@@ -93,6 +95,7 @@ const CouponTable = () => {
   };
 
   const saveCoupon = async () => {
+    setSaving(true);
     try {
       const url = isEdit
         ? `${apiURL}/updateCoupon/${formData._id}`
@@ -100,25 +103,17 @@ const CouponTable = () => {
 
       const method = isEdit ? axios.patch : axios.post;
 
-      const response = await method(url, formData, {
+      await method(url, formData, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      if (isEdit) {
-        setCoupons((prev) =>
-          prev.map((c) => (c._id === formData._id ? response.data.data : c)),
-        );
-        showSnackbar("Coupon updated successfully");
-        fetchCoupons(); // 👈 Refetch
-      } else {
-        setCoupons((prev) => [...prev, response.data.data]);
-        showSnackbar("Coupon created successfully");
-        fetchCoupons(); // 👈 Refetch
-      }
-
+      toast.success(isEdit ? "Coupon updated successfully" : "Coupon created successfully");
       setFormOpen(false);
-    } catch (err) {
-      showSnackbar("Failed to save coupon", "error");
+      fetchCoupons();
+    } catch {
+      toast.error("Failed to save coupon");
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -129,243 +124,284 @@ const CouponTable = () => {
 
   const handleDeleteConfirmed = async () => {
     if (!couponToDelete) return;
-
     try {
       await axios.delete(`${apiURL}/deleteCoupon/${couponToDelete._id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      setCoupons(coupons.filter((c) => c._id !== couponToDelete._id));
-      showSnackbar("Coupon deleted successfully.");
-      fetchCoupons(); // 👈 Refetch
-    } catch (err) {
-      showSnackbar("Failed to delete coupon.", "error");
+      toast.success("Coupon deleted successfully.");
+      fetchCoupons();
+    } catch {
+      toast.error("Failed to delete coupon.");
     } finally {
       setDeleteDialogOpen(false);
       setCouponToDelete(null);
     }
   };
 
-  if (loading) return <CircularProgress />;
-  if (error) return <Typography color="error">{error}</Typography>;
+  if (loading) {
+    return (
+      <div className="flex justify-center py-12">
+        <Loader2 className="size-6 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
 
   return (
-    <div className="p-4 flex gap-6 flex-col justify-start shadow rounded-lg">
-      <h1 className="border-l-4 primaryBorderColor primaryTextColor  pl-2 text-lg font-semibold">
-        Coupon Management
-      </h1>
-      <div className="flex items-center justify-center">
-        <Button
-          variant="contained"
-          startIcon={<Add />}
-          sx={{ mt: 2 }}
-          onClick={handleCreate}
-        >
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-2xl font-bold tracking-tight">
+          Coupon Management
+        </h1>
+        <p className="text-sm text-muted-foreground mt-1">
+          {coupons.length} coupons
+        </p>
+      </div>
+
+      <Separator />
+
+      <div className="flex justify-end">
+        <Button onClick={handleCreate}>
+          <Plus className="size-4 mr-1" />
           Create New Coupon
         </Button>
       </div>
 
-      <h1 className="border-l-4 primaryBorderColor primaryTextColor mt-6 pl-2 text-lg font-semibold">
-        All Coupons
-      </h1>
-      <TableContainer component={Paper} sx={{ mt: 4 }}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell align="center">Coupon Code</TableCell>
-              <TableCell align="center">Type</TableCell>
-              <TableCell align="center">Value</TableCell>
-              <TableCell align="center">Minimum Order</TableCell>
-              <TableCell align="center">Start Date</TableCell>
-              <TableCell align="center">End Date</TableCell>
-              <TableCell align="center">Status</TableCell>
-              <TableCell align="center">Actions</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {coupons.map((coupon) => (
-              <TableRow key={coupon._id}>
-                <TableCell align="center">{coupon.code}</TableCell>
-                <TableCell align="center">
-                  {capitalizeFirst(coupon.type)}
-                </TableCell>
-                <TableCell align="center">
-                  {coupon.type === "percentage"
-                    ? `${coupon.value}%`
-                    : `${coupon.value}`}
-                </TableCell>
-                <TableCell align="center">Tk. {coupon.minimumOrder}</TableCell>
-                <TableCell align="center">
-                  {formatDate(coupon.startDate)}
-                </TableCell>
-                <TableCell align="center">
-                  {formatDate(coupon.endDate)}
-                </TableCell>
-                <TableCell align="center">
-                  <Chip
-                    label={capitalizeFirst(coupon.status)}
-                    color={coupon.status === "active" ? "success" : "error"}
-                    size="small"
-                  />
-                </TableCell>
-                <TableCell align="center">
-                  <div className={"flex"}>
-                    <IconButton
-                      onClick={() => handleEdit(coupon)}
-                      color="primary"
-                    >
-                      <Edit />
-                    </IconButton>
-                    <IconButton
-                      onClick={() => confirmDelete(coupon)}
-                      color="error"
-                    >
-                      <Delete />
-                    </IconButton>
-                  </div>
-                </TableCell>
+      <Card>
+        <CardContent className="p-0">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="text-center">Code</TableHead>
+                <TableHead className="text-center">Type</TableHead>
+                <TableHead className="text-center">Value</TableHead>
+                <TableHead className="text-center">Min. Order</TableHead>
+                <TableHead className="text-center">Start Date</TableHead>
+                <TableHead className="text-center">End Date</TableHead>
+                <TableHead className="text-center">Status</TableHead>
+                <TableHead className="text-center w-[100px]">Actions</TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+            </TableHeader>
+            <TableBody>
+              {coupons.length === 0 ? (
+                <TableRow>
+                  <TableCell
+                    colSpan={8}
+                    className="text-center text-muted-foreground py-8"
+                  >
+                    No coupons found.
+                  </TableCell>
+                </TableRow>
+              ) : (
+                coupons.map((coupon) => (
+                  <TableRow key={coupon._id}>
+                    <TableCell className="text-center font-medium">
+                      {coupon.code}
+                    </TableCell>
+                    <TableCell className="text-center">
+                      {coupon.type.charAt(0).toUpperCase() + coupon.type.slice(1)}
+                    </TableCell>
+                    <TableCell className="text-center">
+                      {coupon.type === "percentage"
+                        ? `${coupon.value}%`
+                        : `Tk. ${coupon.value}`}
+                    </TableCell>
+                    <TableCell className="text-center">
+                      Tk. {coupon.minimumOrder}
+                    </TableCell>
+                    <TableCell className="text-center">
+                      {formatDate(coupon.startDate)}
+                    </TableCell>
+                    <TableCell className="text-center">
+                      {formatDate(coupon.endDate)}
+                    </TableCell>
+                    <TableCell className="text-center">
+                      <Badge
+                        variant={
+                          coupon.status === "active" ? "default" : "secondary"
+                        }
+                      >
+                        {coupon.status.charAt(0).toUpperCase() +
+                          coupon.status.slice(1)}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-center">
+                      <div className="flex items-center justify-center gap-1">
+                        <Button
+                          variant="ghost"
+                          size="icon-xs"
+                          onClick={() => handleEdit(coupon)}
+                        >
+                          <Pencil className="size-3.5" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon-xs"
+                          onClick={() => confirmDelete(coupon)}
+                          className="text-destructive hover:text-destructive"
+                        >
+                          <Trash2 className="size-3.5" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
 
-      {/* Form Dialog */}
-      <Dialog
-        open={formOpen}
-        onClose={() => setFormOpen(false)}
-        maxWidth="sm"
-        fullWidth
-      >
-        <DialogTitle>{isEdit ? "Update Coupon" : "Create Coupon"}</DialogTitle>
-        <DialogContent>
-          <TextField
-            label="Coupon Code"
-            fullWidth
-            value={formData.code}
-            onChange={(e) => setFormData({ ...formData, code: e.target.value })}
-            sx={{ mt: 2 }}
-            required
-          />
-          <TextField
-            label="Type"
-            fullWidth
-            select
-            value={formData.type}
-            onChange={(e) => setFormData({ ...formData, type: e.target.value })}
-            sx={{ mt: 2 }}
-            required
-          >
-            <MenuItem value="percentage">Percentage</MenuItem>
-            <MenuItem value="amount">Amount</MenuItem>
-          </TextField>
-          <TextField
-            label="Value"
-            type="number"
-            fullWidth
-            value={formData.value}
-            onChange={(e) =>
-              setFormData({ ...formData, value: e.target.value })
-            }
-            sx={{ mt: 2 }}
-            required
-          />
-          <TextField
-            label="Minimum Order"
-            type="number"
-            fullWidth
-            value={formData.minimumOrder}
-            onChange={(e) =>
-              setFormData({ ...formData, minimumOrder: e.target.value })
-            }
-            sx={{ mt: 2 }}
-            required
-          />
-          <TextField
-            label="Start Date"
-            type="date"
-            fullWidth
-            InputLabelProps={{ shrink: true }}
-            value={formData.startDate?.slice(0, 10)}
-            onChange={(e) =>
-              setFormData({ ...formData, startDate: e.target.value })
-            }
-            sx={{ mt: 2 }}
-            required
-          />
-          <TextField
-            label="End Date"
-            type="date"
-            fullWidth
-            InputLabelProps={{ shrink: true }}
-            value={formData.endDate?.slice(0, 10)}
-            onChange={(e) =>
-              setFormData({ ...formData, endDate: e.target.value })
-            }
-            sx={{ mt: 2 }}
-            required
-          />
-          <TextField
-            label="Status"
-            fullWidth
-            select
-            value={formData.status}
-            onChange={(e) =>
-              setFormData({ ...formData, status: e.target.value })
-            }
-            sx={{ mt: 2 }}
-          >
-            <MenuItem value="active">Active</MenuItem>
-            <MenuItem value="inactive">Inactive</MenuItem>
-          </TextField>
+      <Dialog open={formOpen} onOpenChange={setFormOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>
+              {isEdit ? "Update Coupon" : "Create Coupon"}
+            </DialogTitle>
+            <DialogDescription>
+              {isEdit
+                ? "Update the coupon details."
+                : "Fill in the details to create a new coupon."}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid grid-cols-2 gap-4 py-2">
+            <div className="space-y-2 col-span-2">
+              <Label htmlFor="code">Coupon Code</Label>
+              <Input
+                id="code"
+                value={formData.code}
+                onChange={(e) =>
+                  setFormData({ ...formData, code: e.target.value })
+                }
+                placeholder="e.g. SUMMER20"
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="type">Type</Label>
+              <Select
+                value={formData.type}
+                onValueChange={(value) =>
+                  setFormData({ ...formData, type: value })
+                }
+              >
+                <SelectTrigger id="type">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="percentage">Percentage</SelectItem>
+                  <SelectItem value="amount">Amount</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="value">Value</Label>
+              <Input
+                id="value"
+                type="number"
+                value={formData.value}
+                onChange={(e) =>
+                  setFormData({ ...formData, value: e.target.value })
+                }
+                placeholder={formData.type === "percentage" ? "e.g. 20" : "e.g. 500"}
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="minimumOrder">Minimum Order</Label>
+              <Input
+                id="minimumOrder"
+                type="number"
+                value={formData.minimumOrder}
+                onChange={(e) =>
+                  setFormData({ ...formData, minimumOrder: e.target.value })
+                }
+                placeholder="e.g. 1000"
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="status">Status</Label>
+              <Select
+                value={formData.status}
+                onValueChange={(value) =>
+                  setFormData({ ...formData, status: value })
+                }
+              >
+                <SelectTrigger id="status">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="active">Active</SelectItem>
+                  <SelectItem value="inactive">Inactive</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="startDate">Start Date</Label>
+              <Input
+                id="startDate"
+                type="date"
+                value={formData.startDate?.slice(0, 10)}
+                onChange={(e) =>
+                  setFormData({ ...formData, startDate: e.target.value })
+                }
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="endDate">End Date</Label>
+              <Input
+                id="endDate"
+                type="date"
+                value={formData.endDate?.slice(0, 10)}
+                onChange={(e) =>
+                  setFormData({ ...formData, endDate: e.target.value })
+                }
+                required
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setFormOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={saveCoupon} disabled={saving}>
+              {saving ? (
+                <>
+                  <Loader2 className="size-4 mr-1 animate-spin" />
+                  Saving...
+                </>
+              ) : isEdit ? (
+                "Update"
+              ) : (
+                "Create"
+              )}
+            </Button>
+          </DialogFooter>
         </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setFormOpen(false)} color="inherit">
-            Cancel
-          </Button>
-          <Button onClick={saveCoupon} variant="contained">
-            {isEdit ? "Update" : "Create"}
-          </Button>
-        </DialogActions>
       </Dialog>
 
-      {/* Snackbar */}
-      <Snackbar
-        anchorOrigin={{ vertical: "top", horizontal: "right" }}
-        open={snackbar.open}
-        autoHideDuration={3000}
-        onClose={() => setSnackbar({ ...snackbar, open: false })}
-      >
-        <Alert
-          onClose={() => setSnackbar({ ...snackbar, open: false })}
-          severity={snackbar.severity}
-          sx={{ width: "100%" }}
-        >
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
-
-      {/* Delete Dialog */}
-      <Dialog
-        open={deleteDialogOpen}
-        onClose={() => setDeleteDialogOpen(false)}
-      >
-        <DialogTitle>Confirm Delete</DialogTitle>
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <DialogContent>
-          Are you sure you want to delete coupon{" "}
-          <strong>{couponToDelete?.code}</strong>?
+          <DialogHeader>
+            <DialogTitle>Confirm Delete</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete coupon{" "}
+              <strong>{couponToDelete?.code}</strong>?
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setDeleteDialogOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={handleDeleteConfirmed}>
+              Delete
+            </Button>
+          </DialogFooter>
         </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setDeleteDialogOpen(false)} color="inherit">
-            Cancel
-          </Button>
-          <Button
-            onClick={handleDeleteConfirmed}
-            color="error"
-            variant="contained"
-          >
-            Delete
-          </Button>
-        </DialogActions>
       </Dialog>
     </div>
   );

@@ -1,35 +1,50 @@
 import React, { useEffect, useState, useMemo } from "react";
 import axios from "axios";
+import useAuthAdminStore from "../../store/AuthAdminStore.js";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   Table,
   TableBody,
   TableCell,
-  TableContainer,
   TableHead,
+  TableHeader,
   TableRow,
-  Paper,
-  IconButton,
-  Snackbar,
-  Alert,
-  TextField,
-  TablePagination,
-  CircularProgress,
-  Button,
-  Select,
-  MenuItem,
-  FormControl,
-  InputLabel,
-  Typography,
-  Chip,
+} from "@/components/ui/table";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardContent,
+} from "@/components/ui/card";
+import {
   Dialog,
-  DialogTitle,
   DialogContent,
-  DialogActions,
-  InputAdornment,
-  Box,
-} from "@mui/material";
-import { Delete, Edit, Add, Search, Category } from "@mui/icons-material";
-import useAuthAdminStore from "../../store/AuthAdminStore.js";
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Separator } from "@/components/ui/separator";
+import { toast } from "sonner";
+import {
+  Plus,
+  Search,
+  Pencil,
+  Trash2,
+  Loader2,
+  ChevronLeft,
+  ChevronRight,
+  FolderTree,
+} from "lucide-react";
 
 const AdminCategoryAllinone = () => {
   const apiUrl = import.meta.env.VITE_API_URL;
@@ -37,14 +52,9 @@ const AdminCategoryAllinone = () => {
 
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [snackbar, setSnackbar] = useState({
-    open: false,
-    message: "",
-    severity: "success",
-  });
   const [searchTerm, setSearchTerm] = useState("");
   const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const rowsPerPage = 10;
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
@@ -59,10 +69,6 @@ const AdminCategoryAllinone = () => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [categoryToDelete, setCategoryToDelete] = useState(null);
 
-  const showSnackbar = (message, severity = "success") => {
-    setSnackbar({ open: true, message, severity });
-  };
-
   const fetchCategories = () => {
     setLoading(true);
     axios
@@ -74,7 +80,7 @@ const AdminCategoryAllinone = () => {
         setLoading(false);
       })
       .catch(() => {
-        showSnackbar("Error fetching categories.", "error");
+        toast.error("Error fetching categories.");
         setLoading(false);
       });
   };
@@ -103,7 +109,7 @@ const AdminCategoryAllinone = () => {
 
   const handleSave = async () => {
     if (!formData.name.trim()) {
-      showSnackbar("Category name is required.", "warning");
+      toast.warning("Category name is required.");
       return;
     }
     setIsSubmitting(true);
@@ -115,7 +121,7 @@ const AdminCategoryAllinone = () => {
             "Content-Type": "application/json",
           },
         });
-        showSnackbar("Category updated successfully!");
+        toast.success("Category updated successfully!");
       } else {
         await axios.post(`${apiUrl}/category`, formData, {
           headers: {
@@ -123,12 +129,12 @@ const AdminCategoryAllinone = () => {
             "Content-Type": "application/json",
           },
         });
-        showSnackbar("Category added successfully!");
+        toast.success("Category added successfully!");
       }
       setDialogOpen(false);
       fetchCategories();
     } catch (err) {
-      showSnackbar(err.response?.data?.message || "Operation failed.", "error");
+      toast.error(err.response?.data?.message || "Operation failed.");
     } finally {
       setIsSubmitting(false);
     }
@@ -145,10 +151,10 @@ const AdminCategoryAllinone = () => {
       await axios.delete(`${apiUrl}/category/${categoryToDelete._id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      showSnackbar("Category deleted successfully!");
+      toast.success("Category deleted successfully!");
       fetchCategories();
-    } catch (err) {
-      showSnackbar("Failed to delete category.", "error");
+    } catch {
+      toast.error("Failed to delete category.");
     } finally {
       setDeleteDialogOpen(false);
       setCategoryToDelete(null);
@@ -163,292 +169,281 @@ const AdminCategoryAllinone = () => {
       .reverse();
   }, [categories, searchTerm]);
 
+  const pageCount = Math.ceil(filteredCategories.length / rowsPerPage);
+  const paginatedCategories = filteredCategories.slice(
+    page * rowsPerPage,
+    page * rowsPerPage + rowsPerPage,
+  );
+
   return (
-    <Box>
-      {/* Header Card */}
-      <Paper elevation={2} sx={{ p: 3, mb: 3, borderRadius: 2 }}>
-        <Box
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            flexWrap: "wrap",
-            gap: 2,
-          }}
-        >
-          <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-            <Box
-              sx={{
-                bgcolor: "primary.main",
-                p: 1.5,
-                borderRadius: 2,
-                display: "flex",
-              }}
-            >
-              <Category sx={{ color: "white" }} />
-            </Box>
-            <Box>
-              <Typography variant="h5" fontWeight={700} color="text.primary">
-                Category Management
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                {categories.length} total categories
-              </Typography>
-            </Box>
-          </Box>
-          <Button
-            variant="contained"
-            startIcon={<Add />}
-            onClick={handleOpenCreate}
-            sx={{ borderRadius: 2 }}
-          >
-            Add Category
-          </Button>
-        </Box>
-      </Paper>
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-2xl font-bold tracking-tight">
+          Category Management
+        </h1>
+        <p className="text-sm text-muted-foreground mt-1">
+          {categories.length} total categories
+        </p>
+      </div>
 
-      {/* Search & Filter Card */}
-      <Paper elevation={1} sx={{ p: 2, mb: 3, borderRadius: 2 }}>
-        <TextField
-          placeholder="Search categories..."
-          fullWidth
-          value={searchTerm}
-          onChange={(e) => {
-            setSearchTerm(e.target.value);
-            setPage(0);
-          }}
-          size="small"
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <Search color="action" />
-              </InputAdornment>
-            ),
-          }}
-          sx={{ "& .MuiOutlinedInput-root": { borderRadius: 2 } }}
-        />
-      </Paper>
+      <Separator />
 
-      {/* Table Card */}
-      <Paper elevation={2} sx={{ borderRadius: 2, overflow: "hidden" }}>
-        {loading ? (
-          <Box sx={{ display: "flex", justifyContent: "center", py: 6 }}>
-            <CircularProgress />
-          </Box>
-        ) : (
-          <>
-            <TableContainer>
+      <div className="flex items-center justify-between gap-4">
+        <div className="relative flex-1 max-w-sm">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+          <Input
+            placeholder="Search categories..."
+            value={searchTerm}
+            onChange={(e) => {
+              setSearchTerm(e.target.value);
+              setPage(0);
+            }}
+            className="pl-9"
+          />
+        </div>
+        <Button onClick={handleOpenCreate}>
+          <Plus className="size-4 mr-1" />
+          Add Category
+        </Button>
+      </div>
+
+      <Card>
+        <CardContent className="p-0">
+          {loading ? (
+            <div className="flex justify-center py-12">
+              <Loader2 className="size-6 animate-spin text-muted-foreground" />
+            </div>
+          ) : (
+            <>
               <Table>
-                <TableHead>
-                  <TableRow sx={{ bgcolor: "grey.100" }}>
-                    <TableCell sx={{ fontWeight: 600 }}>
-                      Category Name
-                    </TableCell>
-                    <TableCell sx={{ fontWeight: 600 }} align="center">
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Category Name</TableHead>
+                    <TableHead className="text-center w-[120px]">
                       Featured
-                    </TableCell>
-                    <TableCell sx={{ fontWeight: 600 }} align="center">
+                    </TableHead>
+                    <TableHead className="text-center w-[140px]">
                       Show on Navbar
-                    </TableCell>
-                    <TableCell sx={{ fontWeight: 600 }} align="center">
+                    </TableHead>
+                    <TableHead className="text-center w-[100px]">
                       Actions
-                    </TableCell>
+                    </TableHead>
                   </TableRow>
-                </TableHead>
+                </TableHeader>
                 <TableBody>
-                  {filteredCategories.length === 0 ? (
+                  {paginatedCategories.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={4} align="center" sx={{ py: 4 }}>
-                        <Typography color="text.secondary">
-                          No categories found.
-                        </Typography>
+                      <TableCell
+                        colSpan={4}
+                        className="text-center text-muted-foreground py-8"
+                      >
+                        No categories found.
                       </TableCell>
                     </TableRow>
                   ) : (
-                    filteredCategories
-                      .slice(
-                        page * rowsPerPage,
-                        page * rowsPerPage + rowsPerPage,
-                      )
-                      .map((cat) => (
-                        <TableRow key={cat._id} hover>
-                          <TableCell>
-                            <Typography fontWeight={500}>{cat.name}</Typography>
-                          </TableCell>
-                          <TableCell align="center">
-                            <Chip
-                              label={cat.featureCategory ? "Yes" : "No"}
-                              color={
-                                cat.featureCategory ? "success" : "default"
-                              }
-                              size="small"
-                              variant="outlined"
-                            />
-                          </TableCell>
-                          <TableCell align="center">
-                            <Chip
-                              label={cat.showOnNavbar ? "Yes" : "No"}
-                              color={cat.showOnNavbar ? "primary" : "default"}
-                              size="small"
-                              variant="outlined"
-                            />
-                          </TableCell>
-                          <TableCell align="center">
-                            <IconButton
+                    paginatedCategories.map((cat) => (
+                      <TableRow key={cat._id}>
+                        <TableCell className="font-medium">
+                          {cat.name}
+                        </TableCell>
+                        <TableCell className="text-center">
+                          <Badge
+                            variant={
+                              cat.featureCategory ? "default" : "secondary"
+                            }
+                          >
+                            {cat.featureCategory ? "Yes" : "No"}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="text-center">
+                          <Badge
+                            variant={
+                              cat.showOnNavbar ? "default" : "secondary"
+                            }
+                          >
+                            {cat.showOnNavbar ? "Yes" : "No"}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="text-center">
+                          <div className="flex items-center justify-center gap-1">
+                            <Button
+                              variant="ghost"
+                              size="icon-xs"
                               onClick={() => handleOpenEdit(cat)}
-                              color="primary"
-                              size="small"
                             >
-                              <Edit fontSize="small" />
-                            </IconButton>
-                            <IconButton
+                              <Pencil className="size-3.5" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon-xs"
                               onClick={() => confirmDelete(cat)}
-                              color="error"
-                              size="small"
+                              className="text-destructive hover:text-destructive"
                             >
-                              <Delete fontSize="small" />
-                            </IconButton>
-                          </TableCell>
-                        </TableRow>
-                      ))
+                              <Trash2 className="size-3.5" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))
                   )}
                 </TableBody>
               </Table>
-            </TableContainer>
-            <TablePagination
-              rowsPerPageOptions={[5, 10, 25]}
-              component="div"
-              count={filteredCategories.length}
-              rowsPerPage={rowsPerPage}
-              page={page}
-              onPageChange={(e, newPage) => setPage(newPage)}
-              onRowsPerPageChange={(e) => {
-                setRowsPerPage(parseInt(e.target.value, 10));
-                setPage(0);
-              }}
-              sx={{ borderTop: "1px solid", borderColor: "divider" }}
-            />
-          </>
-        )}
-      </Paper>
 
-      {/* Add/Edit Dialog */}
-      <Dialog
-        open={dialogOpen}
-        onClose={() => setDialogOpen(false)}
-        maxWidth="sm"
-        fullWidth
-      >
-        <DialogTitle sx={{ borderBottom: "1px solid", borderColor: "divider" }}>
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-            {isEdit ? <Edit color="primary" /> : <Add color="primary" />}
-            <Typography variant="h6" fontWeight={600}>
+              {filteredCategories.length > rowsPerPage && (
+                <div className="flex items-center justify-between border-t border-muted-foreground/10 px-4 py-3">
+                  <p className="text-sm text-muted-foreground">
+                    Page {page + 1} of {pageCount}
+                  </p>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      disabled={page === 0}
+                      onClick={() => setPage((p) => p - 1)}
+                    >
+                      <ChevronLeft className="size-4" />
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      disabled={page >= pageCount - 1}
+                      onClick={() => setPage((p) => p + 1)}
+                    >
+                      <ChevronRight className="size-4" />
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </>
+          )}
+        </CardContent>
+      </Card>
+
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>
               {isEdit ? "Edit Category" : "Add New Category"}
-            </Typography>
-          </Box>
-        </DialogTitle>
-        <DialogContent sx={{ pt: 3 }}>
-          <TextField
-            label="Category Name"
-            fullWidth
-            value={formData.name}
-            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-            required
-            error={!formData.name.trim()}
-            helperText={
-              !formData.name.trim() ? "Category name is required" : ""
-            }
-            sx={{ mb: 2, mt: 2 }}
-          />
-          <Box sx={{ display: "flex", gap: 2 }}>
-            <FormControl fullWidth>
-              <InputLabel>Feature Category</InputLabel>
-              <Select
-                value={formData.featureCategory}
-                onChange={(e) =>
-                  setFormData({ ...formData, featureCategory: e.target.value })
-                }
-                label="Feature Category"
+            </DialogTitle>
+            <DialogDescription>
+              {isEdit
+                ? "Update the category details."
+                : "Create a new category."}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <div className="space-y-2">
+              <label
+                htmlFor="name"
+                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
               >
-                <MenuItem value={true}>Yes</MenuItem>
-                <MenuItem value={false}>No</MenuItem>
-              </Select>
-            </FormControl>
-            <FormControl fullWidth>
-              <InputLabel>Show on Navbar</InputLabel>
-              <Select
-                value={formData.showOnNavbar}
+                Category Name
+              </label>
+              <Input
+                id="name"
+                value={formData.name}
                 onChange={(e) =>
-                  setFormData({ ...formData, showOnNavbar: e.target.value })
+                  setFormData({ ...formData, name: e.target.value })
                 }
-                label="Show on Navbar"
-              >
-                <MenuItem value={true}>Yes</MenuItem>
-                <MenuItem value={false}>No</MenuItem>
-              </Select>
-            </FormControl>
-          </Box>
+                placeholder="e.g. Electronics"
+                required
+              />
+              {!formData.name.trim() && (
+                <p className="text-xs text-destructive">
+                  Category name is required
+                </p>
+              )}
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Feature Category</label>
+                <Select
+                  value={String(formData.featureCategory)}
+                  onValueChange={(value) =>
+                    setFormData({
+                      ...formData,
+                      featureCategory: value === "true",
+                    })
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="true">Yes</SelectItem>
+                    <SelectItem value="false">No</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Show on Navbar</label>
+                <Select
+                  value={String(formData.showOnNavbar)}
+                  onValueChange={(value) =>
+                    setFormData({
+                      ...formData,
+                      showOnNavbar: value === "true",
+                    })
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="true">Yes</SelectItem>
+                    <SelectItem value="false">No</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setDialogOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button onClick={handleSave} disabled={isSubmitting}>
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="size-4 mr-1 animate-spin" />
+                  Saving...
+                </>
+              ) : isEdit ? (
+                "Update"
+              ) : (
+                "Save"
+              )}
+            </Button>
+          </DialogFooter>
         </DialogContent>
-        <DialogActions sx={{ px: 3, pb: 2 }}>
-          <Button onClick={() => setDialogOpen(false)} color="inherit">
-            Cancel
-          </Button>
-          <Button
-            onClick={handleSave}
-            variant="contained"
-            disabled={isSubmitting}
-            startIcon={
-              isSubmitting ? (
-                <CircularProgress size={18} color="inherit" />
-              ) : null
-            }
-          >
-            {isSubmitting ? "Saving..." : isEdit ? "Update" : "Save"}
-          </Button>
-        </DialogActions>
       </Dialog>
 
-      {/* Delete Confirmation Dialog */}
-      <Dialog
-        open={deleteDialogOpen}
-        onClose={() => setDeleteDialogOpen(false)}
-      >
-        <DialogTitle sx={{ bgcolor: "error.main", color: "white" }}>
-          Confirm Delete
-        </DialogTitle>
-        <DialogContent sx={{ pt: 2 }}>
-          <Typography>
-            Are you sure you want to delete{" "}
-            <strong>{categoryToDelete?.name}</strong>? This action cannot be
-            undone.
-          </Typography>
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Confirm Delete</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete{" "}
+              <strong>{categoryToDelete?.name}</strong>? This action cannot be
+              undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setDeleteDialogOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={handleDelete}>
+              Delete
+            </Button>
+          </DialogFooter>
         </DialogContent>
-        <DialogActions sx={{ px: 3, pb: 2 }}>
-          <Button onClick={() => setDeleteDialogOpen(false)} color="inherit">
-            Cancel
-          </Button>
-          <Button onClick={handleDelete} color="error" variant="contained">
-            Delete
-          </Button>
-        </DialogActions>
       </Dialog>
-
-      {/* Snackbar */}
-      <Snackbar
-        anchorOrigin={{ vertical: "top", horizontal: "right" }}
-        open={snackbar.open}
-        autoHideDuration={3000}
-        onClose={() => setSnackbar({ ...snackbar, open: false })}
-      >
-        <Alert
-          severity={snackbar.severity}
-          variant="filled"
-          sx={{ width: "100%" }}
-        >
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
-    </Box>
+    </div>
   );
 };
 

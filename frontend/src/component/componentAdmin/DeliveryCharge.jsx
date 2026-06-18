@@ -1,30 +1,39 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import useAuthAdminStore from "../../store/AuthAdminStore.js";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
 import {
   Table,
   TableBody,
   TableCell,
-  TableContainer,
   TableHead,
+  TableHeader,
   TableRow,
-  Paper,
-  IconButton,
+} from "@/components/ui/table";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardContent,
+} from "@/components/ui/card";
+import {
   Dialog,
-  DialogTitle,
   DialogContent,
-  DialogActions,
-  Button,
-  TextField,
-  Typography,
-} from "@mui/material";
-import { Edit, Delete } from "@mui/icons-material";
-import useAuthAdminStore from "../../store/AuthAdminStore.js";
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Separator } from "@/components/ui/separator";
+import { toast } from "sonner";
+import { Pencil, Trash2, Loader2, Banknote } from "lucide-react";
 
 const DeliveryCharge = () => {
   const apiUrl = import.meta.env.VITE_API_URL;
   const [shippingMethods, setShippingMethods] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
   const { token } = useAuthAdminStore();
 
   const [editDialogOpen, setEditDialogOpen] = useState(false);
@@ -32,26 +41,28 @@ const DeliveryCharge = () => {
   const [currentMethod, setCurrentMethod] = useState(null);
   const [editedName, setEditedName] = useState("");
   const [editedValue, setEditedValue] = useState("");
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     fetchShippingMethods();
 
-    // 👂 Listen for custom event
     const handleShippingCreated = () => fetchShippingMethods();
     window.addEventListener("shippingMethodCreated", handleShippingCreated);
 
     return () => {
-      window.removeEventListener("shippingMethodCreated", handleShippingCreated);
+      window.removeEventListener(
+        "shippingMethodCreated",
+        handleShippingCreated,
+      );
     };
-  }, [apiUrl]);
+  }, []);
 
   const fetchShippingMethods = async () => {
     try {
       const res = await axios.get(`${apiUrl}/getAllShipping`);
       setShippingMethods(res.data.data || []);
     } catch (err) {
-      setError("Failed to load shipping methods");
-      console.error(err);
+      toast.error("Failed to load shipping methods");
     } finally {
       setLoading(false);
     }
@@ -65,23 +76,20 @@ const DeliveryCharge = () => {
   };
 
   const handleEditSave = async () => {
+    setSaving(true);
     try {
       await axios.patch(
         `${apiUrl}/updateShipping/${currentMethod._id}`,
-        {
-          name: editedName,
-          value: editedValue,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        },
+        { name: editedName, value: editedValue },
+        { headers: { Authorization: `Bearer ${token}` } },
       );
       fetchShippingMethods();
       setEditDialogOpen(false);
-    } catch (err) {
-      console.error("Edit failed", err);
+      toast.success("Delivery method updated!");
+    } catch {
+      toast.error("Failed to update");
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -92,104 +100,162 @@ const DeliveryCharge = () => {
 
   const handleDeleteConfirm = async () => {
     try {
-      await axios.delete(`${apiUrl}/deleteShipping/${currentMethod._id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`, // ✅ using Zustand token now
-        },
-      });
+      await axios.delete(
+        `${apiUrl}/deleteShipping/${currentMethod._id}`,
+        { headers: { Authorization: `Bearer ${token}` } },
+      );
       fetchShippingMethods();
       setDeleteDialogOpen(false);
-    } catch (err) {
-      console.error("Delete failed", err);
+      toast.success("Delivery method deleted!");
+    } catch {
+      toast.error("Failed to delete");
     }
   };
 
-  if (loading) return <Typography>Loading...</Typography>;
-  if (error) return <Typography color="error">{error}</Typography>;
+  if (loading) {
+    return (
+      <div className="flex justify-center py-12">
+        <Loader2 className="size-6 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
 
   return (
-    <div className={"shadow rounded-lg p-4"}>
-      <h1 className="border-l-4 primaryBorderColor primaryTextColor mb-6 pl-2 text-lg font-semibold">
-        Delivery Charge List
-      </h1>
-      <TableContainer component={Paper}>
-        <Table>
-          <TableHead sx={{ backgroundColor: "#f5f5f5" }}>
-            <TableRow>
-              <TableCell>Name</TableCell>
-              <TableCell>Charge</TableCell>
-              <TableCell align="right">Actions</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {shippingMethods.map((method) => (
-              <TableRow key={method._id}>
-                <TableCell>{method.name}</TableCell>
-                <TableCell>Tk. {method.value}</TableCell>
-                <TableCell align="right">
-                  <IconButton onClick={() => handleEditOpen(method)}>
-                    <Edit />
-                  </IconButton>
-                  <IconButton
-                    color="error"
-                    onClick={() => handleDeleteOpen(method)}
-                  >
-                    <Delete />
-                  </IconButton>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-2xl font-bold tracking-tight">
+          Delivery Charge List
+        </h1>
+        <p className="text-sm text-muted-foreground mt-1">
+          {shippingMethods.length} shipping methods
+        </p>
+      </div>
 
-      {/* Edit Dialog */}
-      <Dialog open={editDialogOpen} onClose={() => setEditDialogOpen(false)}>
-        <DialogTitle>Edit Delivery Method</DialogTitle>
+      <Separator />
+
+      <Card>
+        <CardContent className="p-0">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Name</TableHead>
+                <TableHead>Charge</TableHead>
+                <TableHead className="text-right w-[100px]">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {shippingMethods.length === 0 ? (
+                <TableRow>
+                  <TableCell
+                    colSpan={3}
+                    className="text-center text-muted-foreground py-8"
+                  >
+                    No delivery methods found.
+                  </TableCell>
+                </TableRow>
+              ) : (
+                shippingMethods.map((method) => (
+                  <TableRow key={method._id}>
+                    <TableCell className="font-medium">
+                      {method.name}
+                    </TableCell>
+                    <TableCell>Tk. {method.value}</TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex items-center justify-end gap-1">
+                        <Button
+                          variant="ghost"
+                          size="icon-xs"
+                          onClick={() => handleEditOpen(method)}
+                        >
+                          <Pencil className="size-3.5" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon-xs"
+                          onClick={() => handleDeleteOpen(method)}
+                          className="text-destructive hover:text-destructive"
+                        >
+                          <Trash2 className="size-3.5" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
+
+      <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
         <DialogContent>
-          <TextField
-            fullWidth
-            label="Name"
-            margin="dense"
-            value={editedName}
-            onChange={(e) => setEditedName(e.target.value)}
-          />
-          <TextField
-            fullWidth
-            label="Charge"
-            type="number"
-            margin="dense"
-            value={editedValue}
-            onChange={(e) => setEditedValue(e.target.value)}
-          />
+          <DialogHeader>
+            <DialogTitle>Edit Delivery Method</DialogTitle>
+            <DialogDescription>
+              Update the name and charge for this shipping method.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <div className="space-y-2">
+              <Label htmlFor="edit-name">Name</Label>
+              <Input
+                id="edit-name"
+                value={editedName}
+                onChange={(e) => setEditedName(e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="edit-value">Charge (Tk.)</Label>
+              <Input
+                id="edit-value"
+                type="number"
+                value={editedValue}
+                onChange={(e) => setEditedValue(e.target.value)}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setEditDialogOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button onClick={handleEditSave} disabled={saving}>
+              {saving ? (
+                <>
+                  <Loader2 className="size-4 mr-1 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                "Save"
+              )}
+            </Button>
+          </DialogFooter>
         </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setEditDialogOpen(false)}>Cancel</Button>
-          <Button onClick={handleEditSave} variant="contained">
-            Save
-          </Button>
-        </DialogActions>
       </Dialog>
 
-      {/* Delete Confirm Dialog */}
-      <Dialog
-        open={deleteDialogOpen}
-        onClose={() => setDeleteDialogOpen(false)}
-      >
-        <DialogTitle>Delete Confirmation</DialogTitle>
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <DialogContent>
-          Are you sure you want to delete "{currentMethod?.name}"?
+          <DialogHeader>
+            <DialogTitle>Delete Confirmation</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete{" "}
+              <strong>{currentMethod?.name}</strong>?
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setDeleteDialogOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={handleDeleteConfirm}>
+              Delete
+            </Button>
+          </DialogFooter>
         </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setDeleteDialogOpen(false)}>Cancel</Button>
-          <Button
-            onClick={handleDeleteConfirm}
-            color="error"
-            variant="contained"
-          >
-            Delete
-          </Button>
-        </DialogActions>
       </Dialog>
     </div>
   );

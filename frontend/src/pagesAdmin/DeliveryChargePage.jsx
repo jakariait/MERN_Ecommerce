@@ -2,7 +2,7 @@ import React from "react";
 import LayoutAdmin from "../component/componentAdmin/LayoutAdmin.jsx";
 import Breadcrumb from "../component/componentAdmin/Breadcrumb.jsx";
 import DeliveryCharge from "../component/componentAdmin/DeliveryCharge.jsx";
-import CreateShippingDialog from "../component/componentAdmin/CreateShipping.jsx";
+import CreateShipping from "../component/componentAdmin/CreateShipping.jsx";
 import RequirePermission from "../component/componentAdmin/RequirePermission.jsx";
 
 const DeliveryChargePage = () => {
@@ -14,7 +14,7 @@ const DeliveryChargePage = () => {
       />
       <RequirePermission permission="delivery_charges">
         <div className="flex flex-col gap-16">
-          <CreateShippingDialog />
+          <CreateShipping />
           <DeliveryCharge />
         </div>
       </RequirePermission>
