@@ -8,6 +8,7 @@ import { Switch } from "@/components/ui/switch";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import {SectionHeader} from "#component/componentAdmin/SectionHeader.jsx";
 
 const AdminBkashConfig = () => {
   const [config, setConfig] = useState({
@@ -73,9 +74,8 @@ const AdminBkashConfig = () => {
 
   return (
     <Card className="shadow-md border-0">
-      <CardHeader>
-        <CardTitle>Update bKash Config</CardTitle>
-      </CardHeader>
+      <SectionHeader title={"Update bKash Config"}/>
+
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">

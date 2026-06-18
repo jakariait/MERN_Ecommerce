@@ -42,6 +42,7 @@ import useAuthAdminStore from "../../store/AuthAdminStore";
 import ImageComponent from "../componentGeneral/ImageComponent.jsx";
 import { saveAs } from "file-saver";
 import RequirePermission from "./RequirePermission.jsx";
+import { SectionHeader } from "#component/componentAdmin/SectionHeader.jsx";
 
 const CustomerList = () => {
   const { token } = useAuthAdminStore();
@@ -155,13 +156,7 @@ const CustomerList = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold tracking-tight">Customer List</h1>
-        <Button variant="outline" onClick={handleExportExcel}>
-          <Download className="size-4 mr-1" />
-          Download As CSV
-        </Button>
-      </div>
+      <SectionHeader title={"Customer List"} />
 
       <div className="flex items-center justify-between gap-4 bg-muted/30 rounded-lg p-3">
         <div className="relative flex-1 max-w-sm">
@@ -176,9 +171,12 @@ const CustomerList = () => {
             className="pl-9 bg-background"
           />
         </div>
+
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2">
-            <p className="text-sm text-muted-foreground whitespace-nowrap">Show</p>
+            <p className="text-sm text-muted-foreground whitespace-nowrap">
+              Show
+            </p>
             <Select
               value={String(limit)}
               onValueChange={(value) => {
@@ -211,6 +209,13 @@ const CustomerList = () => {
         </div>
       </div>
 
+      <div className="flex items-center justify-center">
+        <Button variant="outline" onClick={handleExportExcel}>
+          <Download className="size-4 mr-1" />
+          Download As CSV
+        </Button>
+      </div>
+
       <Card className="shadow-md border-0">
         <CardContent className="p-0">
           <Table>
@@ -222,10 +227,15 @@ const CustomerList = () => {
                 <TableHead>Email</TableHead>
                 <TableHead>Phone</TableHead>
                 <TableHead className="hidden md:table-cell">Address</TableHead>
-                <TableHead className="hidden md:table-cell">Reward Points</TableHead>
+                <TableHead className="hidden md:table-cell">
+                  Reward Points
+                </TableHead>
                 <TableHead className="hidden md:table-cell">Joined</TableHead>
                 <TableHead>Account Deletion</TableHead>
-                <RequirePermission permission="delete_customers" fallback={true}>
+                <RequirePermission
+                  permission="delete_customers"
+                  fallback={true}
+                >
                   <TableHead className="text-center w-16">Action</TableHead>
                 </RequirePermission>
               </TableRow>
@@ -243,7 +253,10 @@ const CustomerList = () => {
                 ))
               ) : paginatedCustomers.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={10} className="text-center text-muted-foreground py-8">
+                  <TableCell
+                    colSpan={10}
+                    className="text-center text-muted-foreground py-8"
+                  >
                     No customers found.
                   </TableCell>
                 </TableRow>

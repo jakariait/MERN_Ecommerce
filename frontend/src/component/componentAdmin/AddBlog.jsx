@@ -14,6 +14,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "sonner";
 import { X, Upload } from "lucide-react";
 import axios from "axios";
+import {SectionHeader} from "#component/componentAdmin/SectionHeader.jsx";
 
 const AddBlog = () => {
   const apiUrl = import.meta.env.VITE_API_URL;
@@ -119,7 +120,8 @@ const AddBlog = () => {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold tracking-tight">Add New Blog</h1>
+
+      <SectionHeader title={"Add New Blog"}/>
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="grid grid-cols-12 gap-6">

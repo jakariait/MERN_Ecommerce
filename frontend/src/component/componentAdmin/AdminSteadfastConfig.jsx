@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import {SectionHeader} from "@/component/componentAdmin/SectionHeader.jsx";
 
 const AdminSteadfastConfig = () => {
   const [config, setConfig] = useState({
@@ -70,9 +71,8 @@ const AdminSteadfastConfig = () => {
 
   return (
     <Card className="shadow-md border-0">
-      <CardHeader>
-        <CardTitle>Update Steadfast Config</CardTitle>
-      </CardHeader>
+      <SectionHeader title={"Update Steadfast Config"}/>
+
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">

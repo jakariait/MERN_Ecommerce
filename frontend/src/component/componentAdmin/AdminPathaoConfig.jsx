@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { SectionHeader } from "@/component/componentAdmin/SectionHeader.jsx";
 
 const AdminPathaoConfig = () => {
   const [config, setConfig] = useState({
@@ -73,9 +74,8 @@ const AdminPathaoConfig = () => {
 
   return (
     <Card className="shadow-md border-0">
-      <CardHeader>
-        <CardTitle>Update Pathao Config</CardTitle>
-      </CardHeader>
+      <SectionHeader title={"Update Pathao Config"} />
+
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
