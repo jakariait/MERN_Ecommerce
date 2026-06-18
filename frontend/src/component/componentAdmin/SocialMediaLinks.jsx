@@ -13,66 +13,69 @@ import {
   FaViber,
 } from "react-icons/fa";
 import useAuthAdminStore from "../../store/AuthAdminStore.js";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
 import {
-  Paper,
-  Grid,
-  TextField,
-  Button,
-  Typography,
-  Snackbar,
-  IconButton,
-} from "@mui/material";
-import CloseIcon from "@mui/icons-material/Close";
+  Card,
+  CardHeader,
+  CardTitle,
+  CardContent,
+} from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import { toast } from "sonner";
+import { Loader2 } from "lucide-react";
+
+const apiUrl = import.meta.env.VITE_API_URL;
+
+const SOCIAL_PLATFORMS = [
+  { key: "facebook", icon: <FaFacebook className="size-5 shrink-0" style={{ color: "#1877F2" }} />, label: "Facebook" },
+  { key: "twitter", icon: <FaTwitter className="size-5 shrink-0" style={{ color: "#1DA1F2" }} />, label: "Twitter" },
+  { key: "instagram", icon: <FaInstagram className="size-5 shrink-0" style={{ color: "#E1306C" }} />, label: "Instagram" },
+  { key: "linkedin", icon: <FaLinkedin className="size-5 shrink-0" style={{ color: "#0077B5" }} />, label: "LinkedIn" },
+  { key: "messenger", icon: <FaFacebookMessenger className="size-5 shrink-0" style={{ color: "#00B2FF" }} />, label: "Messenger" },
+  { key: "whatsapp", icon: <FaWhatsapp className="size-5 shrink-0" style={{ color: "#25D366" }} />, label: "WhatsApp" },
+  { key: "telegram", icon: <FaTelegram className="size-5 shrink-0" style={{ color: "#0088CC" }} />, label: "Telegram" },
+  { key: "youtube", icon: <FaYoutube className="size-5 shrink-0" style={{ color: "#FF0000" }} />, label: "YouTube" },
+  { key: "tiktok", icon: <FaTiktok className="size-5 shrink-0" />, label: "TikTok" },
+  { key: "pinterest", icon: <FaPinterest className="size-5 shrink-0" style={{ color: "#E60023" }} />, label: "Pinterest" },
+  { key: "viber", icon: <FaViber className="size-5 shrink-0" style={{ color: "#7360F2" }} />, label: "Viber" },
+];
+
+const DEFAULT_LINKS = Object.fromEntries(
+  SOCIAL_PLATFORMS.map((p) => [p.key, ""]),
+);
 
 const SocialMediaLinks = () => {
-  const apiUrl = import.meta.env.VITE_API_URL;
   const { token } = useAuthAdminStore();
 
-  const [links, setLinks] = useState({
-    facebook: "",
-    twitter: "",
-    instagram: "",
-    linkedin: "",
-    messenger: "",
-    whatsapp: "",
-    telegram: "",
-    youtube: "",
-    tiktok: "",
-    pinterest: "",
-    viber: "",
-  });
-
-  const [snackbar, setSnackbar] = useState({
-    open: false,
-    message: "",
-    severity: "success",
-  });
+  const [links, setLinks] = useState({ ...DEFAULT_LINKS });
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const response = await fetch(`${apiUrl}/socialmedia`);
-        if (!response.ok) {
-          throw new Error("Failed to fetch data");
-        }
-        const data = await response.json();
-        const { _id, ...socialLinks } = data.data;
-        setLinks(socialLinks);
+        if (!response.ok) throw new Error("Failed to fetch data");
+        const result = await response.json();
+        const { _id, ...socialLinks } = result.data;
+        setLinks((prev) => ({ ...prev, ...socialLinks }));
       } catch (error) {
-        setSnackbar({ open: true, message: error.message, severity: "error" });
+        toast.error(error.message);
       }
     };
 
     fetchData();
-  }, [apiUrl]);
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setLinks((prevState) => ({ ...prevState, [name]: value }));
+    setLinks((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setSaving(true);
     try {
       const response = await fetch(`${apiUrl}/socialmedia`, {
         method: "PUT",
@@ -83,122 +86,74 @@ const SocialMediaLinks = () => {
         body: JSON.stringify(links),
       });
 
-      if (!response.ok) {
-        throw new Error("Failed to update data");
-      }
+      if (!response.ok) throw new Error("Failed to update data");
 
       const result = await response.json();
-      setLinks(result.data);
-      setSnackbar({ open: true, message: result.message, severity: "success" });
+      const { _id, ...socialLinks } = result.data;
+      setLinks((prev) => ({ ...prev, ...socialLinks }));
+      toast.success(result.message || "Social media links updated!");
     } catch (error) {
-      setSnackbar({ open: true, message: error.message, severity: "error" });
+      toast.error(error.message);
+    } finally {
+      setSaving(false);
     }
   };
 
-  const handleCloseSnackbar = () => {
-    setSnackbar({ ...snackbar, open: false });
-  };
-
-  const socialPlatforms = [
-    {
-      key: "facebook",
-      icon: <FaFacebook color="#1877F2" />,
-      label: "Facebook",
-    },
-    { key: "twitter", icon: <FaTwitter color="#1DA1F2" />, label: "Twitter" },
-    {
-      key: "instagram",
-      icon: <FaInstagram color="#E1306C" />,
-      label: "Instagram",
-    },
-    {
-      key: "linkedin",
-      icon: <FaLinkedin color="#0077B5" />,
-      label: "LinkedIn",
-    },
-    {
-      key: "messenger",
-      icon: <FaFacebookMessenger color="#00B2FF" />,
-      label: "Messenger",
-    },
-    {
-      key: "whatsapp",
-      icon: <FaWhatsapp color="#25D366" />,
-      label: "WhatsApp",
-    },
-    {
-      key: "telegram",
-      icon: <FaTelegram color="#0088CC" />,
-      label: "Telegram",
-    },
-    { key: "youtube", icon: <FaYoutube color="#FF0000" />, label: "YouTube" },
-    { key: "tiktok", icon: <FaTiktok color="#000000" />, label: "TikTok" },
-    {
-      key: "pinterest",
-      icon: <FaPinterest color="#E60023" />,
-      label: "Pinterest",
-    },
-    { key: "viber", icon: <FaViber color="#7360F2" />, label: "Viber" },
-  ];
-
   return (
-    <Paper elevation={3} sx={{ padding: 4, position: "relative" }}>
-      <h1 className="border-l-4 primaryBorderColor primaryTextColor mb-6 pl-2 text-lg font-semibold ">
-        Update Social Media Links
-      </h1>
-      <form onSubmit={handleSubmit}>
-        <Grid container spacing={3}>
-          {socialPlatforms.map(({ key, icon, label }) => (
-            <Grid
-              item
-              xs={12}
-              sm={6}
-              key={key}
-              display="flex"
-              alignItems="center"
-              gap={2}
-            >
-              {icon}
-              <TextField
-                fullWidth
-                label={label}
-                name={key}
-                value={links[key]}
-                onChange={handleChange}
-                placeholder={`Enter ${label} link`}
-                variant="outlined"
-              />
-            </Grid>
-          ))}
-        </Grid>
-        <Button
-          type="submit"
-          variant="contained"
-          color="primary"
-          fullWidth
-          sx={{ mt: 3 }}
-        >
-          Update Info
-        </Button>
-      </form>
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-2xl font-bold tracking-tight">
+          Social Media Links
+        </h1>
+        <p className="text-sm text-muted-foreground mt-1">
+          Manage your social media presence links.
+        </p>
+      </div>
 
-      <Snackbar
-        open={snackbar.open}
-        autoHideDuration={3000}
-        onClose={handleCloseSnackbar}
-        message={snackbar.message}
-        anchorOrigin={{ vertical: "top", horizontal: "right" }}
-        action={
-          <IconButton
-            size="small"
-            color="inherit"
-            onClick={handleCloseSnackbar}
-          >
-            <CloseIcon fontSize="small" />
-          </IconButton>
-        }
-      />
-    </Paper>
+      <Separator />
+
+      <form onSubmit={handleSubmit}>
+        <Card>
+          <CardHeader>
+            <CardTitle>Platform Links</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4">
+              {SOCIAL_PLATFORMS.map(({ key, icon, label }) => (
+                <div key={key} className="flex items-center gap-3">
+                  {icon}
+                  <div className="flex-1 space-y-1">
+                    <Label htmlFor={key} className="text-xs font-medium">
+                      {label}
+                    </Label>
+                    <Input
+                      id={key}
+                      name={key}
+                      value={links[key]}
+                      onChange={handleChange}
+                      placeholder={`https://${key}.com/...`}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
+        <div className="flex justify-end mt-6">
+          <Button type="submit" size="lg" disabled={saving}>
+            {saving ? (
+              <>
+                <Loader2 className="size-4 mr-1 animate-spin" />
+                Saving...
+              </>
+            ) : (
+              "Update Social Links"
+            )}
+          </Button>
+        </div>
+      </form>
+    </div>
   );
 };
 

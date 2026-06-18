@@ -1,10 +1,12 @@
 import React from "react";
 import SidebarMenu from "./SidebarMenu.jsx";
 import Footer from "./footer.jsx";
+import { Toaster } from "@/components/ui/sonner";
 
 const LayoutAdmin = ({ children, breadcrumbData }) => {
   return (
     <div className="flex flex-col min-h-screen xl:container xl:mx-auto">
+      <Toaster position="top-right" />
       {/* Sidebar */}
       <div className="primaryBgColor accentTextColor hidden lg:block fixed h-screen overflow-y-auto">
         <SidebarMenu />

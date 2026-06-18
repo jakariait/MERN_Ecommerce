@@ -7,15 +7,11 @@ import RequirePermission from "../component/componentAdmin/RequirePermission.jsx
 const ColorUpdaterPage = () => {
   return (
     <LayoutAdmin>
-      <Breadcrumb
-        pageDetails="WEBSITE CONFIG"
-        title="Website Theme Color"
-      />
+      <Breadcrumb pageDetails="WEBSITE CONFIG" title="Website Theme Color" />
 
-      <RequirePermission permission="website_theme_color" >
+      <RequirePermission permission="website_theme_color">
         <ColorUpdater />
-
-      </RequirePermission >
+      </RequirePermission>
     </LayoutAdmin>
   );
 };

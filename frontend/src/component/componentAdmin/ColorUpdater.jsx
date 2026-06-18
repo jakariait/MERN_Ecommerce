@@ -1,118 +1,141 @@
 import React, { useState, useEffect } from "react";
-import { Button, CircularProgress, Snackbar, Alert } from "@mui/material";
-import useColorStore from "../../store/ColorStore.js"; // Import Zustand store
-import useAuthAdminStore from "../../store/AuthAdminStore.js"; // Import your auth store
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardContent,
+} from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import { toast } from "sonner";
+import useColorStore from "../../store/ColorStore.js";
+import useAuthAdminStore from "../../store/AuthAdminStore.js";
+import { Loader2, RotateCcw } from "lucide-react";
+
+const DEFAULT_COLORS = {
+  primaryColor: "#00395d",
+  secondaryColor: "#000000",
+  accentColor: "#ffffff",
+  tertiaryColor: "#b6d7a8",
+};
+
+const COLOR_FIELDS = [
+  { label: "Primary Color", name: "primaryColor", desc: "Main brand color" },
+  { label: "Secondary Color", name: "secondaryColor", desc: "Secondary brand color" },
+  { label: "Accent Color", name: "accentColor", desc: "Text on dark backgrounds" },
+  { label: "Tertiary Color", name: "tertiaryColor", desc: "Highlight / accent" },
+];
 
 const ColorUpdater = () => {
-  const { token } = useAuthAdminStore(); // Access token from your auth store
-  const { colors, isLoading, error, fetchColors, updateColors } = useColorStore(); // Access store data and actions
+  const { token } = useAuthAdminStore();
+  const { colors, isLoading, error, fetchColors, updateColors } = useColorStore();
 
-  const [localColors, setLocalColors] = useState(colors || {
-    primaryColor: "",
-    secondaryColor: "",
-    accentColor: "",
-    tertiaryColor: "",
-  });
-
-  const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState(""); // For showing success/error messages
-  const [openSnackbar, setOpenSnackbar] = useState(false);
-  const [snackbarSeverity, setSnackbarSeverity] = useState("success");
-  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [localColors, setLocalColors] = useState({ ...DEFAULT_COLORS });
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    if (!colors) fetchColors(); // Fetch colors when the component is mounted
+    if (!colors) fetchColors();
   }, [colors, fetchColors]);
 
   useEffect(() => {
-    if (colors) setLocalColors(colors); // Sync local colors when fetched
+    if (colors) setLocalColors({ ...DEFAULT_COLORS, ...colors });
   }, [colors]);
 
-  const handleColorChange = (e) => {
+  const handleChange = (e) => {
     const { name, value } = e.target;
-    setLocalColors((prevColors) => ({
-      ...prevColors,
-      [name]: value,
-    }));
+    setLocalColors((prev) => ({ ...prev, [name]: value }));
   };
 
   const updateColorData = async () => {
-    setLoading(true);
-    try {
-      await updateColors(localColors, token); // Use the updateColors action
-      setSnackbarMessage("Colors updated successfully!");
-      setSnackbarSeverity("success");
-    } catch (error) {
-      console.error("Error updating colors:", error);
-      setSnackbarMessage("Failed to update colors.");
-      setSnackbarSeverity("error");
-    } finally {
-      setLoading(false);
-      setOpenSnackbar(true); // Open the snackbar with the message
+    setSaving(true);
+    await updateColors(localColors, token);
+    const store = useColorStore.getState();
+    if (store.error) {
+      toast.error(store.error);
+    } else {
+      toast.success("Colors updated successfully!");
     }
+    setSaving(false);
   };
 
-  const handleCloseSnackbar = () => {
-    setOpenSnackbar(false);
+  const resetToDefaults = () => {
+    setLocalColors({ ...DEFAULT_COLORS });
   };
 
   return (
-    <div className="p-4 shadow-lg rounded-lg  mx-auto">
-      <h1 className="border-l-4 primaryBorderColor primaryTextColor mb-6 pl-2 text-lg font-semibold ">
-        Update Website Theme Color
-      </h1>
-
-      {/* Snackbar for Success/Error Messages */}
-      <Snackbar
-        open={openSnackbar}
-        autoHideDuration={6000}
-        onClose={handleCloseSnackbar}
-        anchorOrigin={{ vertical: "top", horizontal: "right" }}
-      >
-        <Alert onClose={handleCloseSnackbar} severity={snackbarSeverity}>
-          {snackbarMessage}
-        </Alert>
-      </Snackbar>
-
-      <div className="grid grid-cols-2 gap-6 mb-6">
-        {/* Color input fields */}
-        {[
-          { label: "Primary Color", name: "primaryColor" },
-          { label: "Secondary Color", name: "secondaryColor" },
-          { label: "Accent Color", name: "accentColor" },
-          { label: "Tertiary Color", name: "tertiaryColor" },
-        ].map(({ label, name }) => (
-          <div key={name}>
-            <label className="block text-sm font-medium text-gray-700 mb-2">{label}</label>
-            <div className="flex items-center space-x-2">
-              <input
-                type="color"
-                name={name}
-                value={localColors[name]}
-                onChange={handleColorChange}
-                className="w-12 h-12 border-0 rounded"
-              />
-              <input
-                type="text"
-                name={name}
-                value={localColors[name]}
-                onChange={handleColorChange}
-                className="w-full p-2 border border-gray-300 rounded-md"
-                placeholder={`#${name === 'primaryColor' ? '000000' : 'ffffff'}`}
-              />
-            </div>
-          </div>
-        ))}
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-2xl font-bold tracking-tight">
+          Website Theme Color
+        </h1>
+        <p className="text-sm text-muted-foreground mt-1">
+          Customize your brand colors across the site.
+        </p>
       </div>
 
-      <div className="flex justify-center">
-        <Button
-          onClick={updateColorData}
-          variant="contained"
-          className="px-10 py-2 rounded-lg bg-green-500 text-white hover:bg-green-600"
-          disabled={loading}
-        >
-          {loading ? <CircularProgress size={24} sx={{ color: "white" }} /> : "Update Colors"}
+      <Separator />
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Color Palette</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            {COLOR_FIELDS.map(({ label, name, desc }) => (
+              <div key={name} className="space-y-3">
+                <div>
+                  <Label htmlFor={name}>{label}</Label>
+                  {desc && (
+                    <p className="text-xs text-muted-foreground">{desc}</p>
+                  )}
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="relative">
+                    <input
+                      type="color"
+                      name={name}
+                      value={localColors[name] || DEFAULT_COLORS[name]}
+                      onChange={handleChange}
+                      className="absolute inset-0 size-10 cursor-pointer opacity-0"
+                    />
+                    <div
+                      className="size-10 rounded-md border shadow-sm"
+                      style={{
+                        backgroundColor:
+                          localColors[name] || DEFAULT_COLORS[name],
+                      }}
+                    />
+                  </div>
+                  <Input
+                    name={name}
+                    value={localColors[name] || ""}
+                    onChange={handleChange}
+                    placeholder={DEFAULT_COLORS[name]}
+                    className="font-mono flex-1"
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      <div className="flex items-center justify-end gap-3">
+        <Button type="button" variant="outline" onClick={resetToDefaults}>
+          <RotateCcw className="size-4 mr-1" />
+          Reset Defaults
+        </Button>
+        <Button onClick={updateColorData} disabled={saving}>
+          {saving ? (
+            <>
+              <Loader2 className="size-4 mr-1 animate-spin" />
+              Saving...
+            </>
+          ) : (
+            "Update Colors"
+          )}
         </Button>
       </div>
     </div>
@@ -120,4 +143,3 @@ const ColorUpdater = () => {
 };
 
 export default ColorUpdater;
-
