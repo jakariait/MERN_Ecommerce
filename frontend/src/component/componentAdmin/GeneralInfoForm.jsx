@@ -29,6 +29,8 @@ export default function GeneralInfoForm() {
     Favicon: null,
   });
 
+  const [previews, setPreviews] = useState({});
+
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState("success");
@@ -55,8 +57,26 @@ export default function GeneralInfoForm() {
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
-    setFiles({ ...files, [e.target.name]: file });
+    const name = e.target.name;
+    setFiles((prev) => ({ ...prev, [name]: file }));
+    if (file) {
+      setPreviews((prev) => ({ ...prev, [name]: URL.createObjectURL(file) }));
+    } else {
+      setPreviews((prev) => {
+        const next = { ...prev };
+        delete next[name];
+        return next;
+      });
+    }
   };
+
+  useEffect(() => {
+    return () => {
+      Object.values(previews).forEach((url) => {
+        if (url?.startsWith("blob:")) URL.revokeObjectURL(url);
+      });
+    };
+  }, [previews]);
 
   const handleArrayChange = (index, field, value) => {
     const newArray = [...formData[field]];
@@ -125,19 +145,19 @@ export default function GeneralInfoForm() {
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4  mt-8">
           <ImageComponent
-            imageName={formData.PrimaryLogo}
+            imageName={previews.PrimaryLogo || formData.PrimaryLogo}
             className={"w-40"}
             altName={formData.CompanyName}
             skeletonHeight={200}
           />
           <ImageComponent
-            imageName={formData.SecondaryLogo}
+            imageName={previews.SecondaryLogo || formData.SecondaryLogo}
             className={"w-40"}
             altName={formData.CompanyName}
             skeletonHeight={200}
           />
           <ImageComponent
-            imageName={formData.Favicon}
+            imageName={previews.Favicon || formData.Favicon}
             className={"w-40"}
             altName={formData.CompanyName}
             skeletonHeight={200}

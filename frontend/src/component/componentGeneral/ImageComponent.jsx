@@ -12,9 +12,13 @@ const ImageComponent = ({
 
   useEffect(() => {
     if (imageName) {
-      const apiUrl = import.meta.env.VITE_API_URL;
-      const imageUrl = `${apiUrl.replace("/api", "")}/uploads/${imageName}`;
-      setImageSrc(imageUrl);
+      if (imageName.startsWith("blob:") || imageName.startsWith("data:")) {
+        setImageSrc(imageName);
+      } else {
+        const apiUrl = import.meta.env.VITE_API_URL;
+        const imageUrl = `${apiUrl.replace("/api", "")}/uploads/${imageName}`;
+        setImageSrc(imageUrl);
+      }
     }
   }, [imageName]);
 
