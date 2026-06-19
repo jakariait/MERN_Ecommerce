@@ -32,10 +32,6 @@ import {
   preloadAdminRoutes,
   preloadUserRoutes,
 } from "./utils/routePreloader.js";
-import CategoryPage from "./pagesAdmin/CategoryPage.jsx";
-import SubCategoryPage from "./pagesAdmin/SubCategoryPage.jsx";
-import ChildCategoryPage from "./pagesAdmin/ChildCategoryPage.jsx";
-import ProductOptionsPage from "./pagesAdmin/ProductOptionsPage.jsx";
 
 const AdminLoginWithPreload = () => {
   preloadAdminRoutes();
@@ -179,6 +175,16 @@ const ForgetPasswordPage = lazy(
 );
 const ResetPasswordPage = lazy(
   () => import("./pagesUser/ResetPasswordPage.jsx"),
+);
+const CategoryPage = lazy(() => import("./pagesAdmin/CategoryPage.jsx"));
+const SubCategoryPage = lazy(
+  () => import("./pagesAdmin/SubCategoryPage.jsx"),
+);
+const ChildCategoryPage = lazy(
+  () => import("./pagesAdmin/ChildCategoryPage.jsx"),
+);
+const ProductOptionsPage = lazy(
+  () => import("./pagesAdmin/ProductOptionsPage.jsx"),
 );
 const PathaoConfigPage = lazy(
   () => import("./pagesAdmin/PathaoConfigPage.jsx"),
