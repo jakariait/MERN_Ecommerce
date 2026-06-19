@@ -2,17 +2,16 @@ import React from "react";
 import UpdateFreeDeliveryAmount from "./UpdateFreeDeliveryAmount.jsx";
 import UpdateTaxPercentage from "./UpdateTaxPercentage.jsx";
 import UpdateGTM from "./UpdateGTM.jsx";
+import { SectionHeader } from "#component/componentAdmin/SectionHeader.jsx";
 
 const ConfigSetup = () => {
   return (
     <div className={"shadow rounded-lg p-4"}>
-      <h1 className="border-l-4 primaryBorderColor primaryTextColor mb-6  pl-2 text-lg font-semibold">
-        Update Setup Config
-      </h1>
+      <SectionHeader title={"Update Setup Config"} />
       <div className={"grid md:grid-cols-2 gap-6"}>
         <UpdateFreeDeliveryAmount />
         <UpdateTaxPercentage />
-        <UpdateGTM/>
+        <UpdateGTM />
       </div>
     </div>
   );
