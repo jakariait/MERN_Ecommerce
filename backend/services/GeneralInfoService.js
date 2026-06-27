@@ -78,6 +78,12 @@ const updateGeneralInfo = async (data, files) => {
 
 // Delete General Info
 const deleteGeneralInfo = async (req, res) => {
+  const generalInfo = await GeneralInfoModel.findOne({});
+  if (generalInfo) {
+    deleteOldFile(generalInfo.PrimaryLogo);
+    deleteOldFile(generalInfo.SecondaryLogo);
+    deleteOldFile(generalInfo.Favicon);
+  }
   return GeneralInfoModel.deleteMany({});
 };
 

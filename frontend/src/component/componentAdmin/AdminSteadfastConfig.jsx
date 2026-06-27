@@ -50,12 +50,18 @@ const AdminSteadfastConfig = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      await axios.patch(apiUrl, config, {
+      const allowedFields = {
+        baseUrl: config.baseUrl,
+        apiKey: config.apiKey,
+        secretKey: config.secretKey,
+        isActive: config.isActive,
+      };
+      await axios.patch(apiUrl, allowedFields, {
         headers: { Authorization: `Bearer ${token}` },
       });
       toast.success("Steadfast config updated successfully!");
     } catch (error) {
-      toast.error("Failed to update config.");
+      toast.error("Failed to update config. Please try again.");
       console.error(error);
     }
     setLoading(false);

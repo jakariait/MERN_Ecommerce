@@ -198,11 +198,34 @@ const Checkout = () => {
         });
 
         if (createRes.data && createRes.data.bkashURL) {
-          localStorage.setItem(
+          const bkashURL = createRes.data.bkashURL;
+          const allowedDomain = "bkash.com";
+          try {
+            const url = new URL(bkashURL);
+            if (!url.hostname.includes(allowedDomain)) {
+              showSnackbar("Invalid bKash payment URL", "error");
+              setIsProcessingOrder(false);
+              return;
+            }
+          } catch {
+            showSnackbar("Invalid bKash payment URL", "error");
+            setIsProcessingOrder(false);
+            return;
+          }
+          const sanitizedPayload = {
+            ...orderPayload,
+            shippingInfo: {
+              fullName: orderPayload.shippingInfo?.fullName || "",
+              mobileNo: orderPayload.shippingInfo?.mobileNo || "",
+              email: orderPayload.shippingInfo?.email || "",
+              address: orderPayload.shippingInfo?.address || "",
+            },
+          };
+          sessionStorage.setItem(
             "bkash_order_payload",
-            JSON.stringify(orderPayload),
+            JSON.stringify(sanitizedPayload),
           );
-          window.location.href = createRes.data.bkashURL;
+          window.location.href = bkashURL;
           return;
         } else {
           showSnackbar("Failed to initiate bKash payment", "error");

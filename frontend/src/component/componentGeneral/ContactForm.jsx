@@ -341,6 +341,7 @@ const ContactForm = () => {
               loading="lazy"
               referrerPolicy="no-referrer-when-downgrade"
               title="Store Location"
+              sandbox="allow-scripts allow-same-origin"
             />
           </motion.div>
         )}

@@ -53,12 +53,20 @@ const AdminBkashConfig = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      await axios.patch(apiUrl, config, {
+      const allowedFields = {
+        baseUrl: config.baseUrl,
+        appKey: config.appKey,
+        appSecret: config.appSecret,
+        username: config.username,
+        password: config.password,
+        isActive: config.isActive,
+      };
+      await axios.patch(apiUrl, allowedFields, {
         headers: { Authorization: `Bearer ${token}` },
       });
       toast.success("bKash config updated successfully!");
     } catch (error) {
-      toast.error("Failed to update config.");
+      toast.error("Failed to update config. Please try again.");
       console.error(error);
     }
     setLoading(false);

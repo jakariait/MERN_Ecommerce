@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Skeleton, Typography } from "@mui/material";
 import axios from "axios";
+import sanitizeHtml from "../../utils/sanitizeHtml.js";
 
 const PublicContentViewer = ({ title, endpoint }) => {
   const apiUrl = import.meta.env.VITE_API_URL;
@@ -49,7 +50,7 @@ const PublicContentViewer = ({ title, endpoint }) => {
 
       <div
         className="prose max-w-none rendered-html"
-        dangerouslySetInnerHTML={{ __html: content }}
+        dangerouslySetInnerHTML={{ __html: sanitizeHtml(content) }}
       />
     </div>
   );

@@ -6,6 +6,7 @@ import { FaTruck } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import useCartStore from "../../store/useCartStore.js";
 import WishlistButton from "./WishlistButton.jsx";
+import sanitizeHtml from "../../utils/sanitizeHtml.js";
 
 const ProductAddToCart = ({ product }) => {
   const [quantity, setQuantity] = useState(1);
@@ -227,14 +228,7 @@ const ProductAddToCart = ({ product }) => {
     return price.toLocaleString();
   };
 
-  const cleanHtml = (html) => {
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(html, "text/html");
-
-    doc.querySelectorAll(".ql-ui").forEach((el) => el.remove());
-
-    return doc.body.innerHTML;
-  };
+  const cleanHtml = (html) => sanitizeHtml(html);
 
   const variantForPrice = selectedVariant || product.variants?.[0];
 

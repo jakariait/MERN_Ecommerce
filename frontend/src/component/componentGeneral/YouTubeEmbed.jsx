@@ -9,6 +9,7 @@ const YouTubeEmbed = ({ videoId }) => {
           title="YouTube video player"
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
           allowFullScreen
+          sandbox="allow-scripts allow-same-origin allow-popups allow-presentation"
           className="w-full h-full sm:w-[560px] sm:h-[315px] rounded-xl shadow-lg border border-gray-700"
         />
       </div>

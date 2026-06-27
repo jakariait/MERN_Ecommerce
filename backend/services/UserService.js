@@ -18,16 +18,29 @@ const userService = {
 
   getUserById: async (id) => await UserModel.findById(id),
 
-  createUser: async (userData) => await UserModel.create(userData),
+  createUser: async (userData) => {
+    const allowedFields = ["fullName", "email", "phone", "password", "address", "userImage"];
+    const sanitized = {};
+    for (const field of allowedFields) {
+      if (userData[field] !== undefined) sanitized[field] = userData[field];
+    }
+    return UserModel.create(sanitized);
+  },
 
   updateUser: async (id, userData) => {
+    const allowedFields = ["fullName", "email", "phone", "address", "userImage"];
+    const sanitized = {};
+    for (const field of allowedFields) {
+      if (userData[field] !== undefined) sanitized[field] = userData[field];
+    }
+
     if (userData.userImage) {
       const existingUser = await UserModel.findById(id);
       if (existingUser && existingUser.userImage) {
         deleteOldFile(existingUser.userImage);
       }
     }
-    return UserModel.findByIdAndUpdate(id, userData, {
+    return UserModel.findByIdAndUpdate(id, sanitized, {
       new: true,
       runValidators: true,
     });

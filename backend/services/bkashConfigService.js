@@ -1,9 +1,9 @@
 const BkashConfig = require("../models/BkashConfigModel");
 
 async function getBkashConfig() {
-  const config = await BkashConfig.findOne().lean();
+  const config = await BkashConfig.findOne().select("-appSecret -password").lean();
   if (!config) return null;
-  return config; // Return everything, no fields excluded
+  return config;
 }
 
 

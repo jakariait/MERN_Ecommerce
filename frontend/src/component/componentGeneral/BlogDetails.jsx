@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import ImageComponent from "../componentGeneral/ImageComponent.jsx";
+import sanitizeHtml from "../../utils/sanitizeHtml.js";
 
 const BlogDetails = () => {
   const { slug } = useParams();
@@ -64,7 +65,7 @@ const BlogDetails = () => {
       <div className="grid grid-cols-12 gap-5">
         <div
           className="rendered-html col-span-10"
-          dangerouslySetInnerHTML={{ __html: blog.longDesc }}
+          dangerouslySetInnerHTML={{ __html: sanitizeHtml(blog.longDesc) }}
         />
         <div className="flex flex-col gap-2 mt-4 col-span-2">
           <h1 className="text-lg font-semibold">Tags:</h1>

@@ -27,7 +27,7 @@ const useAuthAdminStore = create((set) => ({
           set({ admin: null, token: null, error: "Token expired or invalid", loading: false });
         } else {
           set({
-            error: error?.response?.data?.message || "Failed to initialize admin",
+            error: "Authentication failed",
             loading: false,
           });
         }
@@ -49,16 +49,10 @@ const useAuthAdminStore = create((set) => ({
       localStorage.setItem("token", token);
       set({ admin, token, loading: false });
     } catch (error) {
-      if (error.response) {
-        set({
-          error: error.response?.data?.message || "Login failed",
-          loading: false,
-        });
-      } else if (error.request) {
-        set({ error: "No response from server", loading: false });
-      } else {
-        set({ error: error.message, loading: false });
-      }
+      set({
+        error: "Login failed. Please check your credentials.",
+        loading: false,
+      });
     }
   },
 

@@ -8,10 +8,21 @@ const adminService = {
 
   getAdminById: async (id) => await AdminModel.findById(id).select("-password"),
 
-  createAdmin: async (adminData) => await AdminModel.create(adminData),
+  createAdmin: async (adminData) => {
+    const allowedFields = ["name", "email", "mobileNo", "password", "permissions"];
+    const sanitized = {};
+    for (const field of allowedFields) {
+      if (adminData[field] !== undefined) sanitized[field] = adminData[field];
+    }
+    return AdminModel.create(sanitized);
+  },
 
   updateAdmin: async (id, adminData) => {
-    const updateData = { ...adminData };
+    const allowedFields = ["name", "email", "mobileNo", "password", "permissions"];
+    const updateData = {};
+    for (const field of allowedFields) {
+      if (adminData[field] !== undefined) updateData[field] = adminData[field];
+    }
 
     if (updateData.password) {
       const salt = await bcrypt.genSalt(10);

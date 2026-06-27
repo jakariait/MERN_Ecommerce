@@ -1,9 +1,8 @@
 const SteadfastConfig = require("../models/SteadfastConfigModel");
 
 exports.getSteadfastConfig = async () => {
-  let config = await SteadfastConfig.findOne();
+  let config = await SteadfastConfig.findOne().select("-apiKey -secretKey");
 
-  // If no config found, return a default object (optional fallback)
   if (!config) {
     config = await SteadfastConfig.create({});
   }

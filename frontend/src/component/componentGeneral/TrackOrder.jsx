@@ -12,6 +12,7 @@ import {
   ArrowRight,
   AlertCircle,
 } from "lucide-react";
+import sanitizeHtml from "../../utils/sanitizeHtml.js";
 
 const TrackOrder = () => {
   const apiUrl = import.meta.env.VITE_API_URL;
@@ -375,10 +376,7 @@ const TrackOrder = () => {
                         {item.productId?.shortDesc && (
                           <span
                             dangerouslySetInnerHTML={{
-                              __html: item.productId.shortDesc.substring(
-                                0,
-                                100,
-                              ),
+                              __html: sanitizeHtml(item.productId.shortDesc.substring(0, 100)),
                             }}
                           />
                         )}

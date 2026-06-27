@@ -1,4 +1,5 @@
 const express = require("express");
+const rateLimit = require("express-rate-limit");
 const multer = require("multer");
 const path = require("path");
 
@@ -65,6 +66,25 @@ require("dotenv").config();
 
 const router = express.Router();
 
+// Rate limiters
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  message: { message: "Too many login attempts, please try again after 15 minutes" },
+});
+
+const adminLoginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 5,
+  message: { message: "Too many admin login attempts, please try again after 15 minutes" },
+});
+
+const passwordResetLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 3,
+  message: { message: "Too many password reset attempts, please try again after 15 minutes" },
+});
+
 // Set Up Multer Storage
 const storage = multer.diskStorage({
   destination: (req, file, cb) => cb(null, "uploads/"), // Ensure files are saved in the 'uploads' folder
@@ -77,14 +97,13 @@ const fileFilter = (req, file, cb) => {
     file.mimetype === "image/jpeg" ||
     file.mimetype === "image/png" ||
     file.mimetype === "image/webp" ||
-    file.mimetype === "image/jpg" ||
-    file.mimetype === "image/svg+xml"
+    file.mimetype === "image/jpg"
   ) {
     cb(null, true);
   } else {
     cb(
       new Error(
-        "Invalid file type. Only JPEG, PNG, JPG, WebP and SVG are allowed.",
+        "Invalid file type. Only JPEG, PNG, JPG and WebP are allowed.",
       ),
       false,
     );
@@ -255,7 +274,7 @@ router.delete(
 );
 
 // Admin Login route
-router.post("/admin/login", AdminController.loginAdmin);
+router.post("/admin/login", adminLoginLimiter, AdminController.loginAdmin);
 router.get("/admin/me", authenticateToken, AdminController.getLoggedInAdmin);
 
 // CRUD routes for Admin User
@@ -293,12 +312,12 @@ router.delete(
 // User Login Route
 
 // 🚀 Public Routes
-router.post("/login", userController.loginUser); // User login (email/phone and password)
+router.post("/login", loginLimiter, userController.loginUser); // User login (email/phone and password)
 router.post("/register", userController.createUser); // Create a new user
 
 // 🚀 Protected Routes (Requires Authentication)
 router.get("/profile", userProtect, userController.getLoggedInUser); // Get logged-in user's profile
-router.put("/updateUser/:id", userProtect, upload, userController.updateUser);
+router.put("/profile", userProtect, upload, userController.updateUser);
 router.put(
   "/request-deletion",
   userProtect,
@@ -679,8 +698,8 @@ router.post("/courier-check", handleCourierCheck);
 router.get("/courier/status/:orderId", adminProtect, getDynamicCourierStatus);
 
 // Steadfast Courier Routes
-router.post("/steadfast/create-order", createSteadfastOrder);
-router.post("/steadfast/bulk-order", bulkCreateSteadfastOrder);
+router.post("/steadfast/create-order", adminProtect, createSteadfastOrder);
+router.post("/steadfast/bulk-order", adminProtect, bulkCreateSteadfastOrder);
 router.get(
   "/steadfast/get-order-status",
   adminProtect,
@@ -813,7 +832,7 @@ router.post(
 );
 router.post(
   "/pathao/orders",
-  // adminProtect,
+  adminProtect,
   pathaoController.createOrderController,
 );
 router.post(
@@ -859,8 +878,8 @@ router.get("/blog/slug/:slug", blogController.getBlogBySlug);
 router.get("/blog/:id", blogController.getBlogById);
 
 // Password Reset Routes
-router.post("/request-reset", PassWordResetController.requestPasswordReset);
-router.post("/reset-password", PassWordResetController.resetPasswordWithOTP);
+router.post("/request-reset", passwordResetLimiter, PassWordResetController.requestPasswordReset);
+router.post("/reset-password", passwordResetLimiter, PassWordResetController.resetPasswordWithOTP);
 
 // Product Option Routes
 router.get("/product-options", productOptionController.getAllProductOptions);

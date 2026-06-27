@@ -4,7 +4,7 @@ import UserLayout from "../component/componentGeneral/UserLayout.jsx";
 import useWishlistStore from "../store/useWishlistStore.js";
 import useAuthUserStore from "../store/AuthUserStore.js";
 import WishlistButton from "../component/componentGeneral/WishlistButton.jsx";
-import ImageComponentWithCompression from "../component/componentGeneral/ImageComponentWithCompression.jsx";
+import ImageComponent from "../component/componentGeneral/ImageComponent.jsx";
 import BuyNowButton from "../component/componentGeneral/BuyNowButton.jsx";
 import { Heart } from "lucide-react";
 
@@ -183,13 +183,11 @@ const WishlistPage = () => {
               return (
                 <div key={item._id} className="relative min-h-[250px]">
                   <Link to={`/product/${product.slug}`}>
-                    <ImageComponentWithCompression
+                    <ImageComponent
                       imageName={product.thumbnailImage}
                       className="w-full aspect-square object-cover"
                       altName={product.name}
                       skeletonHeight={250}
-                      width={600}
-                      height={600}
                     />
                   </Link>
                   <Link to={`/product/${product.slug}`}>

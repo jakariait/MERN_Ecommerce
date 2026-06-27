@@ -13,6 +13,7 @@ import ProductGallery from "./ProductGallery.jsx";
 import ProductAddToCart from "./ProductAddToCart.jsx";
 import ProductBreadcrumbs from "./ProductBreadcrumbs.jsx";
 import ProductDetailsSkeleton from "../skeleton/ProductDetailsSkeleton.jsx";
+import sanitizeHtml from "../../utils/sanitizeHtml.js";
 const SimilarProducts = lazy(() => import("./SimilarProducts.jsx"));
 const YouTubeEmbed = lazy(() => import("./YouTubeEmbed.jsx"));
 const RecentlyViewedProducts = lazy(
@@ -63,16 +64,7 @@ const ProductDetails = () => {
       ? calculateDiscountPercentage(product.finalPrice, product.finalDiscount)
       : 0;
 
-  // Function to sanitize/remove editor-specific tags like ql-ui
-  const cleanHtml = (html) => {
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(html, "text/html");
-
-    // Remove Quill editor-only UI elements
-    doc.querySelectorAll(".ql-ui").forEach((el) => el.remove());
-
-    return doc.body.innerHTML;
-  };
+  const cleanHtml = (html) => sanitizeHtml(html);
 
   // Data layer for View Content
 

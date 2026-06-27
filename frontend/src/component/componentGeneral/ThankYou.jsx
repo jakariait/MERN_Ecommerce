@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import axios from "axios";
 import generalInfoStore from "../../store/GeneralInfoStore.js";
+import sanitizeHtml from "../../utils/sanitizeHtml.js";
 
 const ThankYou = () => {
   const { orderId } = useParams();
@@ -389,7 +390,7 @@ const ThankYou = () => {
                     {item.productId?.shortDesc && (
                       <span
                         dangerouslySetInnerHTML={{
-                          __html: item.productId.shortDesc.substring(0, 100),
+                          __html: sanitizeHtml(item.productId.shortDesc.substring(0, 100)),
                         }}
                       />
                     )}

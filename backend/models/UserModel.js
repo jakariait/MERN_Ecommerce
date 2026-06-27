@@ -7,9 +7,11 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
       trim: true,
+      maxlength: [100, "Name cannot exceed 100 characters"],
     },
     userImage: {
       type: String,
+      maxlength: [500, "Image path cannot exceed 500 characters"],
     },
     email: {
       type: String,
@@ -17,6 +19,7 @@ const userSchema = new mongoose.Schema(
       unique: true,
       sparse: true,
       trim: true,
+      maxlength: [254, "Email cannot exceed 254 characters"],
       match: [
         /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
         "Please fill a valid email address",
@@ -38,12 +41,14 @@ const userSchema = new mongoose.Schema(
     address: {
       type: String,
       required: true,
+      maxlength: [500, "Address cannot exceed 500 characters"],
     },
     phone: {
       type: String,
       required: true,
       unique: true,
       sparse: true,
+      maxlength: [15, "Phone number cannot exceed 15 characters"],
       match: [/^\d{10,15}$/, "Please enter a valid phone number"],
     },
     password: {

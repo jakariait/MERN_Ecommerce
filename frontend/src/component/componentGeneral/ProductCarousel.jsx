@@ -5,7 +5,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import Skeleton from "react-loading-skeleton";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
-import ImageComponentWithCompression from "./ImageComponentWithCompression.jsx";
+import ImageComponent from "./ImageComponent.jsx";
 
 const ProductCarousel = () => {
   const {
@@ -63,16 +63,11 @@ const ProductCarousel = () => {
           <Slider ref={sliderRef} {...settings}>
             {products.map((product, index) => (
               <div key={index} className="relative">
-                <ImageComponentWithCompression
+                <ImageComponent
                   imageName={product.imgSrc}
                   className="w-full h-full object-contain"
                   skeletonHeight={400}
                   altName={`Banner ${index + 1}`}
-                  width={1000}
-                  height={1000}
-                  loadingStrategy="eager"
-                  fetchPriority="high"
-                  hideSkeleton={index === 0}
                 />
               </div>
             ))}

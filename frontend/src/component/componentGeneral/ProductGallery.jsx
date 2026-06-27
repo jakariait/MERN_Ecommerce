@@ -5,7 +5,7 @@ import "lightgallery/css/lg-thumbnail.css";
 import "lightgallery/css/lg-zoom.css";
 import lgThumbnail from "lightgallery/plugins/thumbnail";
 import lgZoom from "lightgallery/plugins/zoom";
-import ImageComponent from "./ImageComponentWithCompression.jsx";
+import ImageComponent from "./ImageComponent.jsx";
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 import { BsArrowsFullscreen } from "react-icons/bs";
 
@@ -97,10 +97,6 @@ const ProductGallery = ({ images, discount, zoom = true, productName }) => {
                   altName={productName}
                   className="w-full aspect-square object-cover"
                   skeletonHeight={"400px"}
-                  width={1000}
-                  height={1000}
-                  loadingStrategy="eager"
-                  fetchPriority="high"
                 />
                 <button
                   className="absolute md:bottom-4 bottom-1 left-1 p-3 md:left-3 bg-white rounded-full cursor-pointer"
@@ -118,10 +114,6 @@ const ProductGallery = ({ images, discount, zoom = true, productName }) => {
               altName={productName}
               className="w-full aspect-square object-cover"
               skeletonHeight={"200px"}
-              width={1000}
-              height={1000}
-              loadingStrategy="eager"
-              fetchPriority="high"
             />
           </div>
         )}
@@ -156,10 +148,6 @@ const ProductGallery = ({ images, discount, zoom = true, productName }) => {
                     altName={productName}
                     className="w-full aspect-square object-cover"
                     skeletonHeight={"200px"}
-                    width={300}
-                    height={300}
-                    loadingStrategy="eager"
-                    fetchPriority="high"
                   />
                 </div>
               ))}

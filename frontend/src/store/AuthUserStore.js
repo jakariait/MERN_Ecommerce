@@ -31,7 +31,7 @@ const useAuthUserStore = create((set, get) => ({
     } catch (error) {
       console.error("Login error:", error.response || error);
       set({
-        error: error?.response?.data?.message || "Login failed",
+        error: "Login failed. Please check your credentials.",
         loading: false,
       });
     }
@@ -62,7 +62,7 @@ const useAuthUserStore = create((set, get) => ({
       set({
         user: null,
         token: null,
-        error: error?.response?.data?.message || "Failed to fetch profile",
+        error: "Session expired. Please log in again.",
         loading: false,
       });
     }

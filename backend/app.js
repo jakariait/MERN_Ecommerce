@@ -12,9 +12,7 @@ const compression = require("compression");
 const mongoSanitize = require("./middlewares/mongoSanitize");
 const xssMiddleware = require("./middlewares/xssMiddleware");
 
-// Routes
 const router = require("./routes/api");
-const imageMiddleware = require("./middlewares/imageMiddleware");
 
 const app = express();
 
@@ -28,7 +26,12 @@ if (!URL || !process.env.CLIENT_URL) {
 }
 
 mongoose
-  .connect(URL, { autoIndex: true })
+  .connect(URL, {
+    autoIndex: true,
+    maxPoolSize: 10,
+    serverSelectionTimeoutMS: 5000,
+    socketTimeoutMS: 45000,
+  })
   .then(() => console.log("Database Connected"))
   .catch((err) => console.log("DB Connection Error:", err));
 
@@ -53,9 +56,6 @@ const corsOptions = {
 
 // Trust proxy (needed for rate limiting behind proxies)
 app.set("trust proxy", 1);
-
-// Apply Sharp middleware BEFORE static serving
-app.use("/uploads", imageMiddleware);
 
 // Static file serving
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
@@ -100,5 +100,15 @@ app.use(limiter);
 // Routes
 // ---------------------------
 app.use("/api/", router);
+
+// ---------------------------
+// Multer Error Handler
+// ---------------------------
+app.use((err, req, res, next) => {
+  if (err.name === "MulterError" || err.message?.includes("Invalid file type")) {
+    return res.status(400).json({ message: err.message });
+  }
+  next(err);
+});
 
 module.exports = app;

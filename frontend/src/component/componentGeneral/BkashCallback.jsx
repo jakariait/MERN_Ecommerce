@@ -79,8 +79,9 @@ const BkashCallback = () => {
         );
 
         if (execRes.data && execRes.data.paymentID) {
-          const orderPayload = JSON.parse(localStorage.getItem("bkash_order_payload"));
+          const orderPayload = JSON.parse(sessionStorage.getItem("bkash_order_payload") || localStorage.getItem("bkash_order_payload"));
           if (!orderPayload) return;
+          sessionStorage.removeItem("bkash_order_payload");
 
           orderPayload.paymentId = paymentID;
           orderPayload.paymentStatus = "paid";
@@ -101,6 +102,7 @@ const BkashCallback = () => {
           if (orderRes.data.success) {
             clearCart();
             localStorage.removeItem("bkash_order_payload");
+            sessionStorage.removeItem("bkash_order_payload");
             navigate(`/thank-you/${orderRes.data.order.orderNo}`);
           }
         }

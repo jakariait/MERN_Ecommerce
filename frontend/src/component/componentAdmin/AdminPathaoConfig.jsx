@@ -53,12 +53,21 @@ const AdminPathaoConfig = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      await axios.patch(apiUrl, config, {
+      const allowedFields = {
+        baseUrl: config.baseUrl,
+        clientId: config.clientId,
+        clientSecret: config.clientSecret,
+        username: config.username,
+        password: config.password,
+        storeId: config.storeId,
+        isActive: config.isActive,
+      };
+      await axios.patch(apiUrl, allowedFields, {
         headers: { Authorization: `Bearer ${token}` },
       });
       toast.success("Pathao config updated successfully!");
     } catch (error) {
-      toast.error("Failed to update config.");
+      toast.error("Failed to update config. Please try again.");
       console.error(error);
     }
     setLoading(false);

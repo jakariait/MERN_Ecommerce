@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/table";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import sanitizeHtml from "../../utils/sanitizeHtml.js";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -93,7 +94,7 @@ const ViewOrder = () => {
     #thirdRow { display: flex; justify-content: space-between; margin-top: 20px; }
     button, .no-print { display: none !important; }
     #thirdRowRight, #secondRowRight { text-align: right; }
-    </style></head><body>${content.innerHTML}</body></html>
+    </style></head><body>${sanitizeHtml(content.innerHTML)}</body></html>
   `);
     doc.close();
     iframe.onload = () => {
