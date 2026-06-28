@@ -9,8 +9,11 @@ const ImageComponent = ({
 }) => {
   const [imageSrc, setImageSrc] = useState("");
   const [isLoading, setIsLoading] = useState(true);
+  const [hasError, setHasError] = useState(false);
 
   useEffect(() => {
+    setHasError(false);
+    setIsLoading(true);
     if (imageName) {
       if (imageName.startsWith("blob:") || imageName.startsWith("data:")) {
         setImageSrc(imageName);
@@ -19,6 +22,10 @@ const ImageComponent = ({
         const imageUrl = `${apiUrl.replace("/api", "")}/uploads/${imageName}`;
         setImageSrc(imageUrl);
       }
+    } else {
+      setImageSrc("");
+      setIsLoading(false);
+      setHasError(true);
     }
   }, [imageName]);
 
@@ -26,6 +33,14 @@ const ImageComponent = ({
     <div className="relative" style={skeletonHeight ? { minHeight: skeletonHeight } : {}}>
       {isLoading && skeletonHeight && <Skeleton height="100%" width={"100%"} />}
       {isLoading && !skeletonHeight && <Skeleton height={100} width={"100%"} />}
+      {hasError && !isLoading && (
+        <div
+          className={`flex items-center justify-center bg-gray-100 text-gray-400 text-sm ${className}`}
+          style={{ width: "100%", height: skeletonHeight || 100 }}
+        >
+          Image not found
+        </div>
+      )}
       {imageSrc && (
         <img
           src={imageSrc}
@@ -35,7 +50,8 @@ const ImageComponent = ({
           onLoad={() => setIsLoading(false)}
           onError={() => {
             setIsLoading(false);
-            setImageSrc();
+            setHasError(true);
+            setImageSrc("");
           }}
         />
       )}

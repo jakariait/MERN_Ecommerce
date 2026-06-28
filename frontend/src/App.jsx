@@ -177,9 +177,7 @@ const ResetPasswordPage = lazy(
   () => import("./pagesUser/ResetPasswordPage.jsx"),
 );
 const CategoryPage = lazy(() => import("./pagesAdmin/CategoryPage.jsx"));
-const SubCategoryPage = lazy(
-  () => import("./pagesAdmin/SubCategoryPage.jsx"),
-);
+const SubCategoryPage = lazy(() => import("./pagesAdmin/SubCategoryPage.jsx"));
 const ChildCategoryPage = lazy(
   () => import("./pagesAdmin/ChildCategoryPage.jsx"),
 );
@@ -358,9 +356,8 @@ function App() {
             {/* Product Size Routes */}
             <Route
               path="/admin/product-options"
-              element={<ProductOptionsPage/>}
+              element={<ProductOptionsPage />}
             />
-
 
             {/* Product Flag Routes */}
             <Route path="/admin/product-flags" element={<ProductFlagPage />} />
