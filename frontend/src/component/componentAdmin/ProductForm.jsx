@@ -144,26 +144,6 @@ const ProductForm = ({ isEdit: isEditMode }) => {
       setIsActive(String(product.isActive));
       setFreeShipping(product.freeShipping || false);
 
-      if (product.category) {
-        setSelectedCategory(product.category._id);
-        const filteredSubs = subCategories.filter(
-          (sub) => sub.category._id === product.category._id,
-        );
-        setFilteredSubCategories(filteredSubs);
-
-        if (product.subCategory) {
-          setSelectedSubCategory(product.subCategory._id);
-          const filteredChilds = childCategories.filter(
-            (child) => child.subCategory._id === product.subCategory._id,
-          );
-          setFilteredChildCategories(filteredChilds);
-
-          if (product.childCategory) {
-            setSelectedChildCategory(product.childCategory._id);
-          }
-        }
-      }
-
       if (product.thumbnailImage) {
         setImagePreview(`${imageUrl}/${product.thumbnailImage}`);
       }
@@ -197,7 +177,29 @@ const ProductForm = ({ isEdit: isEditMode }) => {
         setHasVariant(false);
       }
     }
-  }, [product, isEditMode, subCategories, childCategories, apiUrl]);
+  }, [product, isEditMode, apiUrl]);
+
+  useEffect(() => {
+    if (isEditMode && product && product.category) {
+      setSelectedCategory(product.category._id);
+      const filteredSubs = subCategories.filter(
+        (sub) => sub.category._id === product.category._id,
+      );
+      setFilteredSubCategories(filteredSubs);
+
+      if (product.subCategory) {
+        setSelectedSubCategory(product.subCategory._id);
+        const filteredChilds = childCategories.filter(
+          (child) => child.subCategory._id === product.subCategory._id,
+        );
+        setFilteredChildCategories(filteredChilds);
+
+        if (product.childCategory) {
+          setSelectedChildCategory(product.childCategory._id);
+        }
+      }
+    }
+  }, [product, subCategories, childCategories, isEditMode]);
 
   const handleToggle = () => {
     setHasVariant(!hasVariant);
@@ -761,7 +763,10 @@ const ProductForm = ({ isEdit: isEditMode }) => {
                         variant="secondary"
                         size="sm"
                         className="absolute top-2 right-2"
-                        onClick={handleRemoveThumbnail}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleRemoveThumbnail();
+                        }}
                       >
                         <X className="size-3 mr-1" />
                         Remove

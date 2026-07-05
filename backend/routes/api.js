@@ -88,9 +88,13 @@ const passwordResetLimiter = rateLimit({
 // Set Up Multer Storage
 const storage = multer.diskStorage({
   destination: (req, file, cb) => cb(null, "uploads/"), // Ensure files are saved in the 'uploads' folder
-  filename: (req, file, cb) =>
-    cb(null, Date.now() + path.extname(file.originalname)), // Naming files uniquely
+  filename: (req, file, cb) => {
+    const uniqueSuffix =
+      Date.now() + "-" + Math.random().toString(36).substring(2, 8);
+    cb(null, uniqueSuffix + path.extname(file.originalname));
+  },
 });
+
 
 const fileFilter = (req, file, cb) => {
   if (

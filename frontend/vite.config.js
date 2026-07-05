@@ -20,7 +20,7 @@ export default defineConfig(({ mode }) => {
           "default-src 'self'",
           `script-src 'self' ${backendOrigin} https://www.googletagmanager.com 'unsafe-inline'`,
           "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-          `img-src 'self' data: ${backendOrigin}`,
+          `img-src 'self' data: blob: ${backendOrigin}`,
           "font-src 'self' data: https://fonts.gstatic.com",
           "frame-src https://www.youtube.com https://www.google.com",
           `connect-src 'self' ${backendOrigin}`,
