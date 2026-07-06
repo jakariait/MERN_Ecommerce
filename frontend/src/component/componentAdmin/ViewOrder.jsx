@@ -409,6 +409,7 @@ const ViewOrder = () => {
               <TableHeader>
                 <TableRow>
                   <TableHead>SL</TableHead>
+                  <TableHead className="w-16">Image</TableHead>
                   <TableHead>Item</TableHead>
                   <TableHead>Variant</TableHead>
                   <TableHead>Quantity</TableHead>
@@ -426,6 +427,18 @@ const ViewOrder = () => {
                   return (
                     <TableRow key={item._id || index}>
                       <TableCell>{index + 1}</TableCell>
+                      <TableCell>
+                        {product.images?.[0] ? (
+                          <ImageComponent
+                            imageName={product.images[0]}
+                            className="size-12 rounded object-cover"
+                            skeletonHeight={48}
+                            altName={product.name}
+                          />
+                        ) : (
+                          <div className="size-12 rounded bg-muted" />
+                        )}
+                      </TableCell>
                       <TableCell>
                         <div className="font-medium">{product.name}</div>
                         <div className="text-sm text-muted-foreground">

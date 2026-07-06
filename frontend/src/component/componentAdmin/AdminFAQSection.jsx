@@ -141,7 +141,7 @@ const AdminFAQSection = () => {
           ) : (
             <div className="grid md:grid-cols-2 gap-6 p-4">
               {faqs.map((faq) => (
-                <Card key={faq._id} className="shadow-sm border">
+                <Card key={faq._id} className="border-0 shadow-sm bg-muted/20 border-l-4 border-l-primary/60">
                   <CardContent className="p-5">
                 <div className="flex justify-between items-start gap-4">
                   <div className="flex-1 min-w-0 space-y-2">

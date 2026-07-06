@@ -613,6 +613,21 @@ router.delete(
   orderController.bulkDeleteOrders,
 );
 
+// Customers from orders - must be BEFORE :orderId param routes
+router.get(
+  "/orders/customers",
+  adminProtect,
+  checkPermission("view_customers"),
+  orderController.getCustomersFromOrders,
+);
+
+router.get(
+  "/orders/customer/:phone",
+  adminProtect,
+  checkPermission("view_customers"),
+  orderController.getOrdersByPhone,
+);
+
 router.get(
   "/orders/:orderId",
   adminProtect,

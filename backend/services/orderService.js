@@ -732,6 +732,81 @@ const bulkDeleteOrders = async (orderIds) => {
   };
 };
 
+const getCustomersFromOrders = async (search, page, limit) => {
+  try {
+    const pipeline = [
+      {
+        $group: {
+          _id: "$shippingInfo.mobileNo",
+          fullName: { $last: "$shippingInfo.fullName" },
+          email: { $last: "$shippingInfo.email" },
+          address: { $last: "$shippingInfo.address" },
+          phone: { $last: "$shippingInfo.mobileNo" },
+          lastOrderDate: { $last: "$createdAt" },
+          orderCount: { $sum: 1 },
+          totalSpent: { $sum: "$totalAmount" },
+        },
+      },
+      { $sort: { lastOrderDate: -1 } },
+    ];
+
+    if (search && search.trim()) {
+      const searchRegex = new RegExp(search.trim(), "i");
+      pipeline.unshift({
+        $match: {
+          $or: [
+            { "shippingInfo.fullName": searchRegex },
+            { "shippingInfo.mobileNo": searchRegex },
+            { "shippingInfo.email": searchRegex },
+            { "shippingInfo.address": searchRegex },
+          ],
+        },
+      });
+    }
+
+    const countPipeline = [...pipeline, { $count: "total" }];
+    const countResult = await Order.aggregate(countPipeline);
+    const totalCustomers = countResult[0]?.total || 0;
+
+    const usePagination = page && limit;
+    if (usePagination) {
+      const validatedPage = Math.max(1, parseInt(page));
+      const validatedLimit = Math.max(1, parseInt(limit));
+      pipeline.push({ $skip: (validatedPage - 1) * validatedLimit });
+      pipeline.push({ $limit: validatedLimit });
+    }
+
+    const customers = await Order.aggregate(pipeline);
+
+    const totalPages = usePagination
+      ? Math.ceil(totalCustomers / parseInt(limit))
+      : null;
+    const currentPage = usePagination ? parseInt(page) : null;
+
+    return { customers, totalCustomers, totalPages, currentPage };
+  } catch (error) {
+    throw new Error("Error fetching customers from orders: " + error.message);
+  }
+};
+
+const getOrdersByPhone = async (phone) => {
+  try {
+    const orders = await Order.find({ "shippingInfo.mobileNo": phone })
+      .populate({
+        path: "items.productId",
+        select: "name finalPrice finalDiscount finalStock variants images",
+      })
+      .populate({
+        path: "items.variantId",
+      })
+      .sort({ createdAt: -1 })
+      .lean();
+    return orders;
+  } catch (error) {
+    throw new Error("Error fetching orders by phone: " + error.message);
+  }
+};
+
 // Export the functions as an object
 module.exports = {
   createOrder,
@@ -744,4 +819,6 @@ module.exports = {
   trackOrderByOrderNoAndPhone,
   updateMultipleOrderStatuses,
   bulkDeleteOrders,
+  getCustomersFromOrders,
+  getOrdersByPhone,
 };

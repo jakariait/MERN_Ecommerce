@@ -334,6 +334,29 @@ const bulkDeleteOrders = async (req, res) => {
   }
 };
 
+const getCustomersFromOrders = async (req, res) => {
+  try {
+    const { search, page, limit } = req.query;
+    const result = await orderService.getCustomersFromOrders(search, page, limit);
+    res.status(200).json({ success: true, ...result });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+const getOrdersByPhone = async (req, res) => {
+  try {
+    const { phone } = req.params;
+    if (!phone) {
+      return res.status(400).json({ success: false, message: "Phone is required" });
+    }
+    const orders = await orderService.getOrdersByPhone(phone);
+    res.status(200).json({ success: true, orders });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 // Exporting the controller functions
 module.exports = {
   createOrder,
@@ -347,4 +370,6 @@ module.exports = {
   trackOrderByOrderNoAndPhone,
   updateMultipleOrderStatuses,
   bulkDeleteOrders,
+  getCustomersFromOrders,
+  getOrdersByPhone,
 };
