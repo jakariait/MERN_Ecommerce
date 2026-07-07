@@ -16,8 +16,6 @@
     "@dnd-kit/utilities": "^3.2.2",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
-    "@mui/icons-material": "^6.4.6",
-    "@mui/material": "^6.4.9",
     "@nivo/bar": "^0.98.0",
     "@nivo/line": "^0.98.0",
     "@nivo/pie": "^0.98.0",

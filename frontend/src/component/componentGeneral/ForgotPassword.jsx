@@ -1,9 +1,9 @@
 import { useState } from "react";
 import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
-import Snackbar from "@mui/material/Snackbar";
-import MuiAlert from "@mui/material/Alert";
-import CircularProgress from "@mui/material/CircularProgress";
+import { Snackbar } from "@/components/ui/snackbar";
+import { Alert as MuiAlert } from "@/components/ui/alert";
+import { CircularProgress } from "@/components/ui/circular-progress";
 import { Mail, Lock, ArrowLeft } from "lucide-react";
 
 const apiUrl = import.meta.env.VITE_API_URL;

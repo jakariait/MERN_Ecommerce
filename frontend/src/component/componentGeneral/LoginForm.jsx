@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { FaUser, FaLock } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
-import Snackbar from "@mui/material/Snackbar";
-import Alert from "@mui/material/Alert";
+import { Snackbar } from "@/components/ui/snackbar";
+import { Alert } from "@/components/ui/alert";
 import useAuthUserStore from "../../store/AuthUserStore.js";
 import useCartStore from "../../store/useCartStore.js";
 

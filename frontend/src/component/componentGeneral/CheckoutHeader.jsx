@@ -1,7 +1,7 @@
 import React from "react";
-import { Breadcrumbs } from "@mui/material";
+import { Breadcrumbs } from "@/components/ui/breadcrumbs";
+import { Typography } from "@/components/ui/typography";
 import { Link } from "react-router-dom";
-import Typography from "@mui/material/Typography";
 
 const CheckoutHeader = ({ user }) => {
   return (

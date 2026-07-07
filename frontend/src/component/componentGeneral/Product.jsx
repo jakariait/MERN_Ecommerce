@@ -9,18 +9,13 @@ import { useSearchParams } from "react-router-dom";
 import useProductStore from "../../store/useProductStore.js";
 import useCategoryStore from "../../store/useCategoryStore.js";
 import useFlagStore from "../../store/useFlagStore.js";
-import {
-  FormControl,
-  InputLabel,
-  MenuItem,
-  Select,
-  Grid,
-  Typography,
-  Drawer,
-  IconButton,
-  TextField,
-  InputAdornment,
-} from "@mui/material";
+import { FormControl } from "@/components/ui/form-control";
+import { InputLabel } from "@/components/ui/input-label";
+import { MenuItem } from "@/components/ui/menu-item";
+import { Select } from "@/components/ui/legacy-select";
+import { Typography } from "@/components/ui/typography";
+import { Drawer } from "@/components/ui/drawer";
+import { IconButton } from "@/components/ui/icon-button";
 import Skeleton from "react-loading-skeleton";
 import {
   ChevronLeft,
@@ -266,31 +261,24 @@ const Product = () => {
               </div>
               <div className="flex flex-col gap-4">
                 {/* Search in mobile drawer */}
-                <TextField
-                  fullWidth
-                  placeholder="Search products..."
-                  value={searchInput}
-                  onChange={handleSearchChange}
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <Search size={20} className="text-gray-400" />
-                      </InputAdornment>
-                    ),
-                    endAdornment: searchInput && (
-                      <InputAdornment position="end">
-                        <IconButton
-                          size="small"
-                          onClick={handleClearSearch}
-                          className="text-gray-400 hover:text-gray-600"
-                          aria-label="Clear search"
-                        >
-                          <CloseIcon size={16} />
-                        </IconButton>
-                      </InputAdornment>
-                    ),
-                  }}
-                />
+                <div className="relative">
+                  <Search size={20} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                  <input
+                    placeholder="Search products..."
+                    value={searchInput}
+                    onChange={handleSearchChange}
+                    className="h-9 w-full rounded-md border border-input bg-transparent pl-10 pr-8 py-1 text-base shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 md:text-sm"
+                  />
+                  {searchInput && (
+                    <button
+                      onClick={handleClearSearch}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                      aria-label="Clear search"
+                    >
+                      <CloseIcon size={16} />
+                    </button>
+                  )}
+                </div>
 
                 <FormControl fullWidth>
                   <InputLabel>Category</InputLabel>
@@ -441,8 +429,8 @@ const Product = () => {
 
           {/* Desktop Filters */}
           <div className="hidden md:block mb-6">
-            <Grid container spacing={2}>
-              <Grid item xs={4} sm={4} md={3}>
+            <div className="grid grid-cols-12 gap-2">
+              <div className="col-span-4 md:col-span-3">
                 <FormControl fullWidth>
                   <InputLabel>Category</InputLabel>
                   <Select
@@ -461,9 +449,9 @@ const Product = () => {
                     ))}
                   </Select>
                 </FormControl>
-              </Grid>
+              </div>
 
-              <Grid item xs={4} sm={4} md={3}>
+              <div className="col-span-4 md:col-span-3">
                 <FormControl fullWidth>
                   <InputLabel>Flag</InputLabel>
                   <Select
@@ -482,9 +470,9 @@ const Product = () => {
                     ))}
                   </Select>
                 </FormControl>
-              </Grid>
+              </div>
 
-              <Grid item xs={4} sm={4} md={2}>
+              <div className="col-span-4 md:col-span-2">
                 <FormControl fullWidth>
                   <InputLabel>Stock</InputLabel>
                   <Select
@@ -500,9 +488,9 @@ const Product = () => {
                     <MenuItem value="out">Out of Stock</MenuItem>
                   </Select>
                 </FormControl>
-              </Grid>
+              </div>
 
-              <Grid item xs={6} sm={6} md={2}>
+              <div className="col-span-6 md:col-span-2">
                 <FormControl fullWidth>
                   <InputLabel>Sort</InputLabel>
                   <Select
@@ -522,9 +510,9 @@ const Product = () => {
                     <MenuItem value="oldest">Oldest</MenuItem>
                   </Select>
                 </FormControl>
-              </Grid>
+              </div>
 
-              <Grid item xs={6} sm={6} md={2}>
+              <div className="col-span-6 md:col-span-2">
                 <FormControl fullWidth>
                   <InputLabel>Items per page</InputLabel>
                   <Select
@@ -539,8 +527,8 @@ const Product = () => {
                     ))}
                   </Select>
                 </FormControl>
-              </Grid>
-            </Grid>
+              </div>
+            </div>
           </div>
 
           {/* Active Search/Filter Indicators */}

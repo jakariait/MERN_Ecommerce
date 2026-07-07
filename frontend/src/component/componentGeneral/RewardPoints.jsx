@@ -1,12 +1,8 @@
 import React, { useState, useEffect } from "react";
-import {
-  Accordion,
-  AccordionSummary,
-  AccordionDetails,
-  Checkbox,
-  Button,
-} from "@mui/material";
-import { Add, Remove, CheckCircle } from "@mui/icons-material";
+import { Accordion, AccordionSummary, AccordionDetails } from "@/components/ui/accordion";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Button } from "@/components/ui/button";
+import { Plus as Add, Minus as Remove, CheckCircle2 as CheckCircle } from "lucide-react";
 
 const RewardPoints = ({ availablePoints, points, onPointsChange }) => {
   const [expanded, setExpanded] = useState(false);

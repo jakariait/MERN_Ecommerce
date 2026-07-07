@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Heart } from "lucide-react";
-import { Dialog, DialogContent } from "@mui/material";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useNavigate } from "react-router-dom";
 import useWishlistStore from "../../store/useWishlistStore.js";
 import useAuthUserStore from "../../store/AuthUserStore.js";
@@ -89,11 +89,9 @@ const WishlistButton = ({ product, size = 24, className = "" }) => {
 
       <Dialog
         open={loginDialogOpen}
-        onClose={() => setLoginDialogOpen(false)}
-        maxWidth="xs"
-        fullWidth
+        onOpenChange={(o) => !o && setLoginDialogOpen(false)}
       >
-        <DialogContent className="text-center py-8">
+        <DialogContent className="sm:max-w-sm text-center py-8">
           <Heart
             size={48}
             className="mx-auto mb-4 text-red-500"

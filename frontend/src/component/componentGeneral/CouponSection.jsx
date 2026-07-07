@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
-import { Accordion, AccordionSummary, AccordionDetails } from "@mui/material";
-import { Add, Remove, CheckCircle, ErrorOutline } from "@mui/icons-material";
+import { Accordion, AccordionSummary, AccordionDetails } from "@/components/ui/accordion";
+import { Plus as Add, Minus as Remove, CheckCircle2 as CheckCircle, AlertCircle as ErrorOutline } from "lucide-react";
 
 const CouponSection = ({
   orderAmount,

@@ -97,6 +97,15 @@ function TableCell({
   );
 }
 
+function TableContainer({ className, component: Comp = "div", ...props }) {
+  return (
+    <Comp
+      data-slot="table-container"
+      className={cn("relative w-full overflow-x-auto", className)}
+      {...props} />
+  );
+}
+
 function TableCaption({
   className,
   ...props
@@ -118,4 +127,5 @@ export {
   TableRow,
   TableCell,
   TableCaption,
+  TableContainer,
 }

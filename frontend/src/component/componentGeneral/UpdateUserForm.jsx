@@ -1,14 +1,12 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import {
-  TextField,
-  Button,
-  Paper,
-  Typography,
-  CircularProgress,
-  Box,
-} from "@mui/material";
-import DeleteIcon from '@mui/icons-material/Delete';
+import { TextField } from "@/components/ui/text-field";
+import { Button } from "@/components/ui/button";
+import { Paper } from "@/components/ui/paper";
+import { Typography } from "@/components/ui/typography";
+import { CircularProgress } from "@/components/ui/circular-progress";
+import { Box } from "@/components/ui/box";
+import { Trash2 as DeleteIcon } from "lucide-react";
 
 const UpdateUserForm = ({ token }) => {
   const baseUrl = import.meta.env.VITE_API_URL;

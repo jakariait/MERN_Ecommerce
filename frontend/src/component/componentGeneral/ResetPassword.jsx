@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
-import Snackbar from "@mui/material/Snackbar";
-import MuiAlert from "@mui/material/Alert";
+import { Snackbar } from "@/components/ui/snackbar";
+import { Alert as MuiAlert } from "@/components/ui/alert";
 
 const apiUrl = import.meta.env.VITE_API_URL;
 

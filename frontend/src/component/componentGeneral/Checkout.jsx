@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { Snackbar, Alert } from "@mui/material";
+import { Snackbar } from "@/components/ui/snackbar";
+import { Alert } from "@/components/ui/alert";
 
 // Stores
 import useCartStore from "../../store/useCartStore.js";

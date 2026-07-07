@@ -2,13 +2,9 @@ import React from "react";
 import GeneralInfoStore from "../../store/GeneralInfoStore.js";
 import { Link } from "react-router-dom";
 
-import {
-  Accordion,
-  AccordionSummary,
-  AccordionDetails,
-  Typography,
-} from "@mui/material";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import { Accordion, AccordionSummary, AccordionDetails } from "@/components/ui/accordion";
+import { Typography } from "@/components/ui/typography";
+import { ChevronDown as ExpandMoreIcon } from "lucide-react";
 import NewsletterForm from "./NewsletterForm.jsx";
 import SocialMedia from "./SocialMedia.jsx";
 import Skeleton from "react-loading-skeleton";

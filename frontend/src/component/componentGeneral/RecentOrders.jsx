@@ -2,18 +2,11 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import useAuthUserStore from "../../store/AuthUserStore.js";
 import axios from "axios";
-import {
-  Table,
-  TableHead,
-  TableBody,
-  TableRow,
-  TableCell,
-  Button,
-  Typography,
-  Paper,
-  TableContainer,
-  CircularProgress,
-} from "@mui/material";
+import { Table, TableHead, TableBody, TableRow, TableCell, TableContainer } from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
+import { Typography } from "@/components/ui/typography";
+import { Paper } from "@/components/ui/paper";
+import { CircularProgress } from "@/components/ui/circular-progress";
 
 const RecentOrders = () => {
   const apiUrl = import.meta.env.VITE_API_URL;

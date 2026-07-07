@@ -1,19 +1,12 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import useAuthUserStore from "../../store/AuthUserStore.js";
-import {
-  Table,
-  TableHead,
-  TableBody,
-  TableRow,
-  TableCell,
-  Button,
-  Typography,
-  Paper,
-  TableContainer,
-  TablePagination,
-  CircularProgress,
-} from "@mui/material";
+import { Table, TableHead, TableBody, TableRow, TableCell, TableContainer } from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
+import { Typography } from "@/components/ui/typography";
+import { Paper } from "@/components/ui/paper";
+import { TablePagination } from "@/components/ui/table-pagination";
+import { CircularProgress } from "@/components/ui/circular-progress";
 import { useNavigate } from "react-router-dom";
 
 const AllOrders = () => {

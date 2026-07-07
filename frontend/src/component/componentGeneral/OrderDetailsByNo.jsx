@@ -2,17 +2,10 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useParams } from "react-router-dom";
 import useAuthUserStore from "../../store/AuthUserStore";
-import {
-  Paper,
-  Typography,
-  CircularProgress,
-  Table,
-  TableBody,
-  TableRow,
-  TableCell,
-  TableHead,
-  TableContainer,
-} from "@mui/material";
+import { Paper } from "@/components/ui/paper";
+import { Typography } from "@/components/ui/typography";
+import { CircularProgress } from "@/components/ui/circular-progress";
+import { Table, TableBody, TableRow, TableCell, TableHead, TableContainer } from "@/components/ui/table";
 
 const OrderDetailsByNo = () => {
   const { orderNo } = useParams(); // Get orderNo from URL

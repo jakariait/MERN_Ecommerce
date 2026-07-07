@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { Skeleton, Typography } from "@mui/material";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Typography } from "@/components/ui/typography";
 import axios from "axios";
 import sanitizeHtml from "../../utils/sanitizeHtml.js";
 

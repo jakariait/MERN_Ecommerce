@@ -1,60 +1,45 @@
 import React from "react";
-import { Breadcrumbs, Link, Typography } from "@mui/material";
+import { Breadcrumbs } from "@/components/ui/breadcrumbs";
+import { Typography } from "@/components/ui/typography";
 import { Link as RouterLink } from "react-router-dom";
 
 const ProductBreadcrumbs = ({ product }) => {
   return (
     <div className={"md:p-3"}>
       <Breadcrumbs separator="/" aria-label="breadcrumb">
-        {/* Home */}
-        <Link
-          component={RouterLink}
-          to="/"
-          color="inherit"
-          sx={{ textDecoration: "none" }} // Removes the underline
-        >
+        <RouterLink to="/" className="text-inherit no-underline hover:underline">
           Home
-        </Link>
+        </RouterLink>
 
-        {/* Category */}
         {product?.category?.name && (
-          <Link
-            component={RouterLink}
+          <RouterLink
             to={`/shop?category=${product.category.name}`}
-            color="inherit"
-            sx={{ textDecoration: "none" }}
+            className="text-inherit no-underline hover:underline"
           >
             {product.category.name}
-          </Link>
+          </RouterLink>
         )}
 
-        {/* Subcategory */}
         {product?.subCategory?.name && (
-          <Link
-            component={RouterLink}
+          <RouterLink
             to={`/shop?subcategory=${product.subCategory.slug}`}
-            color="inherit"
-            sx={{ textDecoration: "none" }}
+            className="text-inherit no-underline hover:underline"
           >
             {product.subCategory.name}
-          </Link>
+          </RouterLink>
         )}
 
-        {/* Child Category */}
         {product?.childCategory?.name && (
-          <Link
-            component={RouterLink}
+          <RouterLink
             to={`/shop?childCategory=${product.childCategory.slug}`}
-            color="inherit"
-            sx={{ textDecoration: "none" }}
+            className="text-inherit no-underline hover:underline"
           >
             {product.childCategory.name}
-          </Link>
+          </RouterLink>
         )}
 
-        {/* Product Name */}
         {product?.name && (
-          <Typography color="text.primary">{product.name}</Typography>
+          <Typography className="text-muted-foreground">{product.name}</Typography>
         )}
       </Breadcrumbs>
     </div>

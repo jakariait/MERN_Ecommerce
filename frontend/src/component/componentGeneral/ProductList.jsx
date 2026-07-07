@@ -1,11 +1,8 @@
 import React, { useState } from "react";
-import {
-  Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  Typography,
-} from "@mui/material";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { DialogActions } from "@/components/ui/dialog-actions";
+import { Typography } from "@/components/ui/typography";
 import { Link } from "react-router-dom";
 import { FaEye } from "react-icons/fa";
 import ProductGallery from "./ProductGallery.jsx";
@@ -159,16 +156,9 @@ const ProductList = ({ products }) => {
           {selectedProduct && (
             <Dialog
               open={Boolean(selectedProduct)}
-              onClose={handleClose}
-              maxWidth="md"
-              fullWidth
+              onOpenChange={(open) => !open && handleClose()}
             >
-              <DialogActions>
-                <Button onClick={handleClose} color="primary">
-                  Close
-                </Button>
-              </DialogActions>
-              <DialogContent>
+              <DialogContent className="sm:max-w-4xl">
                 <div className="flex flex-col md:grid md:grid-cols-2 gap-4">
                   <ProductGallery
                     images={selectedProduct.images}
@@ -182,6 +172,11 @@ const ProductList = ({ products }) => {
                     <ProductAddToCart product={selectedProduct} />
                   </div>
                 </div>
+                <DialogActions>
+                  <Button onClick={handleClose} variant="outline">
+                    Close
+                  </Button>
+                </DialogActions>
               </DialogContent>
             </Dialog>
           )}

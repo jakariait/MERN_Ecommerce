@@ -12,8 +12,8 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import useAuthUserStore from "../../store/AuthUserStore.js";
 import useCartStore from "../../store/useCartStore.js";
-import Snackbar from "@mui/material/Snackbar";
-import Alert from "@mui/material/Alert";
+import { Snackbar } from "@/components/ui/snackbar";
+import { Alert } from "@/components/ui/alert";
 
 const apiUrl = import.meta.env.VITE_API_URL;
 

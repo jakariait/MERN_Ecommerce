@@ -1,11 +1,7 @@
 import React, { useState, useEffect } from "react";
-import {
-  Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-} from "@mui/material";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { DialogActions } from "@/components/ui/dialog-actions";
 import { FaPlus } from "react-icons/fa6";
 import { FiMinus } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
@@ -96,9 +92,9 @@ const BuyNowButton = ({ product, isAddToCart = false }) => {
         </div>
       </button>
 
-      <Dialog open={open} onClose={handleClose} fullWidth maxWidth="xs">
-        <DialogTitle>{product.name}</DialogTitle>
-        <DialogContent>
+      <Dialog open={open} onOpenChange={(o) => !o && handleClose()}>
+        <DialogContent className="sm:max-w-sm">
+          <DialogTitle className="text-lg font-semibold mb-4">{product.name}</DialogTitle>
           {/* Variant Price */}
           {selectedVariant && (
             <div className="flex gap-2">
@@ -198,18 +194,17 @@ const BuyNowButton = ({ product, isAddToCart = false }) => {
               </span>
             ) : null}
           </div>
+          <DialogActions className="mt-4">
+            <Button onClick={handleClose} variant="outline">Cancel</Button>
+            <Button
+              onClick={handleConfirm}
+              disabled={selectedVariant?.stock === 0 || product.finalStock === 0}
+              className="primaryBgColor"
+            >
+              {isAddToCart ? "Add to Cart" : "Proceed to Checkout"}
+            </Button>
+          </DialogActions>
         </DialogContent>
-        <DialogActions>
-          <Button onClick={handleClose}>Cancel</Button>
-          <Button
-            onClick={handleConfirm}
-            disabled={selectedVariant?.stock === 0 || product.finalStock === 0}
-            className="primaryBgColor"
-            variant="contained"
-          >
-            {isAddToCart ? "Add to Cart" : "Proceed to Checkout"}
-          </Button>
-        </DialogActions>
       </Dialog>
     </>
   );
