@@ -1,10 +1,37 @@
-import React from "react";
+import React, { lazy, Suspense } from "react";
 import { Outlet } from "react-router-dom";
-import SidebarMenu from "./SidebarMenu.jsx";
-import Breadcrumb from "./Breadcrumb.jsx";
 import Footer from "./footer.jsx";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { Skeleton } from "@/components/ui/skeleton";
+
+const SidebarMenu = lazy(() => import("./SidebarMenu.jsx"));
+const Breadcrumb = lazy(() => import("./Breadcrumb.jsx"));
+
+const SidebarFallback = () => (
+  <div className="p-4 space-y-3">
+    <Skeleton className="h-4 w-3/4 bg-white/10" />
+    <Skeleton className="h-4 w-1/2 bg-white/10" />
+    <Skeleton className="h-4 w-2/3 bg-white/10" />
+    <Skeleton className="h-4 w-3/4 bg-white/10" />
+    <Skeleton className="h-4 w-1/2 bg-white/10" />
+  </div>
+);
+
+const BreadcrumbFallback = () => (
+  <div className="sticky top-0 z-20 bg-white shadow-sm border-b border-muted-foreground/10 flex items-center justify-between gap-4 px-4 lg:px-6 py-3">
+    <div className="flex items-center gap-3 min-w-0">
+      <div className="lg:hidden p-1.5 -ml-1">
+        <Skeleton className="h-5 w-5" />
+      </div>
+      <div className="space-y-1">
+        <Skeleton className="h-3 w-24" />
+        <Skeleton className="h-4 w-32" />
+      </div>
+    </div>
+    <Skeleton className="h-8 w-8 rounded-full" />
+  </div>
+);
 
 const LayoutAdmin = () => {
   return (
@@ -15,11 +42,15 @@ const LayoutAdmin = () => {
         <div className="p-4 border-b border-white/10">
           <h2 className="text-lg font-bold tracking-tight">Admin Panel</h2>
         </div>
-        <SidebarMenu />
+        <Suspense fallback={<SidebarFallback />}>
+          <SidebarMenu />
+        </Suspense>
       </div>
 
       <div className="lg:ml-65 flex flex-col min-h-screen">
-        <Breadcrumb />
+        <Suspense fallback={<BreadcrumbFallback />}>
+          <Breadcrumb />
+        </Suspense>
 
         <main className="flex-1 p-2 lg:p-2">
           <TooltipProvider><Outlet /></TooltipProvider>

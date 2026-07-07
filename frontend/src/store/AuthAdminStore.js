@@ -48,11 +48,13 @@ const useAuthAdminStore = create((set) => ({
       const token = admin.token;
       localStorage.setItem("token", token);
       set({ admin, token, loading: false });
+      return true;
     } catch (error) {
       set({
         error: "Login failed. Please check your credentials.",
         loading: false,
       });
+      return false;
     }
   },
 

@@ -62,11 +62,11 @@ export default defineConfig(({ mode }) => {
               }
               if (
                 id.includes("node_modules/react/") ||
-                id.includes("node_modules/react-is")
+                id.includes("react-is")
               ) {
                 return "vendor-react";
               }
-              if (id.includes("react-router-dom")) {
+              if (id.includes("react-router")) {
                 return "vendor-router";
               }
               if (
@@ -92,6 +92,31 @@ export default defineConfig(({ mode }) => {
               }
               if (id.includes("primereact")) {
                 return "vendor-prime";
+              }
+              if (id.includes("framer-motion")) {
+                return "vendor-framer";
+              }
+              if (id.includes("lucide-react")) {
+                return "vendor-lucide";
+              }
+              if (id.includes("react-icons")) {
+                return "vendor-icons";
+              }
+              if (id.includes("@dnd-kit")) {
+                return "vendor-dnd-kit";
+              }
+              if (id.includes("react-pdf") || id.includes("pdfjs-dist")) {
+                return "vendor-pdf";
+              }
+              if (id.includes("monaco-editor")) {
+                return "vendor-monaco";
+              }
+              if (
+                id.includes("lightgallery") ||
+                id.includes("react-ga4") ||
+                id.includes("react-gtm-module")
+              ) {
+                return "vendor-utils";
               }
             }
           },

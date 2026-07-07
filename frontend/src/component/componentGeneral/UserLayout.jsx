@@ -1,13 +1,29 @@
-import React, { useRef, useState } from "react";
+import { useRef, useState, useEffect, Suspense } from "react";
 import { Outlet } from "react-router-dom";
 import Layout from "./Layout.jsx";
 import UserMenu from "./UserMenu.jsx";
 import { FaUser } from "react-icons/fa";
 import { MdClose } from "react-icons/md";
+import Skeleton from "react-loading-skeleton";
+import { preloadUserRoutes } from "../../utils/routePreloader.js";
+
+const UserLoadingFallback = () => (
+  <div className="space-y-4 p-4">
+    <Skeleton className="h-8 w-48" />
+    <Skeleton className="h-4 w-full" />
+    <Skeleton className="h-4 w-3/4" />
+    <Skeleton className="h-4 w-1/2" />
+    <Skeleton className="h-32 w-full" />
+  </div>
+);
 
 const UserLayout = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef(null);
+
+  useEffect(() => {
+    preloadUserRoutes();
+  }, []);
 
   return (
     <Layout>
@@ -57,7 +73,11 @@ const UserLayout = () => {
           </div>
         </div>
         {/*Children Component Append Here*/}
-        <main className="w-full"><Outlet /></main>
+        <main className="w-full">
+          <Suspense fallback={<UserLoadingFallback />}>
+            <Outlet />
+          </Suspense>
+        </main>
       </div>
     </Layout>
   );

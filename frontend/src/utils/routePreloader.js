@@ -1,6 +1,5 @@
 const preloadedPublic = { done: false };
 const preloadedUser = { done: false };
-const preloadedAdmin = { done: false };
 
 export const preloadPublicRoutes = () => {
   if (preloadedPublic.done) return;
@@ -28,7 +27,6 @@ export const preloadPublicRoutes = () => {
     import("../pagesUser/ForgetPasswordPage.jsx"),
     import("../pagesUser/ResetPasswordPage.jsx"),
     import("../pagesUser/NotFoundPage.jsx"),
-    import("../component/componentAdmin/AdminLogin.jsx"),
   ]).catch(() => {});
 };
 
@@ -47,9 +45,6 @@ export const preloadUserRoutes = () => {
 };
 
 export const preloadAdminRoutes = () => {
-  if (preloadedAdmin.done) return;
-  preloadedAdmin.done = true;
-
   Promise.all([
     import("../pagesAdmin/GeneralInfoPage.jsx"),
     import("../pagesAdmin/SubscribedUsersPage.jsx"),
@@ -93,5 +88,6 @@ export const preloadAdminRoutes = () => {
     import("../pagesAdmin/SubCategoryPage.jsx"),
     import("../pagesAdmin/ChildCategoryPage.jsx"),
     import("../pagesAdmin/ProductOptionsPage.jsx"),
+    import("../component/componentAdmin/LayoutAdmin.jsx"),
   ]).catch(() => {});
 };

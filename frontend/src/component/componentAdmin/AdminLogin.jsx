@@ -2,20 +2,24 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import useAuthAdminStore from "../../store/AuthAdminStore.js";
 import GeneralInfoStore from "../../store/GeneralInfoStore.js";
+import { preloadAdminRoutes } from "../../utils/routePreloader.js";
 
 const AdminLogin = () => {
   const { GeneralInfoList } = GeneralInfoStore();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [checkingAuth, setCheckingAuth] = useState(true); // ⬅️ new state
+  const [checkingAuth, setCheckingAuth] = useState(true);
 
   const { login, error, loading, token } = useAuthAdminStore();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await login(email, password);
+    const success = await login(email, password);
+    if (success) {
+      preloadAdminRoutes();
+    }
   };
 
   const isTokenExpired = (token) => {
@@ -29,6 +33,7 @@ const AdminLogin = () => {
 
   useEffect(() => {
     if (token && !isTokenExpired(token)) {
+      preloadAdminRoutes();
       navigate("/admin/dashboard");
     } else {
       setCheckingAuth(false);
@@ -47,10 +52,7 @@ const AdminLogin = () => {
   }
 
   return (
-    <div
-      className="flex min-h-screen items-center justify-center bg-gradient-to-tl primaryBgColor
-    "
-    >
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-tl primaryBgColor">
       <div className="rounded-lg bg-white p-6 shadow-lg">
         <h2 className="text-center text-2xl font-semibold text-gray-700">
           {GeneralInfoList?.CompanyName}
@@ -58,12 +60,11 @@ const AdminLogin = () => {
         <h2 className="mb-4 text-center text-2xl font-semibold text-gray-700">
           Admin Panel
         </h2>
-        <h2 className="  text-gray-700">Welcome Back!</h2>
+        <h2 className="text-gray-700">Welcome Back!</h2>
         <h2 className="mb-4 text-gray-700">
           Enter your email address and password to access admin panel.
         </h2>
 
-        {/*Demo Access*/}
         <div className="bg-yellow-100 text-yellow-800 p-4 rounded-md shadow-md text-sm flex flex-col items-center justify-center mb-5">
           <p className={"mb-3"}>Use this to explore our admin panel.</p>
           <p>
