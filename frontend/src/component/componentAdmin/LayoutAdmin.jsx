@@ -4,6 +4,7 @@ import Footer from "./footer.jsx";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Skeleton } from "@/components/ui/skeleton";
+import AdminLoading from "../skeleton/AdminLoading.jsx";
 
 const SidebarMenu = lazy(() => import("./SidebarMenu.jsx"));
 const Breadcrumb = lazy(() => import("./Breadcrumb.jsx"));
@@ -53,7 +54,11 @@ const LayoutAdmin = () => {
         </Suspense>
 
         <main className="flex-1 p-2 lg:p-2">
-          <TooltipProvider><Outlet /></TooltipProvider>
+          <TooltipProvider>
+            <Suspense fallback={<AdminLoading />}>
+              <Outlet />
+            </Suspense>
+          </TooltipProvider>
         </main>
 
         <footer className="primaryBgColor accentTextColor">
