@@ -1,18 +1,21 @@
-import React from "react";
-import LayoutAdmin from "../component/componentAdmin/LayoutAdmin.jsx";
+import React, { useEffect } from "react";
 import AdminMetaForm from "../component/componentAdmin/AdminMetaForm.jsx";
 import RequirePermission from "../component/componentAdmin/RequirePermission.jsx";
+import useBreadcrumbStore from "../store/BreadcrumbStore.js";
 
-const GeneralInfoPage = ({ pageDetails, title }) => {
+const GeneralInfoPage = () => {
+  const setBreadcrumb = useBreadcrumbStore((s) => s.setBreadcrumb);
+  useEffect(() => {
+    setBreadcrumb("WEBSITE CONFIG", "SEO for HomePage");
+  }, []);
+
   return (
-    <LayoutAdmin breadcrumbData={{pageDetails: "WEBSITE CONFIG", title: "SEO for HomePage"}}>
-      <div>
-        {/* Form Section */}
-        <RequirePermission permission="home_page_seo">
-          <AdminMetaForm />
-        </RequirePermission>
-      </div>
-    </LayoutAdmin>
+    <div>
+      {/* Form Section */}
+      <RequirePermission permission="home_page_seo">
+        <AdminMetaForm />
+      </RequirePermission>
+    </div>
   );
 };
 

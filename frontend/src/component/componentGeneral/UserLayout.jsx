@@ -1,10 +1,11 @@
 import React, { useRef, useState } from "react";
+import { Outlet } from "react-router-dom";
 import Layout from "./Layout.jsx";
 import UserMenu from "./UserMenu.jsx";
 import { FaUser } from "react-icons/fa";
 import { MdClose } from "react-icons/md";
 
-const UserLayout = ({ children }) => {
+const UserLayout = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef(null);
 
@@ -56,7 +57,7 @@ const UserLayout = ({ children }) => {
           </div>
         </div>
         {/*Children Component Append Here*/}
-        <main className="w-full">{children}</main>
+        <main className="w-full"><Outlet /></main>
       </div>
     </Layout>
   );

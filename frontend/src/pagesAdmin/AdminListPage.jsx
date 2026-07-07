@@ -1,20 +1,18 @@
-import React from "react";
-import LayoutAdmin from "../component/componentAdmin/LayoutAdmin.jsx";
+import React, { useEffect } from "react";
 import AdminList from "../component/componentAdmin/AdminList.jsx";
 import RequirePermission from "../component/componentAdmin/RequirePermission.jsx";
+import useBreadcrumbStore from "../store/BreadcrumbStore.js";
 
 const AdminListPage = () => {
+  const setBreadcrumb = useBreadcrumbStore((s) => s.setBreadcrumb);
+  useEffect(() => {
+    setBreadcrumb("SYSTEM USERS", "View All System Users");
+  }, []);
+
   return (
-    <LayoutAdmin
-      breadcrumbData={{
-        pageDetails: "SYSTEM USERS",
-        title: "View All System Users",
-      }}
-    >
-      <RequirePermission permission="admin-users">
-        <AdminList />
-      </RequirePermission>
-    </LayoutAdmin>
+    <RequirePermission permission="admin-users">
+      <AdminList />
+    </RequirePermission>
   );
 };
 

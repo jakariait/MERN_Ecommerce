@@ -1,15 +1,18 @@
-import React from "react";
-import LayoutAdmin from "../component/componentAdmin/LayoutAdmin.jsx";
+import React, { useEffect } from "react";
 import CouponTable from "../component/componentAdmin/CouponTable.jsx";
 import RequirePermission from "../component/componentAdmin/RequirePermission.jsx";
+import useBreadcrumbStore from "../store/BreadcrumbStore.js";
 
 const AddNewCategoryPage = () => {
+  const setBreadcrumb = useBreadcrumbStore((s) => s.setBreadcrumb);
+  useEffect(() => {
+    setBreadcrumb("PROMO CODE", "View and Create Promo Code");
+  }, []);
+
   return (
-    <LayoutAdmin breadcrumbData={{pageDetails: "PROMO CODE", title: "View and Create Promo Code"}}>
-      <RequirePermission permission="manage_coupons">
-        <CouponTable />
-      </RequirePermission>
-    </LayoutAdmin>
+    <RequirePermission permission="manage_coupons">
+      <CouponTable />
+    </RequirePermission>
   );
 };
 

@@ -1,15 +1,18 @@
-import React from "react";
-import LayoutAdmin from "../component/componentAdmin/LayoutAdmin.jsx";
+import React, { useEffect } from "react";
 import EditAdmin from "../component/componentAdmin/EditAdmin.jsx";
 import RequirePermission from "../component/componentAdmin/RequirePermission.jsx";
+import useBreadcrumbStore from "../store/BreadcrumbStore.js";
 
 const EditAdminPage = () => {
+  const setBreadcrumb = useBreadcrumbStore((s) => s.setBreadcrumb);
+  useEffect(() => {
+    setBreadcrumb("SYSTEM USERS", "Update System User");
+  }, []);
+
   return (
-    <LayoutAdmin breadcrumbData={{pageDetails: "SYSTEM USERS", title: "Update System User"}}>
-      <RequirePermission permission="admin-users">
-        <EditAdmin />
-      </RequirePermission>
-    </LayoutAdmin>
+    <RequirePermission permission="admin-users">
+      <EditAdmin />
+    </RequirePermission>
   );
 };
 

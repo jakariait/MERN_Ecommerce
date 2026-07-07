@@ -48,7 +48,7 @@ const Product = () => {
   } = useProductStore();
 
   const { categories } = useCategoryStore();
-  const { flags } = useFlagStore();
+  const { flags, fetchFlags } = useFlagStore();
 
   // Local state for drawer visibility
   const [leftDrawerOpen, setLeftDrawerOpen] = useState(false);
@@ -193,6 +193,13 @@ const Product = () => {
     () => (flags || []).filter((flag) => flag.isActive),
     [flags],
   );
+
+  // Fetch flags on mount if not already loaded
+  useEffect(() => {
+    if (!flags || flags.length === 0) {
+      fetchFlags();
+    }
+  }, [fetchFlags, flags]);
 
   // Effect to fetch products whenever filters change
   useEffect(() => {

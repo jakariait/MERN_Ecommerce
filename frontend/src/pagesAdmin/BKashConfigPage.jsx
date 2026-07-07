@@ -1,18 +1,21 @@
-import React from "react";
-import LayoutAdmin from "../component/componentAdmin/LayoutAdmin.jsx";
+import React, { useEffect } from "react";
 import AdminBkashConfig from "../component/componentAdmin/AdminBkashConfig.jsx";
 import RequirePermission from "../component/componentAdmin/RequirePermission.jsx";
+import useBreadcrumbStore from "../store/BreadcrumbStore.js";
 
-const GeneralInfoPage = ({ pageDetails, title }) => {
+const GeneralInfoPage = () => {
+  const setBreadcrumb = useBreadcrumbStore((s) => s.setBreadcrumb);
+  useEffect(() => {
+    setBreadcrumb("WEBSITE CONFIG", "bKash Configuration");
+  }, []);
+
   return (
-    <LayoutAdmin breadcrumbData={{pageDetails: "WEBSITE CONFIG", title: "bKash Configuration"}}>
-      <div>
-        {/* Form Section */}
-        <RequirePermission permission="bkash_api">
-          <AdminBkashConfig />
-        </RequirePermission>
-      </div>
-    </LayoutAdmin>
+    <div>
+      {/* Form Section */}
+      <RequirePermission permission="bkash_api">
+        <AdminBkashConfig />
+      </RequirePermission>
+    </div>
   );
 };
 

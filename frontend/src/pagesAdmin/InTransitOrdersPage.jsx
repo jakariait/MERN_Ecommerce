@@ -1,14 +1,18 @@
-import LayoutAdmin from "../component/componentAdmin/LayoutAdmin.jsx";
+import { useEffect } from "react";
 import AllOrders from "../component/componentAdmin/AllOrders.jsx";
 import RequirePermission from "../component/componentAdmin/RequirePermission.jsx";
+import useBreadcrumbStore from "../store/BreadcrumbStore.js";
 
 const InTransitOrdersPage = () => {
+  const setBreadcrumb = useBreadcrumbStore((s) => s.setBreadcrumb);
+  useEffect(() => {
+    setBreadcrumb("ORDERS", "View All In Transit Orders");
+  }, []);
+
   return (
-    <LayoutAdmin breadcrumbData={{pageDetails: "ORDERS", title: "View All In Transit Orders"}}>
-      <RequirePermission permission="view_orders">
-        <AllOrders title={"In Transit Orders"} status={"intransit"} />
-      </RequirePermission>
-    </LayoutAdmin>
+    <RequirePermission permission="view_orders">
+      <AllOrders title={"In Transit Orders"} status={"intransit"} />
+    </RequirePermission>
   );
 };
 

@@ -6,7 +6,10 @@ import SidebarMenu from "./SidebarMenu.jsx";
 import useAuthAdminStore from "../../store/AuthAdminStore.js";
 import { useNavigate } from "react-router-dom";
 
-const Breadcrumb = ({ pageDetails, title }) => {
+import useBreadcrumbStore from "../../store/BreadcrumbStore.js";
+
+const Breadcrumb = () => {
+  const { pageDetails, title } = useBreadcrumbStore();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef(null);
   const hamburgerRef = useRef(null);

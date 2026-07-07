@@ -1,5 +1,4 @@
 import React from "react";
-import UserLayout from "../component/componentGeneral/UserLayout.jsx";
 import ChangePassword from "../component/componentGeneral/ChangePassword.jsx";
 import useAuthUserStore from "../store/AuthUserStore.js";
 
@@ -9,9 +8,7 @@ const ChangePasswordPage = () => {
   if (!token) return <p>Please login first</p>;
 
   return (
-    <UserLayout>
-      <ChangePassword token={token} />
-    </UserLayout>
+    <ChangePassword token={token} />
   );
 };
 

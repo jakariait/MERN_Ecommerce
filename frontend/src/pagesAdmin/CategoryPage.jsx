@@ -1,15 +1,18 @@
-import React from 'react';
-import LayoutAdmin from "../component/componentAdmin/LayoutAdmin.jsx";
+import React, { useEffect } from 'react';
 import RequirePermission from "../component/componentAdmin/RequirePermission.jsx";
 import AdminCategoryAllinone from "../component/componentAdmin/AdminCategoryAllinone.jsx";
+import useBreadcrumbStore from "../store/BreadcrumbStore.js";
 
 const CategoryPage = () => {
+  const setBreadcrumb = useBreadcrumbStore((s) => s.setBreadcrumb);
+  useEffect(() => {
+    setBreadcrumb("CATEGORY", "View And Edit All Categories");
+  }, []);
+
   return (
-    <LayoutAdmin breadcrumbData={{pageDetails: "CATEGORY", title: "View And Edit All Categories"}}>
-      <RequirePermission permission="category">
-        <AdminCategoryAllinone />
-      </RequirePermission>
-    </LayoutAdmin>
+    <RequirePermission permission="category">
+      <AdminCategoryAllinone />
+    </RequirePermission>
   );
 };
 

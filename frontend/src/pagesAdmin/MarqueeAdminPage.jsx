@@ -1,18 +1,21 @@
-import React from "react";
-import LayoutAdmin from "../component/componentAdmin/LayoutAdmin.jsx";
+import React, { useEffect } from "react";
 import MarqueeAdmin from "../component/componentAdmin/MarqueeAdmin.jsx";
 import RequirePermission from "../component/componentAdmin/RequirePermission.jsx";
+import useBreadcrumbStore from "../store/BreadcrumbStore.js";
 
-const GeneralInfoPage = ({ pageDetails, title }) => {
+const GeneralInfoPage = () => {
+  const setBreadcrumb = useBreadcrumbStore((s) => s.setBreadcrumb);
+  useEffect(() => {
+    setBreadcrumb("WEBSITE CONFIG", "Scroll Text");
+  }, []);
+
   return (
-    <LayoutAdmin breadcrumbData={{pageDetails: "WEBSITE CONFIG", title: "Scroll Text"}}>
-      <div>
-        {/* Form Section */}
-        <RequirePermission permission="scroll_text">
-          <MarqueeAdmin />
-        </RequirePermission>
-      </div>
-    </LayoutAdmin>
+    <div>
+      {/* Form Section */}
+      <RequirePermission permission="scroll_text">
+        <MarqueeAdmin />
+      </RequirePermission>
+    </div>
   );
 };
 

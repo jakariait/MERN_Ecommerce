@@ -7,13 +7,8 @@ const Layout = ({ children }) => {
   return (
     <div className="flex flex-col min-h-screen">
       <MarqueeModern/>
-      {/* Header Section */}
       <Headers />
-      
-      {/* Main Content */}
       <main className="flex-grow">{children}</main>
-
-      {/* Footer Section */}
       <Footer />
     </div>
   );

@@ -1,14 +1,18 @@
-import LayoutAdmin from "../component/componentAdmin/LayoutAdmin.jsx";
+import { useEffect } from "react";
 import AllOrders from "../component/componentAdmin/AllOrders.jsx";
 import RequirePermission from "../component/componentAdmin/RequirePermission.jsx";
+import useBreadcrumbStore from "../store/BreadcrumbStore.js";
 
 const CancelledOrdersPage = () => {
+  const setBreadcrumb = useBreadcrumbStore((s) => s.setBreadcrumb);
+  useEffect(() => {
+    setBreadcrumb("ORDERS", "View All Cancelled Orders");
+  }, []);
+
   return (
-    <LayoutAdmin breadcrumbData={{pageDetails: "ORDERS", title: "View All Cancelled Orders"}}>
-      <RequirePermission permission="view_orders">
-        <AllOrders title={"Cancelled Orders"} status={"cancelled"} />
-      </RequirePermission>
-    </LayoutAdmin>
+    <RequirePermission permission="view_orders">
+      <AllOrders title={"Cancelled Orders"} status={"cancelled"} />
+    </RequirePermission>
   );
 };
 

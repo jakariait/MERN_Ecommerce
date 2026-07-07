@@ -1,15 +1,18 @@
-import React from 'react';
-import LayoutAdmin from "../component/componentAdmin/LayoutAdmin.jsx";
+import React, { useEffect } from 'react';
 import RequirePermission from "../component/componentAdmin/RequirePermission.jsx";
 import SubCategoryAllinone from "../component/componentAdmin/SubCategoryAllinone.jsx";
+import useBreadcrumbStore from "../store/BreadcrumbStore.js";
 
 const SubCategoryPage = () => {
+  const setBreadcrumb = useBreadcrumbStore((s) => s.setBreadcrumb);
+  useEffect(() => {
+    setBreadcrumb("SUB CATEGORY", "View And Edit All Sub Categories");
+  }, []);
+
   return (
-    <LayoutAdmin breadcrumbData={{pageDetails: "SUB CATEGORY", title: "View And Edit All Sub Categories"}}>
-      <RequirePermission permission="sub_category">
-        <SubCategoryAllinone/>
-      </RequirePermission>
-    </LayoutAdmin>
+    <RequirePermission permission="sub_category">
+      <SubCategoryAllinone/>
+    </RequirePermission>
   );
 };
 

@@ -1,18 +1,21 @@
-import React from "react";
+import React, { useEffect } from "react";
 import GeneralInfoForm from "../component/componentAdmin/GeneralInfoForm.jsx";
-import LayoutAdmin from "../component/componentAdmin/LayoutAdmin.jsx";
 import RequirePermission from "../component/componentAdmin/RequirePermission.jsx";
+import useBreadcrumbStore from "../store/BreadcrumbStore.js";
 
-const GeneralInfoPage = ({ pageDetails, title }) => {
+const GeneralInfoPage = () => {
+  const setBreadcrumb = useBreadcrumbStore((s) => s.setBreadcrumb);
+  useEffect(() => {
+    setBreadcrumb("WEBSITE CONFIG", "General Info");
+  }, []);
+
   return (
-    <LayoutAdmin breadcrumbData={{pageDetails: "WEBSITE CONFIG", title: "General Info"}}>
-      <div>
-        {/* Form Section */}
-        <RequirePermission permission="general_info">
-          <GeneralInfoForm />
-        </RequirePermission>
-      </div>
-    </LayoutAdmin>
+    <div>
+      {/* Form Section */}
+      <RequirePermission permission="general_info">
+        <GeneralInfoForm />
+      </RequirePermission>
+    </div>
   );
 };
 

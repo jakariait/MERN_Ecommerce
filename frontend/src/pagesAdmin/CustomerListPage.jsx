@@ -1,21 +1,22 @@
-import React from "react";
+import React, { useEffect } from "react";
 import CustomerList from "../component/componentAdmin/CustomerList.jsx";
-import LayoutAdmin from "../component/componentAdmin/LayoutAdmin.jsx";
 import RequirePermission from "../component/componentAdmin/RequirePermission.jsx";
 import CustomerListFromOrder from "@/component/componentAdmin/CustomerListFromOrder.jsx";
+import useBreadcrumbStore from "../store/BreadcrumbStore.js";
 
 const CustomerListPage = () => {
+  const setBreadcrumb = useBreadcrumbStore((s) => s.setBreadcrumb);
+  useEffect(() => {
+    setBreadcrumb("CUSTOMERS", "View All Customers");
+  }, []);
+
   return (
-    <LayoutAdmin breadcrumbData={{pageDetails: "CUSTOMERS", title: "View All Customers"}}>
-
-      <RequirePermission permission="view_customers">
-        <div className={"flex flex-col gap-10"}>
-          <CustomerListFromOrder />
-          <CustomerList />
-        </div>
-
-      </RequirePermission>
-    </LayoutAdmin>
+    <RequirePermission permission="view_customers">
+      <div className={"flex flex-col gap-10"}>
+        <CustomerListFromOrder />
+        <CustomerList />
+      </div>
+    </RequirePermission>
   );
 };
 

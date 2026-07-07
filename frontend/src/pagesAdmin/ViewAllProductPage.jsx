@@ -1,16 +1,18 @@
-import React from "react";
-import LayoutAdmin from "../component/componentAdmin/LayoutAdmin.jsx";
+import React, { useEffect } from "react";
 import ViewAllProducts from "../component/componentAdmin/ViewAllProducts.jsx";
 import RequirePermission from "../component/componentAdmin/RequirePermission.jsx";
+import useBreadcrumbStore from "../store/BreadcrumbStore.js";
 
 const ViewAllProductPage = () => {
+  const setBreadcrumb = useBreadcrumbStore((s) => s.setBreadcrumb);
+  useEffect(() => {
+    setBreadcrumb("PRODUCTS", "View All Products");
+  }, []);
+
   return (
-    <LayoutAdmin breadcrumbData={{pageDetails: "PRODUCTS", title: "View All Products"}}>
-      
-      <RequirePermission permission="view_products">
-        <ViewAllProducts />
-      </RequirePermission>
-    </LayoutAdmin>
+    <RequirePermission permission="view_products">
+      <ViewAllProducts />
+    </RequirePermission>
   );
 };
 

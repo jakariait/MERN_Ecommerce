@@ -1,17 +1,20 @@
-import React from "react";
-import LayoutAdmin from "../component/componentAdmin/LayoutAdmin.jsx";
+import React, { useEffect } from "react";
 import AdminSteadfastConfig from "../component/componentAdmin/AdminSteadfastConfig.jsx";
 import RequirePermission from "../component/componentAdmin/RequirePermission.jsx";
+import useBreadcrumbStore from "../store/BreadcrumbStore.js";
 
-const GeneralInfoPage = ({ pageDetails, title }) => {
+const GeneralInfoPage = () => {
+  const setBreadcrumb = useBreadcrumbStore((s) => s.setBreadcrumb);
+  useEffect(() => {
+    setBreadcrumb("WEBSITE CONFIG", "Steadfast API");
+  }, []);
+
   return (
-    <LayoutAdmin breadcrumbData={{pageDetails: "WEBSITE CONFIG", title: "Steadfast API"}}>
-      <div>
-        <RequirePermission permission="steadfast_api">
-          <AdminSteadfastConfig />
-        </RequirePermission>
-      </div>
-    </LayoutAdmin>
+    <div>
+      <RequirePermission permission="steadfast_api">
+        <AdminSteadfastConfig />
+      </RequirePermission>
+    </div>
   );
 };
 

@@ -1,15 +1,18 @@
-import React from "react";
-import LayoutAdmin from "../component/componentAdmin/LayoutAdmin.jsx";
+import React, { useEffect } from "react";
 import SocialMediaLinks from "../component/componentAdmin/SocialMediaLinks.jsx";
 import RequirePermission from "../component/componentAdmin/RequirePermission.jsx";
+import useBreadcrumbStore from "../store/BreadcrumbStore.js";
 
 const SocialLinkUpdaterPage = () => {
+  const setBreadcrumb = useBreadcrumbStore((s) => s.setBreadcrumb);
+  useEffect(() => {
+    setBreadcrumb("WEBSITE CONFIG", "Social Media Links");
+  }, []);
+
   return (
-    <LayoutAdmin breadcrumbData={{pageDetails: "WEBSITE CONFIG", title: "Social Media Links"}}>
-      <RequirePermission permission="website_theme_color" >
-        <SocialMediaLinks />
-      </RequirePermission >
-    </LayoutAdmin>
+    <RequirePermission permission="website_theme_color" >
+      <SocialMediaLinks />
+    </RequirePermission >
   );
 };
 

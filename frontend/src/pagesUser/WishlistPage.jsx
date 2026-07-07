@@ -1,6 +1,5 @@
 import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
-import UserLayout from "../component/componentGeneral/UserLayout.jsx";
 import useWishlistStore from "../store/useWishlistStore.js";
 import useAuthUserStore from "../store/AuthUserStore.js";
 import WishlistButton from "../component/componentGeneral/WishlistButton.jsx";
@@ -132,8 +131,6 @@ const WishlistPage = () => {
     }
   }, [user]);
 
-
-
   const displayWishlist = wishlist.filter(
     (item) =>
       item.product &&
@@ -144,7 +141,7 @@ const WishlistPage = () => {
   const isEmpty = displayWishlist.length === 0;
 
   return (
-    <UserLayout>
+    <>
       <style>{styles}</style>
       <div className="p-4">
         <div className="wishlist-header">
@@ -272,7 +269,7 @@ const WishlistPage = () => {
           </div>
         )}
       </div>
-    </UserLayout>
+    </>
   );
 };
 

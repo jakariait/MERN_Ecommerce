@@ -1,21 +1,24 @@
-import React from "react";
-import LayoutAdmin from "../component/componentAdmin/LayoutAdmin.jsx";
+import React, { useEffect } from "react";
 import CarouselUpload from "../component/componentAdmin/CarouselUpload.jsx";
 import FeatureImageAdmin from "../component/componentAdmin/FeatureImageAdmin.jsx";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import RequirePermission from "../component/componentAdmin/RequirePermission.jsx";
+import useBreadcrumbStore from "../store/BreadcrumbStore.js";
 
 // Create a QueryClient instance
 const queryClient = new QueryClient();
 
 const SliderBannerPage = () => {
+  const setBreadcrumb = useBreadcrumbStore((s) => s.setBreadcrumb);
+  useEffect(() => {
+    setBreadcrumb("WEBSITE CONFIG", "View All Sliders and Banners");
+  }, []);
+
   return (
-    <LayoutAdmin breadcrumbData={{pageDetails: "WEBSITE CONFIG", title: "View All Sliders and Banners"}}>
-      <RequirePermission permission="sliders-banners">
-        <CarouselUpload />
-        <FeatureImageAdmin />
-      </RequirePermission>
-    </LayoutAdmin>
+    <RequirePermission permission="sliders-banners">
+      <CarouselUpload />
+      <FeatureImageAdmin />
+    </RequirePermission>
   );
 };
 

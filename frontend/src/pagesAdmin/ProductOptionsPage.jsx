@@ -1,15 +1,18 @@
-import React from "react";
-import LayoutAdmin from "../component/componentAdmin/LayoutAdmin.jsx";
+import React, { useEffect } from "react";
 import RequirePermission from "../component/componentAdmin/RequirePermission.jsx";
 import ProductOptionsAllinone from "../component/componentAdmin/ProductOptionsAllinone.jsx";
+import useBreadcrumbStore from "../store/BreadcrumbStore.js";
 
 const ProductOptionsPage = () => {
+  const setBreadcrumb = useBreadcrumbStore((s) => s.setBreadcrumb);
+  useEffect(() => {
+    setBreadcrumb("PRODUCT OPTIONS", "View all Product Options");
+  }, []);
+
   return (
-    <LayoutAdmin breadcrumbData={{pageDetails: "PRODUCT OPTIONS", title: "View all Product Options"}}>
-      <RequirePermission permission="product_size">
-        <ProductOptionsAllinone />
-      </RequirePermission>
-    </LayoutAdmin>
+    <RequirePermission permission="product_size">
+      <ProductOptionsAllinone />
+    </RequirePermission>
   );
 };
 

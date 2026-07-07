@@ -1,15 +1,18 @@
-import React from "react";
-import LayoutAdmin from "../component/componentAdmin/LayoutAdmin.jsx";
+import React, { useEffect } from "react";
 import PageEditor from "../component/componentAdmin/PageEditor.jsx";
 import RequirePermission from "../component/componentAdmin/RequirePermission.jsx";
+import useBreadcrumbStore from "../store/BreadcrumbStore.js";
 
 const AddNewCategoryPage = () => {
+  const setBreadcrumb = useBreadcrumbStore((s) => s.setBreadcrumb);
+  useEffect(() => {
+    setBreadcrumb("ABOUT US", "Update About Us");
+  }, []);
+
   return (
-    <LayoutAdmin breadcrumbData={{pageDetails: "ABOUT US", title: "Update About Us"}}>
-      <RequirePermission permission="about_terms-policies">
-        <PageEditor title="About Us" endpoint="about" />
-      </RequirePermission>
-    </LayoutAdmin>
+    <RequirePermission permission="about_terms-policies">
+      <PageEditor title="About Us" endpoint="about" />
+    </RequirePermission>
   );
 };
 

@@ -1,15 +1,18 @@
-import React from "react";
-import LayoutAdmin from "../component/componentAdmin/LayoutAdmin.jsx";
+import React, { useEffect } from "react";
 import AbandonedCartsContainer from "../component/componentAdmin/AbandonedCartsContainer.jsx";
 import RequirePermission from "../component/componentAdmin/RequirePermission.jsx";
+import useBreadcrumbStore from "../store/BreadcrumbStore.js";
 
 const AbandonedCartPage = () => {
+  const setBreadcrumb = useBreadcrumbStore((s) => s.setBreadcrumb);
+  useEffect(() => {
+    setBreadcrumb("INCOMPLETE ORDER", "View All Incomplete Orders");
+  }, []);
+
   return (
-    <LayoutAdmin breadcrumbData={{pageDetails: "INCOMPLETE ORDER", title: "View All Incomplete Orders"}}>
-      <RequirePermission permission="incomplete_orders">
-        <AbandonedCartsContainer />
-      </RequirePermission>
-    </LayoutAdmin>
+    <RequirePermission permission="incomplete_orders">
+      <AbandonedCartsContainer />
+    </RequirePermission>
   );
 };
 

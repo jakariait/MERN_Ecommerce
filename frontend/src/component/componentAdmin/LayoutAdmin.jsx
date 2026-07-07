@@ -1,11 +1,12 @@
 import React from "react";
+import { Outlet } from "react-router-dom";
 import SidebarMenu from "./SidebarMenu.jsx";
 import Breadcrumb from "./Breadcrumb.jsx";
 import Footer from "./footer.jsx";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
-const LayoutAdmin = ({ children, breadcrumbData }) => {
+const LayoutAdmin = () => {
   return (
     <div className="min-h-screen bg-muted/30">
       <Toaster position="top-right" />
@@ -18,15 +19,10 @@ const LayoutAdmin = ({ children, breadcrumbData }) => {
       </div>
 
       <div className="lg:ml-65 flex flex-col min-h-screen">
-        {breadcrumbData && (
-          <Breadcrumb
-            pageDetails={breadcrumbData.pageDetails}
-            title={breadcrumbData.title}
-          />
-        )}
+        <Breadcrumb />
 
         <main className="flex-1 p-2 lg:p-2">
-          <TooltipProvider>{children}</TooltipProvider>
+          <TooltipProvider><Outlet /></TooltipProvider>
         </main>
 
         <footer className="primaryBgColor accentTextColor">

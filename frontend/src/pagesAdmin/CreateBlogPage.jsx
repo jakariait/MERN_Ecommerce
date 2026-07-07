@@ -1,17 +1,20 @@
-import React from "react";
-import LayoutAdmin from "../component/componentAdmin/LayoutAdmin.jsx";
+import React, { useEffect } from "react";
 import AddBlog from "../component/componentAdmin/AddBlog.jsx";
 import RequirePermission from "../component/componentAdmin/RequirePermission.jsx";
+import useBreadcrumbStore from "../store/BreadcrumbStore.js";
 
 const CreateBlogPage = () => {
+  const setBreadcrumb = useBreadcrumbStore((s) => s.setBreadcrumb);
+  useEffect(() => {
+    setBreadcrumb("BLOGS", "Create a Blog");
+  }, []);
+
   return (
-    <LayoutAdmin breadcrumbData={{pageDetails: "BLOGS", title: "Create a Blog"}}>
-      <div>
-        <RequirePermission permission="blogs">
-          <AddBlog />
-        </RequirePermission>
-      </div>
-    </LayoutAdmin>
+    <div>
+      <RequirePermission permission="blogs">
+        <AddBlog />
+      </RequirePermission>
+    </div>
   );
 };
 

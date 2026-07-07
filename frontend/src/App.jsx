@@ -9,16 +9,14 @@ import TagManager from "react-gtm-module";
 
 import useColorStore from "./store/ColorStore.js";
 import GeneralInfoStore from "./store/GeneralInfoStore.js";
-import CarouselStore from "./store/CarouselStore.js";
-import FeatureStore from "./store/FeatureStore.js";
 import CategoryStore from "./store/useCategoryStore.js";
 import SubCategoryStore from "./store/useSubCategoryStore.js";
 import useSocialMediaLinkStore from "./store/SocialMediaLinkStore.js";
-import useFlagStore from "./store/useFlagStore.js";
 import useChildCategoryStore from "./store/useChildCategoryStore.js";
-import useProductStore from "./store/useProductStore.js";
 import useAuthUserStore from "./store/AuthUserStore.js";
-import useWishlistStore from "./store/useWishlistStore.js";
+import Layout from "./component/componentGeneral/Layout.jsx";
+import UserLayout from "./component/componentGeneral/UserLayout.jsx";
+import LayoutAdmin from "./component/componentAdmin/LayoutAdmin.jsx";
 import ProtectedRoute from "./component/componentAdmin/ProtectedRoute.jsx";
 import UserProtectedRoute from "./component/componentGeneral/UserProtectedRoute.jsx";
 import ScrollToTop from "./component/componentGeneral/ScrollToTop.jsx";
@@ -27,6 +25,7 @@ import ScrollToTopButton from "./component/componentGeneral/ScrollToTopButton.js
 import { setFaviconFromApi } from "./utils/setFavicon.js";
 import Loading from "./component/skeleton/Loading.jsx";
 import UserLoading from "./component/skeleton/UserLoading.jsx";
+import AdminLoading from "./component/skeleton/AdminLoading.jsx";
 import { RoutePreloader } from "./component/componentGeneral/RoutePreloader.jsx";
 import {
   preloadAdminRoutes,
@@ -50,11 +49,23 @@ const UserProtectedWrapper = () => {
 const AdminProtectedWrapper = () => {
   preloadAdminRoutes();
   return (
-    <Suspense fallback={<Loading />}>
+    <Suspense fallback={<AdminLoading />}>
       <Outlet />
     </Suspense>
   );
 };
+
+const PublicLayoutWrapper = () => (
+  <Layout>
+    <Outlet />
+  </Layout>
+);
+
+const PublicSuspenseWrapper = () => (
+  <Suspense fallback={<Loading />}>
+    <Outlet />
+  </Suspense>
+);
 
 const GeneralInfoPage = lazy(() => import("./pagesAdmin/GeneralInfoPage.jsx"));
 const HomePage = lazy(() => import("./pagesUser/HomePage.jsx"));
@@ -191,37 +202,24 @@ const WishlistPage = lazy(() => import("./pagesUser/WishlistPage.jsx"));
 
 function App() {
   const { GeneralInfoListRequest, GeneralInfoList } = GeneralInfoStore();
-  const { CarouselStoreListRequest } = CarouselStore();
-  const { FeatureStoreListRequest } = FeatureStore();
-  const { fetchColors, colors } = useColorStore(); // ✅ Extract colors
+  const { fetchColors, colors } = useColorStore();
   const { fetchSocialMediaLinks } = useSocialMediaLinkStore();
   const { fetchCategories } = CategoryStore();
   const { fetchSubCategories } = SubCategoryStore();
-  const { fetchFlags } = useFlagStore();
   const { fetchChildCategories } = useChildCategoryStore();
-  const { fetchProducts, fetchProductsAdmin, fetchHomeProducts } =
-    useProductStore();
   const { initialize } = useAuthUserStore();
-  const { initialize: initWishlist } = useWishlistStore();
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         await Promise.all([
           GeneralInfoListRequest(),
-          CarouselStoreListRequest(),
-          FeatureStoreListRequest(),
           fetchColors(),
           fetchSocialMediaLinks(),
           fetchCategories(),
           fetchSubCategories(),
-          fetchFlags(),
           fetchChildCategories(),
-          fetchProducts(),
-          fetchProductsAdmin(),
           initialize(),
-          initWishlist(),
-          fetchHomeProducts(),
         ]);
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -229,7 +227,7 @@ function App() {
     };
 
     fetchData();
-  }, []); // ✅ Empty dependency array to prevent unnecessary re-renders
+  }, []);
 
   useEffect(() => {
     const initGTM = async () => {
@@ -267,9 +265,9 @@ function App() {
         colors.accentColor,
       );
     }
-  }, [colors]); // ✅ This effect will run only when colors change
+  }, [colors]);
 
-  setFaviconFromApi(GeneralInfoList?.Favicon); // Favicon
+  setFaviconFromApi(GeneralInfoList?.Favicon);
 
   return (
     <Router>
@@ -278,176 +276,155 @@ function App() {
       <ScrollToTopButton />
       <RoutePreloader />
       <Routes>
-        {/* Public Routes - preloaded, no loading */}
-        <Route path="/" element={<HomePage />} />
-        <Route path="/shop" element={<ShopPage />} />
-        <Route path="/product/:slug" element={<ProductDetailsPage />} />
-        <Route path="/contact-us" element={<ContactUsPage />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
-        <Route path="/checkout" element={<CheckoutPage />} />
-        <Route path="/thank-you/:orderId" element={<ThankYouPage />} />
-        <Route path="/bkash-callback" element={<BkashCallbackPage />} />
-        <Route path="/about" element={<AboutUsPageUser />} />
-        <Route path="/termofservice" element={<TosPage />} />
-        <Route path="/privacypolicy" element={<PrivacyPolicyPage />} />
-        <Route path="/refundpolicy" element={<RefundPolicyPage />} />
-        <Route path="/shippinpolicy" element={<ShippingPolicyPage />} />
-        <Route path="/faqs" element={<FAQPage />} />
-        <Route path="/track-order" element={<TrackOrderPage />} />
-        <Route path="/blog" element={<BlogsPage />} />
-        <Route path="/blogs/:slug" element={<BlogDetailsPage />} />
-        <Route path="/forgot-password" element={<ForgetPasswordPage />} />
-        <Route path="/reset-password" element={<ResetPasswordPage />} />
+        <Route element={<PublicLayoutWrapper />}>
+          <Route element={<PublicSuspenseWrapper />}>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/shop" element={<ShopPage />} />
+            <Route path="/product/:slug" element={<ProductDetailsPage />} />
+            <Route path="/contact-us" element={<ContactUsPage />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
+            <Route path="/checkout" element={<CheckoutPage />} />
+            <Route path="/thank-you/:orderId" element={<ThankYouPage />} />
+            <Route path="/bkash-callback" element={<BkashCallbackPage />} />
+            <Route path="/about" element={<AboutUsPageUser />} />
+            <Route path="/termofservice" element={<TosPage />} />
+            <Route path="/privacypolicy" element={<PrivacyPolicyPage />} />
+            <Route path="/refundpolicy" element={<RefundPolicyPage />} />
+            <Route path="/shippinpolicy" element={<ShippingPolicyPage />} />
+            <Route path="/faqs" element={<FAQPage />} />
+            <Route path="/track-order" element={<TrackOrderPage />} />
+            <Route path="/blog" element={<BlogsPage />} />
+            <Route path="/blogs/:slug" element={<BlogDetailsPage />} />
+            <Route path="/forgot-password" element={<ForgetPasswordPage />} />
+            <Route path="/reset-password" element={<ResetPasswordPage />} />
+            <Route path="*" element={<NotFoundPage />} />
+          </Route>
+        </Route>
+
         <Route path="/admin/login" element={<AdminLoginWithPreload />} />
 
-        {/* Protected User Routes - User loading */}
         <Route element={<UserProtectedRoute />}>
           <Route element={<UserProtectedWrapper />}>
-            <Route path="/user/home" element={<UserHomePage />} />
-            <Route path="/user/orders" element={<UserAllOrdersPage />} />
-            <Route
-              path="/user/orders/:orderNo"
-              element={<UserOrderDetailsPage />}
-            />
-            <Route path="/user/manage-profile" element={<UpdateUserPage />} />
-            <Route
-              path="/user/change-password"
-              element={<ChangePasswordPage />}
-            />
-            <Route path="/user/wishlist" element={<WishlistPage />} />
+            <Route element={<UserLayout />}>
+              <Route path="/user/home" element={<UserHomePage />} />
+              <Route path="/user/orders" element={<UserAllOrdersPage />} />
+              <Route
+                path="/user/orders/:orderNo"
+                element={<UserOrderDetailsPage />}
+              />
+              <Route path="/user/manage-profile" element={<UpdateUserPage />} />
+              <Route
+                path="/user/change-password"
+                element={<ChangePasswordPage />}
+              />
+              <Route path="/user/wishlist" element={<WishlistPage />} />
+            </Route>
           </Route>
         </Route>
 
-        {/* Protected Admin Routes - Full loading */}
         <Route element={<ProtectedRoute />}>
           <Route element={<AdminProtectedWrapper />}>
-            <Route path="/admin/general-info" element={<GeneralInfoPage />} />
-            <Route
-              path="/admin/subscribed-users"
-              element={<SubscribedUsersPage />}
-            />
-            <Route path="/admin/color-updater" element={<ColorUpdaterPage />} />
-            <Route
-              path="/admin/social-link-updater"
-              element={<SocialLinkUpdaterPage />}
-            />
-            <Route
-              path="/admin/sliders-banners"
-              element={<SliderBannerPage />}
-            />
-            <Route
-              path="/admin/contact-request"
-              element={<ContactRequestPage />}
-            />
-
-            {/* Category Routes */}
-            <Route path="/admin/category" element={<CategoryPage />} />
-
-            {/* SubCategory Routes */}
-            <Route path="/admin/subcategory" element={<SubCategoryPage />} />
-
-            {/* Child Category Routes */}
-            <Route
-              path="/admin/childcategory"
-              element={<ChildCategoryPage />}
-            />
-
-            {/* Product Size Routes */}
-            <Route
-              path="/admin/product-options"
-              element={<ProductOptionsPage />}
-            />
-
-            {/* Product Flag Routes */}
-            <Route path="/admin/product-flags" element={<ProductFlagPage />} />
-
-            {/* Product Routes */}
-            <Route
-              path="/admin/addnewproduct"
-              element={<AddNewProductPage />}
-            />
-            <Route
-              path="/admin/viewallproducts"
-              element={<ViewAllProductPage />}
-            />
-            <Route
-              path="/admin/edit-product/:slug"
-              element={<EditProductPage />}
-            />
-
-            <Route path="/admin/customers" element={<CustomerListPage />} />
-            {/*Delivery Charges Routes*/}
-            <Route
-              path="/admin/deliverycharge"
-              element={<DeliveryChargePage />}
-            />
-
-            <Route path="/admin/configsetup" element={<ConfigSetupPage />} />
-
-            {/*Orders Routes*/}
-            <Route path="/admin/allorders" element={<AllOrdersPage />} />
-            <Route
-              path="/admin/pendingorders"
-              element={<PendingOrdersPage />}
-            />
-            <Route
-              path="/admin/approvedorders"
-              element={<ApprovedOrdersPage />}
-            />
-            <Route
-              path="/admin/intransitorders"
-              element={<InTransitOrdersPage />}
-            />
-
-            <Route
-              path="/admin/deliveredorders"
-              element={<DeliveredOrdersPage />}
-            />
-            <Route
-              path="/admin/returnedorders"
-              element={<ReturnedOrdersPage />}
-            />
-            <Route
-              path="/admin/cancelledorders"
-              element={<CancelledOrdersPage />}
-            />
-
-            <Route path="/admin/orders/:orderId" element={<ViewOrderPage />} />
-
-            <Route path="/admin/coupon" element={<CouponPage />} />
-            <Route path="/admin/about-us" element={<AboutUsPage />} />
-            <Route path="/admin/terms-policies" element={<TermsPage />} />
-            <Route path="/admin/faqs" element={<AdminFAQSPage />} />
-            <Route path="/admin/scroll-text" element={<MarqueeAdminPage />} />
-            <Route path="/admin/homepage-seo" element={<AdminMetaPage />} />
-            <Route path="/admin/bkash-config" element={<BKashConfigPage />} />
-            <Route
-              path="/admin/steadfast-config"
-              element={<SteadFastConfigPag />}
-            />
-
-            <Route path="/admin/pathao-config" element={<PathaoConfigPage />} />
-
-            <Route path="/admin/dashboard" element={<DashboardPage />} />
-            <Route path="/admin/adminlist" element={<AdminListPage />} />
-            <Route path="/admin/createadmin" element={<CreateAdminPage />} />
-            <Route path="/admin/edit/:id" element={<EditAdminPage />} />
-
-            <Route
-              path="/admin/incomplete-order"
-              element={<AbandonedCartPage />}
-            />
-            <Route path="/admin/create-blog" element={<CreateBlogPage />} />
-
-            <Route path="/admin/blogs" element={<BlogsListPage />} />
-
-            <Route path="/admin/blogs/:id" element={<EditBlogPage />} />
+            <Route element={<LayoutAdmin />}>
+              <Route path="/admin/general-info" element={<GeneralInfoPage />} />
+              <Route
+                path="/admin/subscribed-users"
+                element={<SubscribedUsersPage />}
+              />
+              <Route path="/admin/color-updater" element={<ColorUpdaterPage />} />
+              <Route
+                path="/admin/social-link-updater"
+                element={<SocialLinkUpdaterPage />}
+              />
+              <Route
+                path="/admin/sliders-banners"
+                element={<SliderBannerPage />}
+              />
+              <Route
+                path="/admin/contact-request"
+                element={<ContactRequestPage />}
+              />
+              <Route path="/admin/category" element={<CategoryPage />} />
+              <Route path="/admin/subcategory" element={<SubCategoryPage />} />
+              <Route
+                path="/admin/childcategory"
+                element={<ChildCategoryPage />}
+              />
+              <Route
+                path="/admin/product-options"
+                element={<ProductOptionsPage />}
+              />
+              <Route path="/admin/product-flags" element={<ProductFlagPage />} />
+              <Route
+                path="/admin/addnewproduct"
+                element={<AddNewProductPage />}
+              />
+              <Route
+                path="/admin/viewallproducts"
+                element={<ViewAllProductPage />}
+              />
+              <Route
+                path="/admin/edit-product/:slug"
+                element={<EditProductPage />}
+              />
+              <Route path="/admin/customers" element={<CustomerListPage />} />
+              <Route
+                path="/admin/deliverycharge"
+                element={<DeliveryChargePage />}
+              />
+              <Route path="/admin/configsetup" element={<ConfigSetupPage />} />
+              <Route path="/admin/allorders" element={<AllOrdersPage />} />
+              <Route
+                path="/admin/pendingorders"
+                element={<PendingOrdersPage />}
+              />
+              <Route
+                path="/admin/approvedorders"
+                element={<ApprovedOrdersPage />}
+              />
+              <Route
+                path="/admin/intransitorders"
+                element={<InTransitOrdersPage />}
+              />
+              <Route
+                path="/admin/deliveredorders"
+                element={<DeliveredOrdersPage />}
+              />
+              <Route
+                path="/admin/returnedorders"
+                element={<ReturnedOrdersPage />}
+              />
+              <Route
+                path="/admin/cancelledorders"
+                element={<CancelledOrdersPage />}
+              />
+              <Route path="/admin/orders/:orderId" element={<ViewOrderPage />} />
+              <Route path="/admin/coupon" element={<CouponPage />} />
+              <Route path="/admin/about-us" element={<AboutUsPage />} />
+              <Route path="/admin/terms-policies" element={<TermsPage />} />
+              <Route path="/admin/faqs" element={<AdminFAQSPage />} />
+              <Route path="/admin/scroll-text" element={<MarqueeAdminPage />} />
+              <Route path="/admin/homepage-seo" element={<AdminMetaPage />} />
+              <Route path="/admin/bkash-config" element={<BKashConfigPage />} />
+              <Route
+                path="/admin/steadfast-config"
+                element={<SteadFastConfigPag />}
+              />
+              <Route path="/admin/pathao-config" element={<PathaoConfigPage />} />
+              <Route path="/admin/dashboard" element={<DashboardPage />} />
+              <Route path="/admin/adminlist" element={<AdminListPage />} />
+              <Route path="/admin/createadmin" element={<CreateAdminPage />} />
+              <Route path="/admin/edit/:id" element={<EditAdminPage />} />
+              <Route
+                path="/admin/incomplete-order"
+                element={<AbandonedCartPage />}
+              />
+              <Route path="/admin/create-blog" element={<CreateBlogPage />} />
+              <Route path="/admin/blogs" element={<BlogsListPage />} />
+              <Route path="/admin/blogs/:id" element={<EditBlogPage />} />
+            </Route>
           </Route>
         </Route>
-
-        {/* Not Found */}
-        <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </Router>
   );

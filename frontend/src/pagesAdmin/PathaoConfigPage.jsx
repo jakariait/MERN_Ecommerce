@@ -1,17 +1,20 @@
-import React from "react";
-import LayoutAdmin from "../component/componentAdmin/LayoutAdmin.jsx";
+import React, { useEffect } from "react";
 import RequirePermission from "../component/componentAdmin/RequirePermission.jsx";
 import AdminPathaoConfig from "../component/componentAdmin/AdminPathaoConfig.jsx";
+import useBreadcrumbStore from "../store/BreadcrumbStore.js";
 
 const PathaoConfigPage = () => {
+  const setBreadcrumb = useBreadcrumbStore((s) => s.setBreadcrumb);
+  useEffect(() => {
+    setBreadcrumb("WEBSITE CONFIG", "Pathao API");
+  }, []);
+
   return (
-    <LayoutAdmin breadcrumbData={{pageDetails: "WEBSITE CONFIG", title: "Pathao API"}}>
-      <div>
-        <RequirePermission permission="pathao_api">
-          <AdminPathaoConfig />
-        </RequirePermission>
-      </div>
-    </LayoutAdmin>
+    <div>
+      <RequirePermission permission="pathao_api">
+        <AdminPathaoConfig />
+      </RequirePermission>
+    </div>
   );
 };
 

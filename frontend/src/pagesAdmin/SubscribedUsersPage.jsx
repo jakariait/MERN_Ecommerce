@@ -1,20 +1,23 @@
-import React from "react";
-import LayoutAdmin from "../component/componentAdmin/LayoutAdmin.jsx";
+import React, { useEffect } from "react";
 import SubscribersList from "../component/componentAdmin/SubscribersList.jsx";
 import RequirePermission from "../component/componentAdmin/RequirePermission.jsx";
+import useBreadcrumbStore from "../store/BreadcrumbStore.js";
 
-const SubscribedUsersPage = ({ title, pageDetails }) => {
+const SubscribedUsersPage = () => {
+  const setBreadcrumb = useBreadcrumbStore((s) => s.setBreadcrumb);
+  useEffect(() => {
+    setBreadcrumb("USER SUBSCRIPTION", "View All Subscribed Users");
+  }, []);
+
   return (
-    <LayoutAdmin breadcrumbData={{pageDetails: "USER SUBSCRIPTION", title: "View All Subscribed Users"}}>
-      <div>
-        {/* Form Section */}
-        <RequirePermission permission="subscribed_users">
-          <div className="bg-white shadow-lg p-6 rounded-lg">
-            <SubscribersList />
-          </div>
-        </RequirePermission>
-      </div>
-    </LayoutAdmin>
+    <div>
+      {/* Form Section */}
+      <RequirePermission permission="subscribed_users">
+        <div className="bg-white shadow-lg p-6 rounded-lg">
+          <SubscribersList />
+        </div>
+      </RequirePermission>
+    </div>
   );
 };
 
