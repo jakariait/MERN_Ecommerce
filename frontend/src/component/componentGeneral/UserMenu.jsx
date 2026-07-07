@@ -1,8 +1,7 @@
 import React, { useEffect } from "react";
 import useAuthUserStore from "../../store/AuthUserStore";
 import ImageComponent from "./ImageComponent.jsx";
-import { Link } from "react-router-dom";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 
 import {
   FaSignOutAlt,
@@ -15,32 +14,16 @@ import {
 import Skeleton from "react-loading-skeleton";
 
 const menuItems = [
-  {
-    icon: <FaTachometerAlt />,
-    label: "Dashboard",
-    path: "/user/home",
-    active: true,
-  },
-  {
-    icon: <FaHeart />,
-    label: "My Wishlist",
-    path: "/user/wishlist",
-  },
-  {
-    icon: <FaShoppingCart />,
-    label: "My orders",
-    path: "/user/orders",
-  },
-  {
-    icon: <FaUserCog />,
-    label: "Manage profile",
-    path: "/user/manage-profile",
-  },
+  { icon: <FaTachometerAlt />, label: "Dashboard", path: "/user/home" },
+  { icon: <FaHeart />, label: "My Wishlist", path: "/user/wishlist" },
+  { icon: <FaShoppingCart />, label: "My orders", path: "/user/orders" },
+  { icon: <FaUserCog />, label: "Manage profile", path: "/user/manage-profile" },
   { icon: <FaKey />, label: "Change password", path: "/user/change-password" },
 ];
 const UserMenu = () => {
   const { initialize, user, loading, error, logout } = useAuthUserStore();
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     initialize();
@@ -104,23 +87,26 @@ const UserMenu = () => {
 
             {/* Menu */}
             <nav className="mt-6 space-y-2">
-              {menuItems.map((item, idx) => (
-                <Link
-                  key={idx}
-                  to={item.path}
-                  className={`flex items-center justify-between px-4 py-3 rounded-lg cursor-pointer ${
-                    item.active
-                      ? "primaryBgColor accentTextColor"
-                      : "text-gray-600 hover:bg-gray-100"
-                  }`}
-                >
-                  <div className="flex items-center gap-3">
-                    {item.icon}
-                    <span>{item.label}</span>
-                  </div>
-                  {item.active && <span className="text-xl">→</span>}
-                </Link>
-              ))}
+              {menuItems.map((item, idx) => {
+                const isActive = location.pathname === item.path
+                return (
+                  <Link
+                    key={idx}
+                    to={item.path}
+                    className={`flex items-center justify-between px-4 py-3 rounded-lg cursor-pointer transition-colors ${
+                      isActive
+                        ? "primaryBgColor accentTextColor"
+                        : "text-gray-600 hover:bg-gray-100"
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      {item.icon}
+                      <span>{item.label}</span>
+                    </div>
+                    {isActive && <span className="text-xl">→</span>}
+                  </Link>
+                );
+              })}
             </nav>
           </div>
         )}

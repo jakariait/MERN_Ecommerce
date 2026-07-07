@@ -5,8 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Paper } from "@/components/ui/paper";
 import { Typography } from "@/components/ui/typography";
 import { CircularProgress } from "@/components/ui/circular-progress";
-import { Box } from "@/components/ui/box";
-import { Trash2 as DeleteIcon } from "lucide-react";
+import { Trash2 as DeleteIcon, Upload, User, CheckCircle2, AlertCircle } from "lucide-react";
 
 const UpdateUserForm = ({ token }) => {
   const baseUrl = import.meta.env.VITE_API_URL;
@@ -23,19 +22,14 @@ const UpdateUserForm = ({ token }) => {
 
   const [previewImage, setPreviewImage] = useState(null);
   const [imageRemoved, setImageRemoved] = useState(false);
-
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
-
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
-  // Auto clear success message after 3 seconds
   useEffect(() => {
     if (success) {
-      const timer = setTimeout(() => {
-        setSuccess("");
-      }, 3000);
+      const timer = setTimeout(() => setSuccess(""), 3000);
       return () => clearTimeout(timer);
     }
   }, [success]);
@@ -72,10 +66,7 @@ const UpdateUserForm = ({ token }) => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleFileChange = (e) => {
@@ -96,14 +87,12 @@ const UpdateUserForm = ({ token }) => {
   };
 
   const getImageSource = () => {
-    let imageSrc = null;
-    if (previewImage) {
-      imageSrc = previewImage;
-    } else if (formData.userImage && typeof formData.userImage === "string") {
+    if (previewImage) return previewImage;
+    if (formData.userImage && typeof formData.userImage === "string") {
       const staticBaseUrl = baseUrl.endsWith('/api') ? baseUrl.slice(0, -4) : baseUrl;
-      imageSrc = `${staticBaseUrl}/uploads/${formData.userImage}`;
+      return `${staticBaseUrl}/uploads/${formData.userImage}`;
     }
-    return imageSrc;
+    return null;
   };
 
   const handleSubmit = async (e) => {
@@ -162,106 +151,78 @@ const UpdateUserForm = ({ token }) => {
 
   if (fetching) {
     return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight="50vh">
+      <div className="flex items-center justify-center min-h-[50vh]">
         <CircularProgress />
-      </Box>
+      </div>
     );
   }
 
   const currentImageSrc = getImageSource();
 
   return (
-    <Paper sx={{ p: 4, maxWidth: 700, margin: "auto", borderRadius: 2 }}>
-      <Typography variant="h5" mb={3} align="center" sx={{ fontWeight: 'bold' }}>
-        Update Your Profile
-      </Typography>
+    <Paper className="max-w-lg mx-auto">
+      <div className="px-6 pt-6 pb-5 border-b border-border/50">
+        <Typography variant="h5" className="font-semibold text-center">Update Your Profile</Typography>
+      </div>
 
       {error && (
-        <Typography color="error" mb={2} align="center">
+        <div className="mx-6 mt-4 flex items-center gap-2 rounded-lg bg-destructive/10 px-4 py-3 text-sm text-destructive">
+          <AlertCircle className="size-4 shrink-0" />
           {error}
-        </Typography>
+        </div>
       )}
       {success && (
-        <Typography color="success.main" mb={2} align="center">
+        <div className="mx-6 mt-4 flex items-center gap-2 rounded-lg bg-emerald-50 px-4 py-3 text-sm text-emerald-700 ring-1 ring-emerald-600/20">
+          <CheckCircle2 className="size-4 shrink-0" />
           {success}
-        </Typography>
+        </div>
       )}
 
-      <form onSubmit={handleSubmit} noValidate>
-        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 3 }}>
+      <form onSubmit={handleSubmit} className="p-6 space-y-5">
+        <div className="flex flex-col items-center gap-3">
           {currentImageSrc ? (
             <img
               src={currentImageSrc}
               alt="User Profile"
-              style={{
-                width: 120,
-                height: 120,
-                borderRadius: '50%',
-                objectFit: 'cover',
-                border: '4px solid #fff',
-                boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
-              }}
+              className="size-28 rounded-full object-cover ring-4 ring-border shadow-sm"
               onError={(e) => {
                 e.target.onerror = null;
-                e.target.src = "https://placehold.co/120x120/cccccc/333333?text=No+Image";
+                e.target.style.display = "none";
+                e.target.nextElementSibling?.classList.remove("hidden");
               }}
             />
-          ) : (
-            <Box
-              sx={{
-                width: 120,
-                height: 120,
-                borderRadius: '50%',
-                backgroundColor: '#e0e0e0',
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                color: '#757575',
-                fontSize: '0.8rem',
-                textAlign: 'center',
-                border: '4px solid #fff',
-                boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
-              }}
-            >
-              No Image
-            </Box>
-          )}
-          <Box sx={{ mt: 2, display: 'flex', gap: 1 }}>
+          ) : null}
+          <div className={`size-28 rounded-full bg-muted flex items-center justify-center text-muted-foreground ${currentImageSrc ? "hidden" : ""}`}>
+            <User className="size-10" />
+          </div>
+
+          <div className="flex gap-2">
             <input
               accept="image/*"
               id="user-image-upload"
               type="file"
               onChange={handleFileChange}
-              style={{ display: "none" }}
+              className="hidden"
             />
             <label htmlFor="user-image-upload">
-              <Button variant="contained" component="span" color="primary" sx={{ borderRadius: 2 }}>
-                Upload Image
+              <Button variant="outline" size="sm" asChild className="cursor-pointer">
+                <span><Upload className="size-3.5 mr-1.5" />Upload Image</span>
               </Button>
             </label>
             {(currentImageSrc || previewImage) && (
-              <Button
-                variant="outlined"
-                color="error"
-                startIcon={<DeleteIcon />}
-                onClick={handleRemoveImage}
-                sx={{ borderRadius: 2 }}
-              >
-                Remove Image
+              <Button variant="outline" size="sm" onClick={handleRemoveImage}>
+                <DeleteIcon className="size-3.5 mr-1.5" />Remove
               </Button>
             )}
-          </Box>
-        </Box>
+          </div>
+        </div>
 
         <TextField
           label="Full Name"
           name="fullName"
           value={formData.fullName}
           onChange={handleChange}
-          fullWidth
-          margin="normal"
           required
-          sx={{ borderRadius: 2 }}
         />
         <TextField
           label="Email"
@@ -269,41 +230,27 @@ const UpdateUserForm = ({ token }) => {
           type="email"
           value={formData.email}
           onChange={handleChange}
-          fullWidth
-          margin="normal"
           required
-          sx={{ borderRadius: 2 }}
         />
         <TextField
           label="Address"
           name="address"
           value={formData.address}
           onChange={handleChange}
-          fullWidth
-          margin="normal"
-          multiline
-          rows={2}
-          sx={{ borderRadius: 2 }}
         />
         <TextField
           label="Phone"
           name="phone"
           value={formData.phone}
           onChange={handleChange}
-          fullWidth
-          margin="normal"
-          sx={{ borderRadius: 2 }}
         />
 
-        <Button
-          type="submit"
-          variant="contained"
-          color="primary"
-          disabled={loading}
-          fullWidth
-          sx={{ mt: 3, py: 1, borderRadius: 2 }}
-        >
-          {loading ? "Updating..." : "Update Profile"}
+        <Button type="submit" disabled={loading} className="w-full">
+          {loading ? (
+            <><CircularProgress className="size-4 mr-2" />Updating...</>
+          ) : (
+            "Update Profile"
+          )}
         </Button>
       </form>
     </Paper>

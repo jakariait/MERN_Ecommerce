@@ -113,7 +113,11 @@ const OrderDetailsByNo = () => {
     fetchOrderByOrderNo();
   }, [orderNo]);
 
-  if (loading) return <CircularProgress />;
+  if (loading) return (
+    <div className="flex items-center justify-center min-h-[50vh]">
+      <CircularProgress />
+    </div>
+  );
   if (!order) return <Typography>Order not found</Typography>;
 
   const orderStatusColor = getStatusColor(order.orderStatus);

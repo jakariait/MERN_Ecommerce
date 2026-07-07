@@ -1,7 +1,5 @@
 import React, { useState } from "react";
-import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { DialogActions } from "@/components/ui/dialog-actions";
 import { Typography } from "@/components/ui/typography";
 import { Link } from "react-router-dom";
 import { FaEye } from "react-icons/fa";
@@ -172,11 +170,6 @@ const ProductList = ({ products }) => {
                     <ProductAddToCart product={selectedProduct} />
                   </div>
                 </div>
-                <DialogActions>
-                  <Button onClick={handleClose} variant="outline">
-                    Close
-                  </Button>
-                </DialogActions>
               </DialogContent>
             </Dialog>
           )}

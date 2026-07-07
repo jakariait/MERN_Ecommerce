@@ -215,28 +215,12 @@ const ProductDetails = () => {
             </div>
           )}
 
-          <div className={"xl:w-3/4 mx-auto shadow mt-4"}>
+          <div className={"xl:w-3/4 mx-auto  mt-4 flex flex-col gap-4"}>
             {/*product Description*/}
             {product.longDesc && (
-              <Accordion
-                defaultExpanded
-                style={{
-                  background: "transparent",
-                  boxShadow: "none",
-                  width: "100%",
-                }}
-              >
-                <AccordionSummary
-                  expandIcon={<ExpandMoreIcon />}
-                  aria-controls="panel1-content"
-                  id="panel1-header"
-                  className="p-2 flex items-center"
-                >
-                  <Typography component="span">
-                    <div className="flex items-center gap-2">
-                      <span>Description</span>
-                    </div>
-                  </Typography>
+              <Accordion defaultExpanded>
+                <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                  Description
                 </AccordionSummary>
                 <AccordionDetails style={{ minHeight: "20rem" }}>
                   <div
@@ -250,24 +234,9 @@ const ProductDetails = () => {
             )}
             {/*Product Size Chart*/}
             {product.sizeChart && (
-              <Accordion
-                style={{
-                  background: "transparent",
-                  boxShadow: "none",
-                  width: "100%",
-                }}
-              >
-                <AccordionSummary
-                  expandIcon={<ExpandMoreIcon />}
-                  aria-controls="panel1-content"
-                  id="panel1-header"
-                  className="p-2 flex items-center"
-                >
-                  <Typography component="span">
-                    <div className="flex items-center gap-2">
-                      <span>Size Chart</span>
-                    </div>
-                  </Typography>
+              <Accordion>
+                <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                  Size Chart
                 </AccordionSummary>
                 <AccordionDetails style={{ minHeight: "20rem" }}>
                   <div
@@ -282,24 +251,9 @@ const ProductDetails = () => {
 
             {/*Shipping and Return*/}
             {product.shippingReturn && (
-              <Accordion
-                style={{
-                  background: "transparent",
-                  boxShadow: "none",
-                  width: "100%",
-                }}
-              >
-                <AccordionSummary
-                  expandIcon={<ExpandMoreIcon />}
-                  aria-controls="panel1-content"
-                  id="panel1-header"
-                  className="p-2 flex items-center"
-                >
-                  <Typography component="span">
-                    <div className="flex items-center gap-2">
-                      <span>Shipping and Return</span>
-                    </div>
-                  </Typography>
+              <Accordion>
+                <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                  Shipping and Return
                 </AccordionSummary>
                 <AccordionDetails style={{ minHeight: "20rem" }}>
                   <div

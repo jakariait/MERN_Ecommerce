@@ -5,11 +5,11 @@ import { Button } from "@/components/ui/button";
 import { Paper } from "@/components/ui/paper";
 import { Typography } from "@/components/ui/typography";
 import { CircularProgress } from "@/components/ui/circular-progress";
-import { Box } from "@/components/ui/box";
+import { KeyRound, AlertCircle, CheckCircle2, Eye, EyeOff } from "lucide-react";
 
 const ChangePassword = ({ token }) => {
   const baseUrl = import.meta.env.VITE_API_URL;
-  const changePasswordUrl = `${baseUrl}/change-password`; // adjust to your real API path
+  const changePasswordUrl = `${baseUrl}/change-password`;
 
   const [formData, setFormData] = useState({
     currentPassword: "",
@@ -17,6 +17,7 @@ const ChangePassword = ({ token }) => {
     confirmNewPassword: "",
   });
 
+  const [showPasswords, setShowPasswords] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -30,10 +31,7 @@ const ChangePassword = ({ token }) => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
@@ -41,7 +39,6 @@ const ChangePassword = ({ token }) => {
     setError("");
     setSuccess("");
 
-    // Basic validation: check new password matches confirm password
     if (formData.newPassword !== formData.confirmNewPassword) {
       setError("New password and confirm password do not match.");
       return;
@@ -86,79 +83,74 @@ const ChangePassword = ({ token }) => {
   };
 
   return (
-    <div className={"flex justify-center items-center"}>
-      <div className={"p-4 shadow rounded-lg md:w-2/3 mt-10"}>
-        <Typography
-          variant="h5"
-          mb={3}
-          align="center"
-          sx={{ fontWeight: "bold" }}
-        >
-          Change Password
-        </Typography>
+    <div className="flex justify-center">
+      <Paper className="max-w-md w-full mt-6">
+        <div className="flex items-center gap-3 px-6 pt-6 pb-5 border-b border-border/50">
+          <div className="flex size-10 items-center justify-center rounded-xl bg-primary/10">
+            <KeyRound className="size-5 text-primary" />
+          </div>
+          <Typography variant="h5" className="font-semibold">Change Password</Typography>
+        </div>
 
         {error && (
-          <Typography color="error" mb={2} align="center">
+          <div className="mx-6 mt-4 flex items-center gap-2 rounded-lg bg-destructive/10 px-4 py-3 text-sm text-destructive">
+            <AlertCircle className="size-4 shrink-0" />
             {error}
-          </Typography>
+          </div>
         )}
         {success && (
-          <Typography color="success.main" mb={2} align="center">
+          <div className="mx-6 mt-4 flex items-center gap-2 rounded-lg bg-emerald-50 px-4 py-3 text-sm text-emerald-700 ring-1 ring-emerald-600/20">
+            <CheckCircle2 className="size-4 shrink-0" />
             {success}
-          </Typography>
+          </div>
         )}
 
-        <form onSubmit={handleSubmit} noValidate>
-          <TextField
-            label="Current Password"
-            name="currentPassword"
-            type="password"
-            value={formData.currentPassword}
-            onChange={handleChange}
-            fullWidth
-            margin="normal"
-            required
-            sx={{ borderRadius: 2 }}
-          />
+        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+          <div className="relative">
+            <TextField
+              label="Current Password"
+              name="currentPassword"
+              type={showPasswords ? "text" : "password"}
+              value={formData.currentPassword}
+              onChange={handleChange}
+              required
+            />
+          </div>
           <TextField
             label="New Password"
             name="newPassword"
-            type="password"
+            type={showPasswords ? "text" : "password"}
             value={formData.newPassword}
             onChange={handleChange}
-            fullWidth
-            margin="normal"
             required
-            sx={{ borderRadius: 2 }}
           />
           <TextField
             label="Confirm New Password"
             name="confirmNewPassword"
-            type="password"
+            type={showPasswords ? "text" : "password"}
             value={formData.confirmNewPassword}
             onChange={handleChange}
-            fullWidth
-            margin="normal"
             required
-            sx={{ borderRadius: 2 }}
           />
 
-          <Button
-            type="submit"
-            variant="contained"
-            color="primary"
-            disabled={loading}
-            fullWidth
-            sx={{ mt: 3, py: 1, borderRadius: 2 }}
+          <button
+            type="button"
+            onClick={() => setShowPasswords(!showPasswords)}
+            className="flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors"
           >
+            {showPasswords ? <EyeOff className="size-3.5" /> : <Eye className="size-3.5" />}
+            {showPasswords ? "Hide" : "Show"} passwords
+          </button>
+
+          <Button type="submit" disabled={loading} className="w-full">
             {loading ? (
-              <CircularProgress size={24} color="inherit" />
+              <><CircularProgress className="size-4 mr-2" />Changing...</>
             ) : (
               "Change Password"
             )}
           </Button>
         </form>
-      </div>
+      </Paper>
     </div>
   );
 };
