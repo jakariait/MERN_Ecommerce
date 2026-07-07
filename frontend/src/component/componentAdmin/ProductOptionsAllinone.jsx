@@ -1,9 +1,9 @@
-import React, { useEffect, useState, useMemo } from "react";
-import axios from "axios";
-import useAuthAdminStore from "../../store/AuthAdminStore.js";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import React, { useEffect, useState, useMemo } from 'react';
+import axios from 'axios';
+import useAuthAdminStore from '../../store/AuthAdminStore.js';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import {
   Table,
   TableBody,
@@ -11,8 +11,8 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { Card, CardContent } from "@/components/ui/card";
+} from '@/components/ui/table';
+import { Card, CardContent } from '@/components/ui/card';
 import {
   Dialog,
   DialogContent,
@@ -20,8 +20,8 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
-} from "@/components/ui/dialog";
-import { toast } from "sonner";
+} from '@/components/ui/dialog';
+import { toast } from 'sonner';
 import {
   Plus,
   Search,
@@ -30,8 +30,8 @@ import {
   Loader2,
   ChevronLeft,
   ChevronRight,
-} from "lucide-react";
-import { SectionHeader } from "@/component/componentAdmin/SectionHeader.jsx";
+} from 'lucide-react';
+import { SectionHeader } from '@/component/componentAdmin/SectionHeader.jsx';
 
 const ProductOptionsAllinone = () => {
   const apiUrl = import.meta.env.VITE_API_URL;
@@ -39,14 +39,14 @@ const ProductOptionsAllinone = () => {
 
   const [productOptions, setProductOptions] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState('');
   const [page, setPage] = useState(0);
   const rowsPerPage = 10;
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
   const [editId, setEditId] = useState(null);
-  const [formData, setFormData] = useState({ name: "", values: "" });
+  const [formData, setFormData] = useState({ name: '', values: '' });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -63,7 +63,7 @@ const ProductOptionsAllinone = () => {
         setLoading(false);
       })
       .catch(() => {
-        toast.error("Error fetching product options.");
+        toast.error('Error fetching product options.');
         setLoading(false);
       });
   };
@@ -75,7 +75,7 @@ const ProductOptionsAllinone = () => {
   const handleOpenCreate = () => {
     setIsEdit(false);
     setEditId(null);
-    setFormData({ name: "", values: "" });
+    setFormData({ name: '', values: '' });
     setDialogOpen(true);
   };
 
@@ -84,22 +84,22 @@ const ProductOptionsAllinone = () => {
     setEditId(option._id);
     setFormData({
       name: option.name,
-      values: (option.values || []).join(", "),
+      values: (option.values || []).join(', '),
     });
     setDialogOpen(true);
   };
 
   const handleSave = async () => {
     if (!formData.name.trim() || !formData.values.trim()) {
-      toast.warning("Name and values are required.");
+      toast.warning('Name and values are required.');
       return;
     }
     const valuesArray = formData.values
-      .split(",")
+      .split(',')
       .map((v) => v.trim())
       .filter((v) => v);
     if (valuesArray.length === 0) {
-      toast.warning("At least one value is required.");
+      toast.warning('At least one value is required.');
       return;
     }
     setIsSubmitting(true);
@@ -111,11 +111,11 @@ const ProductOptionsAllinone = () => {
           {
             headers: {
               Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
+              'Content-Type': 'application/json',
             },
           },
         );
-        toast.success("Product option updated successfully!");
+        toast.success('Product option updated successfully!');
       } else {
         await axios.post(
           `${apiUrl}/product-options`,
@@ -123,16 +123,16 @@ const ProductOptionsAllinone = () => {
           {
             headers: {
               Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
+              'Content-Type': 'application/json',
             },
           },
         );
-        toast.success("Product option added successfully!");
+        toast.success('Product option added successfully!');
       }
       setDialogOpen(false);
       fetchProductOptions();
     } catch (err) {
-      toast.error(err.response?.data?.message || "Operation failed.");
+      toast.error(err.response?.data?.message || 'Operation failed.');
     } finally {
       setIsSubmitting(false);
     }
@@ -149,10 +149,10 @@ const ProductOptionsAllinone = () => {
       await axios.delete(`${apiUrl}/product-options/${optionToDelete._id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      toast.success("Product option deleted successfully!");
+      toast.success('Product option deleted successfully!');
       fetchProductOptions();
     } catch (err) {
-      toast.error("Failed to delete product option.");
+      toast.error('Failed to delete product option.');
     } finally {
       setDeleteDialogOpen(false);
       setOptionToDelete(null);
@@ -162,7 +162,7 @@ const ProductOptionsAllinone = () => {
   const filteredOptions = useMemo(() => {
     return productOptions
       .filter((opt) =>
-        (opt.name || "").toLowerCase().includes(searchTerm.toLowerCase()),
+        (opt.name || '').toLowerCase().includes(searchTerm.toLowerCase()),
       )
       .reverse();
   }, [productOptions, searchTerm]);
@@ -231,7 +231,7 @@ const ProductOptionsAllinone = () => {
                     paginatedOptions.map((opt) => (
                       <TableRow key={opt._id}>
                         <TableCell className="font-medium">
-                          {opt.name || "N/A"}
+                          {opt.name || 'N/A'}
                         </TableCell>
                         <TableCell>
                           <div className="flex flex-wrap gap-1">
@@ -301,12 +301,12 @@ const ProductOptionsAllinone = () => {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>
-              {isEdit ? "Edit Product Option" : "Add New Product Option"}
+              {isEdit ? 'Edit Product Option' : 'Add New Product Option'}
             </DialogTitle>
             <DialogDescription>
               {isEdit
-                ? "Update the name and values for this option."
-                : "Create a new product option with comma-separated values."}
+                ? 'Update the name and values for this option.'
+                : 'Create a new product option with comma-separated values.'}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-2">
@@ -368,9 +368,9 @@ const ProductOptionsAllinone = () => {
                   Saving...
                 </>
               ) : isEdit ? (
-                "Update"
+                'Update'
               ) : (
-                "Save"
+                'Save'
               )}
             </Button>
           </DialogFooter>
@@ -382,7 +382,7 @@ const ProductOptionsAllinone = () => {
           <DialogHeader>
             <DialogTitle>Confirm Delete</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete option{" "}
+              Are you sure you want to delete option{' '}
               <strong>{optionToDelete?.name}</strong>? This action cannot be
               undone.
             </DialogDescription>

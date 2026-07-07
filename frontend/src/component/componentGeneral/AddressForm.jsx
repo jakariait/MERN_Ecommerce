@@ -1,20 +1,20 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from 'react';
 
 const AddressForm = ({ user, onAddressChange }) => {
   const [formData, setFormData] = useState({
-    fullName: "",
-    phone: "",
-    address: "",
-    email: "",
+    fullName: '',
+    phone: '',
+    address: '',
+    email: '',
   });
 
   useEffect(() => {
     if (user) {
       setFormData({
-        fullName: user.fullName || "",
-        phone: user.phone || "",
-        address: user.address || "",
-        email: user.email || "",
+        fullName: user.fullName || '',
+        phone: user.phone || '',
+        address: user.address || '',
+        email: user.email || '',
       });
     }
   }, [user]);
@@ -30,8 +30,8 @@ const AddressForm = ({ user, onAddressChange }) => {
     let newValue = value;
 
     // Only allow digits in the phone field
-    if (name === "phone") {
-      newValue = value.replace(/\D/g, ""); // Remove all non-digit characters
+    if (name === 'phone') {
+      newValue = value.replace(/\D/g, ''); // Remove all non-digit characters
     }
 
     setFormData((prev) => {
@@ -67,6 +67,7 @@ const AddressForm = ({ user, onAddressChange }) => {
         <h2>
           Mobile Number <span className="text-red-600">*</span>
         </h2>
+
         <input
           name="phone"
           type="tel"

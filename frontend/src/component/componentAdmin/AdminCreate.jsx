@@ -1,13 +1,13 @@
-import React, { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Card, CardContent } from "@/components/ui/card";
-import { toast } from "sonner";
-import { useNavigate } from "react-router-dom";
-import axios from "axios";
-import useAuthAdminStore from "../../store/AuthAdminStore.js";
-import PermissionsCheckboxGroup from "../../component/componentAdmin/PermissionsCheckboxGroup.jsx";
+import React, { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Card, CardContent } from '@/components/ui/card';
+import { toast } from 'sonner';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import useAuthAdminStore from '../../store/AuthAdminStore.js';
+import PermissionsCheckboxGroup from '../../component/componentAdmin/PermissionsCheckboxGroup.jsx';
 
 const AdminCreate = () => {
   const apiUrl = import.meta.env.VITE_API_URL;
@@ -16,10 +16,10 @@ const AdminCreate = () => {
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    mobileNo: "",
-    password: "",
+    name: '',
+    email: '',
+    mobileNo: '',
+    password: '',
   });
   const [selectedPermissions, setSelectedPermissions] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -36,12 +36,12 @@ const AdminCreate = () => {
         { ...formData, permissions: selectedPermissions },
         { headers: { Authorization: `Bearer ${token}` } },
       );
-      toast.success("Admin created successfully");
+      toast.success('Admin created successfully');
       setTimeout(() => {
-        navigate("/admin/adminlist");
+        navigate('/admin/adminlist');
       }, 2000);
     } catch (error) {
-      toast.error(error.response?.data?.message || "Failed to create admin");
+      toast.error(error.response?.data?.message || 'Failed to create admin');
     } finally {
       setLoading(false);
     }
@@ -105,7 +105,7 @@ const AdminCreate = () => {
 
           <div className="flex justify-center pt-2">
             <Button onClick={handleSubmit} disabled={loading}>
-              {loading ? "Creating..." : "Create Admin"}
+              {loading ? 'Creating...' : 'Create Admin'}
             </Button>
           </div>
         </CardContent>

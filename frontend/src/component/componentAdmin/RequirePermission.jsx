@@ -1,8 +1,13 @@
-import React from "react";
-import useAuthAdminStore from "../../store/AuthAdminStore.js";
-import { Skeleton } from "@/components/ui/skeleton";
+import React from 'react';
+import useAuthAdminStore from '../../store/AuthAdminStore.js';
+import { Skeleton } from '@/components/ui/skeleton';
 
-const RequirePermission = ({ permission, children, fallback, match = "all" }) => {
+const RequirePermission = ({
+  permission,
+  children,
+  fallback,
+  match = 'all',
+}) => {
   const { admin, loading } = useAuthAdminStore();
   const userPermissions = admin?.permissions;
 
@@ -12,7 +17,7 @@ const RequirePermission = ({ permission, children, fallback, match = "all" }) =>
 
   const hasPermission =
     Array.isArray(userPermissions) &&
-    (match === "any"
+    (match === 'any'
       ? requiredPermissions.some((perm) => userPermissions.includes(perm))
       : requiredPermissions.every((perm) => userPermissions.includes(perm)));
 

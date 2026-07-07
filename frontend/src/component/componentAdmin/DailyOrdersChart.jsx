@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from "react";
-import { ResponsiveLine } from "@nivo/line";
-import useOrderStore from "../../store/useOrderStore";
-import dayjs from "dayjs";
+import React, { useEffect, useState } from 'react';
+import { ResponsiveLine } from '@nivo/line';
+import useOrderStore from '../../store/useOrderStore';
+import dayjs from 'dayjs';
 
 const DailyOrdersChart = () => {
   const { fetchAllOrdersWithoutPagination, allOrders } = useOrderStore();
@@ -15,7 +15,7 @@ const DailyOrdersChart = () => {
     if (allOrders.length > 0) {
       const today = dayjs();
       const past30Days = Array.from({ length: 30 }, (_, i) =>
-        today.subtract(i, "day").format("YYYY-MM-DD"),
+        today.subtract(i, 'day').format('YYYY-MM-DD'),
       ).reverse();
 
       const orderCountMap = past30Days.reduce((acc, date) => {
@@ -24,7 +24,7 @@ const DailyOrdersChart = () => {
       }, {});
 
       allOrders.forEach((order) => {
-        const orderDate = dayjs(order.orderDate).format("YYYY-MM-DD");
+        const orderDate = dayjs(order.orderDate).format('YYYY-MM-DD');
         if (orderCountMap[orderDate] !== undefined) {
           orderCountMap[orderDate]++;
         }
@@ -32,9 +32,9 @@ const DailyOrdersChart = () => {
 
       const formattedData = [
         {
-          id: "Orders",
+          id: 'Orders',
           data: Object.entries(orderCountMap).map(([date, count]) => ({
-            x: dayjs(date).format("MM/DD"),
+            x: dayjs(date).format('MM/DD'),
             y: count,
           })),
         },
@@ -53,34 +53,34 @@ const DailyOrdersChart = () => {
         <ResponsiveLine
           data={chartData}
           margin={{ top: 20, right: 80, bottom: 60, left: 50 }}
-          xScale={{ type: "point" }}
-          yScale={{ type: "linear", min: 0, max: "auto" }}
+          xScale={{ type: 'point' }}
+          yScale={{ type: 'linear', min: 0, max: 'auto' }}
           axisBottom={{
             tickRotation: -45,
-            legend: "Date",
+            legend: 'Date',
             legendOffset: 40,
-            legendPosition: "middle",
+            legendPosition: 'middle',
           }}
           axisLeft={{
-            legend: "Orders",
+            legend: 'Orders',
             legendOffset: -40,
-            legendPosition: "middle",
+            legendPosition: 'middle',
           }}
-          colors={{ scheme: "category10" }}
+          colors={{ scheme: 'category10' }}
           pointSize={8}
           pointBorderWidth={2}
-          pointColor={{ theme: "background" }}
-          pointBorderColor={{ from: "serieColor" }}
+          pointColor={{ theme: 'background' }}
+          pointBorderColor={{ from: 'serieColor' }}
           useMesh={true}
           tooltip={({ point }) => (
             <div
               style={{
-                background: "#fff",
-                padding: "8px 12px",
-                border: "1px solid #ccc",
+                background: '#fff',
+                padding: '8px 12px',
+                border: '1px solid #ccc',
               }}
             >
-              <strong>{point.data.xFormatted}</strong>: {point.data.yFormatted}{" "}
+              <strong>{point.data.xFormatted}</strong>: {point.data.yFormatted}{' '}
               orders
             </div>
           )}

@@ -1,13 +1,13 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
-import useAuthAdminStore from "../../store/AuthAdminStore.js";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { toast } from "sonner";
-import { Loader2, Plus, X } from "lucide-react";
-import { SectionHeader } from "#component/componentAdmin/SectionHeader.jsx";
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+import useAuthAdminStore from '../../store/AuthAdminStore.js';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Button } from '@/components/ui/button';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { toast } from 'sonner';
+import { Loader2, Plus, X } from 'lucide-react';
+import { SectionHeader } from '#component/componentAdmin/SectionHeader.jsx';
 
 const apiURL = import.meta.env.VITE_API_URL;
 
@@ -15,12 +15,12 @@ const AdminMetaForm = () => {
   const { token } = useAuthAdminStore();
 
   const [formData, setFormData] = useState({
-    title: "",
+    title: '',
     keywords: [],
-    description: "",
+    description: '',
   });
 
-  const [newKeyword, setNewKeyword] = useState("");
+  const [newKeyword, setNewKeyword] = useState('');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
@@ -34,7 +34,7 @@ const AdminMetaForm = () => {
           description: data.data.description,
         });
       } catch (err) {
-        console.error("Failed to fetch meta", err);
+        console.error('Failed to fetch meta', err);
       } finally {
         setLoading(false);
       }
@@ -55,7 +55,7 @@ const AdminMetaForm = () => {
         ...prev,
         keywords: [...prev.keywords, kw],
       }));
-      setNewKeyword("");
+      setNewKeyword('');
     }
   };
 
@@ -67,7 +67,7 @@ const AdminMetaForm = () => {
   };
 
   const handleKeyDown = (e) => {
-    if (e.key === "Enter") {
+    if (e.key === 'Enter') {
       e.preventDefault();
       addKeyword();
     }
@@ -80,12 +80,12 @@ const AdminMetaForm = () => {
       await axios.patch(`${apiURL}/meta`, formData, {
         headers: {
           Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
       });
-      toast.success("Meta information updated successfully!");
+      toast.success('Meta information updated successfully!');
     } catch (error) {
-      toast.error("Failed to update meta info.");
+      toast.error('Failed to update meta info.');
     } finally {
       setSaving(false);
     }
@@ -102,8 +102,8 @@ const AdminMetaForm = () => {
   return (
     <div className="space-y-6">
       <SectionHeader
-        title={"Search Engine Optimization"}
-        description={"Manage home page meta title, description, and keywords."}
+        title={'Search Engine Optimization'}
+        description={'Manage home page meta title, description, and keywords.'}
       />
 
       <form onSubmit={handleSubmit} className="space-y-6">
@@ -191,7 +191,7 @@ const AdminMetaForm = () => {
                 Updating...
               </>
             ) : (
-              "Update Meta Info"
+              'Update Meta Info'
             )}
           </Button>
         </div>

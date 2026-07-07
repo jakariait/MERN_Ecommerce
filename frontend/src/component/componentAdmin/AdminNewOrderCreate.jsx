@@ -1,24 +1,24 @@
-import React, { useEffect, useState, useMemo } from "react";
-import axios from "axios";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+import React, { useEffect, useState, useMemo } from 'react';
+import axios from 'axios';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Card, CardContent } from "@/components/ui/card";
+} from '@/components/ui/select';
+import { Card, CardContent } from '@/components/ui/card';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogFooter,
-} from "@/components/ui/dialog";
+} from '@/components/ui/dialog';
 import {
   Table,
   TableBody,
@@ -26,11 +26,11 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { toast } from "sonner";
-import { Plus, Trash2, Search, Loader2 } from "lucide-react";
-import useOrderStore from "../../store/useOrderStore.js";
+} from '@/components/ui/table';
+import { Badge } from '@/components/ui/badge';
+import { toast } from 'sonner';
+import { Plus, Trash2, Search, Loader2 } from 'lucide-react';
+import useOrderStore from '../../store/useOrderStore.js';
 
 const AdminNewOrderCreate = () => {
   const apiUrl = import.meta.env.VITE_API_URL;
@@ -41,20 +41,20 @@ const AdminNewOrderCreate = () => {
   const [customers, setCustomers] = useState([]);
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [isGuest, setIsGuest] = useState(true);
-  const [customerSearch, setCustomerSearch] = useState("");
+  const [customerSearch, setCustomerSearch] = useState('');
 
   const [guestInfo, setGuestInfo] = useState({
-    fullName: "",
-    mobileNo: "",
-    email: "",
-    address: "",
+    fullName: '',
+    mobileNo: '',
+    email: '',
+    address: '',
   });
 
   const [products, setProducts] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [selectedVariant, setSelectedVariant] = useState(null);
   const [quantity, setQuantity] = useState(1);
-  const [productSearch, setProductSearch] = useState("");
+  const [productSearch, setProductSearch] = useState('');
 
   const [orderItems, setOrderItems] = useState([]);
 
@@ -62,13 +62,13 @@ const AdminNewOrderCreate = () => {
 
   const [shippingOptions, setShippingOptions] = useState([]);
   const [selectedShipping, setSelectedShipping] = useState(null);
-  const [paymentMethod, setPaymentMethod] = useState("cash_on_delivery");
-  const [paymentStatus, setPaymentStatus] = useState("unpaid");
+  const [paymentMethod, setPaymentMethod] = useState('cash_on_delivery');
+  const [paymentStatus, setPaymentStatus] = useState('unpaid');
 
   const [specialDiscount, setSpecialDiscount] = useState(0);
-  const [promoCode, setPromoCode] = useState("");
+  const [promoCode, setPromoCode] = useState('');
 
-  const [adminNote, setAdminNote] = useState("");
+  const [adminNote, setAdminNote] = useState('');
 
   const [calculatedTotals, setCalculatedTotals] = useState({
     subtotal: 0,
@@ -107,28 +107,28 @@ const AdminNewOrderCreate = () => {
   const fetchProducts = async () => {
     try {
       const res = await axios.get(`${apiUrl}/getAllProductsAdmin`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
       });
       if (res.data?.success) {
         setProducts(res.data.products || []);
       } else {
-        toast.error("Failed to fetch products");
+        toast.error('Failed to fetch products');
       }
     } catch (err) {
-      toast.error(err.response?.data?.message || "Failed to fetch products");
+      toast.error(err.response?.data?.message || 'Failed to fetch products');
     }
   };
 
   const fetchCustomers = async () => {
     try {
       const res = await axios.get(`${apiUrl}/getAllUsers`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
       });
       if (res.data?.success) {
         setCustomers(res.data.users || []);
       }
     } catch (err) {
-      toast.error(err.response?.data?.message || "Failed to fetch customers");
+      toast.error(err.response?.data?.message || 'Failed to fetch customers');
     }
   };
 
@@ -139,7 +139,7 @@ const AdminNewOrderCreate = () => {
         setShippingOptions(res.data.data);
       }
     } catch (err) {
-      toast.error("Failed to fetch shipping options");
+      toast.error('Failed to fetch shipping options');
     }
   };
 
@@ -158,9 +158,9 @@ const AdminNewOrderCreate = () => {
   };
 
   const getVariantName = (variant) => {
-    if (!variant) return "Unknown";
+    if (!variant) return 'Unknown';
     if (variant.attributes && variant.attributes.length > 0) {
-      return variant.attributes.map((attr) => attr.value).join(" - ");
+      return variant.attributes.map((attr) => attr.value).join(' - ');
     }
     return `Variant ${variant._id.slice(-4)}`;
   };
@@ -183,7 +183,7 @@ const AdminNewOrderCreate = () => {
 
   const handleAddProduct = () => {
     if (!selectedProduct) {
-      toast.error("Please select a product");
+      toast.error('Please select a product');
       return;
     }
 
@@ -191,12 +191,12 @@ const AdminNewOrderCreate = () => {
       selectedProduct.variants && selectedProduct.variants.length > 0;
 
     if (hasVariants && !selectedVariant) {
-      toast.error("Please select a variant");
+      toast.error('Please select a variant');
       return;
     }
 
     if (quantity < 1) {
-      toast.error("Please enter a valid quantity");
+      toast.error('Please enter a valid quantity');
       return;
     }
 
@@ -215,7 +215,7 @@ const AdminNewOrderCreate = () => {
           ? selectedProduct.finalDiscount
           : selectedProduct.finalPrice || 0;
       variantId = null;
-      variantName = "Default";
+      variantName = 'Default';
     }
 
     const newItem = {
@@ -232,8 +232,8 @@ const AdminNewOrderCreate = () => {
     setSelectedProduct(null);
     setSelectedVariant(null);
     setQuantity(1);
-    setProductSearch("");
-    toast.success("Product added to order");
+    setProductSearch('');
+    toast.success('Product added to order');
   };
 
   const handleRemoveItem = (index) => {
@@ -241,16 +241,16 @@ const AdminNewOrderCreate = () => {
   };
 
   const calculateTotals = () => {
-    const hasFreeShipping = orderItems.some((item) => item.freeShipping === true);
+    const hasFreeShipping = orderItems.some(
+      (item) => item.freeShipping === true,
+    );
 
     const subtotal = orderItems.reduce(
       (sum, item) => sum + (item.price || 0) * (item.quantity || 0),
       0,
     );
 
-    const deliveryCharge = hasFreeShipping
-      ? 0
-      : selectedShipping?.value || 0;
+    const deliveryCharge = hasFreeShipping ? 0 : selectedShipping?.value || 0;
     const discount = parseFloat(specialDiscount) || 0;
 
     const amountAfterDiscount = subtotal - discount;
@@ -271,43 +271,43 @@ const AdminNewOrderCreate = () => {
   const handleCreateOrder = async () => {
     try {
       if (orderItems.length === 0) {
-        toast.error("Add at least one product to the order");
+        toast.error('Add at least one product to the order');
         return;
       }
 
       if (!hasFreeShippingProduct && !selectedShipping) {
-        toast.error("Please select a shipping option");
+        toast.error('Please select a shipping option');
         return;
       }
 
       if (isGuest) {
         if (!guestInfo.fullName?.trim()) {
-          toast.error("Full Name is required");
+          toast.error('Full Name is required');
           return;
         }
         if (!guestInfo.mobileNo?.trim()) {
-          toast.error("Mobile Number is required");
+          toast.error('Mobile Number is required');
           return;
         }
         if (!guestInfo.address?.trim()) {
-          toast.error("Address is required");
+          toast.error('Address is required');
           return;
         }
       } else {
         if (!selectedCustomer) {
-          toast.error("Please select a customer");
+          toast.error('Please select a customer');
           return;
         }
         if (!selectedCustomer?.fullName?.trim()) {
-          toast.error("Customer Full Name is required");
+          toast.error('Customer Full Name is required');
           return;
         }
         if (!selectedCustomer?.phone?.trim()) {
-          toast.error("Customer Mobile Number is required");
+          toast.error('Customer Mobile Number is required');
           return;
         }
         if (!guestInfo.address?.trim()) {
-          toast.error("Address is required");
+          toast.error('Address is required');
           return;
         }
       }
@@ -322,15 +322,15 @@ const AdminNewOrderCreate = () => {
         shippingInfo: isGuest
           ? guestInfo
           : {
-              fullName: selectedCustomer?.fullName || "",
-              mobileNo: selectedCustomer?.phone || "",
-              email: selectedCustomer?.email || "",
+              fullName: selectedCustomer?.fullName || '',
+              mobileNo: selectedCustomer?.phone || '',
+              email: selectedCustomer?.email || '',
               address: guestInfo.address,
             },
         billingInfo: isGuest
           ? guestInfo
           : {
-              fullName: selectedCustomer?.fullName || "",
+              fullName: selectedCustomer?.fullName || '',
               address: guestInfo.address,
             },
         shippingId: hasFreeShippingProduct
@@ -343,28 +343,22 @@ const AdminNewOrderCreate = () => {
         promoCode: promoCode || null,
         promoDiscount: 0,
         adminNote,
-        orderSource: "admin",
+        orderSource: 'admin',
       };
 
-      const res = await axios.post(
-        `${apiUrl}/orders/admin/create`,
-        orderData,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
+      const res = await axios.post(`${apiUrl}/orders/admin/create`, orderData, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
         },
-      );
+      });
 
       if (res.data?.success) {
-        toast.success("Order created successfully!");
+        toast.success('Order created successfully!');
         fetchAllOrders();
         handleCloseDialog();
       }
     } catch (err) {
-      toast.error(
-        err.response?.data?.message || "Failed to create order",
-      );
+      toast.error(err.response?.data?.message || 'Failed to create order');
     } finally {
       setIsLoading(false);
     }
@@ -376,17 +370,17 @@ const AdminNewOrderCreate = () => {
     setOpenDialog(false);
     setOrderItems([]);
     setSelectedCustomer(null);
-    setGuestInfo({ fullName: "", mobileNo: "", email: "", address: "" });
+    setGuestInfo({ fullName: '', mobileNo: '', email: '', address: '' });
     setSelectedProduct(null);
     setSelectedVariant(null);
     setQuantity(1);
     setSpecialDiscount(0);
-    setPromoCode("");
-    setAdminNote("");
-    setPaymentMethod("cash_on_delivery");
-    setPaymentStatus("unpaid");
-    setProductSearch("");
-    setCustomerSearch("");
+    setPromoCode('');
+    setAdminNote('');
+    setPaymentMethod('cash_on_delivery');
+    setPaymentStatus('unpaid');
+    setProductSearch('');
+    setCustomerSearch('');
     setFormErrors({
       fullName: false,
       mobileNo: false,
@@ -457,10 +451,8 @@ const AdminNewOrderCreate = () => {
                 <div className="space-y-2">
                   <Label>Customer Type</Label>
                   <Select
-                    value={isGuest ? "guest" : "registered"}
-                    onValueChange={(value) =>
-                      setIsGuest(value === "guest")
-                    }
+                    value={isGuest ? 'guest' : 'registered'}
+                    onValueChange={(value) => setIsGuest(value === 'guest')}
                   >
                     <SelectTrigger>
                       <SelectValue />
@@ -486,7 +478,9 @@ const AdminNewOrderCreate = () => {
                             fullName: e.target.value,
                           })
                         }
-                        className={formErrors.fullName ? "border-destructive" : ""}
+                        className={
+                          formErrors.fullName ? 'border-destructive' : ''
+                        }
                       />
                       {formErrors.fullName && (
                         <p className="text-xs text-destructive">
@@ -504,7 +498,9 @@ const AdminNewOrderCreate = () => {
                             mobileNo: e.target.value,
                           })
                         }
-                        className={formErrors.mobileNo ? "border-destructive" : ""}
+                        className={
+                          formErrors.mobileNo ? 'border-destructive' : ''
+                        }
                       />
                       {formErrors.mobileNo && (
                         <p className="text-xs text-destructive">
@@ -535,7 +531,9 @@ const AdminNewOrderCreate = () => {
                             address: e.target.value,
                           })
                         }
-                        className={formErrors.address ? "border-destructive" : ""}
+                        className={
+                          formErrors.address ? 'border-destructive' : ''
+                        }
                       />
                       {formErrors.address && (
                         <p className="text-xs text-destructive">
@@ -564,18 +562,18 @@ const AdminNewOrderCreate = () => {
                             key={cust._id}
                             className={`w-full text-left px-3 py-2 text-sm hover:bg-muted transition-colors ${
                               selectedCustomer?._id === cust._id
-                                ? "bg-muted font-medium"
-                                : ""
+                                ? 'bg-muted font-medium'
+                                : ''
                             }`}
                             onClick={() => {
                               setSelectedCustomer(cust);
                               setGuestInfo({
-                                fullName: cust.fullName || "",
-                                mobileNo: cust.phone || "",
-                                email: cust.email || "",
-                                address: cust.address || "",
+                                fullName: cust.fullName || '',
+                                mobileNo: cust.phone || '',
+                                email: cust.email || '',
+                                address: cust.address || '',
                               });
-                              setCustomerSearch("");
+                              setCustomerSearch('');
                             }}
                           >
                             {cust.fullName} ({cust.email})
@@ -606,7 +604,11 @@ const AdminNewOrderCreate = () => {
                                     fullName: e.target.value,
                                   })
                                 }
-                                className={formErrors.fullName ? "border-destructive" : ""}
+                                className={
+                                  formErrors.fullName
+                                    ? 'border-destructive'
+                                    : ''
+                                }
                               />
                               {formErrors.fullName && (
                                 <p className="text-xs text-destructive">
@@ -624,7 +626,11 @@ const AdminNewOrderCreate = () => {
                                     mobileNo: e.target.value,
                                   })
                                 }
-                                className={formErrors.mobileNo ? "border-destructive" : ""}
+                                className={
+                                  formErrors.mobileNo
+                                    ? 'border-destructive'
+                                    : ''
+                                }
                               />
                               {formErrors.mobileNo && (
                                 <p className="text-xs text-destructive">
@@ -655,7 +661,9 @@ const AdminNewOrderCreate = () => {
                                     address: e.target.value,
                                   })
                                 }
-                                className={formErrors.address ? "border-destructive" : ""}
+                                className={
+                                  formErrors.address ? 'border-destructive' : ''
+                                }
                               />
                               {formErrors.address && (
                                 <p className="text-xs text-destructive">
@@ -699,8 +707,8 @@ const AdminNewOrderCreate = () => {
                             key={p._id}
                             className={`w-full text-left px-3 py-2 text-sm hover:bg-muted transition-colors ${
                               selectedProduct?._id === p._id
-                                ? "bg-muted font-medium"
-                                : ""
+                                ? 'bg-muted font-medium'
+                                : ''
                             }`}
                             onClick={() => {
                               setSelectedProduct(p);
@@ -733,7 +741,7 @@ const AdminNewOrderCreate = () => {
                       <div className="col-span-3 space-y-2">
                         <Label>Variant</Label>
                         <Select
-                          value={selectedVariant?._id || ""}
+                          value={selectedVariant?._id || ''}
                           onValueChange={(value) => {
                             const variant = (
                               selectedProduct.variants || []
@@ -746,10 +754,7 @@ const AdminNewOrderCreate = () => {
                           </SelectTrigger>
                           <SelectContent>
                             {selectedProduct.variants.map((variant) => (
-                              <SelectItem
-                                key={variant._id}
-                                value={variant._id}
-                              >
+                              <SelectItem key={variant._id} value={variant._id}>
                                 {getVariantName(variant)} - ৳
                                 {variant.discount > 0
                                   ? variant.discount
@@ -772,10 +777,7 @@ const AdminNewOrderCreate = () => {
                   </div>
 
                   <div className="col-span-2">
-                    <Button
-                      className="w-full"
-                      onClick={handleAddProduct}
-                    >
+                    <Button className="w-full" onClick={handleAddProduct}>
                       <Plus className="size-4 mr-2" />
                       Add
                     </Button>
@@ -794,7 +796,9 @@ const AdminNewOrderCreate = () => {
                             <TableHead className="text-right">Price</TableHead>
                             <TableHead className="text-right">Qty</TableHead>
                             <TableHead className="text-right">Total</TableHead>
-                            <TableHead className="text-center w-16">Action</TableHead>
+                            <TableHead className="text-center w-16">
+                              Action
+                            </TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -847,7 +851,7 @@ const AdminNewOrderCreate = () => {
                       />
                     ) : (
                       <Select
-                        value={selectedShipping?._id || ""}
+                        value={selectedShipping?._id || ''}
                         onValueChange={(value) => {
                           const shipping = shippingOptions.find(
                             (s) => s._id === value,
@@ -856,7 +860,11 @@ const AdminNewOrderCreate = () => {
                         }}
                       >
                         <SelectTrigger
-                          className={formErrors.selectedShipping ? "border-destructive" : ""}
+                          className={
+                            formErrors.selectedShipping
+                              ? 'border-destructive'
+                              : ''
+                          }
                         >
                           <SelectValue placeholder="Select shipping" />
                         </SelectTrigger>
@@ -915,9 +923,7 @@ const AdminNewOrderCreate = () => {
                       type="number"
                       value={specialDiscount}
                       onChange={(e) =>
-                        setSpecialDiscount(
-                          parseFloat(e.target.value) || 0,
-                        )
+                        setSpecialDiscount(parseFloat(e.target.value) || 0)
                       }
                       min={0}
                     />

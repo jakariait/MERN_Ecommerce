@@ -1,29 +1,29 @@
-import React, { useRef, useState, useEffect, lazy } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import useCategoryStore from "../../store/useCategoryStore.js";
-import useSubCategoryStore from "../../store/useSubCategoryStore.js";
-import useChildCategoryStore from "../../store/useChildCategoryStore.js";
-import useFlagStore from "../../store/useFlagStore.js";
-import useProductOptionStore from "../../store/useProductOptionStore.js";
-import AuthAdminStore from "../../store/AuthAdminStore.js";
-import useProductStore from "../../store/useProductStore.js";
+import React, { useRef, useState, useEffect, lazy } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import useCategoryStore from '../../store/useCategoryStore.js';
+import useSubCategoryStore from '../../store/useSubCategoryStore.js';
+import useChildCategoryStore from '../../store/useChildCategoryStore.js';
+import useFlagStore from '../../store/useFlagStore.js';
+import useProductOptionStore from '../../store/useProductOptionStore.js';
+import AuthAdminStore from '../../store/AuthAdminStore.js';
+import useProductStore from '../../store/useProductStore.js';
 const Editor = lazy(() =>
-  import("primereact/editor").then((module) => ({ default: module.Editor })),
+  import('primereact/editor').then((module) => ({ default: module.Editor })),
 );
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Switch } from "@/components/ui/switch";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Switch } from '@/components/ui/switch';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
+import { Skeleton } from '@/components/ui/skeleton';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from '@/components/ui/select';
 import {
   Table,
   TableBody,
@@ -31,15 +31,15 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+} from '@/components/ui/table';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover";
-import { toast } from "sonner";
+} from '@/components/ui/popover';
+import { toast } from 'sonner';
 import {
   Trash2,
   Plus,
@@ -48,9 +48,9 @@ import {
   Image,
   Loader2,
   ChevronDown,
-} from "lucide-react";
-import axios from "axios";
-import { SectionHeader } from "#component/componentAdmin/SectionHeader.jsx";
+} from 'lucide-react';
+import axios from 'axios';
+import { SectionHeader } from '#component/componentAdmin/SectionHeader.jsx';
 
 const ProductForm = ({ isEdit: isEditMode }) => {
   const { slug } = useParams();
@@ -65,42 +65,42 @@ const ProductForm = ({ isEdit: isEditMode }) => {
   const { token } = AuthAdminStore();
   const navigate = useNavigate();
 
-  const [name, setName] = useState("");
-  const [shortDesc, setShortDesc] = useState("");
-  const [longDesc, setLongDesc] = useState("");
-  const [productCode, setProductCode] = useState("");
-  const [rewardPoints, setRewardPoints] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("");
+  const [name, setName] = useState('');
+  const [shortDesc, setShortDesc] = useState('');
+  const [longDesc, setLongDesc] = useState('');
+  const [productCode, setProductCode] = useState('');
+  const [rewardPoints, setRewardPoints] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('');
   const [filteredSubCategories, setFilteredSubCategories] = useState([]);
-  const [selectedSubCategory, setSelectedSubCategory] = useState("");
+  const [selectedSubCategory, setSelectedSubCategory] = useState('');
   const [filteredChildCategories, setFilteredChildCategories] = useState([]);
-  const [selectedChildCategory, setSelectedChildCategory] = useState("");
-  const [videoUrl, setVideoUrl] = useState("");
-  const [metaTitle, setMetaTitle] = useState("");
-  const [metaDescription, setMetaDescription] = useState("");
+  const [selectedChildCategory, setSelectedChildCategory] = useState('');
+  const [videoUrl, setVideoUrl] = useState('');
+  const [metaTitle, setMetaTitle] = useState('');
+  const [metaDescription, setMetaDescription] = useState('');
   const [metaKeywords, setMetaKeywords] = useState([]);
-  const [keywordInput, setKeywordInput] = useState("");
+  const [keywordInput, setKeywordInput] = useState('');
   const [searchTags, setSearchTags] = useState([]);
-  const [tagInput, setTagInput] = useState("");
+  const [tagInput, setTagInput] = useState('');
   const [thumbnailImage, setThumbnailImage] = useState(null);
-  const [imagePreview, setImagePreview] = useState("");
+  const [imagePreview, setImagePreview] = useState('');
   const [selectedImages, setSelectedImages] = useState([]);
   const [imagePreviews, setImagePreviews] = useState([]);
-  const [finalPrice, setFinalPrice] = useState("");
-  const [finalDiscount, setFinalDiscount] = useState("");
-  const [finalStock, setFinalStock] = useState("");
-  const [purchasePrice, setPurchasePrice] = useState("");
+  const [finalPrice, setFinalPrice] = useState('');
+  const [finalDiscount, setFinalDiscount] = useState('');
+  const [finalStock, setFinalStock] = useState('');
+  const [purchasePrice, setPurchasePrice] = useState('');
   const [selectedFlags, setSelectedFlags] = useState([]);
   const [hasVariant, setHasVariant] = useState(true);
   const [variants, setVariants] = useState([
     {
-      attributes: [{ option: "", value: "" }],
-      stock: "",
-      price: "",
-      discount: "",
+      attributes: [{ option: '', value: '' }],
+      stock: '',
+      price: '',
+      discount: '',
     },
   ]);
-  const [isActive, setIsActive] = useState("true");
+  const [isActive, setIsActive] = useState('true');
   const [freeShipping, setFreeShipping] = useState(false);
 
   const [existingImages, setExistingImages] = useState([]);
@@ -115,7 +115,7 @@ const ProductForm = ({ isEdit: isEditMode }) => {
   const fileInputRef = useRef(null);
   const imagesInputRef = useRef(null);
 
-  const imageUrl = `${apiUrl.replace("/api", "")}/uploads`;
+  const imageUrl = `${apiUrl.replace('/api', '')}/uploads`;
 
   useEffect(() => {
     if (isEditMode && slug) {
@@ -126,20 +126,20 @@ const ProductForm = ({ isEdit: isEditMode }) => {
 
   useEffect(() => {
     if (isEditMode && product) {
-      setName(product.name || "");
-      setShortDesc(product.shortDesc || "");
-      setLongDesc(product.longDesc || "");
-      setProductCode(product.productCode || "");
-      setRewardPoints(product.rewardPoints || "");
-      setVideoUrl(product.videoUrl || "");
-      setMetaTitle(product.metaTitle || "");
-      setMetaDescription(product.metaDescription || "");
+      setName(product.name || '');
+      setShortDesc(product.shortDesc || '');
+      setLongDesc(product.longDesc || '');
+      setProductCode(product.productCode || '');
+      setRewardPoints(product.rewardPoints || '');
+      setVideoUrl(product.videoUrl || '');
+      setMetaTitle(product.metaTitle || '');
+      setMetaDescription(product.metaDescription || '');
       setMetaKeywords(product.metaKeywords || []);
       setSearchTags(product.searchTags || []);
-      setFinalPrice(product.finalPrice || "");
-      setFinalDiscount(product.finalDiscount || "");
-      setFinalStock(product.finalStock || "");
-      setPurchasePrice(product.purchasePrice || "");
+      setFinalPrice(product.finalPrice || '');
+      setFinalDiscount(product.finalDiscount || '');
+      setFinalStock(product.finalStock || '');
+      setPurchasePrice(product.purchasePrice || '');
       setSelectedFlags(product.flags?.map((f) => f._id) || []);
       setIsActive(String(product.isActive));
       setFreeShipping(product.freeShipping || false);
@@ -155,23 +155,23 @@ const ProductForm = ({ isEdit: isEditMode }) => {
           product.variants.map((v) => ({
             attributes: v.attributes
               ? v.attributes.map((attr) => ({
-                  option: attr.option ? attr.option._id : "",
-                  value: attr.value || "",
+                  option: attr.option ? attr.option._id : '',
+                  value: attr.value || '',
                 }))
               : [],
             stock: v.stock,
             price: v.price,
-            discount: v.discount || "",
+            discount: v.discount || '',
           })),
         );
         setHasVariant(true);
       } else {
         setVariants([
           {
-            attributes: [{ option: "", value: "" }],
-            stock: "",
-            price: "",
-            discount: "",
+            attributes: [{ option: '', value: '' }],
+            stock: '',
+            price: '',
+            discount: '',
           },
         ]);
         setHasVariant(false);
@@ -209,10 +209,10 @@ const ProductForm = ({ isEdit: isEditMode }) => {
     setVariants([
       ...variants,
       {
-        attributes: [{ option: "", value: "" }],
-        stock: "",
-        price: "",
-        discount: "",
+        attributes: [{ option: '', value: '' }],
+        stock: '',
+        price: '',
+        discount: '',
       },
     ]);
   };
@@ -223,7 +223,7 @@ const ProductForm = ({ isEdit: isEditMode }) => {
 
   const handleAddAttribute = (variantIndex) => {
     const updatedVariants = [...variants];
-    updatedVariants[variantIndex].attributes.push({ option: "", value: "" });
+    updatedVariants[variantIndex].attributes.push({ option: '', value: '' });
     setVariants(updatedVariants);
   };
 
@@ -250,7 +250,7 @@ const ProductForm = ({ isEdit: isEditMode }) => {
     });
 
     if (selectedImages.length === 1 && !isEditMode) {
-      document.getElementById("multi-image-upload").value = "";
+      document.getElementById('multi-image-upload').value = '';
     }
   };
 
@@ -265,19 +265,19 @@ const ProductForm = ({ isEdit: isEditMode }) => {
     setSelectedImages([]);
     setImagePreviews([]);
     if (imagesInputRef.current) {
-      imagesInputRef.current.value = "";
+      imagesInputRef.current.value = '';
     }
   };
 
   const handleDragStart = (e, index, source) => {
     setDraggedIndex(index);
     setDragSource(source);
-    e.dataTransfer.effectAllowed = "move";
+    e.dataTransfer.effectAllowed = 'move';
   };
 
   const handleDragOver = (e) => {
     e.preventDefault();
-    e.dataTransfer.dropEffect = "move";
+    e.dataTransfer.dropEffect = 'move';
   };
 
   const handleDrop = (e, targetIndex, targetSource) => {
@@ -289,13 +289,13 @@ const ProductForm = ({ isEdit: isEditMode }) => {
       return;
     }
 
-    if (dragSource === "existing") {
+    if (dragSource === 'existing') {
       const newExistingImages = [...existingImages];
       const draggedItem = newExistingImages[draggedIndex];
       newExistingImages.splice(draggedIndex, 1);
       newExistingImages.splice(targetIndex, 0, draggedItem);
       setExistingImages(newExistingImages);
-    } else if (dragSource === "new") {
+    } else if (dragSource === 'new') {
       const newSelectedImages = [...selectedImages];
       const newPreviews = [...imagePreviews];
 
@@ -332,19 +332,19 @@ const ProductForm = ({ isEdit: isEditMode }) => {
 
   const handleRemoveThumbnail = () => {
     setThumbnailImage(null);
-    setImagePreview("");
+    setImagePreview('');
     if (fileInputRef.current) {
-      fileInputRef.current.value = "";
+      fileInputRef.current.value = '';
     }
   };
 
   const handleAddTag = (e) => {
-    if (e.key === "Enter" && tagInput.trim() !== "") {
+    if (e.key === 'Enter' && tagInput.trim() !== '') {
       e.preventDefault();
       if (!searchTags.includes(tagInput.trim())) {
         setSearchTags([...searchTags, tagInput.trim()]);
       }
-      setTagInput("");
+      setTagInput('');
     }
   };
 
@@ -354,9 +354,9 @@ const ProductForm = ({ isEdit: isEditMode }) => {
 
   const handleCategoryChange = (value) => {
     setSelectedCategory(value);
-    setSelectedSubCategory("");
+    setSelectedSubCategory('');
     setFilteredSubCategories([]);
-    setSelectedChildCategory("");
+    setSelectedChildCategory('');
     setFilteredChildCategories([]);
 
     if (value) {
@@ -369,7 +369,7 @@ const ProductForm = ({ isEdit: isEditMode }) => {
 
   const handleSubCategoryChange = (value) => {
     setSelectedSubCategory(value);
-    setSelectedChildCategory("");
+    setSelectedChildCategory('');
     setFilteredChildCategories([]);
 
     if (value) {
@@ -423,12 +423,12 @@ const ProductForm = ({ isEdit: isEditMode }) => {
   };
 
   const handleAddKeyword = (e) => {
-    if (e.key === "Enter" && keywordInput.trim() !== "") {
+    if (e.key === 'Enter' && keywordInput.trim() !== '') {
       e.preventDefault();
       if (!metaKeywords.includes(keywordInput.trim())) {
         setMetaKeywords([...metaKeywords, keywordInput.trim()]);
       }
-      setKeywordInput("");
+      setKeywordInput('');
     }
   };
 
@@ -443,17 +443,17 @@ const ProductForm = ({ isEdit: isEditMode }) => {
     setErrors({});
 
     let validationErrors = {};
-    if (!name.trim()) validationErrors.name = "Product name is required.";
-    if (!selectedCategory) validationErrors.category = "Category is required.";
+    if (!name.trim()) validationErrors.name = 'Product name is required.';
+    if (!selectedCategory) validationErrors.category = 'Category is required.';
 
     if (!imagePreview && !isEditMode) {
-      validationErrors.thumbnailImage = "Thumbnail image is required.";
+      validationErrors.thumbnailImage = 'Thumbnail image is required.';
     } else if (isEditMode && !imagePreview && !product?.thumbnailImage) {
-      validationErrors.thumbnailImage = "Thumbnail image is required.";
+      validationErrors.thumbnailImage = 'Thumbnail image is required.';
     }
 
     if (existingImages.length + selectedImages.length === 0) {
-      validationErrors.images = "At least one image is required.";
+      validationErrors.images = 'At least one image is required.';
     }
 
     if (Object.keys(validationErrors).length > 0) {
@@ -463,50 +463,50 @@ const ProductForm = ({ isEdit: isEditMode }) => {
 
     setSubmitting(true);
     const formData = new FormData();
-    formData.append("name", name);
-    formData.append("shortDesc", shortDesc);
-    formData.append("longDesc", longDesc);
-    formData.append("productCode", productCode);
-    formData.append("rewardPoints", rewardPoints);
-    formData.append("videoUrl", videoUrl);
-    formData.append("metaTitle", metaTitle);
-    formData.append("metaDescription", metaDescription);
-    formData.append("finalPrice", finalPrice);
-    formData.append("finalDiscount", finalDiscount);
-    formData.append("finalStock", finalStock);
-    formData.append("purchasePrice", purchasePrice);
-    formData.append("isActive", isActive);
-    formData.append("freeShipping", freeShipping);
+    formData.append('name', name);
+    formData.append('shortDesc', shortDesc);
+    formData.append('longDesc', longDesc);
+    formData.append('productCode', productCode);
+    formData.append('rewardPoints', rewardPoints);
+    formData.append('videoUrl', videoUrl);
+    formData.append('metaTitle', metaTitle);
+    formData.append('metaDescription', metaDescription);
+    formData.append('finalPrice', finalPrice);
+    formData.append('finalDiscount', finalDiscount);
+    formData.append('finalStock', finalStock);
+    formData.append('purchasePrice', purchasePrice);
+    formData.append('isActive', isActive);
+    formData.append('freeShipping', freeShipping);
 
-    if (selectedCategory) formData.append("category", selectedCategory);
+    if (selectedCategory) formData.append('category', selectedCategory);
     if (selectedSubCategory)
-      formData.append("subCategory", selectedSubCategory);
+      formData.append('subCategory', selectedSubCategory);
     if (selectedChildCategory)
-      formData.append("childCategory", selectedChildCategory);
+      formData.append('childCategory', selectedChildCategory);
 
-    selectedFlags.forEach((flag) => formData.append("flags", flag));
-    searchTags.forEach((tag) => formData.append("searchTags", tag));
-    metaKeywords.forEach((keyword) => formData.append("metaKeywords", keyword));
+    selectedFlags.forEach((flag) => formData.append('flags', flag));
+    searchTags.forEach((tag) => formData.append('searchTags', tag));
+    metaKeywords.forEach((keyword) => formData.append('metaKeywords', keyword));
 
     if (thumbnailImage instanceof File) {
-      formData.append("thumbnailImage", thumbnailImage);
+      formData.append('thumbnailImage', thumbnailImage);
     }
 
     if (isEditMode && imagesToDelete.length > 0) {
       imagesToDelete.forEach((imageName) => {
-        formData.append("imagesToDelete", imageName);
+        formData.append('imagesToDelete', imageName);
       });
     }
 
     if (isEditMode && existingImages.length > 0) {
       existingImages.forEach((imageName) => {
-        formData.append("existingImages", imageName);
+        formData.append('existingImages', imageName);
       });
     }
 
     selectedImages.forEach((image) => {
       if (image instanceof File) {
-        formData.append("images", image);
+        formData.append('images', image);
       }
     });
 
@@ -515,7 +515,7 @@ const ProductForm = ({ isEdit: isEditMode }) => {
         variant.attributes.length > 0 &&
         variant.attributes.every((attr) => attr.option && attr.value) &&
         variant.price &&
-        variant.stock !== "" &&
+        variant.stock !== '' &&
         variant.stock != null,
     );
 
@@ -542,64 +542,64 @@ const ProductForm = ({ isEdit: isEditMode }) => {
         await axios.put(`${apiUrl}/products/${product._id}`, formData, {
           headers: {
             Authorization: `Bearer ${token}`,
-            "Content-Type": "multipart/form-data",
+            'Content-Type': 'multipart/form-data',
           },
         });
-        toast.success("Product updated successfully!");
+        toast.success('Product updated successfully!');
         setImagesToDelete([]);
       } else {
         await axios.post(`${apiUrl}/products`, formData, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        toast.success("Product created successfully!");
-        setName("");
-        setShortDesc("");
-        setLongDesc("");
-        setProductCode("");
-        setRewardPoints("");
-        setVideoUrl("");
-        setMetaTitle("");
-        setMetaDescription("");
-        setFinalPrice("");
-        setFinalDiscount("");
-        setFinalStock("");
-        setPurchasePrice("");
-        setSelectedCategory("");
-        setSelectedSubCategory("");
-        setSelectedChildCategory("");
+        toast.success('Product created successfully!');
+        setName('');
+        setShortDesc('');
+        setLongDesc('');
+        setProductCode('');
+        setRewardPoints('');
+        setVideoUrl('');
+        setMetaTitle('');
+        setMetaDescription('');
+        setFinalPrice('');
+        setFinalDiscount('');
+        setFinalStock('');
+        setPurchasePrice('');
+        setSelectedCategory('');
+        setSelectedSubCategory('');
+        setSelectedChildCategory('');
         setSelectedFlags([]);
         setSearchTags([]);
         setMetaKeywords([]);
         setThumbnailImage(null);
-        setImagePreview("");
+        setImagePreview('');
         setSelectedImages([]);
         setImagePreviews([]);
         setVariants([
           {
-            attributes: [{ option: "", value: "" }],
-            stock: "",
-            price: "",
-            discount: "",
+            attributes: [{ option: '', value: '' }],
+            stock: '',
+            price: '',
+            discount: '',
           },
         ]);
         setHasVariant(true);
-        setIsActive("true");
+        setIsActive('true');
         setFreeShipping(false);
-        if (fileInputRef.current) fileInputRef.current.value = "";
-        if (imagesInputRef.current) imagesInputRef.current.value = "";
+        if (fileInputRef.current) fileInputRef.current.value = '';
+        if (imagesInputRef.current) imagesInputRef.current.value = '';
       }
 
       setTimeout(() => {
-        navigate("/admin/viewallproducts");
+        navigate('/admin/viewallproducts');
       }, 3000);
     } catch (error) {
       toast.error(
-        isEditMode ? "Failed to update product." : "Failed to create product.",
+        isEditMode ? 'Failed to update product.' : 'Failed to create product.',
       );
       if (error.response && error.response.data) {
         setErrors(error.response.data);
       } else {
-        console.error("An unexpected error occurred:", error);
+        console.error('An unexpected error occurred:', error);
       }
     } finally {
       setSubmitting(false);
@@ -639,7 +639,7 @@ const ProductForm = ({ isEdit: isEditMode }) => {
   return (
     <div className="space-y-6">
       <SectionHeader
-        title={`${isEditMode ? "Update Product" : "Add New Product"}`}
+        title={`${isEditMode ? 'Update Product' : 'Add New Product'}`}
       />
 
       <form onSubmit={handleSubmit} className="space-y-6">
@@ -670,7 +670,7 @@ const ProductForm = ({ isEdit: isEditMode }) => {
                   <Editor
                     value={shortDesc}
                     onTextChange={(e) => setShortDesc(e.htmlValue)}
-                    style={{ height: "260px" }}
+                    style={{ height: '260px' }}
                   />
                 </div>
 
@@ -679,7 +679,7 @@ const ProductForm = ({ isEdit: isEditMode }) => {
                   <Editor
                     value={longDesc}
                     onTextChange={(e) => setLongDesc(e.htmlValue)}
-                    style={{ height: "260px" }}
+                    style={{ height: '260px' }}
                   />
                 </div>
               </CardContent>
@@ -932,8 +932,8 @@ const ProductForm = ({ isEdit: isEditMode }) => {
                       <SelectValue
                         placeholder={
                           selectedCategory
-                            ? "Select a subcategory"
-                            : "Select a category first"
+                            ? 'Select a subcategory'
+                            : 'Select a category first'
                         }
                       />
                     </SelectTrigger>
@@ -964,8 +964,8 @@ const ProductForm = ({ isEdit: isEditMode }) => {
                       <SelectValue
                         placeholder={
                           selectedSubCategory
-                            ? "Select a child category"
-                            : "Select a subcategory first"
+                            ? 'Select a child category'
+                            : 'Select a subcategory first'
                         }
                       />
                     </SelectTrigger>
@@ -1001,7 +1001,7 @@ const ProductForm = ({ isEdit: isEditMode }) => {
                     >
                       {selectedFlags.length > 0
                         ? `${selectedFlags.length} flag(s) selected`
-                        : "Select flags"}
+                        : 'Select flags'}
                       <ChevronDown className="size-4 opacity-50" />
                     </Button>
                   </PopoverTrigger>
@@ -1082,7 +1082,7 @@ const ProductForm = ({ isEdit: isEditMode }) => {
                       }}
                     >
                       <X className="size-3 mr-1" />
-                      {isEditMode ? "Remove New Images" : "Remove All"}
+                      {isEditMode ? 'Remove New Images' : 'Remove All'}
                     </Button>
                   )}
                   <div className="flex gap-4 flex-wrap mt-2 justify-center items-center">
@@ -1092,23 +1092,23 @@ const ProductForm = ({ isEdit: isEditMode }) => {
                           key={`existing-${index}`}
                           draggable
                           onDragStart={(e) =>
-                            handleDragStart(e, index, "existing")
+                            handleDragStart(e, index, 'existing')
                           }
                           onDragOver={handleDragOver}
-                          onDrop={(e) => handleDrop(e, index, "existing")}
+                          onDrop={(e) => handleDrop(e, index, 'existing')}
                           onDragEnd={handleDragEnd}
                           className="relative w-[150px] h-[150px] rounded-lg overflow-hidden bg-muted/50 shadow-sm cursor-move"
                           style={{
                             opacity:
                               draggedIndex === index &&
-                              dragSource === "existing"
+                              dragSource === 'existing'
                                 ? 0.5
                                 : 1,
                             outline:
                               draggedIndex === index &&
-                              dragSource === "existing"
-                                ? "2px dashed hsl(var(--muted-foreground))"
-                                : "none",
+                              dragSource === 'existing'
+                                ? '2px dashed hsl(var(--muted-foreground))'
+                                : 'none',
                           }}
                         >
                           <img
@@ -1132,20 +1132,20 @@ const ProductForm = ({ isEdit: isEditMode }) => {
                       <div
                         key={`new-${index}`}
                         draggable
-                        onDragStart={(e) => handleDragStart(e, index, "new")}
+                        onDragStart={(e) => handleDragStart(e, index, 'new')}
                         onDragOver={handleDragOver}
-                        onDrop={(e) => handleDrop(e, index, "new")}
+                        onDrop={(e) => handleDrop(e, index, 'new')}
                         onDragEnd={handleDragEnd}
                         className="relative w-[150px] h-[150px] rounded-lg overflow-hidden bg-muted/50 shadow-sm cursor-move"
                         style={{
                           opacity:
-                            draggedIndex === index && dragSource === "new"
+                            draggedIndex === index && dragSource === 'new'
                               ? 0.5
                               : 1,
                           outline:
-                            draggedIndex === index && dragSource === "new"
-                              ? "2px dashed hsl(var(--muted-foreground))"
-                              : "none",
+                            draggedIndex === index && dragSource === 'new'
+                              ? '2px dashed hsl(var(--muted-foreground))'
+                              : 'none',
                         }}
                       >
                         <img
@@ -1233,7 +1233,7 @@ const ProductForm = ({ isEdit: isEditMode }) => {
                                       ].option = value;
                                       updatedVariants[index].attributes[
                                         attrIndex
-                                      ].value = "";
+                                      ].value = '';
                                       setVariants(updatedVariants);
                                     }}
                                   >
@@ -1307,7 +1307,7 @@ const ProductForm = ({ isEdit: isEditMode }) => {
                               required
                               onChange={(e) => {
                                 const value = e.target.value;
-                                if (value >= 0 || value === "") {
+                                if (value >= 0 || value === '') {
                                   const updatedVariants = [...variants];
                                   updatedVariants[index].stock = value;
                                   setVariants(updatedVariants);
@@ -1323,7 +1323,7 @@ const ProductForm = ({ isEdit: isEditMode }) => {
                               required
                               onChange={(e) => {
                                 const value = e.target.value;
-                                if (value >= 0 || value === "") {
+                                if (value >= 0 || value === '') {
                                   const updatedVariants = [...variants];
                                   updatedVariants[index].price = value;
                                   setVariants(updatedVariants);
@@ -1338,7 +1338,7 @@ const ProductForm = ({ isEdit: isEditMode }) => {
                               value={variant.discount}
                               onChange={(e) => {
                                 const value = e.target.value;
-                                if (value >= 0 || value === "") {
+                                if (value >= 0 || value === '') {
                                   const updatedVariants = [...variants];
                                   updatedVariants[index].discount = value;
                                   setVariants(updatedVariants);
@@ -1382,7 +1382,7 @@ const ProductForm = ({ isEdit: isEditMode }) => {
         <Card className="shadow-md border-0">
           <CardHeader>
             <CardTitle>
-              Product SEO Information{" "}
+              Product SEO Information{' '}
               <span className="text-muted-foreground font-normal text-sm">
                 (Optional)
               </span>
@@ -1451,10 +1451,10 @@ const ProductForm = ({ isEdit: isEditMode }) => {
             {submitting ? (
               <>
                 <Loader2 className="size-4 mr-2 animate-spin" />
-                {isEditMode ? "Updating..." : "Adding..."}
+                {isEditMode ? 'Updating...' : 'Adding...'}
               </>
             ) : (
-              <>{isEditMode ? "Update Product" : "Add Product"}</>
+              <>{isEditMode ? 'Update Product' : 'Add Product'}</>
             )}
           </Button>
         </div>

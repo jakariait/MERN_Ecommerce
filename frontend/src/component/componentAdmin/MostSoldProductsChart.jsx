@@ -1,21 +1,21 @@
-import React, { useEffect, useState } from "react";
-import { ResponsivePie } from "@nivo/pie";
-import { Button } from "@/components/ui/button";
-import useOrderStore from "../../store/useOrderStore.js";
-import dayjs from "dayjs";
+import React, { useEffect, useState } from 'react';
+import { ResponsivePie } from '@nivo/pie';
+import { Button } from '@/components/ui/button';
+import useOrderStore from '../../store/useOrderStore.js';
+import dayjs from 'dayjs';
 
 const timeframeLabels = {
-  weekly: "Weekly",
-  monthly: "Monthly",
-  yearly: "Yearly",
-  lifetime: "Lifetime",
+  weekly: 'Weekly',
+  monthly: 'Monthly',
+  yearly: 'Yearly',
+  lifetime: 'Lifetime',
 };
 
 const MostSoldProductsPieChart = () => {
   const { fetchAllOrdersWithoutPagination, allOrders } = useOrderStore();
   const [productSales, setProductSales] = useState([]);
   const [totalSold, setTotalSold] = useState(0);
-  const [timeframe, setTimeframe] = useState("monthly");
+  const [timeframe, setTimeframe] = useState('monthly');
 
   useEffect(() => {
     fetchAllOrdersWithoutPagination();
@@ -26,17 +26,17 @@ const MostSoldProductsPieChart = () => {
       const now = dayjs();
       let filteredOrders = [];
 
-      if (timeframe === "weekly") {
+      if (timeframe === 'weekly') {
         filteredOrders = allOrders.filter((order) =>
-          dayjs(order.createdAt).isAfter(now.subtract(7, "day")),
+          dayjs(order.createdAt).isAfter(now.subtract(7, 'day')),
         );
-      } else if (timeframe === "monthly") {
+      } else if (timeframe === 'monthly') {
         filteredOrders = allOrders.filter((order) =>
-          dayjs(order.createdAt).isAfter(now.startOf("month")),
+          dayjs(order.createdAt).isAfter(now.startOf('month')),
         );
-      } else if (timeframe === "yearly") {
+      } else if (timeframe === 'yearly') {
         filteredOrders = allOrders.filter((order) =>
-          dayjs(order.createdAt).isAfter(now.startOf("year")),
+          dayjs(order.createdAt).isAfter(now.startOf('year')),
         );
       } else {
         filteredOrders = allOrders;
@@ -46,10 +46,10 @@ const MostSoldProductsPieChart = () => {
       let total = 0;
 
       filteredOrders
-        .filter((order) => order.orderStatus !== "cancelled")
+        .filter((order) => order.orderStatus !== 'cancelled')
         .forEach((order) => {
           order.items?.forEach((item) => {
-            const name = item.productId?.name || "Unknown Product";
+            const name = item.productId?.name || 'Unknown Product';
             const qty = item.quantity || 1;
 
             if (!productCountMap[name]) productCountMap[name] = 0;
@@ -83,7 +83,7 @@ const MostSoldProductsPieChart = () => {
           {Object.entries(timeframeLabels).map(([value, label]) => (
             <Button
               key={value}
-              variant={timeframe === value ? "default" : "outline"}
+              variant={timeframe === value ? 'default' : 'outline'}
               size="sm"
               onClick={() => setTimeframe(value)}
             >
@@ -101,7 +101,7 @@ const MostSoldProductsPieChart = () => {
           padAngle={1.5}
           cornerRadius={3}
           activeOuterRadiusOffset={8}
-          colors={{ scheme: "category10" }}
+          colors={{ scheme: 'category10' }}
           enableArcLabels={false}
           enableArcLinkLabels={false}
         />

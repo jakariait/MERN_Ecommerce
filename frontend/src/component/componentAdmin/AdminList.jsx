@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
+import React, { useEffect, useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
 import {
   Table,
   TableBody,
@@ -8,8 +8,8 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { Card, CardContent } from "@/components/ui/card";
+} from '@/components/ui/table';
+import { Card, CardContent } from '@/components/ui/card';
 import {
   Dialog,
   DialogContent,
@@ -17,12 +17,12 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
-} from "@/components/ui/dialog";
-import { toast } from "sonner";
-import { Edit, Trash2, Plus, Loader2 } from "lucide-react";
-import axios from "axios";
-import useAuthAdminStore from "../../store/AuthAdminStore.js";
-import { Link } from "react-router-dom";
+} from '@/components/ui/dialog';
+import { toast } from 'sonner';
+import { Edit, Trash2, Plus, Loader2 } from 'lucide-react';
+import axios from 'axios';
+import useAuthAdminStore from '../../store/AuthAdminStore.js';
+import { Link } from 'react-router-dom';
 
 const AdminList = () => {
   const apiUrl = import.meta.env.VITE_API_URL;
@@ -46,7 +46,7 @@ const AdminList = () => {
       });
       setAdmins(response.data.admins);
     } catch (error) {
-      toast.error("Failed to fetch admins");
+      toast.error('Failed to fetch admins');
     } finally {
       setLoading(false);
     }
@@ -57,10 +57,10 @@ const AdminList = () => {
       await axios.delete(`${apiUrl}/admin/${selectedAdminId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      toast.success("Admin deleted successfully");
+      toast.success('Admin deleted successfully');
       fetchAdmins();
     } catch (error) {
-      toast.error("Failed to delete admin");
+      toast.error('Failed to delete admin');
     } finally {
       setOpenDeleteDialog(false);
       setSelectedAdminId(null);
@@ -107,10 +107,12 @@ const AdminList = () => {
             <TableBody>
               {admins.map((admin, index) => (
                 <TableRow key={admin._id}>
-                  <TableCell className="text-muted-foreground">{index + 1}</TableCell>
+                  <TableCell className="text-muted-foreground">
+                    {index + 1}
+                  </TableCell>
                   <TableCell className="font-medium">{admin.name}</TableCell>
                   <TableCell>{admin.email}</TableCell>
-                  <TableCell>{admin.mobileNo || "-"}</TableCell>
+                  <TableCell>{admin.mobileNo || '-'}</TableCell>
                   <TableCell className="text-muted-foreground">
                     {new Date(admin.createdAt).toLocaleString()}
                   </TableCell>
@@ -152,7 +154,10 @@ const AdminList = () => {
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setOpenDeleteDialog(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setOpenDeleteDialog(false)}
+            >
               Cancel
             </Button>
             <Button variant="destructive" onClick={handleDeleteConfirm}>

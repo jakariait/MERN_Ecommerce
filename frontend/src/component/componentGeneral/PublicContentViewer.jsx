@@ -1,12 +1,12 @@
-import React, { useEffect, useState } from "react";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Typography } from "@/components/ui/typography";
-import axios from "axios";
-import sanitizeHtml from "../../utils/sanitizeHtml.js";
+import React, { useEffect, useState } from 'react';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Typography } from '@/components/ui/typography';
+import axios from 'axios';
+import sanitizeHtml from '../../utils/sanitizeHtml.js';
 
 const PublicContentViewer = ({ title, endpoint }) => {
   const apiUrl = import.meta.env.VITE_API_URL;
-  const [content, setContent] = useState("");
+  const [content, setContent] = useState('');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -17,8 +17,8 @@ const PublicContentViewer = ({ title, endpoint }) => {
           setContent(res.data.content);
         }
       } catch (err) {
-        console.error("Error fetching content:", err);
-        setContent("<p>Sorry, failed to load content.</p>");
+        console.error('Error fetching content:', err);
+        setContent('<p>Sorry, failed to load content.</p>');
       } finally {
         setLoading(false);
       }

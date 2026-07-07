@@ -6,26 +6,26 @@ import {
   FaEnvelope,
   FaHome,
   FaPhone,
-} from "react-icons/fa";
-import { FaRegEdit } from "react-icons/fa";
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import useAuthUserStore from "../../store/AuthUserStore.js";
-import useCartStore from "../../store/useCartStore.js";
-import { Snackbar } from "@/components/ui/snackbar";
-import { Alert } from "@/components/ui/alert";
+} from 'react-icons/fa';
+import { FaRegEdit } from 'react-icons/fa';
+import { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import useAuthUserStore from '../../store/AuthUserStore.js';
+import useCartStore from '../../store/useCartStore.js';
+import { Snackbar } from '@/components/ui/snackbar';
+import { Alert } from '@/components/ui/alert';
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
 const RegisterForm = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
-    fullName: "",
-    email: "",
-    phone: "",
-    address: "",
-    password: "",
-    confirmPassword: "",
+    fullName: '',
+    email: '',
+    phone: '',
+    address: '',
+    password: '',
+    confirmPassword: '',
   });
 
   const navigate = useNavigate();
@@ -34,7 +34,7 @@ const RegisterForm = () => {
   const [registrationLoading, setRegistrationLoading] = useState(false);
   const [registrationError, setRegistrationError] = useState(null);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [snackbarMessage, setSnackbarMessage] = useState('');
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -42,12 +42,12 @@ const RegisterForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (formData.password !== formData.confirmPassword) {
-      setRegistrationError("Passwords do not match!");
+      setRegistrationError('Passwords do not match!');
       return;
     }
-    
+
     setRegistrationLoading(true);
     setRegistrationError(null);
 
@@ -61,9 +61,9 @@ const RegisterForm = () => {
 
     try {
       const res = await fetch(`${apiUrl}/register`, {
-        method: "POST",
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify(payload),
       });
@@ -72,31 +72,31 @@ const RegisterForm = () => {
 
       if (res.ok) {
         await login(formData.email || formData.phone, formData.password);
-        const token = localStorage.getItem("user_token");
+        const token = localStorage.getItem('user_token');
 
         if (token) {
           try {
             await syncCartToDB(token);
             await loadCartFromBackend(token);
-            navigate("/user/home");
+            navigate('/user/home');
           } catch (cartError) {
             setSnackbarMessage(
-              "Registration successful, but there was a problem loading your cart. Please try again.",
+              'Registration successful, but there was a problem loading your cart. Please try again.',
             );
             setSnackbarOpen(true);
-            navigate("/user/home");
+            navigate('/user/home');
           }
         } else {
           alert(
-            "Registration successful, but automatic login failed. Please log in manually.",
+            'Registration successful, but automatic login failed. Please log in manually.',
           );
-          navigate("/login");
+          navigate('/login');
         }
       } else {
-        setRegistrationError(data.message || "Registration failed!");
+        setRegistrationError(data.message || 'Registration failed!');
       }
     } catch (error) {
-      setRegistrationError("Something went wrong. Please try again.");
+      setRegistrationError('Something went wrong. Please try again.');
     } finally {
       setRegistrationLoading(false);
     }
@@ -184,13 +184,13 @@ const RegisterForm = () => {
           <div className="flex items-center bg-white rounded-md shadow-sm px-4 py-4 relative">
             <FaLock className="primaryTextColor mr-5 text-2xl" />
             <input
-              type={showPassword ? "text" : "password"}
+              type={showPassword ? 'text' : 'password'}
               name="password"
               value={formData.password}
               onChange={handleChange}
               placeholder="Set Password*"
               className={`w-full outline-none bg-transparent pr-10 text-lg ${
-                showPassword ? "font-bold" : ""
+                showPassword ? 'font-bold' : ''
               } placeholder:text-sm`}
               required
             />
@@ -206,13 +206,13 @@ const RegisterForm = () => {
           <div className="flex items-center bg-white rounded-md shadow-sm px-4 py-4">
             <FaLock className="primaryTextColor mr-5 text-2xl" />
             <input
-              type={showPassword ? "text" : "password"}
+              type={showPassword ? 'text' : 'password'}
               name="confirmPassword"
               value={formData.confirmPassword}
               onChange={handleChange}
               placeholder="Confirm Password*"
               className={`w-full outline-none bg-transparent text-lg ${
-                showPassword ? "font-bold" : ""
+                showPassword ? 'font-bold' : ''
               } placeholder:text-sm`}
               required
             />
@@ -224,13 +224,13 @@ const RegisterForm = () => {
             className="w-full py-3 rounded-md mt-2 primaryBgColor accentTextColor"
             disabled={registrationLoading || authLoading}
           >
-            {registrationLoading || authLoading ? "Registering..." : "Register"}
+            {registrationLoading || authLoading ? 'Registering...' : 'Register'}
           </button>
         </form>
 
         {/* Sign In Redirect */}
         <p className="text-sm mt-6 text-gray-600">
-          Already have an account?{" "}
+          Already have an account?{' '}
           <Link to="/login">
             <button className="primaryTextColor font-medium hover:underline cursor-pointer">
               Sign in
@@ -244,12 +244,12 @@ const RegisterForm = () => {
         open={snackbarOpen}
         autoHideDuration={4000}
         onClose={() => setSnackbarOpen(false)}
-        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
       >
         <Alert
           onClose={() => setSnackbarOpen(false)}
           severity="error"
-          sx={{ width: "100%" }}
+          sx={{ width: '100%' }}
         >
           {snackbarMessage}
         </Alert>

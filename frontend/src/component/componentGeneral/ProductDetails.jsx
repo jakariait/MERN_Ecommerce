@@ -1,21 +1,25 @@
-import React, { useEffect, useRef, useState, lazy, Suspense } from "react";
-import { useLocation, useParams } from "react-router-dom";
-import useProductStore from "../../store/useProductStore.js";
-import GeneralInfoStore from "../../store/GeneralInfoStore.js";
-import Skeleton from "react-loading-skeleton";
-import LazySocialShareButtons from "./LazySocialShareButtons.jsx";
-import { Typography } from "@/components/ui/typography";
-import { Accordion, AccordionSummary, AccordionDetails } from "@/components/ui/accordion";
-import { ChevronDown as ExpandMoreIcon } from "lucide-react";
-import ProductGallery from "./ProductGallery.jsx";
-import ProductAddToCart from "./ProductAddToCart.jsx";
-import ProductBreadcrumbs from "./ProductBreadcrumbs.jsx";
-import ProductDetailsSkeleton from "../skeleton/ProductDetailsSkeleton.jsx";
-import sanitizeHtml from "../../utils/sanitizeHtml.js";
-const SimilarProducts = lazy(() => import("./SimilarProducts.jsx"));
-const YouTubeEmbed = lazy(() => import("./YouTubeEmbed.jsx"));
+import React, { useEffect, useRef, useState, lazy, Suspense } from 'react';
+import { useLocation, useParams } from 'react-router-dom';
+import useProductStore from '../../store/useProductStore.js';
+import GeneralInfoStore from '../../store/GeneralInfoStore.js';
+import Skeleton from 'react-loading-skeleton';
+import LazySocialShareButtons from './LazySocialShareButtons.jsx';
+import { Typography } from '@/components/ui/typography';
+import {
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
+} from '@/components/ui/accordion';
+import { ChevronDown as ExpandMoreIcon } from 'lucide-react';
+import ProductGallery from './ProductGallery.jsx';
+import ProductAddToCart from './ProductAddToCart.jsx';
+import ProductBreadcrumbs from './ProductBreadcrumbs.jsx';
+import ProductDetailsSkeleton from '../skeleton/ProductDetailsSkeleton.jsx';
+import sanitizeHtml from '../../utils/sanitizeHtml.js';
+const SimilarProducts = lazy(() => import('./SimilarProducts.jsx'));
+const YouTubeEmbed = lazy(() => import('./YouTubeEmbed.jsx'));
 const RecentlyViewedProducts = lazy(
-  () => import("./RecentlyViewedProducts.jsx"),
+  () => import('./RecentlyViewedProducts.jsx'),
 );
 
 const ProductDetails = () => {
@@ -79,17 +83,17 @@ const ProductDetails = () => {
 
     window.dataLayer = window.dataLayer || [];
     window.dataLayer.push({
-      event: "view_item",
+      event: 'view_item',
       ecommerce: {
-        currency: "BDT",
+        currency: 'BDT',
         value: price,
         items: [
           {
             item_id: product.productId,
             item_name: product.name,
-            currency: "BDT",
+            currency: 'BDT',
             discount,
-            item_variant: "Default",
+            item_variant: 'Default',
             price,
             quantity: 1,
           },
@@ -104,7 +108,7 @@ const ProductDetails = () => {
     if (!product?._id) return;
 
     // Get existing list or empty array
-    let viewed = JSON.parse(localStorage.getItem("recentlyViewed") || "[]");
+    let viewed = JSON.parse(localStorage.getItem('recentlyViewed') || '[]');
 
     // Remove if already exists (avoid duplicates)
     viewed = viewed.filter((item) => item._id !== product._id);
@@ -130,7 +134,7 @@ const ProductDetails = () => {
     viewed = viewed.slice(0, 5);
 
     // Save back
-    localStorage.setItem("recentlyViewed", JSON.stringify(viewed));
+    localStorage.setItem('recentlyViewed', JSON.stringify(viewed));
     setRecentlyViewed(viewed);
   }, [product]);
 
@@ -151,7 +155,7 @@ const ProductDetails = () => {
           {/*Seo Meta Data*/}
           <title>{`${product?.name || product?.metaTitle} | ${GeneralInfoList?.CompanyName}`}</title>
           <meta name="description" content={product?.metaDescription} />
-          <meta name="keywords" content={product.metaKeywords.join(", ")} />
+          <meta name="keywords" content={product.metaKeywords.join(', ')} />
           <meta
             property="og:title"
             content={`${product?.name || product?.metaTitle} | ${GeneralInfoList?.CompanyName}`}
@@ -200,7 +204,7 @@ const ProductDetails = () => {
 
           {/*YoutubeEmbed*/}
           {product.videoUrl && (
-            <div className={"flex items-center justify-center pt-10 pb-10"}>
+            <div className={'flex items-center justify-center pt-10 pb-10'}>
               <Suspense
                 fallback={
                   <div className="w-full sm:w-[560px]">
@@ -215,14 +219,14 @@ const ProductDetails = () => {
             </div>
           )}
 
-          <div className={"xl:w-3/4 mx-auto  mt-4 flex flex-col gap-4"}>
+          <div className={'xl:w-3/4 mx-auto  mt-4 flex flex-col gap-4'}>
             {/*product Description*/}
             {product.longDesc && (
               <Accordion defaultExpanded>
                 <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                   Description
                 </AccordionSummary>
-                <AccordionDetails style={{ minHeight: "20rem" }}>
+                <AccordionDetails style={{ minHeight: '20rem' }}>
                   <div
                     className="rendered-html"
                     dangerouslySetInnerHTML={{
@@ -238,7 +242,7 @@ const ProductDetails = () => {
                 <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                   Size Chart
                 </AccordionSummary>
-                <AccordionDetails style={{ minHeight: "20rem" }}>
+                <AccordionDetails style={{ minHeight: '20rem' }}>
                   <div
                     className="rendered-html"
                     dangerouslySetInnerHTML={{
@@ -255,7 +259,7 @@ const ProductDetails = () => {
                 <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                   Shipping and Return
                 </AccordionSummary>
-                <AccordionDetails style={{ minHeight: "20rem" }}>
+                <AccordionDetails style={{ minHeight: '20rem' }}>
                   <div
                     className="rendered-html"
                     dangerouslySetInnerHTML={{
@@ -267,13 +271,13 @@ const ProductDetails = () => {
             )}
           </div>
           <div>
-            <Suspense fallback={<Skeleton height={200} width={"100%"} />}>
+            <Suspense fallback={<Skeleton height={200} width={'100%'} />}>
               <RecentlyViewedProducts
                 currentProductId={product._id}
                 products={recentlyViewed}
               />
             </Suspense>
-            <Suspense fallback={<Skeleton height={200} width={"100%"} />}>
+            <Suspense fallback={<Skeleton height={200} width={'100%'} />}>
               <SimilarProducts
                 categoryId={product?.category?._id}
                 productId={product?._id}

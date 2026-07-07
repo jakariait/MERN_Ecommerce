@@ -1,19 +1,17 @@
-import React, { useState, useEffect, useRef } from "react";
-import { useForm, Controller } from "react-hook-form";
-import axios from "axios";
-import { Pencil, Trash2 } from "lucide-react";
-import ImageComponent from "../componentGeneral/ImageComponent.jsx";
-import useAuthAdminStore from "../../store/AuthAdminStore.js"; // Import your store
-
+import React, { useState, useEffect, useRef } from 'react';
+import { useForm, Controller } from 'react-hook-form';
+import axios from 'axios';
+import { Pencil, Trash2 } from 'lucide-react';
+import ImageComponent from '../componentGeneral/ImageComponent.jsx';
+import useAuthAdminStore from '../../store/AuthAdminStore.js'; // Import your store
 
 const apiUrl = import.meta.env.VITE_API_URL;
-
 
 const FeatureImageAdmin = () => {
   const [featureImages, setFeatureImages] = useState([]);
   const [editingFeature, setEditingFeature] = useState(null);
-  const [successMessage, setSuccessMessage] = useState("");
-  const [errorMessage, setErrorMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
   const { register, handleSubmit, reset, setValue, control } = useForm();
   const fileInputRef = useRef(null);
   const { token } = useAuthAdminStore(); // Access token from the store
@@ -24,7 +22,7 @@ const FeatureImageAdmin = () => {
         const { data } = await axios.get(`${apiUrl}/feature-images`);
         setFeatureImages(data.data);
       } catch (error) {
-        console.error("Error fetching images:", error);
+        console.error('Error fetching images:', error);
       }
     };
 
@@ -33,31 +31,35 @@ const FeatureImageAdmin = () => {
 
   const onSubmit = async (data) => {
     const formData = new FormData();
-    formData.append("title", data.title);
+    formData.append('title', data.title);
 
     if (data.imgSrc && data.imgSrc.length > 0) {
-      formData.append("imgSrc", data.imgSrc[0]);
+      formData.append('imgSrc', data.imgSrc[0]);
     } else {
-      console.warn("No image file selected");
+      console.warn('No image file selected');
     }
 
     try {
       if (editingFeature) {
-        await axios.put(`${apiUrl}/feature-images/${editingFeature._id}`, formData, {
-          headers: {
-            "Content-Type": "multipart/form-data",
-            Authorization: `Bearer ${token}`, // Add authorization header
+        await axios.put(
+          `${apiUrl}/feature-images/${editingFeature._id}`,
+          formData,
+          {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+              Authorization: `Bearer ${token}`, // Add authorization header
+            },
           },
-        });
-        setSuccessMessage("Update successful!");
+        );
+        setSuccessMessage('Update successful!');
       } else {
         await axios.post(`${apiUrl}/feature-images/create`, formData, {
           headers: {
-            "Content-Type": "multipart/form-data",
+            'Content-Type': 'multipart/form-data',
             Authorization: `Bearer ${token}`, // Add authorization header
           },
         });
-        setSuccessMessage("Image added successfully!");
+        setSuccessMessage('Image added successfully!');
       }
 
       const { data } = await axios.get(`${apiUrl}/feature-images`);
@@ -65,26 +67,26 @@ const FeatureImageAdmin = () => {
 
       setEditingFeature(null);
       reset();
-      if (fileInputRef.current) fileInputRef.current.value = "";
+      if (fileInputRef.current) fileInputRef.current.value = '';
     } catch (error) {
-      console.error("Error submitting form:", error);
-      setErrorMessage("An error occurred. Please try again.");
+      console.error('Error submitting form:', error);
+      setErrorMessage('An error occurred. Please try again.');
     }
 
     setTimeout(() => {
-      setSuccessMessage("");
-      setErrorMessage("");
+      setSuccessMessage('');
+      setErrorMessage('');
     }, 3000);
   };
 
   const handleEdit = (feature) => {
     setEditingFeature(feature);
-    setValue("title", feature.title);
+    setValue('title', feature.title);
   };
 
   const handleDelete = async (id) => {
     if (
-      !window.confirm("Are you sure you want to delete this feature image?")
+      !window.confirm('Are you sure you want to delete this feature image?')
     ) {
       return;
     }
@@ -98,11 +100,11 @@ const FeatureImageAdmin = () => {
 
       setFeatureImages(featureImages.filter((item) => item._id !== id));
 
-      setSuccessMessage("Image deleted successfully!");
-      setTimeout(() => setSuccessMessage(""), 3000);
+      setSuccessMessage('Image deleted successfully!');
+      setTimeout(() => setSuccessMessage(''), 3000);
     } catch (error) {
-      console.error("Error deleting image:", error);
-      setErrorMessage("Failed to delete image.");
+      console.error('Error deleting image:', error);
+      setErrorMessage('Failed to delete image.');
     }
   };
 
@@ -129,7 +131,7 @@ const FeatureImageAdmin = () => {
       >
         <label className="block font-medium">Title:</label>
         <input
-          {...register("title", { required: true })}
+          {...register('title', { required: true })}
           className="w-full border p-2 rounded-lg mb-3"
         />
 
@@ -155,7 +157,7 @@ const FeatureImageAdmin = () => {
           type="submit"
           className="bg-blue-600 text-white py-2 px-4 rounded-lg w-full"
         >
-          {editingFeature ? "Update Image" : "Add Image"}
+          {editingFeature ? 'Update Image' : 'Add Image'}
         </button>
       </form>
 

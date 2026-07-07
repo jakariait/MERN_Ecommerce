@@ -1,16 +1,16 @@
-import React, { useEffect, useState, useMemo } from "react";
-import axios from "axios";
-import useAuthAdminStore from "../../store/AuthAdminStore.js";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import React, { useEffect, useState, useMemo } from 'react';
+import axios from 'axios';
+import useAuthAdminStore from '../../store/AuthAdminStore.js';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from '@/components/ui/select';
 import {
   Table,
   TableBody,
@@ -18,8 +18,8 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { Card, CardContent } from "@/components/ui/card";
+} from '@/components/ui/table';
+import { Card, CardContent } from '@/components/ui/card';
 import {
   Dialog,
   DialogContent,
@@ -27,8 +27,8 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
-} from "@/components/ui/dialog";
-import { toast } from "sonner";
+} from '@/components/ui/dialog';
+import { toast } from 'sonner';
 import {
   Plus,
   Search,
@@ -37,8 +37,8 @@ import {
   Loader2,
   ChevronLeft,
   ChevronRight,
-} from "lucide-react";
-import { SectionHeader } from "@/component/componentAdmin/SectionHeader.jsx";
+} from 'lucide-react';
+import { SectionHeader } from '@/component/componentAdmin/SectionHeader.jsx';
 
 const AdminCategoryAllinone = () => {
   const apiUrl = import.meta.env.VITE_API_URL;
@@ -46,7 +46,7 @@ const AdminCategoryAllinone = () => {
 
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState('');
   const [page, setPage] = useState(0);
   const rowsPerPage = 10;
 
@@ -54,7 +54,7 @@ const AdminCategoryAllinone = () => {
   const [isEdit, setIsEdit] = useState(false);
   const [editId, setEditId] = useState(null);
   const [formData, setFormData] = useState({
-    name: "",
+    name: '',
     featureCategory: true,
     showOnNavbar: true,
   });
@@ -74,7 +74,7 @@ const AdminCategoryAllinone = () => {
         setLoading(false);
       })
       .catch(() => {
-        toast.error("Error fetching categories.");
+        toast.error('Error fetching categories.');
         setLoading(false);
       });
   };
@@ -86,7 +86,7 @@ const AdminCategoryAllinone = () => {
   const handleOpenCreate = () => {
     setIsEdit(false);
     setEditId(null);
-    setFormData({ name: "", featureCategory: true, showOnNavbar: true });
+    setFormData({ name: '', featureCategory: true, showOnNavbar: true });
     setDialogOpen(true);
   };
 
@@ -103,7 +103,7 @@ const AdminCategoryAllinone = () => {
 
   const handleSave = async () => {
     if (!formData.name.trim()) {
-      toast.warning("Category name is required.");
+      toast.warning('Category name is required.');
       return;
     }
     setIsSubmitting(true);
@@ -112,23 +112,23 @@ const AdminCategoryAllinone = () => {
         await axios.put(`${apiUrl}/category/${editId}`, formData, {
           headers: {
             Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
           },
         });
-        toast.success("Category updated successfully!");
+        toast.success('Category updated successfully!');
       } else {
         await axios.post(`${apiUrl}/category`, formData, {
           headers: {
             Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
           },
         });
-        toast.success("Category added successfully!");
+        toast.success('Category added successfully!');
       }
       setDialogOpen(false);
       fetchCategories();
     } catch (err) {
-      toast.error(err.response?.data?.message || "Operation failed.");
+      toast.error(err.response?.data?.message || 'Operation failed.');
     } finally {
       setIsSubmitting(false);
     }
@@ -145,10 +145,10 @@ const AdminCategoryAllinone = () => {
       await axios.delete(`${apiUrl}/category/${categoryToDelete._id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      toast.success("Category deleted successfully!");
+      toast.success('Category deleted successfully!');
       fetchCategories();
     } catch {
-      toast.error("Failed to delete category.");
+      toast.error('Failed to delete category.');
     } finally {
       setDeleteDialogOpen(false);
       setCategoryToDelete(null);
@@ -172,7 +172,7 @@ const AdminCategoryAllinone = () => {
   return (
     <div className="space-y-6">
       <SectionHeader
-        title={"Category Management"}
+        title={'Category Management'}
         description={`${categories.length} total categories`}
       />
 
@@ -237,17 +237,17 @@ const AdminCategoryAllinone = () => {
                         <TableCell className="text-center">
                           <Badge
                             variant={
-                              cat.featureCategory ? "default" : "secondary"
+                              cat.featureCategory ? 'default' : 'secondary'
                             }
                           >
-                            {cat.featureCategory ? "Yes" : "No"}
+                            {cat.featureCategory ? 'Yes' : 'No'}
                           </Badge>
                         </TableCell>
                         <TableCell className="text-center">
                           <Badge
-                            variant={cat.showOnNavbar ? "default" : "secondary"}
+                            variant={cat.showOnNavbar ? 'default' : 'secondary'}
                           >
-                            {cat.showOnNavbar ? "Yes" : "No"}
+                            {cat.showOnNavbar ? 'Yes' : 'No'}
                           </Badge>
                         </TableCell>
                         <TableCell className="text-center">
@@ -309,12 +309,12 @@ const AdminCategoryAllinone = () => {
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>
-              {isEdit ? "Edit Category" : "Add New Category"}
+              {isEdit ? 'Edit Category' : 'Add New Category'}
             </DialogTitle>
             <DialogDescription>
               {isEdit
-                ? "Update the category details."
-                : "Create a new category."}
+                ? 'Update the category details.'
+                : 'Create a new category.'}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-2">
@@ -348,7 +348,7 @@ const AdminCategoryAllinone = () => {
                   onValueChange={(value) =>
                     setFormData({
                       ...formData,
-                      featureCategory: value === "true",
+                      featureCategory: value === 'true',
                     })
                   }
                 >
@@ -368,7 +368,7 @@ const AdminCategoryAllinone = () => {
                   onValueChange={(value) =>
                     setFormData({
                       ...formData,
-                      showOnNavbar: value === "true",
+                      showOnNavbar: value === 'true',
                     })
                   }
                 >
@@ -394,9 +394,9 @@ const AdminCategoryAllinone = () => {
                   Saving...
                 </>
               ) : isEdit ? (
-                "Update"
+                'Update'
               ) : (
-                "Save"
+                'Save'
               )}
             </Button>
           </DialogFooter>
@@ -408,7 +408,7 @@ const AdminCategoryAllinone = () => {
           <DialogHeader>
             <DialogTitle>Confirm Delete</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete{" "}
+              Are you sure you want to delete{' '}
               <strong>{categoryToDelete?.name}</strong>? This action cannot be
               undone.
             </DialogDescription>

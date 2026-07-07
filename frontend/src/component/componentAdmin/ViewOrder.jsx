@@ -1,8 +1,8 @@
-import { useEffect, useState, useMemo } from "react";
-import { useParams } from "react-router-dom";
-import axios from "axios";
-import useGeneralInfoStore from "../../store/GeneralInfoStore";
-import ImageComponent from "../componentGeneral/ImageComponent.jsx";
+import { useEffect, useState, useMemo } from 'react';
+import { useParams } from 'react-router-dom';
+import axios from 'axios';
+import useGeneralInfoStore from '../../store/GeneralInfoStore';
+import ImageComponent from '../componentGeneral/ImageComponent.jsx';
 import {
   Table,
   TableBody,
@@ -10,11 +10,11 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import sanitizeHtml from "../../utils/sanitizeHtml.js";
-import { Button } from "@/components/ui/button";
+} from '@/components/ui/table';
+import { Card, CardContent } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import sanitizeHtml from '../../utils/sanitizeHtml.js';
+import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
@@ -22,13 +22,13 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
-} from "@/components/ui/dialog";
-import { useRef } from "react";
-import OrderStatusUpdate from "./OrderStatusUpdate.jsx";
-import CourierStats from "./CourierStats.jsx";
-import RequirePermission from "./RequirePermission.jsx";
-import { debounce } from "lodash";
-import { Printer, Pencil, X, Plus, FileDown, Save } from "lucide-react";
+} from '@/components/ui/dialog';
+import { useRef } from 'react';
+import OrderStatusUpdate from './OrderStatusUpdate.jsx';
+import CourierStats from './CourierStats.jsx';
+import RequirePermission from './RequirePermission.jsx';
+import { debounce } from 'lodash';
+import { Printer, Pencil, X, Plus, FileDown, Save } from 'lucide-react';
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
@@ -40,25 +40,25 @@ const ViewOrder = () => {
 
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const [error, setError] = useState('');
 
   const [isEditMode, setIsEditMode] = useState(false);
   const [editableOrder, setEditableOrder] = useState(null);
 
   const [isAddProductModalOpen, setAddProductModalOpen] = useState(false);
-  const [productSearchQuery, setProductSearchQuery] = useState("");
+  const [productSearchQuery, setProductSearchQuery] = useState('');
   const [searchedProducts, setSearchedProducts] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(null);
 
   const getVariantDisplayName = (variant) => {
-    if (!variant) return "N/A";
+    if (!variant) return 'N/A';
 
     if (variant.attributes && Array.isArray(variant.attributes)) {
       const attributeValues = variant.attributes
         .map((attr) => attr.value)
         .filter((val) => val);
       if (attributeValues.length > 0) {
-        return attributeValues.join(" / ");
+        return attributeValues.join(' / ');
       }
     }
 
@@ -66,19 +66,19 @@ const ViewOrder = () => {
       return variant.size.name;
     }
 
-    return "N/A";
+    return 'N/A';
   };
 
   const handlePrint = () => {
-    const content = document.getElementById("print-area");
+    const content = document.getElementById('print-area');
     if (!content) return;
-    const iframe = document.createElement("iframe");
-    iframe.style.position = "fixed";
-    iframe.style.right = "0";
-    iframe.style.bottom = "0";
-    iframe.style.width = "0";
-    iframe.style.height = "0";
-    iframe.style.border = "0";
+    const iframe = document.createElement('iframe');
+    iframe.style.position = 'fixed';
+    iframe.style.right = '0';
+    iframe.style.bottom = '0';
+    iframe.style.width = '0';
+    iframe.style.height = '0';
+    iframe.style.border = '0';
     document.body.appendChild(iframe);
     const doc = iframe.contentWindow?.document;
     if (!doc) return;
@@ -106,38 +106,38 @@ const ViewOrder = () => {
 
   const getStatusColor = (status) =>
     ({
-      pending: { color: "text-amber-500", text: "Pending" },
-      intransit: { color: "text-blue-500", text: "In Transit" },
-      approved: { color: "text-teal-500", text: "Approved" },
-      delivered: { color: "text-green-500", text: "Delivered" },
-      cancelled: { color: "text-red-500", text: "Cancelled" },
-      returned: { color: "text-purple-500", text: "Returned" },
-    })[status] || { color: "text-muted-foreground", text: "Unknown" };
+      pending: { color: 'text-amber-500', text: 'Pending' },
+      intransit: { color: 'text-blue-500', text: 'In Transit' },
+      approved: { color: 'text-teal-500', text: 'Approved' },
+      delivered: { color: 'text-green-500', text: 'Delivered' },
+      cancelled: { color: 'text-red-500', text: 'Cancelled' },
+      returned: { color: 'text-purple-500', text: 'Returned' },
+    })[status] || { color: 'text-muted-foreground', text: 'Unknown' };
 
   const getPaymentStatusColor = (status) =>
     ({
-      unpaid: { color: "text-amber-500", text: "Unpaid" },
-      paid: { color: "text-green-500", text: "Paid" },
-    })[status] || { color: "text-muted-foreground", text: "Unknown" };
+      unpaid: { color: 'text-amber-500', text: 'Unpaid' },
+      paid: { color: 'text-green-500', text: 'Paid' },
+    })[status] || { color: 'text-muted-foreground', text: 'Unknown' };
 
   const getPaymentMethodText = (method) =>
     ({
-      cash_on_delivery: "Cash on Delivery",
-      bkash: "bKash",
-      nagad: "Nagad",
-      card: "Card",
-    })[method] || "Unknown Method";
+      cash_on_delivery: 'Cash on Delivery',
+      bkash: 'bKash',
+      nagad: 'Nagad',
+      card: 'Card',
+    })[method] || 'Unknown Method';
 
   const getDeliveryMethodText = (method) =>
     ({
-      home_delivery: "Home Delivery",
-    })[method] || "Unknown Method";
+      home_delivery: 'Home Delivery',
+    })[method] || 'Unknown Method';
 
   const fetchOrder = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem("token");
-      if (!token) throw new Error("You are not authenticated.");
+      const token = localStorage.getItem('token');
+      if (!token) throw new Error('You are not authenticated.');
 
       const res = await axios.get(`${apiUrl}/orders/${orderId}`, {
         headers: { Authorization: `Bearer ${token}` },
@@ -150,7 +150,7 @@ const ViewOrder = () => {
       }
       setEditableOrder(editable);
     } catch (err) {
-      setError(err.message || "Failed to fetch order details.");
+      setError(err.message || 'Failed to fetch order details.');
     } finally {
       setLoading(false);
     }
@@ -208,7 +208,7 @@ const ViewOrder = () => {
           );
           setSearchedProducts(res.data.products);
         } catch (error) {
-          console.error("Failed to search products:", error);
+          console.error('Failed to search products:', error);
         }
       }, 500),
     [],
@@ -244,14 +244,14 @@ const ViewOrder = () => {
 
     setEditableOrder((prev) => ({ ...prev, items: [...prev.items, newItem] }));
     setAddProductModalOpen(false);
-    setProductSearchQuery("");
+    setProductSearchQuery('');
     setSearchedProducts([]);
   };
 
   const handleSave = async () => {
     try {
-      const token = localStorage.getItem("token");
-      if (!token) throw new Error("Authentication token not found.");
+      const token = localStorage.getItem('token');
+      if (!token) throw new Error('Authentication token not found.');
 
       const updatePayload = {
         shippingInfo: editableOrder.shippingInfo,
@@ -259,9 +259,9 @@ const ViewOrder = () => {
         items: editableOrder.items.map(
           ({ productId, variantId, quantity, price }) => ({
             productId:
-              typeof productId === "object" ? productId._id : productId,
+              typeof productId === 'object' ? productId._id : productId,
             variantId:
-              typeof variantId === "object" && variantId !== null
+              typeof variantId === 'object' && variantId !== null
                 ? variantId._id
                 : variantId,
             quantity,
@@ -278,7 +278,7 @@ const ViewOrder = () => {
       await fetchOrder();
     } catch (err) {
       setError(
-        err.response?.data?.message || err.message || "Failed to update order.",
+        err.response?.data?.message || err.message || 'Failed to update order.',
       );
     }
   };
@@ -300,7 +300,7 @@ const ViewOrder = () => {
           <RequirePermission permission="edit_orders">
             <Button variant="outline" onClick={handleEditToggle}>
               <Pencil className="size-4 mr-1" />
-              {isEditMode ? "Cancel" : "Edit Order"}
+              {isEditMode ? 'Cancel' : 'Edit Order'}
             </Button>
           </RequirePermission>
           <Button variant="ghost" onClick={handlePrint}>
@@ -313,7 +313,9 @@ const ViewOrder = () => {
       <Card className="shadow-md border-0">
         <CardContent className="p-6" id="print-area" ref={printRef}>
           <div id="firstRow" className="flex items-center justify-between mb-6">
-            <h1 className="text-2xl font-bold">{GeneralInfoList.CompanyName}</h1>
+            <h1 className="text-2xl font-bold">
+              {GeneralInfoList.CompanyName}
+            </h1>
             <ImageComponent
               imageName={GeneralInfoList.PrimaryLogo}
               className="w-30"
@@ -356,9 +358,15 @@ const ViewOrder = () => {
               ) : (
                 <div className="space-y-0.5">
                   <p>{currentOrderData.shippingInfo.fullName}</p>
-                  <p className="text-muted-foreground">{currentOrderData.shippingInfo.mobileNo}</p>
-                  <p className="text-muted-foreground">{currentOrderData.shippingInfo.email}</p>
-                  <p className="text-muted-foreground">{currentOrderData.shippingInfo.address}</p>
+                  <p className="text-muted-foreground">
+                    {currentOrderData.shippingInfo.mobileNo}
+                  </p>
+                  <p className="text-muted-foreground">
+                    {currentOrderData.shippingInfo.email}
+                  </p>
+                  <p className="text-muted-foreground">
+                    {currentOrderData.shippingInfo.address}
+                  </p>
                 </div>
               )}
             </div>
@@ -367,28 +375,28 @@ const ViewOrder = () => {
                 <strong>Order No:</strong> {currentOrderData.orderNo}
               </p>
               <p>
-                <strong>Order Date:</strong>{" "}
+                <strong>Order Date:</strong>{' '}
                 {new Date(currentOrderData.orderDate).toLocaleDateString()}
               </p>
               <p>
-                <strong>Status:</strong>{" "}
+                <strong>Status:</strong>{' '}
                 <span className={orderStatusColor.color}>
                   {orderStatusColor.text}
                 </span>
               </p>
               <p>
-                <strong>Payment Method:</strong>{" "}
+                <strong>Payment Method:</strong>{' '}
                 {getPaymentMethodText(currentOrderData.paymentMethod)}
               </p>
               <p>
-                <strong>Payment Status:</strong>{" "}
+                <strong>Payment Status:</strong>{' '}
                 <span className={paymentStatusColor.color}>
                   {paymentStatusColor.text}
                 </span>
               </p>
               {currentOrderData.paymentId && (
                 <p>
-                  <strong>Payment ID:</strong>{" "}
+                  <strong>Payment ID:</strong>{' '}
                   <span className="text-sm">{currentOrderData.paymentId}</span>
                 </p>
               )}
@@ -398,7 +406,7 @@ const ViewOrder = () => {
                 </p>
               )}
               <p>
-                <strong>Delivery Method:</strong>{" "}
+                <strong>Delivery Method:</strong>{' '}
                 {getDeliveryMethodText(currentOrderData.deliveryMethod)}
               </p>
             </div>
@@ -415,7 +423,9 @@ const ViewOrder = () => {
                   <TableHead>Quantity</TableHead>
                   <TableHead>Unit Cost</TableHead>
                   <TableHead>Total</TableHead>
-                  {isEditMode && <TableHead className="no-print">Actions</TableHead>}
+                  {isEditMode && (
+                    <TableHead className="no-print">Actions</TableHead>
+                  )}
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -445,11 +455,11 @@ const ViewOrder = () => {
                           Category: {product.category?.name}
                         </div>
                         <div className="text-sm text-muted-foreground">
-                          Code: {product.productCode || "N/A"}
+                          Code: {product.productCode || 'N/A'}
                         </div>
                       </TableCell>
                       <TableCell>
-                        {variant ? getVariantDisplayName(variant) : "N/A"}
+                        {variant ? getVariantDisplayName(variant) : 'N/A'}
                       </TableCell>
                       <TableCell>
                         {isEditMode ? (
@@ -502,13 +512,13 @@ const ViewOrder = () => {
                   <Input
                     placeholder="Full Name"
                     name="fullName"
-                    value={editableOrder.billingInfo?.fullName || ""}
+                    value={editableOrder.billingInfo?.fullName || ''}
                     onChange={handleBillingInfoChange}
                   />
                   <textarea
                     placeholder="Address"
                     name="address"
-                    value={editableOrder.billingInfo?.address || ""}
+                    value={editableOrder.billingInfo?.address || ''}
                     onChange={handleBillingInfoChange}
                     rows={2}
                     className="flex w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 resize-y"
@@ -540,10 +550,12 @@ const ViewOrder = () => {
               {currentOrderData.vat > 0 && (
                 <p>VAT/TAX: {currentOrderData.vat.toFixed(2)}</p>
               )}
-              <p>Delivery Charge: {currentOrderData.deliveryCharge.toFixed(2)}</p>
+              <p>
+                Delivery Charge: {currentOrderData.deliveryCharge.toFixed(2)}
+              </p>
               {currentOrderData.specialDiscount > 0 && (
                 <p>
-                  Special Discount Amount:{" "}
+                  Special Discount Amount:{' '}
                   {currentOrderData.specialDiscount.toFixed(2)}
                 </p>
               )}
@@ -617,7 +629,7 @@ const ViewOrder = () => {
                         </TableCell>
                         <TableCell>
                           {product.variants && product.variants.length > 0
-                            ? "Multiple Variants"
+                            ? 'Multiple Variants'
                             : `Stock: ${product.finalStock}`}
                         </TableCell>
                         <TableCell>
@@ -634,22 +646,26 @@ const ViewOrder = () => {
                               }
                             }}
                             disabled={
-                              !product.variants?.length && product.finalStock < 1
+                              !product.variants?.length &&
+                              product.finalStock < 1
                             }
                           >
                             {product.variants && product.variants.length > 0
-                              ? "Select Variant"
-                              : "Add"}
+                              ? 'Select Variant'
+                              : 'Add'}
                           </Button>
                         </TableCell>
                       </TableRow>
                     ))
                   ) : (
                     <TableRow>
-                      <TableCell colSpan={3} className="text-center text-muted-foreground">
+                      <TableCell
+                        colSpan={3}
+                        className="text-center text-muted-foreground"
+                      >
                         {productSearchQuery.length > 1
-                          ? "No products found."
-                          : "Type to search."}
+                          ? 'No products found.'
+                          : 'Type to search.'}
                       </TableCell>
                     </TableRow>
                   )}
@@ -658,7 +674,10 @@ const ViewOrder = () => {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setAddProductModalOpen(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setAddProductModalOpen(false)}
+            >
               Close
             </Button>
           </DialogFooter>
@@ -671,7 +690,9 @@ const ViewOrder = () => {
       >
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Select Variant for {selectedProduct?.name}</DialogTitle>
+            <DialogTitle>
+              Select Variant for {selectedProduct?.name}
+            </DialogTitle>
             <DialogDescription>
               Choose a variant to add to this order.
             </DialogDescription>

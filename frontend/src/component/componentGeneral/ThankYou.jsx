@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import React, { useEffect, useState } from 'react';
+import { useParams, Link } from 'react-router-dom';
 import {
   PackageCheck,
   MapPin,
@@ -9,29 +9,29 @@ import {
   Calendar,
   Truck,
   ArrowRight,
-} from "lucide-react";
-import axios from "axios";
-import generalInfoStore from "../../store/GeneralInfoStore.js";
-import sanitizeHtml from "../../utils/sanitizeHtml.js";
+} from 'lucide-react';
+import axios from 'axios';
+import generalInfoStore from '../../store/GeneralInfoStore.js';
+import sanitizeHtml from '../../utils/sanitizeHtml.js';
 
 const ThankYou = () => {
   const { orderId } = useParams();
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
   const apiUrl = import.meta.env.VITE_API_URL;
-  const imageUrl = `${apiUrl.replace("/api", "")}/uploads`;
+  const imageUrl = `${apiUrl.replace('/api', '')}/uploads`;
 
   const { GeneralInfoList } = generalInfoStore();
 
   // Helper function to get variant display name from attributes
   const getVariantDisplayName = (variant) => {
-    if (!variant) return "N/A";
+    if (!variant) return 'N/A';
     if (variant.attributes && Array.isArray(variant.attributes)) {
       const attributeValues = variant.attributes
         .map((attr) => attr.value)
         .filter((val) => val);
       if (attributeValues.length > 0) {
-        return attributeValues.join(" / ");
+        return attributeValues.join(' / ');
       }
     }
     if (variant.size?.name) {
@@ -40,7 +40,7 @@ const ThankYou = () => {
     if (variant.sizeName) {
       return variant.sizeName;
     }
-    return "N/A";
+    return 'N/A';
   };
 
   useEffect(() => {
@@ -58,30 +58,30 @@ const ThankYou = () => {
           // 🕒 Delay the push to allow GTM to be ready
           setTimeout(() => {
             window.dataLayer.push({
-              event: "purchase",
+              event: 'purchase',
 
               user: {
-                name: order.shippingInfo.fullName || "",
-                email: order.shippingInfo.email || "",
-                phone: order.shippingInfo.mobileNo || "",
-                address: order.shippingInfo.address || "",
+                name: order.shippingInfo.fullName || '',
+                email: order.shippingInfo.email || '',
+                phone: order.shippingInfo.mobileNo || '',
+                address: order.shippingInfo.address || '',
               },
 
               ecommerce: {
                 transaction_id: order.orderNo,
-                currency: "BDT",
+                currency: 'BDT',
                 value: order.totalAmount,
                 tax: order.vat,
                 shipping: order.deliveryCharge,
-                coupon: order.promoCode || "",
+                coupon: order.promoCode || '',
                 items: order.items.map((item) => ({
-                  item_name: item.productId?.name || "Unknown Product",
-                  item_id: item.productId?.productId || "N/A",
+                  item_name: item.productId?.name || 'Unknown Product',
+                  item_id: item.productId?.productId || 'N/A',
                   price: item.price,
                   quantity: item.quantity,
-                  item_variant: item.variantId || "Default",
-                  item_category: item.productId?.category?.name || "N/A",
-                  item_image: item.productId?.thumbnailImage || "",
+                  item_variant: item.variantId || 'Default',
+                  item_category: item.productId?.category?.name || 'N/A',
+                  item_image: item.productId?.thumbnailImage || '',
                   item_size: getVariantDisplayName(
                     item.productId?.variants?.find(
                       (variant) => variant._id === item.variantId,
@@ -93,7 +93,7 @@ const ThankYou = () => {
           }, 200);
         }
       } catch (error) {
-        console.error("Failed to fetch order:", error);
+        console.error('Failed to fetch order:', error);
       } finally {
         setLoading(false);
       }
@@ -166,11 +166,11 @@ const ThankYou = () => {
                 <Calendar className="text-gray-400" size={32} />
               </div>
               <p className="text-sm text-gray-500 mt-4">
-                Order placed on{" "}
-                {new Date(order?.createdAt).toLocaleDateString("en-US", {
-                  year: "numeric",
-                  month: "long",
-                  day: "numeric",
+                Order placed on{' '}
+                {new Date(order?.createdAt).toLocaleDateString('en-US', {
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric',
                 })}
               </p>
             </div>
@@ -259,7 +259,7 @@ const ThankYou = () => {
                 <div>
                   <p className="text-gray-600 text-sm">Shipping Method</p>
                   <p className="text-gray-900 font-semibold capitalize">
-                    {order?.deliveryType || "Standard Delivery"}
+                    {order?.deliveryType || 'Standard Delivery'}
                   </p>
                 </div>
                 <div className="pt-4 border-t border-gray-200">
@@ -289,7 +289,7 @@ const ThankYou = () => {
                         Qty: {item.quantity}
                         {item.variantId && (
                           <span className="ml-2">
-                            •{" "}
+                            •{' '}
                             {getVariantDisplayName(
                               item.productId?.variants?.find(
                                 (v) => v._id === item.variantId,
@@ -310,7 +310,7 @@ const ThankYou = () => {
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">Subtotal</span>
                   <span className="text-gray-900 font-semibold">
-                    ৳{" "}
+                    ৳{' '}
                     {(
                       order?.totalAmount -
                       order?.vat -
@@ -390,7 +390,9 @@ const ThankYou = () => {
                     {item.productId?.shortDesc && (
                       <span
                         dangerouslySetInnerHTML={{
-                          __html: sanitizeHtml(item.productId.shortDesc.substring(0, 100)),
+                          __html: sanitizeHtml(
+                            item.productId.shortDesc.substring(0, 100),
+                          ),
                         }}
                       />
                     )}
@@ -458,19 +460,19 @@ const ThankYou = () => {
         <div className="mt-12 bg-blue-50 border border-blue-200 rounded-lg p-6 text-center">
           <p className="text-gray-700 mb-2">Have questions about your order?</p>
           <p className="text-gray-600 text-sm">
-            Contact our customer support team at{" "}
+            Contact our customer support team at{' '}
             <a
-              href={`mailto:${GeneralInfoList?.CompanyEmail?.[0] || "support@example.com"}`}
+              href={`mailto:${GeneralInfoList?.CompanyEmail?.[0] || 'support@example.com'}`}
               className="font-semibold text-blue-600 hover:text-blue-700 hover:underline transition"
             >
-              {GeneralInfoList?.CompanyEmail?.[0] || "support@example.com"}
-            </a>{" "}
-            or call{" "}
+              {GeneralInfoList?.CompanyEmail?.[0] || 'support@example.com'}
+            </a>{' '}
+            or call{' '}
             <a
-              href={`tel:${GeneralInfoList?.PhoneNumber?.[0]?.replace(/\D/g, "") || "+880"}`}
+              href={`tel:${GeneralInfoList?.PhoneNumber?.[0]?.replace(/\D/g, '') || '+880'}`}
               className="font-semibold text-blue-600 hover:text-blue-700 hover:underline transition"
             >
-              {GeneralInfoList?.PhoneNumber?.[0] || "+880-XXXX-XXXX"}
+              {GeneralInfoList?.PhoneNumber?.[0] || '+880-XXXX-XXXX'}
             </a>
           </p>
         </div>

@@ -1,18 +1,18 @@
-import React, { Suspense, lazy, useEffect, useState } from "react";
+import React, { Suspense, lazy, useEffect, useState } from 'react';
 const Editor = lazy(() =>
-  import("primereact/editor").then((module) => ({
+  import('primereact/editor').then((module) => ({
     default: module.Editor,
   })),
 );
-import axios from "axios";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { toast } from "sonner";
-import useAuthAdminStore from "../../store/AuthAdminStore.js";
-import { SectionHeader } from "#component/componentAdmin/SectionHeader.jsx";
+import axios from 'axios';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { toast } from 'sonner';
+import useAuthAdminStore from '../../store/AuthAdminStore.js';
+import { SectionHeader } from '#component/componentAdmin/SectionHeader.jsx';
 
 const PageEditor = ({ title, endpoint }) => {
-  const [content, setContent] = useState("");
+  const [content, setContent] = useState('');
   const [loading, setLoading] = useState(false);
   const { token } = useAuthAdminStore();
 
@@ -45,7 +45,7 @@ const PageEditor = ({ title, endpoint }) => {
       toast.success(`${title} updated successfully!`);
     } catch (err) {
       console.error(`Update error for ${title}:`, err);
-      toast.error("Update failed.");
+      toast.error('Update failed.');
     } finally {
       setLoading(false);
     }
@@ -67,7 +67,7 @@ const PageEditor = ({ title, endpoint }) => {
             <Editor
               value={content}
               onTextChange={(e) => setContent(e.htmlValue)}
-              style={{ height: "500px" }}
+              style={{ height: '500px' }}
               readOnly={loading}
             />
           </Suspense>
@@ -76,7 +76,7 @@ const PageEditor = ({ title, endpoint }) => {
 
       <div className="flex justify-center pb-4">
         <Button onClick={handleSave} disabled={loading} className="w-96">
-          {loading ? "Saving..." : "Save"}
+          {loading ? 'Saving...' : 'Save'}
         </Button>
       </div>
     </div>

@@ -1,22 +1,22 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
-import useAuthAdminStore from "../../store/AuthAdminStore.js";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Loader2 } from "lucide-react";
-import { toast } from "sonner";
-import { SectionHeader } from "@/component/componentAdmin/SectionHeader.jsx";
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+import useAuthAdminStore from '../../store/AuthAdminStore.js';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
+import { SectionHeader } from '@/component/componentAdmin/SectionHeader.jsx';
 
 const AdminPathaoConfig = () => {
   const [config, setConfig] = useState({
-    baseUrl: "",
-    clientId: "",
-    clientSecret: "",
-    username: "",
-    password: "",
-    storeId: "",
+    baseUrl: '',
+    clientId: '',
+    clientSecret: '',
+    username: '',
+    password: '',
+    storeId: '',
     isActive: false,
   });
   const [loading, setLoading] = useState(false);
@@ -24,7 +24,7 @@ const AdminPathaoConfig = () => {
 
   const { token } = useAuthAdminStore();
 
-  const apiUrl = import.meta.env.VITE_API_URL + "/pathao-config";
+  const apiUrl = import.meta.env.VITE_API_URL + '/pathao-config';
 
   useEffect(() => {
     const fetchConfig = async () => {
@@ -36,7 +36,7 @@ const AdminPathaoConfig = () => {
           setConfig(res.data.data);
         }
       } catch (error) {
-        console.error("Failed to fetch Pathao config", error);
+        console.error('Failed to fetch Pathao config', error);
       } finally {
         setFetching(false);
       }
@@ -65,9 +65,9 @@ const AdminPathaoConfig = () => {
       await axios.patch(apiUrl, allowedFields, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      toast.success("Pathao config updated successfully!");
+      toast.success('Pathao config updated successfully!');
     } catch (error) {
-      toast.error("Failed to update config. Please try again.");
+      toast.error('Failed to update config. Please try again.');
       console.error(error);
     }
     setLoading(false);
@@ -83,7 +83,7 @@ const AdminPathaoConfig = () => {
 
   return (
     <Card className="shadow-md border-0">
-      <SectionHeader title={"Update Pathao Config"} />
+      <SectionHeader title={'Update Pathao Config'} />
 
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -168,7 +168,7 @@ const AdminPathaoConfig = () => {
                 Saving...
               </>
             ) : (
-              "Save Changes"
+              'Save Changes'
             )}
           </Button>
         </form>

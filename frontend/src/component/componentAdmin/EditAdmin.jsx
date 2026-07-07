@@ -1,15 +1,15 @@
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Card, CardContent } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
-import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
-import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import axios from "axios";
-import useAuthAdminStore from "../../store/AuthAdminStore";
-import PermissionsCheckboxGroup from "./PermissionsCheckboxGroup.jsx";
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Card, CardContent } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
+import { toast } from 'sonner';
+import { Loader2 } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import useAuthAdminStore from '../../store/AuthAdminStore';
+import PermissionsCheckboxGroup from './PermissionsCheckboxGroup.jsx';
 
 const EditAdmin = () => {
   const { id } = useParams();
@@ -27,11 +27,11 @@ const EditAdmin = () => {
       const res = await axios.get(`${apiUrl}/admin/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      const adminData = { ...res.data.admin, password: "" };
+      const adminData = { ...res.data.admin, password: '' };
       setAdmin(adminData);
       setSelectedPermissions(res.data.admin.permissions || []);
     } catch (error) {
-      toast.error("Failed to fetch admin data");
+      toast.error('Failed to fetch admin data');
     } finally {
       setLoading(false);
     }
@@ -63,10 +63,10 @@ const EditAdmin = () => {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      toast.success("Admin updated successfully");
-      setTimeout(() => navigate("/admin/adminlist"), 1000);
+      toast.success('Admin updated successfully');
+      setTimeout(() => navigate('/admin/adminlist'), 1000);
     } catch (error) {
-      toast.error(error.response?.data?.message || "Failed to update admin");
+      toast.error(error.response?.data?.message || 'Failed to update admin');
     } finally {
       setUpdating(false);
     }
@@ -111,7 +111,7 @@ const EditAdmin = () => {
               <Input
                 id="mobileNo"
                 name="mobileNo"
-                value={admin.mobileNo || ""}
+                value={admin.mobileNo || ''}
                 onChange={handleChange}
               />
             </div>
@@ -121,7 +121,7 @@ const EditAdmin = () => {
                 id="password"
                 name="password"
                 type="password"
-                value={admin.password || ""}
+                value={admin.password || ''}
                 onChange={handleChange}
                 placeholder="Leave blank to keep current password"
               />
@@ -135,7 +135,7 @@ const EditAdmin = () => {
 
           <div className="flex justify-center pt-2">
             <Button onClick={handleSubmit} disabled={updating}>
-              {updating ? "Updating..." : "Update"}
+              {updating ? 'Updating...' : 'Update'}
             </Button>
           </div>
         </CardContent>

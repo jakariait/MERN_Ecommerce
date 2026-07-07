@@ -1,24 +1,24 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
-import { useNavigate } from "react-router-dom";
-import { Snackbar } from "@/components/ui/snackbar";
-import { Alert } from "@/components/ui/alert";
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
+import { Snackbar } from '@/components/ui/snackbar';
+import { Alert } from '@/components/ui/alert';
 
 // Stores
-import useCartStore from "../../store/useCartStore.js";
-import useAuthUserStore from "../../store/AuthUserStore.js";
+import useCartStore from '../../store/useCartStore.js';
+import useAuthUserStore from '../../store/AuthUserStore.js';
 
 // Custom Components
-import AddressForm from "./AddressForm.jsx";
-import ShippingOptions from "./ShippingOptions.jsx";
-import OrderReview from "./OrderReview.jsx";
-import CouponSection from "./CouponSection.jsx";
-import RewardPoints from "./RewardPoints.jsx";
-import DeliveryMethod from "./DeliveryMethod.jsx";
-import OrderSummary from "./OrderSummary.jsx";
-import CheckoutHeader from "./CheckoutHeader.jsx";
-import PaymentMethod from "./PaymentMethod.jsx";
-import AbandonedCartTracker from "./AbandonedCartTracker.jsx";
+import AddressForm from './AddressForm.jsx';
+import ShippingOptions from './ShippingOptions.jsx';
+import OrderReview from './OrderReview.jsx';
+import CouponSection from './CouponSection.jsx';
+import RewardPoints from './RewardPoints.jsx';
+import DeliveryMethod from './DeliveryMethod.jsx';
+import OrderSummary from './OrderSummary.jsx';
+import CheckoutHeader from './CheckoutHeader.jsx';
+import PaymentMethod from './PaymentMethod.jsx';
+import AbandonedCartTracker from './AbandonedCartTracker.jsx';
 
 const Checkout = () => {
   const apiUrl = import.meta.env.VITE_API_URL;
@@ -34,12 +34,12 @@ const Checkout = () => {
 
   // Shipping state
   const [selectedShipping, setSelectedShipping] = useState({
-    name: "",
+    name: '',
     value: 0,
   });
 
   // Payment Method state
-  const [paymentMethod, setPaymentMethod] = useState("cash_on_delivery");
+  const [paymentMethod, setPaymentMethod] = useState('cash_on_delivery');
 
   // Free Delivery
   const [freeDelivery, setFreeDelivery] = useState(null);
@@ -63,11 +63,11 @@ const Checkout = () => {
 
   const [snackbar, setSnackbar] = useState({
     open: false,
-    message: "",
-    severity: "success", // "success" | "error"
+    message: '',
+    severity: 'success', // "success" | "error"
   });
 
-  const showSnackbar = (message, severity = "success") => {
+  const showSnackbar = (message, severity = 'success') => {
     setSnackbar({ open: true, message, severity });
   };
 
@@ -84,7 +84,7 @@ const Checkout = () => {
           setFreeDelivery(res.data.data.value);
         }
       } catch (err) {
-        console.error("Failed to fetch free delivery amount", err);
+        console.error('Failed to fetch free delivery amount', err);
       }
     };
 
@@ -125,7 +125,7 @@ const Checkout = () => {
           setVatPercentage(res.data.data.value);
         }
       } catch (err) {
-        console.error("Failed to fetch VAT Percentage", err);
+        console.error('Failed to fetch VAT Percentage', err);
       }
     };
 
@@ -137,9 +137,9 @@ const Checkout = () => {
   useEffect(() => {
     if (cart.length > 0) {
       window.dataLayer.push({
-        event: "begin_checkout",
+        event: 'begin_checkout',
         ecommerce: {
-          currency: "BDT",
+          currency: 'BDT',
           value: totalAmount,
           items: cart.map((item) => ({
             item_name: item.name,
@@ -147,7 +147,7 @@ const Checkout = () => {
             price:
               item.discountPrice > 0 ? item.discountPrice : item.originalPrice,
             quantity: item.quantity,
-            item_variant: item.variantId || "Default",
+            item_variant: item.variantId || 'Default',
           })),
         },
       });
@@ -176,7 +176,7 @@ const Checkout = () => {
           productId: item.productId,
           quantity: item.quantity,
         };
-        if (item.variantId && item.variantId !== "Default") {
+        if (item.variantId && item.variantId !== 'Default') {
           baseItem.variantId = item.variantId;
         }
         return baseItem;
@@ -190,50 +190,50 @@ const Checkout = () => {
     }
 
     // // ---- Handle bKash Checkout ----
-    if (paymentMethod === "bkash") {
+    if (paymentMethod === 'bkash') {
       try {
         const createRes = await axios.post(`${apiUrl}/bkashcreate`, {
           amount: grandTotal.toFixed(2), // round to 2 decimal places
-          payerReference: user?.phone || "guestUser",
+          payerReference: user?.phone || 'guestUser',
           callbackURL: `${window.location.origin}/bkash-callback`,
         });
 
         if (createRes.data && createRes.data.bkashURL) {
           const bkashURL = createRes.data.bkashURL;
-          const allowedDomain = "bkash.com";
+          const allowedDomain = 'bkash.com';
           try {
             const url = new URL(bkashURL);
             if (!url.hostname.includes(allowedDomain)) {
-              showSnackbar("Invalid bKash payment URL", "error");
+              showSnackbar('Invalid bKash payment URL', 'error');
               setIsProcessingOrder(false);
               return;
             }
           } catch {
-            showSnackbar("Invalid bKash payment URL", "error");
+            showSnackbar('Invalid bKash payment URL', 'error');
             setIsProcessingOrder(false);
             return;
           }
           const sanitizedPayload = {
             ...orderPayload,
             shippingInfo: {
-              fullName: orderPayload.shippingInfo?.fullName || "",
-              mobileNo: orderPayload.shippingInfo?.mobileNo || "",
-              email: orderPayload.shippingInfo?.email || "",
-              address: orderPayload.shippingInfo?.address || "",
+              fullName: orderPayload.shippingInfo?.fullName || '',
+              mobileNo: orderPayload.shippingInfo?.mobileNo || '',
+              email: orderPayload.shippingInfo?.email || '',
+              address: orderPayload.shippingInfo?.address || '',
             },
           };
           sessionStorage.setItem(
-            "bkash_order_payload",
+            'bkash_order_payload',
             JSON.stringify(sanitizedPayload),
           );
           window.location.href = bkashURL;
           return;
         } else {
-          showSnackbar("Failed to initiate bKash payment", "error");
+          showSnackbar('Failed to initiate bKash payment', 'error');
         }
       } catch (err) {
         console.error(err);
-        showSnackbar("bKash payment initialization failed", "error");
+        showSnackbar('bKash payment initialization failed', 'error');
       } finally {
         setIsProcessingOrder(false); // Re-enable button
       }
@@ -249,16 +249,16 @@ const Checkout = () => {
         setOrderPlaced(true);
 
         clearCart();
-        showSnackbar("Order placed successfully!", "success");
+        showSnackbar('Order placed successfully!', 'success');
 
         setTimeout(() => {
           navigate(`/thank-you/${res.data.order.orderNo}`);
         }, 300); // delay by 300ms
       } else {
-        showSnackbar(res.data.message || "Failed to place order.", "error");
+        showSnackbar(res.data.message || 'Failed to place order.', 'error');
       }
     } catch {
-      showSnackbar("Something went wrong. Please try again later.", "error");
+      showSnackbar('Something went wrong. Please try again later.', 'error');
     } finally {
       setIsProcessingOrder(false); // Re-enable button
     }
@@ -330,14 +330,14 @@ const Checkout = () => {
             <button
               className={`primaryBgColor accentTextColor px-4 py-2 w-full rounded-lg ${
                 isProcessingOrder || cart.length === 0
-                  ? "opacity-50 cursor-not-allowed"
-                  : "cursor-pointer"
+                  ? 'opacity-50 cursor-not-allowed'
+                  : 'cursor-pointer'
               }`}
               disabled={isProcessingOrder || cart.length === 0}
             >
-              {paymentMethod === "cash_on_delivery"
-                ? "Place Order (Cash on Delivery)"
-                : "Process to Payment (bKash)"}
+              {paymentMethod === 'cash_on_delivery'
+                ? 'Place Order (Cash on Delivery)'
+                : 'Process to Payment (bKash)'}
             </button>
           </div>
         </div>
@@ -346,12 +346,12 @@ const Checkout = () => {
         open={snackbar.open}
         autoHideDuration={4000}
         onClose={handleCloseSnackbar}
-        anchorOrigin={{ vertical: "top", horizontal: "right" }}
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
       >
         <Alert
           onClose={handleCloseSnackbar}
           severity={snackbar.severity}
-          sx={{ width: "100%" }}
+          sx={{ width: '100%' }}
         >
           {snackbar.message}
         </Alert>

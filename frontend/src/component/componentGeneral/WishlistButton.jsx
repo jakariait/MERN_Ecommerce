@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from "react";
-import { Heart } from "lucide-react";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { useNavigate } from "react-router-dom";
-import useWishlistStore from "../../store/useWishlistStore.js";
-import useAuthUserStore from "../../store/AuthUserStore.js";
+import React, { useState, useEffect } from 'react';
+import { Heart } from 'lucide-react';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { useNavigate } from 'react-router-dom';
+import useWishlistStore from '../../store/useWishlistStore.js';
+import useAuthUserStore from '../../store/AuthUserStore.js';
 
-const WishlistButton = ({ product, size = 24, className = "" }) => {
+const WishlistButton = ({ product, size = 24, className = '' }) => {
   const navigate = useNavigate();
   const { user } = useAuthUserStore();
   const {
@@ -58,12 +58,12 @@ const WishlistButton = ({ product, size = 24, className = "" }) => {
 
   const handleLogin = () => {
     setLoginDialogOpen(false);
-    navigate("/login");
+    navigate('/login');
   };
 
   const handleRegister = () => {
     setLoginDialogOpen(false);
-    navigate("/register");
+    navigate('/register');
   };
 
   return (
@@ -73,16 +73,16 @@ const WishlistButton = ({ product, size = 24, className = "" }) => {
         disabled={loading}
         className={`p-2 rounded-full transition-all duration-200 flex items-center justify-center ${
           isInWishlist
-            ? "bg-red-50 text-red-500 hover:bg-red-100"
-            : "bg-white text-gray-500 hover:bg-gray-100 hover:text-red-500 "
+            ? 'bg-red-50 text-red-500 hover:bg-red-100'
+            : 'bg-white text-gray-500 hover:bg-gray-100 hover:text-red-500 '
         } ${className}`}
         style={{ width: size + 16, height: size + 16 }}
-        aria-label={isInWishlist ? "Remove from wishlist" : "Add to wishlist"}
+        aria-label={isInWishlist ? 'Remove from wishlist' : 'Add to wishlist'}
       >
         <Heart
           size={size}
           className={`transition-transform duration-200 ${
-            isInWishlist ? "fill-current" : ""
+            isInWishlist ? 'fill-current' : ''
           }`}
         />
       </button>
@@ -110,7 +110,7 @@ const WishlistButton = ({ product, size = 24, className = "" }) => {
             Login Now
           </button>
           <p className="text-sm text-gray-600">
-            New here?{" "}
+            New here?{' '}
             <span
               onClick={handleRegister}
               className="text-blue-600 cursor-pointer hover:underline"

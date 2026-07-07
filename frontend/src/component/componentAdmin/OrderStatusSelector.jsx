@@ -1,23 +1,23 @@
-import React, { useEffect, useState } from "react";
-import useAuthAdminStore from "../../store/AuthAdminStore.js";
-import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
+import React, { useEffect, useState } from 'react';
+import useAuthAdminStore from '../../store/AuthAdminStore.js';
+import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { toast } from "sonner";
+} from '@/components/ui/select';
+import { toast } from 'sonner';
 
 const statusOptions = [
-  { value: "pending", label: "Pending" },
-  { value: "approved", label: "Approved" },
-  { value: "intransit", label: "In Transit" },
-  { value: "delivered", label: "Delivered" },
-  { value: "returned", label: "Returned" },
-  { value: "cancelled", label: "Cancelled" },
+  { value: 'pending', label: 'Pending' },
+  { value: 'approved', label: 'Approved' },
+  { value: 'intransit', label: 'In Transit' },
+  { value: 'delivered', label: 'Delivered' },
+  { value: 'returned', label: 'Returned' },
+  { value: 'cancelled', label: 'Cancelled' },
 ];
 
 const OrderStatusSelector = ({ orderId, refetchOrders }) => {
@@ -26,7 +26,7 @@ const OrderStatusSelector = ({ orderId, refetchOrders }) => {
 
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
-  const [orderStatus, setOrderStatus] = useState("pending");
+  const [orderStatus, setOrderStatus] = useState('pending');
 
   useEffect(() => {
     if (!orderId) return;
@@ -41,13 +41,13 @@ const OrderStatusSelector = ({ orderId, refetchOrders }) => {
         const data = await res.json();
 
         if (res.ok && data.success) {
-          setOrderStatus(data.order.orderStatus || "pending");
+          setOrderStatus(data.order.orderStatus || 'pending');
         } else {
-          toast.error(data.message || "Failed to load order status");
+          toast.error(data.message || 'Failed to load order status');
         }
       } catch (err) {
         console.error(err);
-        toast.error("Error fetching order status.");
+        toast.error('Error fetching order status.');
       } finally {
         setLoading(false);
       }
@@ -60,9 +60,9 @@ const OrderStatusSelector = ({ orderId, refetchOrders }) => {
     setSubmitting(true);
     try {
       const res = await fetch(`${apiUrl}/orders/${orderId}`, {
-        method: "PUT",
+        method: 'PUT',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({ orderStatus }),
@@ -71,14 +71,14 @@ const OrderStatusSelector = ({ orderId, refetchOrders }) => {
       const data = await res.json();
 
       if (res.ok && data.success) {
-        toast.success("Order status updated successfully!");
+        toast.success('Order status updated successfully!');
         if (refetchOrders) refetchOrders();
       } else {
-        toast.error(data.message || "Failed to update status");
+        toast.error(data.message || 'Failed to update status');
       }
     } catch (err) {
       console.error(err);
-      toast.error("Something went wrong while updating status.");
+      toast.error('Something went wrong while updating status.');
     } finally {
       setSubmitting(false);
     }
@@ -104,7 +104,7 @@ const OrderStatusSelector = ({ orderId, refetchOrders }) => {
       </Select>
 
       <Button onClick={handleSubmit} disabled={submitting} size="sm">
-        {submitting ? "Saving..." : "Save"}
+        {submitting ? 'Saving...' : 'Save'}
       </Button>
     </div>
   );

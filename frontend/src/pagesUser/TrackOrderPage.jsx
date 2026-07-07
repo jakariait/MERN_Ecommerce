@@ -1,11 +1,11 @@
-import React from "react";
-import TrackOrder from "../component/componentGeneral/TrackOrder.jsx";
+import React from 'react';
+import TrackOrder from '../component/componentGeneral/TrackOrder.jsx';
 
 const TrackOrderPage = () => {
   return (
-  <>
-        <TrackOrder />
-  </>
+    <>
+      <TrackOrder />
+    </>
   );
 };
 

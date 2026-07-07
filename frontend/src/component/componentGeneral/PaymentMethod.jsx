@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
-import bkash from "../../assets/bKash.jpg";
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+import bkash from '../../assets/bKash.jpg';
 
 const PaymentMethod = ({ selectedMethod, setSelectedMethod }) => {
   const [isBkashActive, setIsBkashActive] = useState(false);
-  const apiUrl = import.meta.env.VITE_API_URL + "/bkash-is-active";
+  const apiUrl = import.meta.env.VITE_API_URL + '/bkash-is-active';
 
   useEffect(() => {
     const fetchBkashStatus = async () => {
@@ -14,7 +14,7 @@ const PaymentMethod = ({ selectedMethod, setSelectedMethod }) => {
           setIsBkashActive(res.data.isActive);
         }
       } catch (error) {
-        console.error("Failed to fetch bKash status", error);
+        console.error('Failed to fetch bKash status', error);
       }
     };
 
@@ -29,15 +29,13 @@ const PaymentMethod = ({ selectedMethod, setSelectedMethod }) => {
 
       <div className="flex flex-col gap-2">
         {/* Cash on Delivery option */}
-        <label
-          className="border border-gray-300 rounded-lg px-4 py-2 cursor-pointer transition duration-200"
-        >
+        <label className="border border-gray-300 rounded-lg px-4 py-2 cursor-pointer transition duration-200">
           <div className="flex items-center gap-3">
             <input
               type="radio"
               name="paymentMethod"
               value="cash_on_delivery"
-              checked={selectedMethod === "cash_on_delivery"}
+              checked={selectedMethod === 'cash_on_delivery'}
               onChange={(e) => setSelectedMethod(e.target.value)}
               className="primaryAccentColor w-5 h-5"
             />
@@ -47,15 +45,13 @@ const PaymentMethod = ({ selectedMethod, setSelectedMethod }) => {
 
         {/* bKash option only show if active */}
         {isBkashActive && (
-          <label
-            className="border border-gray-300 rounded-lg px-4 py-2 cursor-pointer transition duration-200"
-          >
+          <label className="border border-gray-300 rounded-lg px-4 py-2 cursor-pointer transition duration-200">
             <div className="flex items-center gap-3">
               <input
                 type="radio"
                 name="paymentMethod"
                 value="bkash"
-                checked={selectedMethod === "bkash"}
+                checked={selectedMethod === 'bkash'}
                 onChange={(e) => setSelectedMethod(e.target.value)}
                 className="primaryAccentColor w-5 h-5"
               />

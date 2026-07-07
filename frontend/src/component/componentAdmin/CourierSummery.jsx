@@ -1,35 +1,35 @@
-import React, { useState } from "react";
-import axios from "axios";
-import { Button } from "@/components/ui/button";
-import { Loader2 } from "lucide-react";
+import React, { useState } from 'react';
+import axios from 'axios';
+import { Button } from '@/components/ui/button';
+import { Loader2 } from 'lucide-react';
 
 const CourierSummery = ({ phone }) => {
   const [courierData, setCourierData] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState('');
 
   const apiUrl = import.meta.env.VITE_API_URL;
 
   const handleFetch = async () => {
     if (!phone) {
-      setError("No phone number provided.");
+      setError('No phone number provided.');
       return;
     }
 
     setLoading(true);
-    setError("");
+    setError('');
     setCourierData(null);
 
     try {
       const response = await axios.post(`${apiUrl}/courier-check`, { phone });
 
-      if (response.data.status === "success") {
+      if (response.data.status === 'success') {
         setCourierData(response.data.courierData);
       } else {
-        setError("No data found.");
+        setError('No data found.');
       }
     } catch (err) {
-      setError("Error fetching data.");
+      setError('Error fetching data.');
       console.error(err);
     } finally {
       setLoading(false);

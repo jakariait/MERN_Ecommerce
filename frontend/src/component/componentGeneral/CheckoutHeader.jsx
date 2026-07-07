@@ -1,7 +1,7 @@
-import React from "react";
-import { Breadcrumbs } from "@/components/ui/breadcrumbs";
-import { Typography } from "@/components/ui/typography";
-import { Link } from "react-router-dom";
+import React from 'react';
+import { Breadcrumbs } from '@/components/ui/breadcrumbs';
+import { Typography } from '@/components/ui/typography';
+import { Link } from 'react-router-dom';
 
 const CheckoutHeader = ({ user }) => {
   return (
@@ -12,7 +12,7 @@ const CheckoutHeader = ({ user }) => {
 
         {/* Breadcrumbs for navigation */}
         <Breadcrumbs separator="/" aria-label="breadcrumb">
-          <Link to="/" style={{ textDecoration: "none", color: "inherit" }}>
+          <Link to="/" style={{ textDecoration: 'none', color: 'inherit' }}>
             Home
           </Link>
           <Typography color="text.primary">Checkout</Typography>

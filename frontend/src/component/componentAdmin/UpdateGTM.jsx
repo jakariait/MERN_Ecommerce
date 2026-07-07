@@ -1,23 +1,23 @@
-import React, { useState, useEffect } from "react";
-import useAuthAdminStore from "../../store/AuthAdminStore.js";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
-import { Switch } from "@/components/ui/switch";
+import React, { useState, useEffect } from 'react';
+import useAuthAdminStore from '../../store/AuthAdminStore.js';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Button } from '@/components/ui/button';
+import { Switch } from '@/components/ui/switch';
 import {
   Card,
   CardHeader,
   CardTitle,
   CardDescription,
   CardContent,
-} from "@/components/ui/card";
-import { toast } from "sonner";
-import { Loader2, Hash } from "lucide-react";
+} from '@/components/ui/card';
+import { toast } from 'sonner';
+import { Loader2, Hash } from 'lucide-react';
 
 const apiURL = import.meta.env.VITE_API_URL;
 
 const UpdateGTM = () => {
-  const [gtmId, setGtmId] = useState("");
+  const [gtmId, setGtmId] = useState('');
   const [isActive, setIsActive] = useState(false);
   const [loading, setLoading] = useState(false);
   const { token } = useAuthAdminStore();
@@ -26,9 +26,9 @@ const UpdateGTM = () => {
     const fetchGTM = async () => {
       try {
         const res = await fetch(`${apiURL}/getGTM`);
-        if (!res.ok) throw new Error("Failed to fetch GTM config");
+        if (!res.ok) throw new Error('Failed to fetch GTM config');
         const data = await res.json();
-        setGtmId(data.googleTagManagerId || "");
+        setGtmId(data.googleTagManagerId || '');
         setIsActive(data.isActive || false);
       } catch {
         // ignore
@@ -43,9 +43,9 @@ const UpdateGTM = () => {
 
     try {
       const res = await fetch(`${apiURL}/updateGTM`, {
-        method: "POST",
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
@@ -56,9 +56,9 @@ const UpdateGTM = () => {
 
       if (!res.ok) throw new Error(`Error: ${res.statusText}`);
 
-      toast.success("GTM config updated successfully.");
+      toast.success('GTM config updated successfully.');
     } catch (error) {
-      toast.error(error.message || "Failed to update GTM config.");
+      toast.error(error.message || 'Failed to update GTM config.');
     } finally {
       setLoading(false);
     }
@@ -111,7 +111,7 @@ const UpdateGTM = () => {
                 Updating...
               </>
             ) : (
-              "Update"
+              'Update'
             )}
           </Button>
         </form>

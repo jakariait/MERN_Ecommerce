@@ -1,11 +1,9 @@
-import React from "react";
+import React from 'react';
 
-import OrderDetailsByNo from "../component/componentGeneral/OrderDetailsByNo.jsx";
+import OrderDetailsByNo from '../component/componentGeneral/OrderDetailsByNo.jsx';
 
 const UserOrderDetailsPage = () => {
-  return (
-    <OrderDetailsByNo />
-  );
+  return <OrderDetailsByNo />;
 };
 
 export default UserOrderDetailsPage;

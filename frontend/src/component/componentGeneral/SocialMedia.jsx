@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 import {
   FaFacebookF,
   FaFacebookMessenger,
@@ -9,16 +9,16 @@ import {
   FaViber,
   FaWhatsapp,
   FaYoutube,
-} from "react-icons/fa";
-import { CiInstagram } from "react-icons/ci";
-import { FaXTwitter } from "react-icons/fa6";
-import useSocialMediaLinkStore from "../../store/SocialMediaLinkStore.js";
+} from 'react-icons/fa';
+import { CiInstagram } from 'react-icons/ci';
+import { FaXTwitter } from 'react-icons/fa6';
+import useSocialMediaLinkStore from '../../store/SocialMediaLinkStore.js';
 
 const SocialMedia = () => {
   const { socialMediaLinks } = useSocialMediaLinkStore();
   return (
     <div>
-      <div className={"flex gap-2 text-3xl"}>
+      <div className={'flex gap-2 text-3xl'}>
         {socialMediaLinks?.facebook && (
           <a
             href={socialMediaLinks.facebook}
@@ -52,7 +52,7 @@ const SocialMedia = () => {
             onClick={(e) => e.stopPropagation()}
             aria-label="TikTok"
           >
-            <FaTiktok className={"text-[#00F2EA] bg-white p-1 rounded"} />
+            <FaTiktok className={'text-[#00F2EA] bg-white p-1 rounded'} />
           </a>
         )}
         {socialMediaLinks?.twitter && (
@@ -64,7 +64,7 @@ const SocialMedia = () => {
             onClick={(e) => e.stopPropagation()}
             aria-label="Twitter"
           >
-            <FaXTwitter className={"text-black bg-white p-1 rounded"} />
+            <FaXTwitter className={'text-black bg-white p-1 rounded'} />
           </a>
         )}
         {socialMediaLinks?.whatsapp && (

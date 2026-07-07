@@ -1,8 +1,8 @@
-import { useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
-import axios from "axios";
-import { Snackbar } from "@/components/ui/snackbar";
-import { Alert as MuiAlert } from "@/components/ui/alert";
+import { useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import { Snackbar } from '@/components/ui/snackbar';
+import { Alert as MuiAlert } from '@/components/ui/alert';
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
@@ -10,16 +10,16 @@ export default function ResetPassword() {
   const location = useLocation();
   const navigate = useNavigate();
   const query = new URLSearchParams(location.search);
-  const emailFromQuery = query.get("email");
+  const emailFromQuery = query.get('email');
 
-  const [email] = useState(emailFromQuery || "");
-  const [otp, setOtp] = useState("");
-  const [newPassword, setNewPassword] = useState("");
+  const [email] = useState(emailFromQuery || '');
+  const [otp, setOtp] = useState('');
+  const [newPassword, setNewPassword] = useState('');
 
   const [snackbar, setSnackbar] = useState({
     open: false,
-    message: "",
-    severity: "success",
+    message: '',
+    severity: 'success',
   });
 
   const handleSnackbarClose = () => {
@@ -37,19 +37,19 @@ export default function ResetPassword() {
 
       setSnackbar({
         open: true,
-        message: res.data.message || "Password reset successful",
-        severity: "success",
+        message: res.data.message || 'Password reset successful',
+        severity: 'success',
       });
 
       // Redirect to login after short delay
       setTimeout(() => {
-        navigate("/login");
+        navigate('/login');
       }, 2000);
     } catch (err) {
       setSnackbar({
         open: true,
-        message: err.response?.data?.message || "Failed to reset password.",
-        severity: "error",
+        message: err.response?.data?.message || 'Failed to reset password.',
+        severity: 'error',
       });
     }
   };
@@ -94,7 +94,7 @@ export default function ResetPassword() {
         open={snackbar.open}
         autoHideDuration={3000}
         onClose={handleSnackbarClose}
-        anchorOrigin={{ vertical: "top", horizontal: "right" }}
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
       >
         <MuiAlert
           elevation={6}

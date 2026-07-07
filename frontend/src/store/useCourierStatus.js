@@ -1,6 +1,6 @@
-import { useEffect, useState, useCallback } from "react";
-import axios from "axios";
-import useAuthAdminStore from "./AuthAdminStore.js";
+import { useEffect, useState, useCallback } from 'react';
+import axios from 'axios';
+import useAuthAdminStore from './AuthAdminStore.js';
 
 const useCourierStatus = (orderData, sent, initialFetch = true) => {
   const [deliveryStatus, setDeliveryStatus] = useState(null);
@@ -25,7 +25,7 @@ const useCourierStatus = (orderData, sent, initialFetch = true) => {
         },
       );
 
-      if (response.data.status === "success") {
+      if (response.data.status === 'success') {
         const statusData = response.data.data;
         if (statusData.delivery_status) {
           setDeliveryStatus(statusData.delivery_status);
@@ -35,11 +35,11 @@ const useCourierStatus = (orderData, sent, initialFetch = true) => {
           setDeliveryStatus(null);
         }
       } else {
-        console.error("Unexpected response:", response.data);
+        console.error('Unexpected response:', response.data);
         setDeliveryStatus(null);
       }
     } catch (error) {
-      console.error("Error fetching order status:", error.message);
+      console.error('Error fetching order status:', error.message);
       setDeliveryStatus(null);
     } finally {
       setLoading(false);

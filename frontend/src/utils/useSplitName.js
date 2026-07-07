@@ -1,9 +1,9 @@
 function splitName(fullName) {
   const name = fullName.trim();
-  const index = name.indexOf(" ");
+  const index = name.indexOf(' ');
 
   if (index === -1) {
-    return { firstName: name, lastName: "" };
+    return { firstName: name, lastName: '' };
   }
 
   return {

@@ -1,37 +1,37 @@
-import React, { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { toast } from "sonner";
-import useColorStore from "../../store/ColorStore.js";
-import useAuthAdminStore from "../../store/AuthAdminStore.js";
-import { Loader2, RotateCcw } from "lucide-react";
-import { SectionHeader } from "#component/componentAdmin/SectionHeader.jsx";
+import React, { useState, useEffect } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { toast } from 'sonner';
+import useColorStore from '../../store/ColorStore.js';
+import useAuthAdminStore from '../../store/AuthAdminStore.js';
+import { Loader2, RotateCcw } from 'lucide-react';
+import { SectionHeader } from '#component/componentAdmin/SectionHeader.jsx';
 
 const DEFAULT_COLORS = {
-  primaryColor: "#00395d",
-  secondaryColor: "#000000",
-  accentColor: "#ffffff",
-  tertiaryColor: "#b6d7a8",
+  primaryColor: '#00395d',
+  secondaryColor: '#000000',
+  accentColor: '#ffffff',
+  tertiaryColor: '#b6d7a8',
 };
 
 const COLOR_FIELDS = [
-  { label: "Primary Color", name: "primaryColor", desc: "Main brand color" },
+  { label: 'Primary Color', name: 'primaryColor', desc: 'Main brand color' },
   {
-    label: "Secondary Color",
-    name: "secondaryColor",
-    desc: "Secondary brand color",
+    label: 'Secondary Color',
+    name: 'secondaryColor',
+    desc: 'Secondary brand color',
   },
   {
-    label: "Accent Color",
-    name: "accentColor",
-    desc: "Text on dark backgrounds",
+    label: 'Accent Color',
+    name: 'accentColor',
+    desc: 'Text on dark backgrounds',
   },
   {
-    label: "Tertiary Color",
-    name: "tertiaryColor",
-    desc: "Highlight / accent",
+    label: 'Tertiary Color',
+    name: 'tertiaryColor',
+    desc: 'Highlight / accent',
   },
 ];
 
@@ -63,7 +63,7 @@ const ColorUpdater = () => {
     if (store.error) {
       toast.error(store.error);
     } else {
-      toast.success("Colors updated successfully!");
+      toast.success('Colors updated successfully!');
     }
     setSaving(false);
   };
@@ -75,8 +75,8 @@ const ColorUpdater = () => {
   return (
     <div className="space-y-6">
       <SectionHeader
-        title={"Website Theme Color"}
-        description={"Customize your brand colors across the site."}
+        title={'Website Theme Color'}
+        description={'Customize your brand colors across the site.'}
       />
 
       <Card>
@@ -112,7 +112,7 @@ const ColorUpdater = () => {
                   </div>
                   <Input
                     name={name}
-                    value={localColors[name] || ""}
+                    value={localColors[name] || ''}
                     onChange={handleChange}
                     placeholder={DEFAULT_COLORS[name]}
                     className="font-mono flex-1"
@@ -136,7 +136,7 @@ const ColorUpdater = () => {
               Saving...
             </>
           ) : (
-            "Update Colors"
+            'Update Colors'
           )}
         </Button>
       </div>

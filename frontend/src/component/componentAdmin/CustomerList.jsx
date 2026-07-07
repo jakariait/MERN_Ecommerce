@@ -1,15 +1,15 @@
-import React, { useEffect, useState } from "react";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Badge } from "@/components/ui/badge";
+import React, { useEffect, useState } from 'react';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Badge } from '@/components/ui/badge';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from '@/components/ui/select';
 import {
   Table,
   TableBody,
@@ -17,8 +17,8 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { Card, CardContent } from "@/components/ui/card";
+} from '@/components/ui/table';
+import { Card, CardContent } from '@/components/ui/card';
 import {
   Dialog,
   DialogContent,
@@ -26,8 +26,8 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
-} from "@/components/ui/dialog";
-import { toast } from "sonner";
+} from '@/components/ui/dialog';
+import { toast } from 'sonner';
 import {
   Search,
   Download,
@@ -36,13 +36,13 @@ import {
   ChevronRight,
   Loader2,
   ArrowUpDown,
-} from "lucide-react";
-import axios from "axios";
-import useAuthAdminStore from "../../store/AuthAdminStore";
-import ImageComponent from "../componentGeneral/ImageComponent.jsx";
-import { saveAs } from "file-saver";
-import RequirePermission from "./RequirePermission.jsx";
-import { SectionHeader } from "#component/componentAdmin/SectionHeader.jsx";
+} from 'lucide-react';
+import axios from 'axios';
+import useAuthAdminStore from '../../store/AuthAdminStore';
+import ImageComponent from '../componentGeneral/ImageComponent.jsx';
+import { saveAs } from 'file-saver';
+import RequirePermission from './RequirePermission.jsx';
+import { SectionHeader } from '#component/componentAdmin/SectionHeader.jsx';
 
 const CustomerList = () => {
   const { token } = useAuthAdminStore();
@@ -50,13 +50,13 @@ const CustomerList = () => {
 
   const [customers, setCustomers] = useState([]);
   const [filteredCustomers, setFilteredCustomers] = useState([]);
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState('');
   const [limit, setLimit] = useState(10);
   const [page, setPage] = useState(1);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedCustomerId, setSelectedCustomerId] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [sortOrder, setSortOrder] = useState("desc");
+  const [sortOrder, setSortOrder] = useState('desc');
 
   const fetchCustomers = async () => {
     setLoading(true);
@@ -66,7 +66,7 @@ const CustomerList = () => {
       });
       setCustomers(res.data.users);
     } catch (err) {
-      toast.error(err.response?.data?.message || "Failed to fetch customers");
+      toast.error(err.response?.data?.message || 'Failed to fetch customers');
     } finally {
       setLoading(false);
     }
@@ -86,7 +86,7 @@ const CustomerList = () => {
     const sorted = filtered.sort((a, b) => {
       const dateA = new Date(a.createdAt);
       const dateB = new Date(b.createdAt);
-      return sortOrder === "asc" ? dateA - dateB : dateB - dateA;
+      return sortOrder === 'asc' ? dateA - dateB : dateB - dateA;
     });
 
     setFilteredCustomers(sorted);
@@ -97,10 +97,10 @@ const CustomerList = () => {
       await axios.delete(`${apiUrl}/deleteUser/${selectedCustomerId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      toast.success("Customer deleted successfully");
+      toast.success('Customer deleted successfully');
       fetchCustomers();
     } catch (err) {
-      toast.error(err.response?.data?.message || "Failed to delete customer");
+      toast.error(err.response?.data?.message || 'Failed to delete customer');
     } finally {
       setDeleteDialogOpen(false);
       setSelectedCustomerId(null);
@@ -109,42 +109,42 @@ const CustomerList = () => {
 
   const handleExportExcel = () => {
     const headers = [
-      "SL No",
-      "Name",
-      "Email",
-      "Phone",
-      "Joined Date",
-      "Deletion Requested",
-      "Requested At",
+      'SL No',
+      'Name',
+      'Email',
+      'Phone',
+      'Joined Date',
+      'Deletion Requested',
+      'Requested At',
     ];
 
     const escapeCsv = (field) => {
-      if (field === null || field === undefined) return "";
+      if (field === null || field === undefined) return '';
       let str = String(field);
       str = str.replace(/"/g, '""');
       if (str.search(/("|,|\n)/g) >= 0) str = `"${str}"`;
       return str;
     };
 
-    const csvHeader = headers.map(escapeCsv).join(",");
+    const csvHeader = headers.map(escapeCsv).join(',');
     const csvRows = filteredCustomers.map((cus, index) => {
       const row = [
         index + 1,
-        cus.fullName || "N/A",
-        cus.email || "N/A",
-        cus.phone || "N/A",
-        cus.createdAt ? new Date(cus.createdAt).toLocaleDateString() : "N/A",
-        cus.accountDeletion?.requested ? "Yes" : "No",
+        cus.fullName || 'N/A',
+        cus.email || 'N/A',
+        cus.phone || 'N/A',
+        cus.createdAt ? new Date(cus.createdAt).toLocaleDateString() : 'N/A',
+        cus.accountDeletion?.requested ? 'Yes' : 'No',
         cus.accountDeletion?.requestedAt
           ? new Date(cus.accountDeletion.requestedAt).toLocaleString()
-          : "N/A",
+          : 'N/A',
       ];
-      return row.map(escapeCsv).join(",");
+      return row.map(escapeCsv).join(',');
     });
 
-    const csvData = [csvHeader, ...csvRows].join("\n");
-    const blob = new Blob([csvData], { type: "text/csv;charset=utf-8;" });
-    saveAs(blob, "customers.csv");
+    const csvData = [csvHeader, ...csvRows].join('\n');
+    const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' });
+    saveAs(blob, 'customers.csv');
   };
 
   const paginatedCustomers = filteredCustomers.slice(
@@ -156,7 +156,7 @@ const CustomerList = () => {
 
   return (
     <div className="space-y-6">
-      <SectionHeader title={"Customer List"} />
+      <SectionHeader title={'Customer List'} />
 
       <div className="flex items-center justify-between gap-4 bg-muted/30 rounded-lg p-3">
         <div className="relative flex-1 max-w-sm">
@@ -279,12 +279,12 @@ const CustomerList = () => {
                       )}
                     </TableCell>
                     <TableCell className="font-medium">
-                      {cus.fullName || "N/A"}
+                      {cus.fullName || 'N/A'}
                     </TableCell>
-                    <TableCell>{cus.email || "N/A"}</TableCell>
-                    <TableCell>{cus.phone || "N/A"}</TableCell>
+                    <TableCell>{cus.email || 'N/A'}</TableCell>
+                    <TableCell>{cus.phone || 'N/A'}</TableCell>
                     <TableCell className="hidden md:table-cell">
-                      {cus.address || "N/A"}
+                      {cus.address || 'N/A'}
                     </TableCell>
                     <TableCell className="hidden md:table-cell">
                       {cus.rewardPoints}
@@ -292,12 +292,12 @@ const CustomerList = () => {
                     <TableCell className="hidden md:table-cell">
                       {cus.createdAt
                         ? new Date(cus.createdAt).toLocaleDateString()
-                        : "N/A"}
+                        : 'N/A'}
                     </TableCell>
                     <TableCell>
                       {cus.accountDeletion?.requested ? (
                         <span className="text-destructive text-sm font-medium">
-                          Requested{" "}
+                          Requested{' '}
                           {new Date(
                             cus.accountDeletion.requestedAt,
                           ).toLocaleString()}

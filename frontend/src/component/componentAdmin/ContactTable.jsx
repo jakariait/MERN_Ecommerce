@@ -1,14 +1,14 @@
-import React, { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
+import React, { useState, useEffect } from 'react';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '@/components/ui/skeleton';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from '@/components/ui/select';
 import {
   Table,
   TableBody,
@@ -16,8 +16,8 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { Card, CardContent } from "@/components/ui/card";
+} from '@/components/ui/table';
+import { Card, CardContent } from '@/components/ui/card';
 import {
   Dialog,
   DialogContent,
@@ -25,20 +25,20 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
-} from "@/components/ui/dialog";
-import { toast } from "sonner";
-import { Trash2, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
-import useAuthAdminStore from "../../store/AuthAdminStore.js";
-import { SectionHeader } from "#component/componentAdmin/SectionHeader.jsx";
+} from '@/components/ui/dialog';
+import { toast } from 'sonner';
+import { Trash2, ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
+import useAuthAdminStore from '../../store/AuthAdminStore.js';
+import { SectionHeader } from '#component/componentAdmin/SectionHeader.jsx';
 
 const columns = [
-  { id: "serialNumber", label: "S.No." },
-  { id: "fullName", label: "Name" },
-  { id: "phoneNumber", label: "Phone Number" },
-  { id: "emailAddress", label: "Email Address" },
-  { id: "message", label: "Message", className: "max-w-[270px]" },
-  { id: "served", label: "Status" },
-  { id: "actions", label: "Actions" },
+  { id: 'serialNumber', label: 'S.No.' },
+  { id: 'fullName', label: 'Name' },
+  { id: 'phoneNumber', label: 'Phone Number' },
+  { id: 'emailAddress', label: 'Email Address' },
+  { id: 'message', label: 'Message', className: 'max-w-[270px]' },
+  { id: 'served', label: 'Status' },
+  { id: 'actions', label: 'Actions' },
 ];
 
 const ContactTable = () => {
@@ -57,7 +57,7 @@ const ContactTable = () => {
         const response = await fetch(`${apiUrl}/contacts`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        if (!response.ok) throw new Error("Failed to fetch contacts");
+        if (!response.ok) throw new Error('Failed to fetch contacts');
 
         const data = await response.json();
         const sortedData = data.sort(
@@ -78,12 +78,12 @@ const ContactTable = () => {
     if (!token) return;
     try {
       const response = await fetch(`${apiUrl}/contacts/${deleteId}`, {
-        method: "DELETE",
+        method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` },
       });
-      if (!response.ok) throw new Error("Failed to delete contact");
+      if (!response.ok) throw new Error('Failed to delete contact');
       setContacts((prev) => prev.filter((contact) => contact._id !== deleteId));
-      toast.success("Contact deleted successfully");
+      toast.success('Contact deleted successfully');
     } catch (error) {
       toast.error(error.message);
     } finally {
@@ -93,7 +93,7 @@ const ContactTable = () => {
   };
 
   const handleToggleServed = async (id) => {
-    if (!token) return toast.error("Unauthorized request");
+    if (!token) return toast.error('Unauthorized request');
 
     const contact = contacts.find((c) => c._id === id);
     if (!contact) return;
@@ -102,21 +102,21 @@ const ContactTable = () => {
 
     try {
       const response = await fetch(`${apiUrl}/contacts/${id}`, {
-        method: "PUT",
+        method: 'PUT',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(updatedContact),
       });
 
-      if (!response.ok) throw new Error("Failed to update status");
+      if (!response.ok) throw new Error('Failed to update status');
 
       setContacts((prev) =>
         prev.map((c) => (c._id === id ? updatedContact : c)),
       );
       toast.success(
-        `Contact marked as ${updatedContact.served ? "served" : "pending"}`,
+        `Contact marked as ${updatedContact.served ? 'served' : 'pending'}`,
       );
     } catch (error) {
       toast.error(error.message);
@@ -132,7 +132,7 @@ const ContactTable = () => {
   return (
     <div className="space-y-6">
       <SectionHeader
-        title={"Contact Requests"}
+        title={'Contact Requests'}
         description={`${contacts.length} total messages`}
       />
 
@@ -178,11 +178,11 @@ const ContactTable = () => {
                         </TableCell>
                         <TableCell>
                           <Button
-                            variant={contact.served ? "default" : "secondary"}
+                            variant={contact.served ? 'default' : 'secondary'}
                             size="sm"
                             onClick={() => handleToggleServed(contact._id)}
                           >
-                            {contact.served ? "Served" : "Pending"}
+                            {contact.served ? 'Served' : 'Pending'}
                           </Button>
                         </TableCell>
                         <TableCell>

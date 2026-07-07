@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import ProductList from "./ProductList.jsx";
+import React, { useEffect, useState } from 'react';
+import ProductList from './ProductList.jsx';
 
 const RecentlyViewedProducts = ({ currentProductId, products = [] }) => {
   const [recentProducts, setRecentProducts] = useState([]);
@@ -14,9 +14,9 @@ const RecentlyViewedProducts = ({ currentProductId, products = [] }) => {
   if (recentProducts.length === 0) return null;
 
   return (
-    <div className={"px-2 py-4  rounded-lg"}>
+    <div className={'px-2 py-4  rounded-lg'}>
       <h1
-        className={"text-2xl bg-gray-100 py-2  text-center secondaryTextColor"}
+        className={'text-2xl bg-gray-100 py-2  text-center secondaryTextColor'}
       >
         Recently Viewed
       </h1>

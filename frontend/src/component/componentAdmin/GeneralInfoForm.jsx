@@ -1,32 +1,32 @@
-import React, { useEffect, useState } from "react";
-import ImageComponent from "../componentGeneral/ImageComponent.jsx";
-import useAuthAdminStore from "../../store/AuthAdminStore.js";
-import useGeneralInfoStore from "../../store/GeneralInfoStore.js";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { toast } from "sonner";
-import { Plus, Trash2, ImagePlus } from "lucide-react";
-import { SectionHeader } from "@/component/componentAdmin/SectionHeader.jsx";
+import React, { useEffect, useState } from 'react';
+import ImageComponent from '../componentGeneral/ImageComponent.jsx';
+import useAuthAdminStore from '../../store/AuthAdminStore.js';
+import useGeneralInfoStore from '../../store/GeneralInfoStore.js';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Button } from '@/components/ui/button';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { toast } from 'sonner';
+import { Plus, Trash2, ImagePlus } from 'lucide-react';
+import { SectionHeader } from '@/component/componentAdmin/SectionHeader.jsx';
 
 export default function GeneralInfoForm() {
   const { token } = useAuthAdminStore();
   const { GeneralInfoList, GeneralInfoUpdate } = useGeneralInfoStore();
 
   const [formData, setFormData] = useState({
-    CompanyName: "",
-    PhoneNumber: [""],
-    CompanyEmail: [""],
-    ShortDescription: "",
-    CompanyAddress: "",
-    GoogleMapLink: "",
-    PlayStoreLink: "",
-    AppStoreLink: "",
-    TradeLicense: "",
-    TINNumber: "",
-    BINNumber: "",
-    FooterCopyright: "",
+    CompanyName: '',
+    PhoneNumber: [''],
+    CompanyEmail: [''],
+    ShortDescription: '',
+    CompanyAddress: '',
+    GoogleMapLink: '',
+    PlayStoreLink: '',
+    AppStoreLink: '',
+    TradeLicense: '',
+    TINNumber: '',
+    BINNumber: '',
+    FooterCopyright: '',
   });
 
   const [files, setFiles] = useState({
@@ -43,8 +43,8 @@ export default function GeneralInfoForm() {
       setFormData((prev) => ({
         ...prev,
         ...GeneralInfoList,
-        PhoneNumber: GeneralInfoList.PhoneNumber || [""],
-        CompanyEmail: GeneralInfoList.CompanyEmail || [""],
+        PhoneNumber: GeneralInfoList.PhoneNumber || [''],
+        CompanyEmail: GeneralInfoList.CompanyEmail || [''],
       }));
 
       setFiles({
@@ -78,7 +78,7 @@ export default function GeneralInfoForm() {
   useEffect(() => {
     return () => {
       Object.values(previews).forEach((url) => {
-        if (url?.startsWith("blob:")) URL.revokeObjectURL(url);
+        if (url?.startsWith('blob:')) URL.revokeObjectURL(url);
       });
     };
   }, [previews]);
@@ -94,7 +94,7 @@ export default function GeneralInfoForm() {
   const addArrayField = (field) => {
     setFormData((prev) => ({
       ...prev,
-      [field]: [...prev[field], ""],
+      [field]: [...prev[field], ''],
     }));
   };
 
@@ -113,7 +113,7 @@ export default function GeneralInfoForm() {
 
     Object.keys(formData).forEach((key) => {
       if (Array.isArray(formData[key])) {
-        form.append(key, formData[key].join(","));
+        form.append(key, formData[key].join(','));
       } else if (formData[key]) {
         form.append(key, formData[key]);
       }
@@ -128,14 +128,14 @@ export default function GeneralInfoForm() {
     const result = await GeneralInfoUpdate(form, token);
 
     if (result.success) {
-      toast.success("General information updated successfully!");
+      toast.success('General information updated successfully!');
     } else {
       if (result.status === 403) {
         toast.warning(
-          "You do not have permission to perform this action. (403 Forbidden)",
+          'You do not have permission to perform this action. (403 Forbidden)',
         );
       } else {
-        toast.error("Failed to update general information.");
+        toast.error('Failed to update general information.');
       }
     }
 
@@ -229,9 +229,9 @@ export default function GeneralInfoForm() {
   return (
     <div className="space-y-6">
       <SectionHeader
-        title={"General Information"}
+        title={'General Information'}
         description={
-          "Manage your company details, logos, and contact information."
+          'Manage your company details, logos, and contact information.'
         }
       />
 
@@ -347,7 +347,7 @@ export default function GeneralInfoForm() {
 
         <div className="flex justify-end">
           <Button type="submit" size="lg" disabled={submitting}>
-            {submitting ? "Updating..." : "Update General Info"}
+            {submitting ? 'Updating...' : 'Update General Info'}
           </Button>
         </div>
       </form>

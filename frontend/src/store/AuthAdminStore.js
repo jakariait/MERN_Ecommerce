@@ -1,17 +1,17 @@
-import { create } from "zustand";
-import axios from "axios";
+import { create } from 'zustand';
+import axios from 'axios';
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
 const useAuthAdminStore = create((set) => ({
   admin: null,
-  token: localStorage.getItem("token") || null,
+  token: localStorage.getItem('token') || null,
   error: null,
   loading: false,
 
   // Initialize function to fetch admin data
   initialize: async () => {
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem('token');
     if (token) {
       set({ loading: true });
       try {
@@ -20,14 +20,19 @@ const useAuthAdminStore = create((set) => ({
         });
         set({ admin: res.data.admin, token, loading: false });
       } catch (error) {
-        console.error("Error initializing admin:", error.response || error);
+        console.error('Error initializing admin:', error.response || error);
         if (error?.response?.status === 403) {
           // Token expired or invalid, log out the user
-          localStorage.removeItem("token");
-          set({ admin: null, token: null, error: "Token expired or invalid", loading: false });
+          localStorage.removeItem('token');
+          set({
+            admin: null,
+            token: null,
+            error: 'Token expired or invalid',
+            loading: false,
+          });
         } else {
           set({
-            error: "Authentication failed",
+            error: 'Authentication failed',
             loading: false,
           });
         }
@@ -37,21 +42,23 @@ const useAuthAdminStore = create((set) => ({
     }
   },
 
-
   login: async (email, password) => {
     set({ loading: true, error: null });
 
     try {
-      const res = await axios.post(`${apiUrl}/admin/login`, { email, password });
+      const res = await axios.post(`${apiUrl}/admin/login`, {
+        email,
+        password,
+      });
 
       const { admin } = res.data;
       const token = admin.token;
-      localStorage.setItem("token", token);
+      localStorage.setItem('token', token);
       set({ admin, token, loading: false });
       return true;
     } catch (error) {
       set({
-        error: "Login failed. Please check your credentials.",
+        error: 'Login failed. Please check your credentials.',
         loading: false,
       });
       return false;
@@ -59,7 +66,7 @@ const useAuthAdminStore = create((set) => ({
   },
 
   logout: () => {
-    localStorage.removeItem("token");
+    localStorage.removeItem('token');
     set({ admin: null, token: null });
   },
 }));

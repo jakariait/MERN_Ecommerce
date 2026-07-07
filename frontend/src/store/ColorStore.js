@@ -1,5 +1,5 @@
-import { create } from "zustand";
-import axios from "axios";
+import { create } from 'zustand';
+import axios from 'axios';
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
@@ -17,13 +17,16 @@ const useColorStore = create((set) => ({
 
       if (res.data?.data) {
         // Store colors in Zustand & localStorage for caching
-        localStorage.setItem("themeColors", JSON.stringify(res.data.data));
+        localStorage.setItem('themeColors', JSON.stringify(res.data.data));
         set({ colors: res.data.data, isLoading: false });
       } else {
-        throw new Error("Invalid API response");
+        throw new Error('Invalid API response');
       }
     } catch (error) {
-      set({ error: error.message || "Failed to fetch colors", isLoading: false });
+      set({
+        error: error.message || 'Failed to fetch colors',
+        isLoading: false,
+      });
     }
   },
 
@@ -40,13 +43,16 @@ const useColorStore = create((set) => ({
 
       if (res.data?.data) {
         // Store the updated colors in Zustand & localStorage
-        localStorage.setItem("themeColors", JSON.stringify(res.data.data));
+        localStorage.setItem('themeColors', JSON.stringify(res.data.data));
         set({ colors: res.data.data, isLoading: false });
       } else {
-        throw new Error("Invalid API response");
+        throw new Error('Invalid API response');
       }
     } catch (error) {
-      set({ error: error.message || "Failed to update colors", isLoading: false });
+      set({
+        error: error.message || 'Failed to update colors',
+        isLoading: false,
+      });
     }
   },
 }));

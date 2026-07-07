@@ -1,19 +1,19 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
-import useAuthAdminStore from "../../store/AuthAdminStore.js";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
-import { toast } from "sonner";
-import { Plus, X, Loader2, MessagesSquare } from "lucide-react";
-import { SectionHeader } from "@/component/componentAdmin/SectionHeader.jsx";
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+import useAuthAdminStore from '../../store/AuthAdminStore.js';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
+import { toast } from 'sonner';
+import { Plus, X, Loader2, MessagesSquare } from 'lucide-react';
+import { SectionHeader } from '@/component/componentAdmin/SectionHeader.jsx';
 
 const MarqueeAdmin = () => {
   const { token } = useAuthAdminStore();
-  const [messages, setMessages] = useState([""]);
+  const [messages, setMessages] = useState(['']);
   const [isActive, setIsActive] = useState(true);
   const [saving, setSaving] = useState(false);
 
@@ -26,11 +26,11 @@ const MarqueeAdmin = () => {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (res.data) {
-          setMessages(res.data.messages || [""]);
+          setMessages(res.data.messages || ['']);
           setIsActive(res.data.isActive);
         }
       } catch (err) {
-        console.error("Failed to fetch marquee data:", err.message);
+        console.error('Failed to fetch marquee data:', err.message);
       }
     };
 
@@ -43,10 +43,10 @@ const MarqueeAdmin = () => {
     setMessages(updated);
   };
 
-  const addMessage = () => setMessages([...messages, ""]);
+  const addMessage = () => setMessages([...messages, '']);
   const removeMessage = (index) => {
     const updated = messages.filter((_, i) => i !== index);
-    setMessages(updated.length ? updated : [""]);
+    setMessages(updated.length ? updated : ['']);
   };
 
   const handleSubmit = async (e) => {
@@ -59,13 +59,13 @@ const MarqueeAdmin = () => {
         {
           headers: {
             Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
           },
         },
       );
-      toast.success("Marquee updated successfully!");
+      toast.success('Marquee updated successfully!');
     } catch {
-      toast.error("Failed to update marquee.");
+      toast.error('Failed to update marquee.');
     } finally {
       setSaving(false);
     }
@@ -74,8 +74,8 @@ const MarqueeAdmin = () => {
   return (
     <div className="space-y-6">
       <SectionHeader
-        title={"Marquee Messages"}
-        description={"Manage scrolling announcement messages."}
+        title={'Marquee Messages'}
+        description={'Manage scrolling announcement messages.'}
       />
 
       <form onSubmit={handleSubmit}>
@@ -144,7 +144,7 @@ const MarqueeAdmin = () => {
                 Saving...
               </>
             ) : (
-              "Save Changes"
+              'Save Changes'
             )}
           </Button>
         </div>

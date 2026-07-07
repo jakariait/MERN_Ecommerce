@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from 'react';
 import {
   FaFacebook,
   FaTwitter,
@@ -11,99 +11,99 @@ import {
   FaTiktok,
   FaPinterest,
   FaViber,
-} from "react-icons/fa";
-import useAuthAdminStore from "../../store/AuthAdminStore.js";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
-import { SectionHeader } from "#component/componentAdmin/SectionHeader.jsx";
+} from 'react-icons/fa';
+import useAuthAdminStore from '../../store/AuthAdminStore.js';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Button } from '@/components/ui/button';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { toast } from 'sonner';
+import { Loader2 } from 'lucide-react';
+import { SectionHeader } from '#component/componentAdmin/SectionHeader.jsx';
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
 const SOCIAL_PLATFORMS = [
   {
-    key: "facebook",
+    key: 'facebook',
     icon: (
-      <FaFacebook className="size-5 shrink-0" style={{ color: "#1877F2" }} />
+      <FaFacebook className="size-5 shrink-0" style={{ color: '#1877F2' }} />
     ),
-    label: "Facebook",
+    label: 'Facebook',
   },
   {
-    key: "twitter",
+    key: 'twitter',
     icon: (
-      <FaTwitter className="size-5 shrink-0" style={{ color: "#1DA1F2" }} />
+      <FaTwitter className="size-5 shrink-0" style={{ color: '#1DA1F2' }} />
     ),
-    label: "Twitter",
+    label: 'Twitter',
   },
   {
-    key: "instagram",
+    key: 'instagram',
     icon: (
-      <FaInstagram className="size-5 shrink-0" style={{ color: "#E1306C" }} />
+      <FaInstagram className="size-5 shrink-0" style={{ color: '#E1306C' }} />
     ),
-    label: "Instagram",
+    label: 'Instagram',
   },
   {
-    key: "linkedin",
+    key: 'linkedin',
     icon: (
-      <FaLinkedin className="size-5 shrink-0" style={{ color: "#0077B5" }} />
+      <FaLinkedin className="size-5 shrink-0" style={{ color: '#0077B5' }} />
     ),
-    label: "LinkedIn",
+    label: 'LinkedIn',
   },
   {
-    key: "messenger",
+    key: 'messenger',
     icon: (
       <FaFacebookMessenger
         className="size-5 shrink-0"
-        style={{ color: "#00B2FF" }}
+        style={{ color: '#00B2FF' }}
       />
     ),
-    label: "Messenger",
+    label: 'Messenger',
   },
   {
-    key: "whatsapp",
+    key: 'whatsapp',
     icon: (
-      <FaWhatsapp className="size-5 shrink-0" style={{ color: "#25D366" }} />
+      <FaWhatsapp className="size-5 shrink-0" style={{ color: '#25D366' }} />
     ),
-    label: "WhatsApp",
+    label: 'WhatsApp',
   },
   {
-    key: "telegram",
+    key: 'telegram',
     icon: (
-      <FaTelegram className="size-5 shrink-0" style={{ color: "#0088CC" }} />
+      <FaTelegram className="size-5 shrink-0" style={{ color: '#0088CC' }} />
     ),
-    label: "Telegram",
+    label: 'Telegram',
   },
   {
-    key: "youtube",
+    key: 'youtube',
     icon: (
-      <FaYoutube className="size-5 shrink-0" style={{ color: "#FF0000" }} />
+      <FaYoutube className="size-5 shrink-0" style={{ color: '#FF0000' }} />
     ),
-    label: "YouTube",
+    label: 'YouTube',
   },
   {
-    key: "tiktok",
+    key: 'tiktok',
     icon: <FaTiktok className="size-5 shrink-0" />,
-    label: "TikTok",
+    label: 'TikTok',
   },
   {
-    key: "pinterest",
+    key: 'pinterest',
     icon: (
-      <FaPinterest className="size-5 shrink-0" style={{ color: "#E60023" }} />
+      <FaPinterest className="size-5 shrink-0" style={{ color: '#E60023' }} />
     ),
-    label: "Pinterest",
+    label: 'Pinterest',
   },
   {
-    key: "viber",
-    icon: <FaViber className="size-5 shrink-0" style={{ color: "#7360F2" }} />,
-    label: "Viber",
+    key: 'viber',
+    icon: <FaViber className="size-5 shrink-0" style={{ color: '#7360F2' }} />,
+    label: 'Viber',
   },
 ];
 
 const DEFAULT_LINKS = Object.fromEntries(
-  SOCIAL_PLATFORMS.map((p) => [p.key, ""]),
+  SOCIAL_PLATFORMS.map((p) => [p.key, '']),
 );
 
 const SocialMediaLinks = () => {
@@ -116,7 +116,7 @@ const SocialMediaLinks = () => {
     const fetchData = async () => {
       try {
         const response = await fetch(`${apiUrl}/socialmedia`);
-        if (!response.ok) throw new Error("Failed to fetch data");
+        if (!response.ok) throw new Error('Failed to fetch data');
         const result = await response.json();
         const { _id, ...socialLinks } = result.data;
         setLinks((prev) => ({ ...prev, ...socialLinks }));
@@ -138,20 +138,20 @@ const SocialMediaLinks = () => {
     setSaving(true);
     try {
       const response = await fetch(`${apiUrl}/socialmedia`, {
-        method: "PUT",
+        method: 'PUT',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(links),
       });
 
-      if (!response.ok) throw new Error("Failed to update data");
+      if (!response.ok) throw new Error('Failed to update data');
 
       const result = await response.json();
       const { _id, ...socialLinks } = result.data;
       setLinks((prev) => ({ ...prev, ...socialLinks }));
-      toast.success(result.message || "Social media links updated!");
+      toast.success(result.message || 'Social media links updated!');
     } catch (error) {
       toast.error(error.message);
     } finally {
@@ -162,8 +162,8 @@ const SocialMediaLinks = () => {
   return (
     <div className="space-y-6">
       <SectionHeader
-        title={"Social Media Links"}
-        description={" Manage your social media presence links."}
+        title={'Social Media Links'}
+        description={' Manage your social media presence links.'}
       />
 
       <form onSubmit={handleSubmit}>
@@ -202,7 +202,7 @@ const SocialMediaLinks = () => {
                 Saving...
               </>
             ) : (
-              "Update Social Links"
+              'Update Social Links'
             )}
           </Button>
         </div>

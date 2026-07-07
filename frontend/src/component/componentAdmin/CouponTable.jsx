@@ -1,17 +1,17 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
-import useAuthAdminStore from "../../store/AuthAdminStore.js";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+import useAuthAdminStore from '../../store/AuthAdminStore.js';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from '@/components/ui/select';
 import {
   Table,
   TableBody,
@@ -19,8 +19,8 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { Card, CardContent } from "@/components/ui/card";
+} from '@/components/ui/table';
+import { Card, CardContent } from '@/components/ui/card';
 import {
   Dialog,
   DialogContent,
@@ -28,23 +28,23 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
-} from "@/components/ui/dialog";
-import { toast } from "sonner";
-import { Plus, Pencil, Trash2, Loader2 } from "lucide-react";
-import { SectionHeader } from "#component/componentAdmin/SectionHeader.jsx";
+} from '@/components/ui/dialog';
+import { toast } from 'sonner';
+import { Plus, Pencil, Trash2, Loader2 } from 'lucide-react';
+import { SectionHeader } from '#component/componentAdmin/SectionHeader.jsx';
 
 const apiURL = import.meta.env.VITE_API_URL;
 
 const formatDate = (dateStr) => new Date(dateStr).toLocaleDateString();
 
 const defaultCoupon = {
-  code: "",
-  type: "percentage",
-  value: "",
-  minimumOrder: "",
-  startDate: "",
-  endDate: "",
-  status: "active",
+  code: '',
+  type: 'percentage',
+  value: '',
+  minimumOrder: '',
+  startDate: '',
+  endDate: '',
+  status: 'active',
 };
 
 const CouponTable = () => {
@@ -67,7 +67,7 @@ const CouponTable = () => {
       });
       setCoupons(response.data.data || []);
     } catch {
-      toast.error("Failed to load coupons.");
+      toast.error('Failed to load coupons.');
     } finally {
       setLoading(false);
     }
@@ -103,12 +103,12 @@ const CouponTable = () => {
       });
 
       toast.success(
-        isEdit ? "Coupon updated successfully" : "Coupon created successfully",
+        isEdit ? 'Coupon updated successfully' : 'Coupon created successfully',
       );
       setFormOpen(false);
       fetchCoupons();
     } catch {
-      toast.error("Failed to save coupon");
+      toast.error('Failed to save coupon');
     } finally {
       setSaving(false);
     }
@@ -125,10 +125,10 @@ const CouponTable = () => {
       await axios.delete(`${apiURL}/deleteCoupon/${couponToDelete._id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      toast.success("Coupon deleted successfully.");
+      toast.success('Coupon deleted successfully.');
       fetchCoupons();
     } catch {
-      toast.error("Failed to delete coupon.");
+      toast.error('Failed to delete coupon.');
     } finally {
       setDeleteDialogOpen(false);
       setCouponToDelete(null);
@@ -146,7 +146,7 @@ const CouponTable = () => {
   return (
     <div className="space-y-6">
       <SectionHeader
-        title={"Coupon Management"}
+        title={'Coupon Management'}
         description={`${coupons.length} coupons`}
       />
 
@@ -193,7 +193,7 @@ const CouponTable = () => {
                         coupon.type.slice(1)}
                     </TableCell>
                     <TableCell className="text-center">
-                      {coupon.type === "percentage"
+                      {coupon.type === 'percentage'
                         ? `${coupon.value}%`
                         : `Tk. ${coupon.value}`}
                     </TableCell>
@@ -209,7 +209,7 @@ const CouponTable = () => {
                     <TableCell className="text-center">
                       <Badge
                         variant={
-                          coupon.status === "active" ? "default" : "secondary"
+                          coupon.status === 'active' ? 'default' : 'secondary'
                         }
                       >
                         {coupon.status.charAt(0).toUpperCase() +
@@ -247,12 +247,12 @@ const CouponTable = () => {
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>
-              {isEdit ? "Update Coupon" : "Create Coupon"}
+              {isEdit ? 'Update Coupon' : 'Create Coupon'}
             </DialogTitle>
             <DialogDescription>
               {isEdit
-                ? "Update the coupon details."
-                : "Fill in the details to create a new coupon."}
+                ? 'Update the coupon details.'
+                : 'Fill in the details to create a new coupon.'}
             </DialogDescription>
           </DialogHeader>
           <div className="grid grid-cols-2 gap-4 py-2">
@@ -295,7 +295,7 @@ const CouponTable = () => {
                   setFormData({ ...formData, value: e.target.value })
                 }
                 placeholder={
-                  formData.type === "percentage" ? "e.g. 20" : "e.g. 500"
+                  formData.type === 'percentage' ? 'e.g. 20' : 'e.g. 500'
                 }
                 required
               />
@@ -366,9 +366,9 @@ const CouponTable = () => {
                   Saving...
                 </>
               ) : isEdit ? (
-                "Update"
+                'Update'
               ) : (
-                "Create"
+                'Create'
               )}
             </Button>
           </DialogFooter>
@@ -380,7 +380,7 @@ const CouponTable = () => {
           <DialogHeader>
             <DialogTitle>Confirm Delete</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete coupon{" "}
+              Are you sure you want to delete coupon{' '}
               <strong>{couponToDelete?.code}</strong>?
             </DialogDescription>
           </DialogHeader>

@@ -1,14 +1,14 @@
-import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import useAuthAdminStore from "../../store/AuthAdminStore.js";
-import GeneralInfoStore from "../../store/GeneralInfoStore.js";
-import { preloadAdminRoutes } from "../../utils/routePreloader.js";
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import useAuthAdminStore from '../../store/AuthAdminStore.js';
+import GeneralInfoStore from '../../store/GeneralInfoStore.js';
+import { preloadAdminRoutes } from '../../utils/routePreloader.js';
 
 const AdminLogin = () => {
   const { GeneralInfoList } = GeneralInfoStore();
 
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [checkingAuth, setCheckingAuth] = useState(true);
 
   const { login, error, loading, token } = useAuthAdminStore();
@@ -24,7 +24,7 @@ const AdminLogin = () => {
 
   const isTokenExpired = (token) => {
     try {
-      const payload = JSON.parse(atob(token.split(".")[1]));
+      const payload = JSON.parse(atob(token.split('.')[1]));
       return payload.exp * 1000 < Date.now();
     } catch {
       return true;
@@ -34,7 +34,7 @@ const AdminLogin = () => {
   useEffect(() => {
     if (token && !isTokenExpired(token)) {
       preloadAdminRoutes();
-      navigate("/admin/dashboard");
+      navigate('/admin/dashboard');
     } else {
       setCheckingAuth(false);
     }
@@ -66,7 +66,7 @@ const AdminLogin = () => {
         </h2>
 
         <div className="bg-yellow-100 text-yellow-800 p-4 rounded-md shadow-md text-sm flex flex-col items-center justify-center mb-5">
-          <p className={"mb-3"}>Use this to explore our admin panel.</p>
+          <p className={'mb-3'}>Use this to explore our admin panel.</p>
           <p>
             <strong>Email:</strong> admin@gmail.com
           </p>
@@ -115,7 +115,7 @@ const AdminLogin = () => {
             className="w-full cursor-pointer rounded-md primaryBgColor px-4 py-2 accentTextColor hover:bg-blue-700"
             disabled={loading}
           >
-            {loading ? "Logging in..." : "Login"}
+            {loading ? 'Logging in...' : 'Login'}
           </button>
         </form>
       </div>

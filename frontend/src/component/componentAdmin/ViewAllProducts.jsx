@@ -1,19 +1,19 @@
-import React, { useEffect, useState, useCallback } from "react";
-import useProductStore from "../../store/useProductStore.js";
-import ImageComponent from "../componentGeneral/ImageComponent.jsx";
-import { Link } from "react-router-dom";
-import RequirePermission from "./RequirePermission.jsx";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
+import React, { useEffect, useState, useCallback } from 'react';
+import useProductStore from '../../store/useProductStore.js';
+import ImageComponent from '../componentGeneral/ImageComponent.jsx';
+import { Link } from 'react-router-dom';
+import RequirePermission from './RequirePermission.jsx';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '@/components/ui/skeleton';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from '@/components/ui/select';
 import {
   Table,
   TableBody,
@@ -21,8 +21,8 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { Card, CardContent } from "@/components/ui/card";
+} from '@/components/ui/table';
+import { Card, CardContent } from '@/components/ui/card';
 import {
   Dialog,
   DialogContent,
@@ -30,14 +30,14 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
-} from "@/components/ui/dialog";
+} from '@/components/ui/dialog';
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from "@/components/ui/tooltip";
-import { toast } from "sonner";
+} from '@/components/ui/tooltip';
+import { toast } from 'sonner';
 import {
   Search,
   Eye,
@@ -46,8 +46,8 @@ import {
   Trash2,
   ChevronLeft,
   ChevronRight,
-} from "lucide-react";
-import { SectionHeader } from "@/component/componentAdmin/SectionHeader.jsx";
+} from 'lucide-react';
+import { SectionHeader } from '@/component/componentAdmin/SectionHeader.jsx';
 
 const ViewAllProducts = () => {
   const {
@@ -67,7 +67,7 @@ const ViewAllProducts = () => {
   const [filters, setFilters] = useState({
     page: 1,
     limit: 10,
-    search: "",
+    search: '',
   });
 
   const [filteredProducts, setFilteredProducts] = useState([]);
@@ -108,7 +108,7 @@ const ViewAllProducts = () => {
       toast.success(`Product ID ${selectedProductId} deleted successfully!`);
       fetchProductsAdmin(filters);
     } catch (err) {
-      toast.error(err.response?.data?.message || "Failed to delete product.");
+      toast.error(err.response?.data?.message || 'Failed to delete product.');
     } finally {
       setDeleteDialogOpen(false);
       setSelectedProductId(null);
@@ -118,11 +118,11 @@ const ViewAllProducts = () => {
   const handleDuplicate = async (id) => {
     try {
       await duplicateProduct(id);
-      toast.success("Product duplicated successfully!");
+      toast.success('Product duplicated successfully!');
       fetchProductsAdmin(filters);
     } catch (err) {
       toast.error(
-        err.response?.data?.message || "Failed to duplicate product.",
+        err.response?.data?.message || 'Failed to duplicate product.',
       );
     }
   };
@@ -170,7 +170,7 @@ const ViewAllProducts = () => {
 
   return (
     <div className="space-y-6">
-      <SectionHeader title={"All Products"} />
+      <SectionHeader title={'All Products'} />
 
       <div className="grid grid-cols-3 gap-4">
         <Card className="shadow-md border-0 border-l-4 border-l-[#00395d]">
@@ -201,7 +201,7 @@ const ViewAllProducts = () => {
           <Input
             placeholder="Search products..."
             value={filters.search}
-            onChange={(e) => handleFilterChange("search", e.target.value)}
+            onChange={(e) => handleFilterChange('search', e.target.value)}
             className="pl-9 bg-background"
           />
         </div>
@@ -209,7 +209,7 @@ const ViewAllProducts = () => {
           <p className="text-sm text-muted-foreground">Show</p>
           <Select
             value={String(filters.limit)}
-            onValueChange={(value) => handleFilterChange("limit", value)}
+            onValueChange={(value) => handleFilterChange('limit', value)}
           >
             <SelectTrigger className="w-16 h-8 bg-background">
               <SelectValue />
@@ -277,7 +277,7 @@ const ViewAllProducts = () => {
                     </TableCell>
                     <TableCell>
                       <Badge variant="outline">
-                        {product.category?.name || "\u2014"}
+                        {product.category?.name || '\u2014'}
                       </Badge>
                     </TableCell>
                     <TableCell>
@@ -306,14 +306,14 @@ const ViewAllProducts = () => {
                         <span
                           className={`w-2 h-2 rounded-full ${
                             product.finalStock > 0
-                              ? "bg-green-500"
-                              : "bg-red-500"
+                              ? 'bg-green-500'
+                              : 'bg-red-500'
                           }`}
                         />
                         <span className="text-sm text-muted-foreground">
                           {product.finalStock > 0
                             ? `${product.finalStock} in stock`
-                            : "Out of stock"}
+                            : 'Out of stock'}
                         </span>
                       </div>
                     </TableCell>
@@ -338,9 +338,9 @@ const ViewAllProducts = () => {
                     </TableCell>
                     <TableCell>
                       <Badge
-                        variant={product.isActive ? "default" : "secondary"}
+                        variant={product.isActive ? 'default' : 'secondary'}
                       >
-                        {product.isActive ? "Active" : "Inactive"}
+                        {product.isActive ? 'Active' : 'Inactive'}
                       </Badge>
                     </TableCell>
                     <TableCell>
@@ -441,12 +441,12 @@ const ViewAllProducts = () => {
               const left = Math.max(2, currentPage - delta);
               const right = Math.min(totalPages - 1, currentPage + delta);
               pages.push(1);
-              if (left > 2) pages.push("...");
+              if (left > 2) pages.push('...');
               for (let i = left; i <= right; i++) pages.push(i);
-              if (right < totalPages - 1) pages.push("...");
+              if (right < totalPages - 1) pages.push('...');
               if (totalPages > 1) pages.push(totalPages);
               return pages.map((p, i) =>
-                p === "..." ? (
+                p === '...' ? (
                   <span
                     key={`ellipsis-${i}`}
                     className="px-1 text-muted-foreground"
@@ -456,7 +456,7 @@ const ViewAllProducts = () => {
                 ) : (
                   <Button
                     key={p}
-                    variant={p === currentPage ? "default" : "ghost"}
+                    variant={p === currentPage ? 'default' : 'ghost'}
                     size="sm"
                     className="min-w-9"
                     onClick={() => handlePageChange(p)}

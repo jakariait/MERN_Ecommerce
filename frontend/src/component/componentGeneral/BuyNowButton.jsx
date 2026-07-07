@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
-import { DialogActions } from "@/components/ui/dialog-actions";
-import { FaPlus } from "react-icons/fa6";
-import { FiMinus } from "react-icons/fi";
-import { useNavigate } from "react-router-dom";
-import useCartStore from "../../store/useCartStore.js";
-import { FaCartArrowDown, FaCreditCard } from "react-icons/fa";
+import React, { useState, useEffect } from 'react';
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
+import { DialogActions } from '@/components/ui/dialog-actions';
+import { FaPlus } from 'react-icons/fa6';
+import { FiMinus } from 'react-icons/fi';
+import { useNavigate } from 'react-router-dom';
+import useCartStore from '../../store/useCartStore.js';
+import { FaCartArrowDown, FaCreditCard } from 'react-icons/fa';
 
 const BuyNowButton = ({ product, isAddToCart = false }) => {
   const [open, setOpen] = useState(false);
@@ -28,29 +28,29 @@ const BuyNowButton = ({ product, isAddToCart = false }) => {
   const handleClose = () => setOpen(false);
 
   const handleQuantityChange = (type) => {
-    if (type === "increase" && quantity < MAX_QUANTITY) {
+    if (type === 'increase' && quantity < MAX_QUANTITY) {
       setQuantity((prev) => prev + 1);
-    } else if (type === "decrease" && quantity > 1) {
+    } else if (type === 'decrease' && quantity > 1) {
       setQuantity((prev) => prev - 1);
     }
   };
 
   // Helper to get variant display name from attributes
   const getVariantDisplayName = (variant) => {
-    if (!variant) return "N/A";
+    if (!variant) return 'N/A';
     if (variant.attributes && Array.isArray(variant.attributes)) {
       const attributeValues = variant.attributes
         .map((attr) => attr.value)
         .filter((val) => val);
       if (attributeValues.length > 0) {
-        return attributeValues.join(" / ");
+        return attributeValues.join(' / ');
       }
     }
     // Fallback for old structure
     if (variant.size?.name) {
       return variant.size.name;
     }
-    return "N/A";
+    return 'N/A';
   };
 
   // Handle variant selection by its display name
@@ -66,7 +66,7 @@ const BuyNowButton = ({ product, isAddToCart = false }) => {
     if (isAddToCart) {
       handleClose();
     } else {
-      navigate("/checkout");
+      navigate('/checkout');
     }
   };
 
@@ -83,7 +83,7 @@ const BuyNowButton = ({ product, isAddToCart = false }) => {
       >
         <div className="flex items-center justify-center gap-4">
           {/*{isAddToCart ? <FaCartArrowDown /> : <FaCreditCard />}*/}
-          <span>{isAddToCart ? "Add to Cart" : "Buy Now"}</span>
+          <span>{isAddToCart ? 'Add to Cart' : 'Buy Now'}</span>
           {product.freeShipping && (
             <span className="border-l border-white/30 pl-3 ml-1">
               Free Delivery
@@ -94,7 +94,9 @@ const BuyNowButton = ({ product, isAddToCart = false }) => {
 
       <Dialog open={open} onOpenChange={(o) => !o && handleClose()}>
         <DialogContent className="sm:max-w-sm">
-          <DialogTitle className="text-lg font-semibold mb-4">{product.name}</DialogTitle>
+          <DialogTitle className="text-lg font-semibold mb-4">
+            {product.name}
+          </DialogTitle>
           {/* Variant Price */}
           {selectedVariant && (
             <div className="flex gap-2">
@@ -151,8 +153,8 @@ const BuyNowButton = ({ product, isAddToCart = false }) => {
                       onClick={() => handleVariantChange(variantDisplayName)}
                       className={`px-2 py-1 rounded transition-all cursor-pointer ${
                         isSelected
-                          ? "primaryBgColor text-white"
-                          : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                          ? 'primaryBgColor text-white'
+                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                       }`}
                     >
                       {variantDisplayName}
@@ -169,14 +171,14 @@ const BuyNowButton = ({ product, isAddToCart = false }) => {
             <div className="rounded flex items-center justify-between">
               <button
                 className="primaryBgColor accentTextColor px-2 py-2 rounded-l cursor-pointer"
-                onClick={() => handleQuantityChange("decrease")}
+                onClick={() => handleQuantityChange('decrease')}
               >
                 <FiMinus />
               </button>
               <span className="px-3 py-1 bg-gray-200">{quantity}</span>
               <button
                 className="primaryBgColor accentTextColor px-2 py-2 rounded-r cursor-pointer"
-                onClick={() => handleQuantityChange("increase")}
+                onClick={() => handleQuantityChange('increase')}
                 disabled={quantity >= MAX_QUANTITY}
               >
                 <FaPlus />
@@ -195,13 +197,17 @@ const BuyNowButton = ({ product, isAddToCart = false }) => {
             ) : null}
           </div>
           <DialogActions className="mt-4">
-            <Button onClick={handleClose} variant="outline">Cancel</Button>
+            <Button onClick={handleClose} variant="outline">
+              Cancel
+            </Button>
             <Button
               onClick={handleConfirm}
-              disabled={selectedVariant?.stock === 0 || product.finalStock === 0}
+              disabled={
+                selectedVariant?.stock === 0 || product.finalStock === 0
+              }
               className="primaryBgColor"
             >
-              {isAddToCart ? "Add to Cart" : "Proceed to Checkout"}
+              {isAddToCart ? 'Add to Cart' : 'Proceed to Checkout'}
             </Button>
           </DialogActions>
         </DialogContent>

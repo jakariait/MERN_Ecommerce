@@ -1,23 +1,23 @@
-import React, { useState, useRef, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { MdEmail, MdClose } from "react-icons/md";
-import { TfiTruck } from "react-icons/tfi";
-import { CiShoppingCart, CiHeart } from "react-icons/ci";
-import { IoPersonOutline } from "react-icons/io5";
-import { GiHamburgerMenu } from "react-icons/gi";
-import { IoIosLogOut } from "react-icons/io";
-import Skeleton from "react-loading-skeleton";
+import React, { useState, useRef, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { MdEmail, MdClose } from 'react-icons/md';
+import { TfiTruck } from 'react-icons/tfi';
+import { CiShoppingCart, CiHeart } from 'react-icons/ci';
+import { IoPersonOutline } from 'react-icons/io5';
+import { GiHamburgerMenu } from 'react-icons/gi';
+import { IoIosLogOut } from 'react-icons/io';
+import Skeleton from 'react-loading-skeleton';
 
-import GeneralInfoStore from "../../store/GeneralInfoStore";
-import useCartStore from "../../store/useCartStore";
-import useAuthUserStore from "../../store/AuthUserStore";
-import useWishlistStore from "../../store/useWishlistStore";
+import GeneralInfoStore from '../../store/GeneralInfoStore';
+import useCartStore from '../../store/useCartStore';
+import useAuthUserStore from '../../store/AuthUserStore';
+import useWishlistStore from '../../store/useWishlistStore';
 
-import ImageComponent from "./ImageComponent";
-import MenuBar from "./MenuBar";
-import MobileMenu from "./MobileMenu";
-import Cart from "./Cart";
-import HeaderSearch from "./HeaderSearch.jsx";
+import ImageComponent from './ImageComponent';
+import MenuBar from './MenuBar';
+import MobileMenu from './MobileMenu';
+import Cart from './Cart';
+import HeaderSearch from './HeaderSearch.jsx';
 
 const Headers = () => {
   const navigate = useNavigate();
@@ -68,10 +68,10 @@ const Headers = () => {
       }
     };
 
-    window.addEventListener("scroll", handleScroll);
+    window.addEventListener('scroll', handleScroll);
 
     return () => {
-      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener('scroll', handleScroll);
     };
   }, []);
 
@@ -109,11 +109,11 @@ const Headers = () => {
     };
 
     if (isMenuOpen || isCartMenuOpen || isDropdownOpen) {
-      document.addEventListener("mousedown", handleClickOutside);
+      document.addEventListener('mousedown', handleClickOutside);
     }
 
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [isMenuOpen, isCartMenuOpen, isDropdownOpen]);
 
@@ -132,7 +132,7 @@ const Headers = () => {
 
   const handleLogout = () => {
     logout();
-    navigate("/login");
+    navigate('/login');
   };
 
   if (GeneralInfoListError) {
@@ -156,14 +156,18 @@ const Headers = () => {
   return (
     <div>
       {/* Top Bar */}
-      <div className={"primaryBgColor text-white "}>
-        {" "}
+      <div className={'primaryBgColor text-white '}>
+        {' '}
         <div className="flex gap-6 xl:container xl:mx-auto p-3 justify-center md:justify-start">
           <h1 className="md:border-r-1 px-4">
             Welcome to {GeneralInfoList?.CompanyName}
           </h1>
           <div className="items-center gap-2 border-r-1 px-4 hidden md:flex">
-            <Link to="/track-order" className="flex items-center gap-2" aria-label="Track your order">
+            <Link
+              to="/track-order"
+              className="flex items-center gap-2"
+              aria-label="Track your order"
+            >
               <TfiTruck aria-hidden="true" />
               <p>Track Your Order</p>
             </Link>
@@ -171,7 +175,12 @@ const Headers = () => {
           <div className="items-center gap-2 hidden md:flex">
             <MdEmail className="text-2xl" aria-hidden="true" />
             {GeneralInfoList?.CompanyEmail.map((email, index) => (
-              <a key={index} href={`mailto:${email}`} className="mr-2" aria-label={`Email: ${email}`}>
+              <a
+                key={index}
+                href={`mailto:${email}`}
+                className="mr-2"
+                aria-label={`Email: ${email}`}
+              >
                 {email}
               </a>
             ))}
@@ -183,7 +192,7 @@ const Headers = () => {
       <div
         ref={headerMainRef}
         className={`border-b border-gray-200 md:px-3 bg-white ${
-          isSticky ? "fixed top-0 left-0 right-0 z-40 " : ""
+          isSticky ? 'fixed top-0 left-0 right-0 z-40 ' : ''
         }`}
       >
         <div className="xl:container xl:mx-auto py-3 px-3 flex gap-6 items-center justify-between">
@@ -234,7 +243,7 @@ const Headers = () => {
               aria-label="Shopping cart"
               aria-expanded={isCartMenuOpen}
             >
-              <div className={"flex flex-col justify-center items-center"}>
+              <div className={'flex flex-col justify-center items-center'}>
                 {/* Shopping Cart Icon */}
                 <CiShoppingCart className="w-7 h-7 cursor-pointer" />
 
@@ -261,8 +270,8 @@ const Headers = () => {
                   aria-expanded={isDropdownOpen}
                 >
                   {user?.userImage &&
-                  typeof user.userImage === "string" &&
-                  user.userImage.trim() !== "" ? (
+                  typeof user.userImage === 'string' &&
+                  user.userImage.trim() !== '' ? (
                     <ImageComponent
                       imageName={user.userImage}
                       className={avatarClass}
@@ -271,7 +280,7 @@ const Headers = () => {
                     <span className={avatarInitialClass}>
                       {(user?.fullName &&
                         user.fullName.trim().charAt(0).toUpperCase()) ||
-                        "U"}
+                        'U'}
                     </span>
                   )}
                 </button>
@@ -285,7 +294,7 @@ const Headers = () => {
                       <button className="primaryBgColor px-4 py-2 rounded-lg w-full accentTextColor cursor-pointer hover:opacity-90 transition-opacity">
                         <Link
                           to="/user/home"
-                          className={"flex items-center justify-center gap-2"}
+                          className={'flex items-center justify-center gap-2'}
                         >
                           <IoPersonOutline className="w-5 h-5" />
                           <span className="text-sm">My Account</span>
@@ -321,8 +330,8 @@ const Headers = () => {
       <div
         className={`fixed inset-0 z-50 lg:hidden transition-opacity duration-300 ${
           isMenuOpen
-            ? "opacity-100 pointer-events-auto"
-            : "opacity-0 pointer-events-none"
+            ? 'opacity-100 pointer-events-auto'
+            : 'opacity-0 pointer-events-none'
         }`}
       >
         <div
@@ -333,22 +342,25 @@ const Headers = () => {
           ref={menuRef}
           className="relative bg-white w-64 h-full shadow-lg transform transition-transform"
           style={{
-            transform: isMenuOpen ? "translateX(0)" : "translateX(-100%)",
+            transform: isMenuOpen ? 'translateX(0)' : 'translateX(-100%)',
           }}
         >
-            <div className="p-4">
-              <div className="flex items-center justify-between">
-                <Link to="/" aria-label="Home">
-                  <ImageComponent
-                    imageName={GeneralInfoList?.PrimaryLogo}
-                    className="w-30"
-                    altName={GeneralInfoList?.CompanyName}
-                  />
-                </Link>
-                <button onClick={() => setIsMenuOpen(false)} aria-label="Close menu">
-                  <MdClose className="text-3xl" />
-                </button>
-              </div>
+          <div className="p-4">
+            <div className="flex items-center justify-between">
+              <Link to="/" aria-label="Home">
+                <ImageComponent
+                  imageName={GeneralInfoList?.PrimaryLogo}
+                  className="w-30"
+                  altName={GeneralInfoList?.CompanyName}
+                />
+              </Link>
+              <button
+                onClick={() => setIsMenuOpen(false)}
+                aria-label="Close menu"
+              >
+                <MdClose className="text-3xl" />
+              </button>
+            </div>
             <div className="space-y-2">
               <MobileMenu />
             </div>
@@ -364,7 +376,10 @@ const Headers = () => {
               ) : (
                 <Link to="/login" aria-label="Login or register">
                   <div className="inline-flex items-center gap-3">
-                    <IoPersonOutline className="w-10 h-10 primaryBgColor rounded-full text-white p-2" aria-hidden="true" />
+                    <IoPersonOutline
+                      className="w-10 h-10 primaryBgColor rounded-full text-white p-2"
+                      aria-hidden="true"
+                    />
                     <span className="text-sm">Login / Register</span>
                   </div>
                 </Link>
@@ -378,8 +393,8 @@ const Headers = () => {
       <div
         className={`fixed inset-0 z-50 ß transition-opacity duration-300 ${
           isCartMenuOpen
-            ? "opacity-100 pointer-events-auto"
-            : "opacity-0 pointer-events-none"
+            ? 'opacity-100 pointer-events-auto'
+            : 'opacity-0 pointer-events-none'
         }`}
       >
         {/* Background Overlay */}
@@ -393,18 +408,18 @@ const Headers = () => {
           ref={cartMenuRef}
           className="fixed top-0 right-0 h-full w-[350px] bg-white shadow-lg transition-transform duration-300 ease-in-out"
           style={{
-            transform: isCartMenuOpen ? "translateX(0)" : "translateX(100%)",
+            transform: isCartMenuOpen ? 'translateX(0)' : 'translateX(100%)',
           }}
         >
           <div className="p-4 h-full flex flex-col">
             <div className="flex items-center justify-between text-lg mb-4">
               <h1>Your Cart</h1>
               <h1>
-                {totalQuantity} {totalQuantity <= 1 ? "item" : "items"}
+                {totalQuantity} {totalQuantity <= 1 ? 'item' : 'items'}
               </h1>
               <button
                 onClick={() => setIsCartMenuOpen(false)}
-                className={"cursor-pointer"}
+                className={'cursor-pointer'}
                 aria-label="Close cart"
               >
                 <MdClose className="text-2xl" />

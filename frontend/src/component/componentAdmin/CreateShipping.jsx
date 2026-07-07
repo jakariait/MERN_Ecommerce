@@ -1,21 +1,16 @@
-import React, { useState } from "react";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardContent,
-} from "@/components/ui/card";
-import axios from "axios";
-import useAuthAdminStore from "../../store/AuthAdminStore";
-import { toast } from "sonner";
-import { Loader2, Truck } from "lucide-react";
+import React, { useState } from 'react';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Button } from '@/components/ui/button';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import axios from 'axios';
+import useAuthAdminStore from '../../store/AuthAdminStore';
+import { toast } from 'sonner';
+import { Loader2, Truck } from 'lucide-react';
 
 const CreateShipping = () => {
-  const [name, setName] = useState("");
-  const [value, setValue] = useState("");
+  const [name, setName] = useState('');
+  const [value, setValue] = useState('');
   const [loading, setLoading] = useState(false);
 
   const { token } = useAuthAdminStore();
@@ -24,7 +19,7 @@ const CreateShipping = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!name.trim() || !value.trim())
-      return toast.error("Please fill in all fields");
+      return toast.error('Please fill in all fields');
 
     setLoading(true);
     try {
@@ -33,12 +28,12 @@ const CreateShipping = () => {
         { name, value },
         { headers: { Authorization: `Bearer ${token}` } },
       );
-      window.dispatchEvent(new CustomEvent("shippingMethodCreated"));
-      setName("");
-      setValue("");
-      toast.success("Delivery charge added successfully!");
+      window.dispatchEvent(new CustomEvent('shippingMethodCreated'));
+      setName('');
+      setValue('');
+      toast.success('Delivery charge added successfully!');
     } catch {
-      toast.error("Something went wrong");
+      toast.error('Something went wrong');
     } finally {
       setLoading(false);
     }
@@ -82,7 +77,7 @@ const CreateShipping = () => {
                 Saving...
               </>
             ) : (
-              "Save"
+              'Save'
             )}
           </Button>
         </form>

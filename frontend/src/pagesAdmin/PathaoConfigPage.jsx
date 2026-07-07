@@ -1,12 +1,12 @@
-import React, { useEffect } from "react";
-import RequirePermission from "../component/componentAdmin/RequirePermission.jsx";
-import AdminPathaoConfig from "../component/componentAdmin/AdminPathaoConfig.jsx";
-import useBreadcrumbStore from "../store/BreadcrumbStore.js";
+import React, { useEffect } from 'react';
+import RequirePermission from '../component/componentAdmin/RequirePermission.jsx';
+import AdminPathaoConfig from '../component/componentAdmin/AdminPathaoConfig.jsx';
+import useBreadcrumbStore from '../store/BreadcrumbStore.js';
 
 const PathaoConfigPage = () => {
   const setBreadcrumb = useBreadcrumbStore((s) => s.setBreadcrumb);
   useEffect(() => {
-    setBreadcrumb("WEBSITE CONFIG", "Pathao API");
+    setBreadcrumb('WEBSITE CONFIG', 'Pathao API');
   }, []);
 
   return (

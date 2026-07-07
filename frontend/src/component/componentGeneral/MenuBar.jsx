@@ -1,9 +1,9 @@
-import { useState, memo, useRef, useCallback, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
-import { FaAngleDown } from "react-icons/fa6";
-import useCategoryStore from "../../store/useCategoryStore.js";
-import useSubCategoryStore from "../../store/useSubCategoryStore.js";
-import useChildCategoryStore from "../../store/useChildCategoryStore.js";
+import { useState, memo, useRef, useCallback, useEffect } from 'react';
+import { Link, useLocation } from 'react-router-dom';
+import { FaAngleDown } from 'react-icons/fa6';
+import useCategoryStore from '../../store/useCategoryStore.js';
+import useSubCategoryStore from '../../store/useSubCategoryStore.js';
+import useChildCategoryStore from '../../store/useChildCategoryStore.js';
 
 const MenuBar = () => {
   const { categories } = useCategoryStore();
@@ -28,9 +28,9 @@ const MenuBar = () => {
 
       // Compare relevant parameters
       return (
-        currentParams.get("category") === newParams.get("category") &&
-        currentParams.get("subcategory") === newParams.get("subcategory") &&
-        currentParams.get("childCategory") === newParams.get("childCategory")
+        currentParams.get('category') === newParams.get('category') &&
+        currentParams.get('subcategory') === newParams.get('subcategory') &&
+        currentParams.get('childCategory') === newParams.get('childCategory')
       );
     },
     [location.search],
@@ -114,13 +114,13 @@ const MenuBar = () => {
           >
             <SubMenu
               items={[
-                { name: "About Us", path: "/about" },
-                { name: "FAQ", path: "/faqs" },
-                { name: "Privacy Policy", path: "/privacypolicy" },
-                { name: "Refund Policy", path: "/refundpolicy" },
-                { name: "Terms of Services", path: "/termofservice" },
-                { name: "Blog", path: "/blog" },
-                { name: "Contact", path: "/contact-us" },
+                { name: 'About Us', path: '/about' },
+                { name: 'FAQ', path: '/faqs' },
+                { name: 'Privacy Policy', path: '/privacypolicy' },
+                { name: 'Refund Policy', path: '/refundpolicy' },
+                { name: 'Terms of Services', path: '/termofservice' },
+                { name: 'Blog', path: '/blog' },
+                { name: 'Contact', path: '/contact-us' },
               ]}
             />
           </MenuItem>
@@ -172,9 +172,9 @@ const MenuItem = memo(({ label, children }) => {
     };
 
     if (isOpen) {
-      document.addEventListener("mousedown", handleClickOutside);
+      document.addEventListener('mousedown', handleClickOutside);
       return () =>
-        document.removeEventListener("mousedown", handleClickOutside);
+        document.removeEventListener('mousedown', handleClickOutside);
     }
   }, [isOpen, closeMenu]);
 
@@ -202,8 +202,8 @@ const MenuItem = memo(({ label, children }) => {
       <div
         className={`absolute left-0 mt-2 bg-white shadow-lg rounded-md w-56 z-50 transition-all duration-200 ${
           isOpen
-            ? "opacity-100 visible transform translate-y-0"
-            : "opacity-0 invisible transform -translate-y-2"
+            ? 'opacity-100 visible transform translate-y-0'
+            : 'opacity-0 invisible transform -translate-y-2'
         }`}
         onMouseEnter={openMenu}
         onMouseLeave={handleMouseLeave}

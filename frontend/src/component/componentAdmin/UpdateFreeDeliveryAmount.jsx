@@ -1,20 +1,15 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
-import useAuthAdminStore from "../../store/AuthAdminStore";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardContent,
-} from "@/components/ui/card";
-import { toast } from "sonner";
-import { Loader2, Banknote } from "lucide-react";
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+import useAuthAdminStore from '../../store/AuthAdminStore';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Button } from '@/components/ui/button';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { toast } from 'sonner';
+import { Loader2, Banknote } from 'lucide-react';
 
 const UpdateFreeDeliveryAmount = () => {
-  const [amount, setAmount] = useState("");
+  const [amount, setAmount] = useState('');
   const [currentValue, setCurrentValue] = useState(null);
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
@@ -29,7 +24,7 @@ const UpdateFreeDeliveryAmount = () => {
         });
         setCurrentValue(res.data?.data?.value ?? 0);
       } catch (err) {
-        console.error("Failed to fetch current value", err);
+        console.error('Failed to fetch current value', err);
       } finally {
         setFetching(false);
       }
@@ -39,7 +34,7 @@ const UpdateFreeDeliveryAmount = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!amount.trim()) return toast.error("Please enter a valid amount");
+    if (!amount.trim()) return toast.error('Please enter a valid amount');
 
     setLoading(true);
     try {
@@ -49,10 +44,10 @@ const UpdateFreeDeliveryAmount = () => {
         { headers: { Authorization: `Bearer ${token}` } },
       );
       setCurrentValue(Number(amount));
-      setAmount("");
-      toast.success("Free delivery amount updated successfully");
+      setAmount('');
+      toast.success('Free delivery amount updated successfully');
     } catch (err) {
-      toast.error("Something went wrong while updating");
+      toast.error('Something went wrong while updating');
     } finally {
       setLoading(false);
     }
@@ -102,7 +97,7 @@ const UpdateFreeDeliveryAmount = () => {
                 Updating...
               </>
             ) : (
-              "Update Amount"
+              'Update Amount'
             )}
           </Button>
         </form>

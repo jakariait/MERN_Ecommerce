@@ -1,11 +1,11 @@
 import React from 'react';
-import ForgotPassword from "../component/componentGeneral/ForgotPassword.jsx";
+import ForgotPassword from '../component/componentGeneral/ForgotPassword.jsx';
 
 const ForgetPasswordPage = () => {
   return (
-  <>
-      <ForgotPassword/>
-  </>
+    <>
+      <ForgotPassword />
+    </>
   );
 };
 

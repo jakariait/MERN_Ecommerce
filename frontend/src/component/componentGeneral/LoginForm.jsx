@@ -1,38 +1,38 @@
-import { useState } from "react";
-import { FaUser, FaLock } from "react-icons/fa";
-import { Link, useNavigate } from "react-router-dom";
-import { Snackbar } from "@/components/ui/snackbar";
-import { Alert } from "@/components/ui/alert";
-import useAuthUserStore from "../../store/AuthUserStore.js";
-import useCartStore from "../../store/useCartStore.js";
+import { useState } from 'react';
+import { FaUser, FaLock } from 'react-icons/fa';
+import { Link, useNavigate } from 'react-router-dom';
+import { Snackbar } from '@/components/ui/snackbar';
+import { Alert } from '@/components/ui/alert';
+import useAuthUserStore from '../../store/AuthUserStore.js';
+import useCartStore from '../../store/useCartStore.js';
 
 const LoginForm = () => {
   const navigate = useNavigate();
   const { login, loading, error } = useAuthUserStore();
   const { syncCartToDB, loadCartFromBackend } = useCartStore();
 
-  const [emailOrPhone, setEmailOrPhone] = useState("");
-  const [password, setPassword] = useState("");
+  const [emailOrPhone, setEmailOrPhone] = useState('');
+  const [password, setPassword] = useState('');
 
   // Snackbar state
   const [snackbarOpen, setSnackbarOpen] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [snackbarMessage, setSnackbarMessage] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     await login(emailOrPhone, password);
 
-    const token = localStorage.getItem("user_token");
+    const token = localStorage.getItem('user_token');
 
     if (token) {
       try {
         await syncCartToDB(token);
         await loadCartFromBackend(token);
-        navigate("/user/home");
+        navigate('/user/home');
       } catch (err) {
         setSnackbarMessage(
-          "There was a problem loading your cart. Please try again.",
+          'There was a problem loading your cart. Please try again.',
         );
         setSnackbarOpen(true);
       }
@@ -103,13 +103,13 @@ const LoginForm = () => {
             className="w-full cursor-pointer py-3 rounded-md mt-2 primaryBgColor accentTextColor"
             disabled={loading}
           >
-            {loading ? "Signing in..." : "Sign in"}
+            {loading ? 'Signing in...' : 'Sign in'}
           </button>
         </form>
 
         {/* Register */}
         <p className="text-sm mt-6 text-gray-600">
-          Don’t have any account?{" "}
+          Don’t have any account?{' '}
           <Link to="/register">
             <button className="primaryTextColor font-medium hover:underline cursor-pointer">
               Register account
@@ -123,12 +123,12 @@ const LoginForm = () => {
         open={snackbarOpen}
         autoHideDuration={4000}
         onClose={() => setSnackbarOpen(false)}
-        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
       >
         <Alert
           onClose={() => setSnackbarOpen(false)}
           severity="error"
-          sx={{ width: "100%" }}
+          sx={{ width: '100%' }}
         >
           {snackbarMessage}
         </Alert>

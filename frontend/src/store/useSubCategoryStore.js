@@ -1,6 +1,6 @@
-import { create } from "zustand";
-import axios from "axios";
-import useAuthStore from "./AuthAdminStore.js"; // Import auth store
+import { create } from 'zustand';
+import axios from 'axios';
+import useAuthStore from './AuthAdminStore.js'; // Import auth store
 const apiUrl = import.meta.env.VITE_API_URL;
 
 const useSubCategoryStore = create((set) => ({
@@ -14,9 +14,9 @@ const useSubCategoryStore = create((set) => ({
       const response = await axios.get(`${apiUrl}/sub-category`);
       set({ subCategories: response.data.subCategories || [], loading: false }); // Extract `subCategories`
     } catch (error) {
-      console.error("Error fetching subcategories:", error);
+      console.error('Error fetching subcategories:', error);
       set({
-        error: error.response?.data?.message || "Failed to fetch subcategories",
+        error: error.response?.data?.message || 'Failed to fetch subcategories',
         loading: false,
       });
     }
@@ -29,7 +29,7 @@ const useSubCategoryStore = create((set) => ({
       return response.data;
     } catch (error) {
       set({
-        error: error.response?.data?.message || "Failed to fetch subcategory",
+        error: error.response?.data?.message || 'Failed to fetch subcategory',
         loading: false,
       });
       return null;
@@ -40,7 +40,7 @@ const useSubCategoryStore = create((set) => ({
     set({ loading: true, error: null });
     try {
       const token = useAuthStore.getState().token; // Get token automatically
-      if (!token) throw new Error("Unauthorized: No token found");
+      if (!token) throw new Error('Unauthorized: No token found');
 
       const response = await axios.post(`${apiUrl}/sub-category`, data, {
         headers: { Authorization: `Bearer ${token}` },
@@ -51,7 +51,7 @@ const useSubCategoryStore = create((set) => ({
       }));
     } catch (error) {
       set({
-        error: error.response?.data?.message || "Failed to create subcategory",
+        error: error.response?.data?.message || 'Failed to create subcategory',
         loading: false,
       });
     }
@@ -61,7 +61,7 @@ const useSubCategoryStore = create((set) => ({
     set({ loading: true, error: null });
     try {
       const token = useAuthStore.getState().token;
-      if (!token) throw new Error("Unauthorized: No token found");
+      if (!token) throw new Error('Unauthorized: No token found');
 
       const response = await axios.put(`${apiUrl}/sub-category/${id}`, data, {
         headers: { Authorization: `Bearer ${token}` },
@@ -74,7 +74,7 @@ const useSubCategoryStore = create((set) => ({
       }));
     } catch (error) {
       set({
-        error: error.response?.data?.message || "Failed to update subcategory",
+        error: error.response?.data?.message || 'Failed to update subcategory',
         loading: false,
       });
     }
@@ -84,7 +84,7 @@ const useSubCategoryStore = create((set) => ({
     set({ loading: true, error: null });
     try {
       const token = useAuthStore.getState().token;
-      if (!token) throw new Error("Unauthorized: No token found");
+      if (!token) throw new Error('Unauthorized: No token found');
 
       await axios.delete(`${apiUrl}/sub-category/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
@@ -95,7 +95,7 @@ const useSubCategoryStore = create((set) => ({
       }));
     } catch (error) {
       set({
-        error: error.response?.data?.message || "Failed to delete subcategory",
+        error: error.response?.data?.message || 'Failed to delete subcategory',
         loading: false,
       });
     }

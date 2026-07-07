@@ -1,16 +1,16 @@
-import React, { useEffect, useState, useMemo } from "react";
-import axios from "axios";
-import useAuthAdminStore from "../../store/AuthAdminStore.js";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import React, { useEffect, useState, useMemo } from 'react';
+import axios from 'axios';
+import useAuthAdminStore from '../../store/AuthAdminStore.js';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from '@/components/ui/select';
 import {
   Table,
   TableBody,
@@ -18,8 +18,8 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { Card, CardContent } from "@/components/ui/card";
+} from '@/components/ui/table';
+import { Card, CardContent } from '@/components/ui/card';
 import {
   Dialog,
   DialogContent,
@@ -27,8 +27,8 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
-} from "@/components/ui/dialog";
-import { toast } from "sonner";
+} from '@/components/ui/dialog';
+import { toast } from 'sonner';
 import {
   Plus,
   Search,
@@ -37,8 +37,8 @@ import {
   Loader2,
   ChevronLeft,
   ChevronRight,
-} from "lucide-react";
-import { SectionHeader } from "@/component/componentAdmin/SectionHeader.jsx";
+} from 'lucide-react';
+import { SectionHeader } from '@/component/componentAdmin/SectionHeader.jsx';
 
 const ChildCategoryAllinone = () => {
   const apiUrl = import.meta.env.VITE_API_URL;
@@ -48,7 +48,7 @@ const ChildCategoryAllinone = () => {
   const [categories, setCategories] = useState([]);
   const [subCategories, setSubCategories] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState('');
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
@@ -56,9 +56,9 @@ const ChildCategoryAllinone = () => {
   const [isEdit, setIsEdit] = useState(false);
   const [editId, setEditId] = useState(null);
   const [formData, setFormData] = useState({
-    name: "",
-    category: "",
-    subCategory: "",
+    name: '',
+    category: '',
+    subCategory: '',
     isActive: true,
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -77,7 +77,7 @@ const ChildCategoryAllinone = () => {
         setLoading(false);
       })
       .catch(() => {
-        toast.error("Error fetching child categories.");
+        toast.error('Error fetching child categories.');
         setLoading(false);
       });
   };
@@ -116,7 +116,7 @@ const ChildCategoryAllinone = () => {
   const handleOpenCreate = () => {
     setIsEdit(false);
     setEditId(null);
-    setFormData({ name: "", category: "", subCategory: "", isActive: true });
+    setFormData({ name: '', category: '', subCategory: '', isActive: true });
     setDialogOpen(true);
   };
 
@@ -125,20 +125,20 @@ const ChildCategoryAllinone = () => {
     setEditId(childCat._id);
     setFormData({
       name: childCat.name,
-      category: childCat.category?._id || "",
-      subCategory: childCat.subCategory?._id || "",
+      category: childCat.category?._id || '',
+      subCategory: childCat.subCategory?._id || '',
       isActive: childCat.isActive,
     });
     setDialogOpen(true);
   };
 
   const handleCategoryChange = (catId) => {
-    setFormData((prev) => ({ ...prev, category: catId, subCategory: "" }));
+    setFormData((prev) => ({ ...prev, category: catId, subCategory: '' }));
   };
 
   const handleSave = async () => {
     if (!formData.name.trim() || !formData.category || !formData.subCategory) {
-      toast.warning("Name, category, and subcategory are required.");
+      toast.warning('Name, category, and subcategory are required.');
       return;
     }
     setIsSubmitting(true);
@@ -155,11 +155,11 @@ const ChildCategoryAllinone = () => {
           {
             headers: {
               Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
+              'Content-Type': 'application/json',
             },
           },
         );
-        toast.success("Child category updated successfully!");
+        toast.success('Child category updated successfully!');
       } else {
         await axios.post(
           `${apiUrl}/child-category`,
@@ -171,16 +171,16 @@ const ChildCategoryAllinone = () => {
           {
             headers: {
               Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
+              'Content-Type': 'application/json',
             },
           },
         );
-        toast.success("Child category added successfully!");
+        toast.success('Child category added successfully!');
       }
       setDialogOpen(false);
       fetchChildCategories();
     } catch (err) {
-      toast.error(err.response?.data?.message || "Operation failed.");
+      toast.error(err.response?.data?.message || 'Operation failed.');
     } finally {
       setIsSubmitting(false);
     }
@@ -200,10 +200,10 @@ const ChildCategoryAllinone = () => {
           headers: { Authorization: `Bearer ${token}` },
         },
       );
-      toast.success("Child category deleted successfully!");
+      toast.success('Child category deleted successfully!');
       fetchChildCategories();
     } catch {
-      toast.error("Failed to delete child category.");
+      toast.error('Failed to delete child category.');
     } finally {
       setDeleteDialogOpen(false);
       setChildCategoryToDelete(null);
@@ -214,13 +214,13 @@ const ChildCategoryAllinone = () => {
     return childCategories
       .filter(
         (childCat) =>
-          (childCat.name || "")
+          (childCat.name || '')
             .toLowerCase()
             .includes(searchTerm.toLowerCase()) ||
-          (childCat.category?.name || "")
+          (childCat.category?.name || '')
             .toLowerCase()
             .includes(searchTerm.toLowerCase()) ||
-          (childCat.subCategory?.name || "")
+          (childCat.subCategory?.name || '')
             .toLowerCase()
             .includes(searchTerm.toLowerCase()),
       )
@@ -236,7 +236,7 @@ const ChildCategoryAllinone = () => {
   return (
     <div className="space-y-6">
       <SectionHeader
-        title={"Child Category Management"}
+        title={'Child Category Management'}
         description={`${childCategories.length} total child categories`}
       />
 
@@ -299,25 +299,25 @@ const ChildCategoryAllinone = () => {
                     paginated.map((childCat) => (
                       <TableRow key={childCat._id}>
                         <TableCell className="font-medium">
-                          {childCat.name || "N/A"}
+                          {childCat.name || 'N/A'}
                         </TableCell>
                         <TableCell className="text-center">
                           <Badge variant="outline">
-                            {childCat.category?.name || "N/A"}
+                            {childCat.category?.name || 'N/A'}
                           </Badge>
                         </TableCell>
                         <TableCell className="text-center">
                           <Badge variant="secondary">
-                            {childCat.subCategory?.name || "N/A"}
+                            {childCat.subCategory?.name || 'N/A'}
                           </Badge>
                         </TableCell>
                         <TableCell className="text-center">
                           <Badge
                             variant={
-                              childCat.isActive ? "default" : "secondary"
+                              childCat.isActive ? 'default' : 'secondary'
                             }
                           >
-                            {childCat.isActive ? "Yes" : "No"}
+                            {childCat.isActive ? 'Yes' : 'No'}
                           </Badge>
                         </TableCell>
                         <TableCell className="text-center">
@@ -402,12 +402,12 @@ const ChildCategoryAllinone = () => {
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>
-              {isEdit ? "Edit Child Category" : "Add New Child Category"}
+              {isEdit ? 'Edit Child Category' : 'Add New Child Category'}
             </DialogTitle>
             <DialogDescription>
               {isEdit
-                ? "Update the child category details."
-                : "Create a new child category."}
+                ? 'Update the child category details.'
+                : 'Create a new child category.'}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-2">
@@ -460,8 +460,8 @@ const ChildCategoryAllinone = () => {
                   <SelectValue
                     placeholder={
                       formData.category
-                        ? "Select a Subcategory"
-                        : "Select a category first"
+                        ? 'Select a Subcategory'
+                        : 'Select a category first'
                     }
                   />
                 </SelectTrigger>
@@ -488,7 +488,7 @@ const ChildCategoryAllinone = () => {
                   onValueChange={(value) =>
                     setFormData({
                       ...formData,
-                      isActive: value === "true",
+                      isActive: value === 'true',
                     })
                   }
                 >
@@ -514,9 +514,9 @@ const ChildCategoryAllinone = () => {
                   Saving...
                 </>
               ) : isEdit ? (
-                "Update"
+                'Update'
               ) : (
-                "Save"
+                'Save'
               )}
             </Button>
           </DialogFooter>
@@ -528,7 +528,7 @@ const ChildCategoryAllinone = () => {
           <DialogHeader>
             <DialogTitle>Confirm Delete</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete{" "}
+              Are you sure you want to delete{' '}
               <strong>{childCategoryToDelete?.name}</strong>? This action cannot
               be undone.
             </DialogDescription>

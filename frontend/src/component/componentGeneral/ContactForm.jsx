@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
-import { motion } from "framer-motion";
-import { Link } from "react-router-dom";
+import React, { useEffect, useState } from 'react';
+import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 import {
   Phone,
   Mail,
@@ -9,23 +9,23 @@ import {
   Send,
   CheckCircle,
   XCircle,
-} from "lucide-react";
-import Skeleton from "react-loading-skeleton";
-import SocialMedia from "./SocialMedia.jsx";
-import GeneralInfoStore from "../../store/GeneralInfoStore.js";
-import axios from "axios";
+} from 'lucide-react';
+import Skeleton from 'react-loading-skeleton';
+import SocialMedia from './SocialMedia.jsx';
+import GeneralInfoStore from '../../store/GeneralInfoStore.js';
+import axios from 'axios';
 
 const ContactForm = () => {
   const apiUrl = import.meta.env.VITE_API_URL;
   const { GeneralInfoList, GeneralInfoListLoading, GeneralInfoListError } =
     GeneralInfoStore();
   const [formData, setFormData] = useState({
-    fullName: "",
-    phoneNumber: "",
-    emailAddress: "",
-    message: "",
+    fullName: '',
+    phoneNumber: '',
+    emailAddress: '',
+    message: '',
   });
-  const [status, setStatus] = useState("");
+  const [status, setStatus] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
   const handleInputChange = (e) => {
@@ -36,22 +36,22 @@ const ContactForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitting(true);
-    setStatus("");
+    setStatus('');
     try {
       const res = await axios.post(`${apiUrl}/contacts`, formData);
       if (res.status >= 200 && res.status < 300) {
-        setStatus("success");
+        setStatus('success');
         setFormData({
-          fullName: "",
-          phoneNumber: "",
-          emailAddress: "",
-          message: "",
+          fullName: '',
+          phoneNumber: '',
+          emailAddress: '',
+          message: '',
         });
       } else {
-        setStatus("error");
+        setStatus('error');
       }
     } catch {
-      setStatus("error");
+      setStatus('error');
     } finally {
       setSubmitting(false);
     }
@@ -59,7 +59,7 @@ const ContactForm = () => {
 
   useEffect(() => {
     if (status) {
-      const timer = setTimeout(() => setStatus(""), 5000);
+      const timer = setTimeout(() => setStatus(''), 5000);
       return () => clearTimeout(timer);
     }
   }, [status]);
@@ -82,7 +82,7 @@ const ContactForm = () => {
   };
 
   const inputClass =
-    "w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[var(--primaryColor)]/20 focus:border-[var(--primaryColor)] transition-all duration-200";
+    'w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[var(--primaryColor)]/20 focus:border-[var(--primaryColor)] transition-all duration-200';
 
   return (
     <div>
@@ -354,19 +354,19 @@ const ContactForm = () => {
             initial={{ opacity: 0, x: 80 }}
             animate={{ opacity: 1, x: 0 }}
             className={`flex items-center gap-3 px-5 py-3 rounded-xl shadow-lg text-sm font-medium border ${
-              status === "success"
-                ? "bg-green-50 text-green-700 border-green-200"
-                : "bg-red-50 text-red-700 border-red-200"
+              status === 'success'
+                ? 'bg-green-50 text-green-700 border-green-200'
+                : 'bg-red-50 text-red-700 border-red-200'
             }`}
           >
-            {status === "success" ? (
+            {status === 'success' ? (
               <CheckCircle size={18} />
             ) : (
               <XCircle size={18} />
             )}
-            {status === "success"
+            {status === 'success'
               ? "Message sent successfully! We'll get back to you soon."
-              : "Submission failed. Please try again."}
+              : 'Submission failed. Please try again.'}
           </motion.div>
         </div>
       )}

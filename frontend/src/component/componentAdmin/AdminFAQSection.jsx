@@ -1,18 +1,18 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Badge } from "@/components/ui/badge";
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Badge } from '@/components/ui/badge';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Card, CardContent } from "@/components/ui/card";
+} from '@/components/ui/select';
+import { Card, CardContent } from '@/components/ui/card';
 import {
   Dialog,
   DialogContent,
@@ -20,21 +20,21 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
-} from "@/components/ui/dialog";
-import { toast } from "sonner";
-import { Plus, Edit, Trash2, Loader2 } from "lucide-react";
-import useAuthAdminStore from "../../store/AuthAdminStore.js";
-import {SectionHeader} from "#component/componentAdmin/SectionHeader.jsx";
+} from '@/components/ui/dialog';
+import { toast } from 'sonner';
+import { Plus, Edit, Trash2, Loader2 } from 'lucide-react';
+import useAuthAdminStore from '../../store/AuthAdminStore.js';
+import { SectionHeader } from '#component/componentAdmin/SectionHeader.jsx';
 
 const defaultForm = {
-  question: "",
-  answer: "",
-  status: "published",
+  question: '',
+  answer: '',
+  status: 'published',
 };
 
 const statusColors = {
-  published: "default",
-  draft: "secondary",
+  published: 'default',
+  draft: 'secondary',
 };
 
 const AdminFAQSection = () => {
@@ -55,8 +55,8 @@ const AdminFAQSection = () => {
       const res = await axios.get(`${apiUrl}/faq`);
       setFaqs(res.data?.data || []);
     } catch (err) {
-      console.error("Failed to load FAQs:", err);
-      toast.error("Failed to load FAQs");
+      console.error('Failed to load FAQs:', err);
+      toast.error('Failed to load FAQs');
     } finally {
       setLoading(false);
     }
@@ -68,7 +68,11 @@ const AdminFAQSection = () => {
 
   const handleOpen = (faq = null) => {
     if (faq) {
-      setFormData({ question: faq.question, answer: faq.answer, status: faq.status });
+      setFormData({
+        question: faq.question,
+        answer: faq.answer,
+        status: faq.status,
+      });
       setEditingId(faq._id);
     } else {
       setFormData(defaultForm);
@@ -89,18 +93,18 @@ const AdminFAQSection = () => {
         await axios.patch(`${apiUrl}/faq/${editingId}`, formData, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        toast.success("FAQ updated successfully");
+        toast.success('FAQ updated successfully');
       } else {
         await axios.post(`${apiUrl}/faq`, formData, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        toast.success("FAQ added successfully");
+        toast.success('FAQ added successfully');
       }
       fetchFAQs();
       handleClose();
     } catch (err) {
-      console.error("Save failed", err);
-      toast.error("Failed to save FAQ");
+      console.error('Save failed', err);
+      toast.error('Failed to save FAQ');
     }
   };
 
@@ -109,11 +113,11 @@ const AdminFAQSection = () => {
       await axios.delete(`${apiUrl}/faq/${faqToDelete._id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      toast.success("FAQ deleted successfully");
+      toast.success('FAQ deleted successfully');
       fetchFAQs();
     } catch (err) {
-      console.error("Delete failed", err);
-      toast.error("Failed to delete FAQ");
+      console.error('Delete failed', err);
+      toast.error('Failed to delete FAQ');
     } finally {
       setDeleteDialogOpen(false);
       setFaqToDelete(null);
@@ -122,9 +126,7 @@ const AdminFAQSection = () => {
 
   return (
     <div className="space-y-6">
-
-
-      <SectionHeader title={"Manage FAQs"} />
+      <SectionHeader title={'Manage FAQs'} />
       <Card className="shadow-md border-0">
         <CardContent className="p-0">
           <div className="flex items-center justify-between px-4 py-3 border-b border-muted-foreground/10">
@@ -141,53 +143,58 @@ const AdminFAQSection = () => {
           ) : (
             <div className="grid md:grid-cols-2 gap-6 p-4">
               {faqs.map((faq) => (
-                <Card key={faq._id} className="border-0 shadow-sm bg-muted/20 border-l-4 border-l-primary/60">
+                <Card
+                  key={faq._id}
+                  className="border-0 shadow-sm bg-muted/20 border-l-4 border-l-primary/60"
+                >
                   <CardContent className="p-5">
-                <div className="flex justify-between items-start gap-4">
-                  <div className="flex-1 min-w-0 space-y-2">
-                    <p className="font-semibold leading-tight truncate">
-                      {faq.question}
-                    </p>
-                    <p className="text-sm text-muted-foreground line-clamp-3">
-                      {faq.answer}
-                    </p>
-                    <Badge variant={statusColors[faq.status] || "outline"}>
-                      {faq.status}
-                    </Badge>
-                  </div>
-                  <div className="flex gap-1 shrink-0">
-                    <Button
-                      variant="ghost"
-                      size="icon-sm"
-                      onClick={() => handleOpen(faq)}
-                    >
-                      <Edit className="size-3.5" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon-sm"
-                      onClick={() => {
-                        setFaqToDelete(faq);
-                        setDeleteDialogOpen(true);
-                      }}
-                      className="text-destructive hover:text-destructive"
-                    >
-                      <Trash2 className="size-3.5" />
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      )}
+                    <div className="flex justify-between items-start gap-4">
+                      <div className="flex-1 min-w-0 space-y-2">
+                        <p className="font-semibold leading-tight truncate">
+                          {faq.question}
+                        </p>
+                        <p className="text-sm text-muted-foreground line-clamp-3">
+                          {faq.answer}
+                        </p>
+                        <Badge variant={statusColors[faq.status] || 'outline'}>
+                          {faq.status}
+                        </Badge>
+                      </div>
+                      <div className="flex gap-1 shrink-0">
+                        <Button
+                          variant="ghost"
+                          size="icon-sm"
+                          onClick={() => handleOpen(faq)}
+                        >
+                          <Edit className="size-3.5" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon-sm"
+                          onClick={() => {
+                            setFaqToDelete(faq);
+                            setDeleteDialogOpen(true);
+                          }}
+                          className="text-destructive hover:text-destructive"
+                        >
+                          <Trash2 className="size-3.5" />
+                        </Button>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
         </CardContent>
       </Card>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{editingId ? "Update FAQ" : "Add New FAQ"}</DialogTitle>
+            <DialogTitle>
+              {editingId ? 'Update FAQ' : 'Add New FAQ'}
+            </DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-2">
             <div className="space-y-2">
@@ -236,7 +243,7 @@ const AdminFAQSection = () => {
               Cancel
             </Button>
             <Button onClick={handleSubmit}>
-              {editingId ? "Update" : "Add"}
+              {editingId ? 'Update' : 'Add'}
             </Button>
           </DialogFooter>
         </DialogContent>

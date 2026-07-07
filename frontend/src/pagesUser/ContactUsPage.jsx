@@ -1,7 +1,5 @@
-import ContactForm from "../component/componentGeneral/ContactForm.jsx";
+import ContactForm from '../component/componentGeneral/ContactForm.jsx';
 
-const ContactUsPage = () => (
-    <ContactForm />
-);
+const ContactUsPage = () => <ContactForm />;
 
 export default ContactUsPage;

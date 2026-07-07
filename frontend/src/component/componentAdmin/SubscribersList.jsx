@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from "react";
-import useNewsletterStore from "../../store/useNewsletterStore.js";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Skeleton } from "@/components/ui/skeleton";
+import React, { useState, useEffect } from 'react';
+import useNewsletterStore from '../../store/useNewsletterStore.js';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Skeleton } from '@/components/ui/skeleton';
 import {
   Table,
   TableBody,
@@ -10,8 +10,8 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { Card, CardContent } from "@/components/ui/card";
+} from '@/components/ui/table';
+import { Card, CardContent } from '@/components/ui/card';
 import {
   Dialog,
   DialogContent,
@@ -19,17 +19,17 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
-} from "@/components/ui/dialog";
-import { toast } from "sonner";
-import { Search, Trash2, Download } from "lucide-react";
-import { CSVLink } from "react-csv";
-import { SectionHeader } from "#component/componentAdmin/SectionHeader.jsx";
+} from '@/components/ui/dialog';
+import { toast } from 'sonner';
+import { Search, Trash2, Download } from 'lucide-react';
+import { CSVLink } from 'react-csv';
+import { SectionHeader } from '#component/componentAdmin/SectionHeader.jsx';
 
 export default function SubscribersList() {
   const { subscribers, fetchSubscribers, deleteSubscriber, isLoading, error } =
     useNewsletterStore();
 
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState('');
   const [filteredSubscribers, setFilteredSubscribers] = useState([]);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState(null);
@@ -41,7 +41,7 @@ export default function SubscribersList() {
   useEffect(() => {
     setFilteredSubscribers(
       subscribers.filter((sub) =>
-        (sub.email || sub.Email || "")
+        (sub.email || sub.Email || '')
           .toLowerCase()
           .includes(search.toLowerCase()),
       ),
@@ -54,10 +54,10 @@ export default function SubscribersList() {
     await deleteSubscriber(email);
 
     if (!error) {
-      toast.success("Subscriber deleted successfully!");
+      toast.success('Subscriber deleted successfully!');
       fetchSubscribers();
     } else {
-      toast.error("Failed to delete subscriber!");
+      toast.error('Failed to delete subscriber!');
     }
 
     setDeleteDialogOpen(false);
@@ -67,7 +67,7 @@ export default function SubscribersList() {
   return (
     <div className="space-y-6">
       <SectionHeader
-        title={"Subscribed Users List"}
+        title={'Subscribed Users List'}
         description={`${subscribers.length} total subscribers`}
       />
 
@@ -85,8 +85,8 @@ export default function SubscribersList() {
           data={filteredSubscribers.map((sub) => ({
             Email: sub.email || sub.Email,
           }))}
-          headers={[{ label: "Email", key: "Email" }]}
-          filename={"subscribers.csv"}
+          headers={[{ label: 'Email', key: 'Email' }]}
+          filename={'subscribers.csv'}
         >
           <Button variant="outline" size="sm">
             <Download className="size-4 mr-2" />
@@ -138,15 +138,15 @@ export default function SubscribersList() {
                       </TableCell>
                       <TableCell>
                         {sub.createdAt
-                          ? new Date(sub.createdAt).toLocaleString("en-US", {
-                              weekday: "long",
-                              year: "numeric",
-                              month: "long",
-                              day: "numeric",
-                              hour: "2-digit",
-                              minute: "2-digit",
+                          ? new Date(sub.createdAt).toLocaleString('en-US', {
+                              weekday: 'long',
+                              year: 'numeric',
+                              month: 'long',
+                              day: 'numeric',
+                              hour: '2-digit',
+                              minute: '2-digit',
                             })
-                          : "N/A"}
+                          : 'N/A'}
                       </TableCell>
                       <TableCell>
                         <Button

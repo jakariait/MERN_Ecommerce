@@ -4,19 +4,19 @@ import React, {
   useCallback,
   useMemo,
   useRef,
-} from "react";
-import { useSearchParams } from "react-router-dom";
-import useProductStore from "../../store/useProductStore.js";
-import useCategoryStore from "../../store/useCategoryStore.js";
-import useFlagStore from "../../store/useFlagStore.js";
-import { FormControl } from "@/components/ui/form-control";
-import { InputLabel } from "@/components/ui/input-label";
-import { MenuItem } from "@/components/ui/menu-item";
-import { Select } from "@/components/ui/legacy-select";
-import { Typography } from "@/components/ui/typography";
-import { Drawer } from "@/components/ui/drawer";
-import { IconButton } from "@/components/ui/icon-button";
-import Skeleton from "react-loading-skeleton";
+} from 'react';
+import { useSearchParams } from 'react-router-dom';
+import useProductStore from '../../store/useProductStore.js';
+import useCategoryStore from '../../store/useCategoryStore.js';
+import useFlagStore from '../../store/useFlagStore.js';
+import { FormControl } from '@/components/ui/form-control';
+import { InputLabel } from '@/components/ui/input-label';
+import { MenuItem } from '@/components/ui/menu-item';
+import { Select } from '@/components/ui/legacy-select';
+import { Typography } from '@/components/ui/typography';
+import { Drawer } from '@/components/ui/drawer';
+import { IconButton } from '@/components/ui/icon-button';
+import Skeleton from 'react-loading-skeleton';
 import {
   ChevronLeft,
   ChevronRight,
@@ -32,8 +32,8 @@ import {
   ArrowUpNarrowWide,
   ArrowDownNarrowWide,
   Search,
-} from "lucide-react";
-import ProductList from "./ProductList.jsx";
+} from 'lucide-react';
+import ProductList from './ProductList.jsx';
 
 const Product = () => {
   // Global store values
@@ -55,7 +55,7 @@ const Product = () => {
   const [rightDrawerOpen, setRightDrawerOpen] = useState(false);
 
   // Local state for search input (for debouncing)
-  const [searchInput, setSearchInput] = useState("");
+  const [searchInput, setSearchInput] = useState('');
 
   // URL search parameters
   const [searchParams, setSearchParams] = useSearchParams();
@@ -66,15 +66,15 @@ const Product = () => {
   // Get current filters from URL params - single source of truth
   const currentFilters = useMemo(
     () => ({
-      page: parseInt(searchParams.get("page")) || 1,
-      limit: parseInt(searchParams.get("limit")) || 20,
-      sort: searchParams.get("sort") || "",
-      category: searchParams.get("category") || "",
-      subcategory: searchParams.get("subcategory") || "",
-      childCategory: searchParams.get("childCategory") || "",
-      stock: searchParams.get("stock") || "",
-      flags: searchParams.get("flags") || "",
-      search: searchParams.get("search") || "",
+      page: parseInt(searchParams.get('page')) || 1,
+      limit: parseInt(searchParams.get('limit')) || 20,
+      sort: searchParams.get('sort') || '',
+      category: searchParams.get('category') || '',
+      subcategory: searchParams.get('subcategory') || '',
+      childCategory: searchParams.get('childCategory') || '',
+      stock: searchParams.get('stock') || '',
+      flags: searchParams.get('flags') || '',
+      search: searchParams.get('search') || '',
     }),
     [searchParams],
   );
@@ -90,7 +90,7 @@ const Product = () => {
       const params = new URLSearchParams(searchParams);
 
       Object.entries(newFilters).forEach(([key, value]) => {
-        if (value && value !== "") {
+        if (value && value !== '') {
           params.set(key, value);
         } else {
           params.delete(key);
@@ -127,13 +127,13 @@ const Product = () => {
 
   // Clear search handler
   const handleClearSearch = useCallback(() => {
-    setSearchInput("");
+    setSearchInput('');
     if (searchTimeoutRef.current) {
       clearTimeout(searchTimeoutRef.current);
     }
     updateFilters({
       ...currentFilters,
-      search: "",
+      search: '',
       page: 1,
     });
   }, [currentFilters, updateFilters]);
@@ -243,11 +243,17 @@ const Product = () => {
 
           {/* Mobile Filter/Sort Buttons */}
           <div className="md:hidden mb-4 flex items-center justify-between">
-            <IconButton onClick={() => setLeftDrawerOpen(true)} aria-label="Open filters">
+            <IconButton
+              onClick={() => setLeftDrawerOpen(true)}
+              aria-label="Open filters"
+            >
               <SlidersHorizontal size={20} className="primaryTextColor" />
             </IconButton>
 
-            <IconButton onClick={() => setRightDrawerOpen(true)} aria-label="Open sort options">
+            <IconButton
+              onClick={() => setRightDrawerOpen(true)}
+              aria-label="Open sort options"
+            >
               <ArrowDownWideNarrow size={25} className="primaryTextColor" />
             </IconButton>
           </div>
@@ -262,14 +268,20 @@ const Product = () => {
             <div className="w-[300px] p-4">
               <div className="flex justify-between items-center mb-4">
                 <Typography variant="h6">Filters</Typography>
-                <IconButton onClick={() => setLeftDrawerOpen(false)} aria-label="Close filters">
+                <IconButton
+                  onClick={() => setLeftDrawerOpen(false)}
+                  aria-label="Close filters"
+                >
                   <CloseIcon />
                 </IconButton>
               </div>
               <div className="flex flex-col gap-4">
                 {/* Search in mobile drawer */}
                 <div className="relative">
-                  <Search size={20} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                  <Search
+                    size={20}
+                    className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+                  />
                   <input
                     placeholder="Search products..."
                     value={searchInput}
@@ -374,38 +386,41 @@ const Product = () => {
             <div className="p-4">
               <div className="flex justify-between items-center mb-4">
                 <Typography variant="h6">Sort Options</Typography>
-                <IconButton onClick={() => setRightDrawerOpen(false)} aria-label="Close sort options">
+                <IconButton
+                  onClick={() => setRightDrawerOpen(false)}
+                  aria-label="Close sort options"
+                >
                   <CloseIcon />
                 </IconButton>
               </div>
 
               <div className="flex flex-col gap-2 max-h-96 overflow-y-auto">
                 {[
-                  { value: "", label: "None", icon: Radio },
+                  { value: '', label: 'None', icon: Radio },
                   {
-                    value: "price_high",
-                    label: "Price: High to Low",
+                    value: 'price_high',
+                    label: 'Price: High to Low',
                     icon: ArrowUp10,
                   },
                   {
-                    value: "price_low",
-                    label: "Price: Low to High",
+                    value: 'price_low',
+                    label: 'Price: Low to High',
                     icon: ArrowDown01,
                   },
                   {
-                    value: "name_asc",
-                    label: "Name: A to Z",
+                    value: 'name_asc',
+                    label: 'Name: A to Z',
                     icon: ArrowDownAZ,
                   },
                   {
-                    value: "name_desc",
-                    label: "Name: Z to A",
+                    value: 'name_desc',
+                    label: 'Name: Z to A',
                     icon: ArrowUpAZ,
                   },
-                  { value: "latest", label: "Latest", icon: ArrowUpNarrowWide },
+                  { value: 'latest', label: 'Latest', icon: ArrowUpNarrowWide },
                   {
-                    value: "oldest",
-                    label: "Oldest",
+                    value: 'oldest',
+                    label: 'Oldest',
                     icon: ArrowDownNarrowWide,
                   },
                 ].map(({ value, label, icon: Icon }) => (
@@ -422,8 +437,8 @@ const Product = () => {
                     <Typography
                       className={
                         currentFilters.sort === value
-                          ? "font-semibold text-primary"
-                          : "text-secondary"
+                          ? 'font-semibold text-primary'
+                          : 'text-secondary'
                       }
                     >
                       {label}
@@ -542,7 +557,7 @@ const Product = () => {
           {(currentFilters.search ||
             currentFilters.category ||
             currentFilters.flags ||
-            currentFilters.stock !== "" ||
+            currentFilters.stock !== '' ||
             currentFilters.sort) && (
             <div className="mb-4 flex flex-wrap gap-2">
               {currentFilters.search && (
@@ -570,15 +585,15 @@ const Product = () => {
               )}
               {currentFilters.stock && (
                 <div className="bg-orange-100 text-orange-800 px-3 py-1 rounded-full text-sm">
-                  Stock:{" "}
-                  {currentFilters.stock === "in" ? "In Stock" : "Out of Stock"}
+                  Stock:{' '}
+                  {currentFilters.stock === 'in' ? 'In Stock' : 'Out of Stock'}
                 </div>
               )}
               {currentFilters.sort && (
                 <div className="bg-gray-100 text-gray-800 px-3 py-1 rounded-full text-sm">
-                  Sort:{" "}
+                  Sort:{' '}
                   {currentFilters.sort
-                    .replace("_", " ")
+                    .replace('_', ' ')
                     .replace(/\b\w/g, (l) => l.toUpperCase())}
                 </div>
               )}
@@ -591,12 +606,12 @@ const Product = () => {
               <Typography variant="h6" className="text-gray-500 mb-4">
                 {currentFilters.search
                   ? `No products found for "${currentFilters.search}"`
-                  : "No products found"}
+                  : 'No products found'}
               </Typography>
               <Typography variant="body2" className="text-gray-400">
                 {currentFilters.search
-                  ? "Try a different search term or adjust your filters"
-                  : "Try adjusting your filters or search criteria"}
+                  ? 'Try a different search term or adjust your filters'
+                  : 'Try adjusting your filters or search criteria'}
               </Typography>
             </div>
           ) : (
@@ -612,8 +627,8 @@ const Product = () => {
                 className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors
                   ${
                     currentFilters.page === 1 || loading
-                      ? "border-gray-300 text-gray-400 cursor-not-allowed"
-                      : "border-gray-500 hover:bg-gray-100"
+                      ? 'border-gray-300 text-gray-400 cursor-not-allowed'
+                      : 'border-gray-500 hover:bg-gray-100'
                   }`}
                 aria-label="Previous page"
               >
@@ -637,8 +652,8 @@ const Product = () => {
                 className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors
                   ${
                     currentFilters.page >= totalPages || loading
-                      ? "border-gray-300 text-gray-400 cursor-not-allowed"
-                      : "border-gray-500 hover:bg-gray-100"
+                      ? 'border-gray-300 text-gray-400 cursor-not-allowed'
+                      : 'border-gray-500 hover:bg-gray-100'
                   }`}
                 aria-label="Next page"
               >

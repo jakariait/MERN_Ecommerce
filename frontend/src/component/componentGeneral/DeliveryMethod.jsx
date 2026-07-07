@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 
 const DeliveryMethod = ({ freeDelivery, formattedTotalAmount }) => {
   return (
@@ -18,13 +18,13 @@ const DeliveryMethod = ({ freeDelivery, formattedTotalAmount }) => {
                 readOnly
               />
               <span>
-                Home Delivery{" "}
+                Home Delivery{' '}
                 {freeDelivery > 0 && (
                   <span className="text-sm text-gray-600">
-                    (Enjoy free delivery on purchases of{" "}
+                    (Enjoy free delivery on purchases of{' '}
                     <span className="text-red-500">
                       Tk. {formattedTotalAmount(freeDelivery)}
-                    </span>{" "}
+                    </span>{' '}
                     or more!)
                   </span>
                 )}

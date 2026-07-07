@@ -1,6 +1,6 @@
-import { create } from "zustand";
-import axios from "axios";
-import useAuthAdminStore from "./AuthAdminStore.js";
+import { create } from 'zustand';
+import axios from 'axios';
+import useAuthAdminStore from './AuthAdminStore.js';
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
@@ -29,10 +29,10 @@ const useOrderStore = create((set, get) => ({
   totalPages: 1,
   currentPage: 1,
   itemsPerPage: 10,
-  currentStatus: "", // Track current status filter
+  currentStatus: '', // Track current status filter
 
   // Search functionality
-  searchQuery: "",
+  searchQuery: '',
 
   // Date range
   startDate: null,
@@ -59,10 +59,10 @@ const useOrderStore = create((set, get) => ({
   },
 
   clearSearch: () => {
-    set({ searchQuery: "", currentPage: 1 });
+    set({ searchQuery: '', currentPage: 1 });
   },
 
-  fetchAllOrders: async (status = "", page = 1, limit = 10) => {
+  fetchAllOrders: async (status = '', page = 1, limit = 10) => {
     const token = useAuthAdminStore.getState().token;
     const { searchQuery, startDate, endDate } = get(); // Get the current search query
 
@@ -134,20 +134,20 @@ const useOrderStore = create((set, get) => ({
         }
       } else {
         set({
-          orderListError: "Failed to fetch orders",
+          orderListError: 'Failed to fetch orders',
           orderListLoading: false,
         });
       }
     } catch (error) {
       set({
         orderListError:
-          error.response?.data?.message || "Failed to fetch orders",
+          error.response?.data?.message || 'Failed to fetch orders',
         orderListLoading: false,
       });
     }
   },
 
-  fetchAllOrdersWithoutPagination: async (status = "", page, limit) => {
+  fetchAllOrdersWithoutPagination: async (status = '', page, limit) => {
     const token = useAuthAdminStore.getState().token;
 
     set({
@@ -206,14 +206,14 @@ const useOrderStore = create((set, get) => ({
         }
       } else {
         set({
-          orderListError: "Failed to fetch orders",
+          orderListError: 'Failed to fetch orders',
           orderListLoading: false,
         });
       }
     } catch (error) {
       set({
         orderListError:
-          error.response?.data?.message || "Failed to fetch orders",
+          error.response?.data?.message || 'Failed to fetch orders',
         orderListLoading: false,
       });
     }
@@ -244,12 +244,12 @@ const useOrderStore = create((set, get) => ({
   fetchAllStatusCounts: async () => {
     const { fetchStatusCount } = get();
     const statuses = [
-      "pending",
-      "approved",
-      "intransit",
-      "delivered",
-      "returned",
-      "cancelled",
+      'pending',
+      'approved',
+      'intransit',
+      'delivered',
+      'returned',
+      'cancelled',
     ];
     await Promise.all(statuses.map((status) => fetchStatusCount(status)));
   },

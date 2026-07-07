@@ -1,15 +1,12 @@
-import React from "react";
+import React from 'react';
 
-import PublicContentViewer from "../component/componentGeneral/PublicContentViewer.jsx";
+import PublicContentViewer from '../component/componentGeneral/PublicContentViewer.jsx';
 
 const HomePage = () => {
   return (
-  <>
-      <PublicContentViewer
-        title="Refund Policy"
-        endpoint="refund"
-      />
-  </>
+    <>
+      <PublicContentViewer title="Refund Policy" endpoint="refund" />
+    </>
   );
 };
 

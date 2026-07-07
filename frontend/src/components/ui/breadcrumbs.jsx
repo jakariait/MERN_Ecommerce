@@ -1,12 +1,15 @@
-import { cn } from "@/lib/utils"
-import { ChevronRight } from "lucide-react"
+import { cn } from '@/lib/utils';
+import { ChevronRight } from 'lucide-react';
 
 function Breadcrumbs({ className, separator, children, ...props }) {
-  const items = Array.isArray(children) ? children : [children]
+  const items = Array.isArray(children) ? children : [children];
   return (
     <nav
       data-slot="breadcrumbs"
-      className={cn("flex items-center gap-1 text-sm text-muted-foreground", className)}
+      className={cn(
+        'flex items-center gap-1 text-sm text-muted-foreground',
+        className,
+      )}
       {...props}
     >
       {items.map((child, index) => (
@@ -20,7 +23,7 @@ function Breadcrumbs({ className, separator, children, ...props }) {
         </span>
       ))}
     </nav>
-  )
+  );
 }
 
-export { Breadcrumbs }
+export { Breadcrumbs };

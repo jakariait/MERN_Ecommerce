@@ -1,36 +1,36 @@
-import React, { lazy, Suspense, useRef, useState } from "react";
-import AuthAdminStore from "../../store/AuthAdminStore.js";
+import React, { lazy, Suspense, useRef, useState } from 'react';
+import AuthAdminStore from '../../store/AuthAdminStore.js';
 const Editor = lazy(() =>
-  import("primereact/editor").then((module) => ({
+  import('primereact/editor').then((module) => ({
     default: module.Editor,
   })),
 );
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
-import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent } from "@/components/ui/card";
-import { toast } from "sonner";
-import { X, Upload } from "lucide-react";
-import axios from "axios";
-import {SectionHeader} from "#component/componentAdmin/SectionHeader.jsx";
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Badge } from '@/components/ui/badge';
+import { Textarea } from '@/components/ui/textarea';
+import { Card, CardContent } from '@/components/ui/card';
+import { toast } from 'sonner';
+import { X, Upload } from 'lucide-react';
+import axios from 'axios';
+import { SectionHeader } from '#component/componentAdmin/SectionHeader.jsx';
 
 const AddBlog = () => {
   const apiUrl = import.meta.env.VITE_API_URL;
   const { token } = AuthAdminStore();
 
-  const [name, setName] = useState("");
-  const [author, setAuthor] = useState("");
-  const [longDesc, setLongDesc] = useState("");
-  const [metaTitle, setMetaTitle] = useState("");
-  const [metaDescription, setMetaDescription] = useState("");
+  const [name, setName] = useState('');
+  const [author, setAuthor] = useState('');
+  const [longDesc, setLongDesc] = useState('');
+  const [metaTitle, setMetaTitle] = useState('');
+  const [metaDescription, setMetaDescription] = useState('');
   const [metaKeywords, setMetaKeywords] = useState([]);
-  const [keywordInput, setKeywordInput] = useState("");
+  const [keywordInput, setKeywordInput] = useState('');
   const [searchTags, setSearchTags] = useState([]);
-  const [tagInput, setTagInput] = useState("");
+  const [tagInput, setTagInput] = useState('');
   const [thumbnailImage, setThumbnailImage] = useState(null);
-  const [imagePreview, setImagePreview] = useState("");
+  const [imagePreview, setImagePreview] = useState('');
 
   const fileInputRef = useRef(null);
 
@@ -45,17 +45,17 @@ const AddBlog = () => {
 
   const handleRemoveImage = () => {
     setThumbnailImage(null);
-    setImagePreview("");
-    if (fileInputRef.current) fileInputRef.current.value = "";
+    setImagePreview('');
+    if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
   const handleAddTag = (e) => {
-    if (e.key === "Enter" && tagInput.trim() !== "") {
+    if (e.key === 'Enter' && tagInput.trim() !== '') {
       e.preventDefault();
       if (!searchTags.includes(tagInput.trim())) {
         setSearchTags([...searchTags, tagInput.trim()]);
       }
-      setTagInput("");
+      setTagInput('');
     }
   };
 
@@ -64,12 +64,12 @@ const AddBlog = () => {
   };
 
   const handleAddKeyword = (e) => {
-    if (e.key === "Enter" && keywordInput.trim() !== "") {
+    if (e.key === 'Enter' && keywordInput.trim() !== '') {
       e.preventDefault();
       if (!metaKeywords.includes(keywordInput.trim())) {
         setMetaKeywords([...metaKeywords, keywordInput.trim()]);
       }
-      setKeywordInput("");
+      setKeywordInput('');
     }
   };
 
@@ -83,45 +83,44 @@ const AddBlog = () => {
     e.preventDefault();
 
     const formData = new FormData();
-    formData.append("name", name);
-    formData.append("author", author);
-    formData.append("longDesc", longDesc);
-    formData.append("metaTitle", metaTitle);
-    formData.append("metaDescription", metaDescription);
-    searchTags.forEach((tag) => formData.append("searchTags", tag));
-    metaKeywords.forEach((keyword) => formData.append("metaKeywords", keyword));
+    formData.append('name', name);
+    formData.append('author', author);
+    formData.append('longDesc', longDesc);
+    formData.append('metaTitle', metaTitle);
+    formData.append('metaDescription', metaDescription);
+    searchTags.forEach((tag) => formData.append('searchTags', tag));
+    metaKeywords.forEach((keyword) => formData.append('metaKeywords', keyword));
     if (thumbnailImage instanceof File) {
-      formData.append("thumbnailImage", thumbnailImage);
+      formData.append('thumbnailImage', thumbnailImage);
     }
 
     try {
       await axios.post(`${apiUrl}/blog`, formData, {
         headers: {
           Authorization: `Bearer ${token}`,
-          "Content-Type": "multipart/form-data",
+          'Content-Type': 'multipart/form-data',
         },
       });
 
-      toast.success("Blog created successfully!");
+      toast.success('Blog created successfully!');
 
-      setName("");
-      setAuthor("");
-      setLongDesc("");
-      setMetaTitle("");
-      setMetaDescription("");
+      setName('');
+      setAuthor('');
+      setLongDesc('');
+      setMetaTitle('');
+      setMetaDescription('');
       setSearchTags([]);
       setMetaKeywords([]);
       setThumbnailImage(null);
-      setImagePreview("");
+      setImagePreview('');
     } catch (error) {
-      toast.error("Failed to create blog. Please try again.");
+      toast.error('Failed to create blog. Please try again.');
     }
   };
 
   return (
     <div className="space-y-6">
-
-      <SectionHeader title={"Add New Blog"}/>
+      <SectionHeader title={'Add New Blog'} />
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="grid grid-cols-12 gap-6">
@@ -129,7 +128,9 @@ const AddBlog = () => {
             <Card className="shadow-md border-0">
               <CardContent className="p-6 space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="name">Blog Title <span className="text-destructive">*</span></Label>
+                  <Label htmlFor="name">
+                    Blog Title <span className="text-destructive">*</span>
+                  </Label>
                   <Input
                     id="name"
                     value={name}
@@ -140,7 +141,9 @@ const AddBlog = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="author">Author <span className="text-destructive">*</span></Label>
+                  <Label htmlFor="author">
+                    Author <span className="text-destructive">*</span>
+                  </Label>
                   <Input
                     id="author"
                     value={author}
@@ -162,7 +165,7 @@ const AddBlog = () => {
                     <Editor
                       value={longDesc}
                       onTextChange={(e) => setLongDesc(e.htmlValue)}
-                      style={{ height: "260px" }}
+                      style={{ height: '260px' }}
                     />
                   </Suspense>
                 </div>
@@ -205,7 +208,8 @@ const AddBlog = () => {
               <CardContent className="p-6 space-y-4">
                 <div className="space-y-2">
                   <Label>
-                    Blog Thumbnail Image <span className="text-destructive">*</span>
+                    Blog Thumbnail Image{' '}
+                    <span className="text-destructive">*</span>
                   </Label>
                   <input
                     type="file"
@@ -247,7 +251,9 @@ const AddBlog = () => {
                     ) : (
                       <div className="flex flex-col items-center gap-2 text-muted-foreground">
                         <Upload className="size-8" />
-                        <span className="text-sm">Click to upload an image</span>
+                        <span className="text-sm">
+                          Click to upload an image
+                        </span>
                       </div>
                     )}
                   </label>
@@ -260,8 +266,10 @@ const AddBlog = () => {
         <Card className="shadow-md border-0">
           <CardContent className="p-6 space-y-4">
             <h2 className="text-lg font-semibold">
-              Blog SEO Information{" "}
-              <span className="text-sm font-normal text-muted-foreground">(Optional)</span>
+              Blog SEO Information{' '}
+              <span className="text-sm font-normal text-muted-foreground">
+                (Optional)
+              </span>
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">

@@ -1,13 +1,13 @@
-import React, { lazy, Suspense } from "react";
-import { Outlet } from "react-router-dom";
-import Footer from "./footer.jsx";
-import { Toaster } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { Skeleton } from "@/components/ui/skeleton";
-import AdminLoading from "../skeleton/AdminLoading.jsx";
+import React, { lazy, Suspense } from 'react';
+import { Outlet } from 'react-router-dom';
+import Footer from './footer.jsx';
+import { Toaster } from '@/components/ui/sonner';
+import { TooltipProvider } from '@/components/ui/tooltip';
+import { Skeleton } from '@/components/ui/skeleton';
+import AdminLoading from '../skeleton/AdminLoading.jsx';
 
-const SidebarMenu = lazy(() => import("./SidebarMenu.jsx"));
-const Breadcrumb = lazy(() => import("./Breadcrumb.jsx"));
+const SidebarMenu = lazy(() => import('./SidebarMenu.jsx'));
+const Breadcrumb = lazy(() => import('./Breadcrumb.jsx'));
 
 const SidebarFallback = () => (
   <div className="p-4 space-y-3">

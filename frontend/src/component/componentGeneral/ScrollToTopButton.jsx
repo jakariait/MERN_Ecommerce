@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { ChevronUp } from "lucide-react"; // or any icon you like
+import { useEffect, useState } from 'react';
+import { ChevronUp } from 'lucide-react'; // or any icon you like
 
 const ScrollToTop = () => {
   const [visible, setVisible] = useState(false);
@@ -13,13 +13,13 @@ const ScrollToTop = () => {
         setVisible(false);
       }
     };
-    window.addEventListener("scroll", toggleVisibility);
-    return () => window.removeEventListener("scroll", toggleVisibility);
+    window.addEventListener('scroll', toggleVisibility);
+    return () => window.removeEventListener('scroll', toggleVisibility);
   }, []);
 
   // Scroll to top smoothly
   const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   return (

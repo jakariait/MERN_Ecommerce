@@ -1,22 +1,29 @@
-import React, { lazy, Suspense, useEffect, useRef, useState, useCallback } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import React, {
+  lazy,
+  Suspense,
+  useEffect,
+  useRef,
+  useState,
+  useCallback,
+} from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 const Editor = lazy(() =>
-  import("primereact/editor").then((module) => ({
+  import('primereact/editor').then((module) => ({
     default: module.Editor,
   })),
 );
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
-import { Textarea } from "@/components/ui/textarea";
-import { Switch } from "@/components/ui/switch";
-import { Card, CardContent } from "@/components/ui/card";
-import { toast } from "sonner";
-import { X, Upload } from "lucide-react";
-import axios from "axios";
-import useAuthAdminStore from "../../store/AuthAdminStore.js";
-import ImageComponent from "../componentGeneral/ImageComponent.jsx";
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Badge } from '@/components/ui/badge';
+import { Textarea } from '@/components/ui/textarea';
+import { Switch } from '@/components/ui/switch';
+import { Card, CardContent } from '@/components/ui/card';
+import { toast } from 'sonner';
+import { X, Upload } from 'lucide-react';
+import axios from 'axios';
+import useAuthAdminStore from '../../store/AuthAdminStore.js';
+import ImageComponent from '../componentGeneral/ImageComponent.jsx';
 
 const EditBlog = () => {
   const { id: blogId } = useParams();
@@ -25,20 +32,20 @@ const EditBlog = () => {
   const { token } = useAuthAdminStore();
 
   const [formData, setFormData] = useState({
-    name: "",
-    author: "",
-    longDesc: "",
-    metaTitle: "",
-    metaDescription: "",
+    name: '',
+    author: '',
+    longDesc: '',
+    metaTitle: '',
+    metaDescription: '',
     metaKeywords: [],
     searchTags: [],
     isActive: true,
   });
 
-  const [keywordInput, setKeywordInput] = useState("");
-  const [tagInput, setTagInput] = useState("");
+  const [keywordInput, setKeywordInput] = useState('');
+  const [tagInput, setTagInput] = useState('');
   const [thumbnailImage, setThumbnailImage] = useState(null);
-  const [imagePreview, setImagePreview] = useState("");
+  const [imagePreview, setImagePreview] = useState('');
   const [isEditorReady, setIsEditorReady] = useState(false);
 
   const fileInputRef = useRef(null);
@@ -58,7 +65,7 @@ const EditBlog = () => {
       if (isEditorReady && e.htmlValue !== formData.longDesc) {
         setFormData((prev) => ({
           ...prev,
-          longDesc: e.htmlValue || "",
+          longDesc: e.htmlValue || '',
         }));
       }
     },
@@ -80,7 +87,7 @@ const EditBlog = () => {
   };
 
   const handleAddTag = (e) => {
-    if (e.key === "Enter" && tagInput.trim()) {
+    if (e.key === 'Enter' && tagInput.trim()) {
       e.preventDefault();
       if (!formData.searchTags.includes(tagInput.trim())) {
         setFormData((prev) => ({
@@ -88,12 +95,12 @@ const EditBlog = () => {
           searchTags: [...prev.searchTags, tagInput.trim()],
         }));
       }
-      setTagInput("");
+      setTagInput('');
     }
   };
 
   const handleAddKeyword = (e) => {
-    if (e.key === "Enter" && keywordInput.trim()) {
+    if (e.key === 'Enter' && keywordInput.trim()) {
       e.preventDefault();
       if (!formData.metaKeywords.includes(keywordInput.trim())) {
         setFormData((prev) => ({
@@ -101,7 +108,7 @@ const EditBlog = () => {
           metaKeywords: [...prev.metaKeywords, keywordInput.trim()],
         }));
       }
-      setKeywordInput("");
+      setKeywordInput('');
     }
   };
 
@@ -116,20 +123,20 @@ const EditBlog = () => {
 
           const blog = data.data;
           setFormData({
-            name: blog.name || "",
-            author: blog.author || "",
-            longDesc: blog.longDesc || "",
-            metaTitle: blog.metaTitle || "",
-            metaDescription: blog.metaDescription || "",
+            name: blog.name || '',
+            author: blog.author || '',
+            longDesc: blog.longDesc || '',
+            metaTitle: blog.metaTitle || '',
+            metaDescription: blog.metaDescription || '',
             searchTags: blog.searchTags || [],
             metaKeywords: blog.metaKeywords || [],
             isActive: blog.isActive !== undefined ? blog.isActive : true,
           });
-          setImagePreview(blog.thumbnailImage || "");
+          setImagePreview(blog.thumbnailImage || '');
           setTimeout(() => setIsEditorReady(true), 100);
         } catch (error) {
-          console.error("Error fetching blog:", error);
-          toast.error("Failed to load blog data");
+          console.error('Error fetching blog:', error);
+          toast.error('Failed to load blog data');
         }
       };
       fetchBlog();
@@ -147,27 +154,29 @@ const EditBlog = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const submitData = new FormData();
-    submitData.append("name", formData.name);
-    submitData.append("author", formData.author);
-    submitData.append("longDesc", formData.longDesc);
-    submitData.append("metaTitle", formData.metaTitle);
-    submitData.append("metaDescription", formData.metaDescription);
-    submitData.append("isActive", formData.isActive);
-    formData.searchTags.forEach((tag) => submitData.append("searchTags", tag));
-    formData.metaKeywords.forEach((kw) => submitData.append("metaKeywords", kw));
+    submitData.append('name', formData.name);
+    submitData.append('author', formData.author);
+    submitData.append('longDesc', formData.longDesc);
+    submitData.append('metaTitle', formData.metaTitle);
+    submitData.append('metaDescription', formData.metaDescription);
+    submitData.append('isActive', formData.isActive);
+    formData.searchTags.forEach((tag) => submitData.append('searchTags', tag));
+    formData.metaKeywords.forEach((kw) =>
+      submitData.append('metaKeywords', kw),
+    );
     if (thumbnailImage instanceof File) {
-      submitData.append("thumbnailImage", thumbnailImage);
+      submitData.append('thumbnailImage', thumbnailImage);
     }
 
     try {
       await axios.patch(`${apiUrl}/blog/${blogId}`, submitData, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      toast.success("Blog updated successfully!");
-      navigate("/admin/blogs");
+      toast.success('Blog updated successfully!');
+      navigate('/admin/blogs');
     } catch (err) {
-      console.error("Error updating blog:", err);
-      toast.error("Failed to update blog.");
+      console.error('Error updating blog:', err);
+      toast.error('Failed to update blog.');
     }
   };
 
@@ -181,20 +190,24 @@ const EditBlog = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="name">Title <span className="text-destructive">*</span></Label>
+                  <Label htmlFor="name">
+                    Title <span className="text-destructive">*</span>
+                  </Label>
                   <Input
                     id="name"
                     value={formData.name}
-                    onChange={handleInputChange("name")}
+                    onChange={handleInputChange('name')}
                     required
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="author">Author <span className="text-destructive">*</span></Label>
+                  <Label htmlFor="author">
+                    Author <span className="text-destructive">*</span>
+                  </Label>
                   <Input
                     id="author"
                     value={formData.author}
-                    onChange={handleInputChange("author")}
+                    onChange={handleInputChange('author')}
                     required
                   />
                 </div>
@@ -206,8 +219,15 @@ const EditBlog = () => {
                       setFormData((prev) => ({ ...prev, isActive: checked }))
                     }
                   />
-                  <Label htmlFor="isActive" className={formData.isActive ? "text-primary font-medium" : "text-muted-foreground"}>
-                    {formData.isActive ? "Active" : "Inactive"}
+                  <Label
+                    htmlFor="isActive"
+                    className={
+                      formData.isActive
+                        ? 'text-primary font-medium'
+                        : 'text-muted-foreground'
+                    }
+                  >
+                    {formData.isActive ? 'Active' : 'Inactive'}
                   </Label>
                 </div>
               </div>
@@ -242,11 +262,17 @@ const EditBlog = () => {
         <Card className="shadow-md border-0">
           <CardContent className="p-6 space-y-2">
             <Label>Blog Content</Label>
-            <Suspense fallback={<div className="py-8 text-center text-muted-foreground">Loading Editor...</div>}>
+            <Suspense
+              fallback={
+                <div className="py-8 text-center text-muted-foreground">
+                  Loading Editor...
+                </div>
+              }
+            >
               <Editor
                 value={formData.longDesc}
                 onTextChange={handleEditorChange}
-                style={{ height: "660px" }}
+                style={{ height: '660px' }}
               />
             </Suspense>
           </CardContent>
@@ -315,7 +341,7 @@ const EditBlog = () => {
               <Input
                 placeholder="Meta Title"
                 value={formData.metaTitle}
-                onChange={handleInputChange("metaTitle")}
+                onChange={handleInputChange('metaTitle')}
               />
             </CardContent>
           </Card>
@@ -326,7 +352,7 @@ const EditBlog = () => {
             <Label>Meta Description</Label>
             <Textarea
               value={formData.metaDescription}
-              onChange={handleInputChange("metaDescription")}
+              onChange={handleInputChange('metaDescription')}
               rows={3}
               placeholder="Meta description"
             />

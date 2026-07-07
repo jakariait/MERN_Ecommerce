@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
-import useAuthAdminStore from "../../store/AuthAdminStore.js";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+import useAuthAdminStore from '../../store/AuthAdminStore.js';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Button } from '@/components/ui/button';
 import {
   Table,
   TableBody,
@@ -11,8 +11,8 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { Card, CardContent } from "@/components/ui/card";
+} from '@/components/ui/table';
+import { Card, CardContent } from '@/components/ui/card';
 import {
   Dialog,
   DialogContent,
@@ -20,10 +20,10 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
-} from "@/components/ui/dialog";
-import { toast } from "sonner";
-import { Pencil, Trash2, Loader2 } from "lucide-react";
-import { SectionHeader } from "@/component/componentAdmin/SectionHeader.jsx";
+} from '@/components/ui/dialog';
+import { toast } from 'sonner';
+import { Pencil, Trash2, Loader2 } from 'lucide-react';
+import { SectionHeader } from '@/component/componentAdmin/SectionHeader.jsx';
 
 const DeliveryCharge = () => {
   const apiUrl = import.meta.env.VITE_API_URL;
@@ -34,19 +34,19 @@ const DeliveryCharge = () => {
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [currentMethod, setCurrentMethod] = useState(null);
-  const [editedName, setEditedName] = useState("");
-  const [editedValue, setEditedValue] = useState("");
+  const [editedName, setEditedName] = useState('');
+  const [editedValue, setEditedValue] = useState('');
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     fetchShippingMethods();
 
     const handleShippingCreated = () => fetchShippingMethods();
-    window.addEventListener("shippingMethodCreated", handleShippingCreated);
+    window.addEventListener('shippingMethodCreated', handleShippingCreated);
 
     return () => {
       window.removeEventListener(
-        "shippingMethodCreated",
+        'shippingMethodCreated',
         handleShippingCreated,
       );
     };
@@ -57,7 +57,7 @@ const DeliveryCharge = () => {
       const res = await axios.get(`${apiUrl}/getAllShipping`);
       setShippingMethods(res.data.data || []);
     } catch (err) {
-      toast.error("Failed to load shipping methods");
+      toast.error('Failed to load shipping methods');
     } finally {
       setLoading(false);
     }
@@ -80,9 +80,9 @@ const DeliveryCharge = () => {
       );
       fetchShippingMethods();
       setEditDialogOpen(false);
-      toast.success("Delivery method updated!");
+      toast.success('Delivery method updated!');
     } catch {
-      toast.error("Failed to update");
+      toast.error('Failed to update');
     } finally {
       setSaving(false);
     }
@@ -100,9 +100,9 @@ const DeliveryCharge = () => {
       });
       fetchShippingMethods();
       setDeleteDialogOpen(false);
-      toast.success("Delivery method deleted!");
+      toast.success('Delivery method deleted!');
     } catch {
-      toast.error("Failed to delete");
+      toast.error('Failed to delete');
     }
   };
 
@@ -117,7 +117,7 @@ const DeliveryCharge = () => {
   return (
     <div className="space-y-6">
       <SectionHeader
-        title={"Delivery Charge List"}
+        title={'Delivery Charge List'}
         description={`${shippingMethods.length} shipping methods`}
       />
 
@@ -211,7 +211,7 @@ const DeliveryCharge = () => {
                   Saving...
                 </>
               ) : (
-                "Save"
+                'Save'
               )}
             </Button>
           </DialogFooter>
@@ -223,7 +223,7 @@ const DeliveryCharge = () => {
           <DialogHeader>
             <DialogTitle>Delete Confirmation</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete{" "}
+              Are you sure you want to delete{' '}
               <strong>{currentMethod?.name}</strong>?
             </DialogDescription>
           </DialogHeader>

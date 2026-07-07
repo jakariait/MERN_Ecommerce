@@ -1,6 +1,6 @@
-import React, { useState } from "react";
-import OrderProgress from "./OrderProgress";
-import ImageComponent from "./ImageComponent";
+import React, { useState } from 'react';
+import OrderProgress from './OrderProgress';
+import ImageComponent from './ImageComponent';
 import {
   Search,
   Package,
@@ -11,27 +11,27 @@ import {
   Truck,
   ArrowRight,
   AlertCircle,
-} from "lucide-react";
-import sanitizeHtml from "../../utils/sanitizeHtml.js";
+} from 'lucide-react';
+import sanitizeHtml from '../../utils/sanitizeHtml.js';
 
 const TrackOrder = () => {
   const apiUrl = import.meta.env.VITE_API_URL;
-  const imageUrl = `${apiUrl.replace("/api", "")}/uploads`;
-  const [orderNo, setOrderNo] = useState("");
-  const [phone, setPhone] = useState("");
+  const imageUrl = `${apiUrl.replace('/api', '')}/uploads`;
+  const [orderNo, setOrderNo] = useState('');
+  const [phone, setPhone] = useState('');
   const [loading, setLoading] = useState(false);
   const [order, setOrder] = useState(null);
-  const [error, setError] = useState("");
+  const [error, setError] = useState('');
 
   // Helper function to get variant display name from attributes
   const getVariantDisplayName = (variant) => {
-    if (!variant) return "N/A";
+    if (!variant) return 'N/A';
     if (variant.attributes && Array.isArray(variant.attributes)) {
       const attributeValues = variant.attributes
         .map((attr) => attr.value)
         .filter((val) => val);
       if (attributeValues.length > 0) {
-        return attributeValues.join(" / ");
+        return attributeValues.join(' / ');
       }
     }
     if (variant.size?.name) {
@@ -40,25 +40,25 @@ const TrackOrder = () => {
     if (variant.sizeName) {
       return variant.sizeName;
     }
-    return "N/A";
+    return 'N/A';
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setError("");
+    setError('');
     setOrder(null);
 
     try {
       const response = await fetch(`${apiUrl}/track-order`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ orderNo, phone }),
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || "Failed to track order");
+        throw new Error(errorData.message || 'Failed to track order');
       }
 
       const data = await response.json();
@@ -71,9 +71,9 @@ const TrackOrder = () => {
   };
 
   const formatPrice = (price) =>
-    new Intl.NumberFormat("en-BD", {
-      style: "currency",
-      currency: "BDT",
+    new Intl.NumberFormat('en-BD', {
+      style: 'currency',
+      currency: 'BDT',
       minimumFractionDigits: 2,
     }).format(price);
 
@@ -132,7 +132,7 @@ const TrackOrder = () => {
               className="w-full cursor-pointer primaryBgColor accentTextColor px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               <Search size={20} />
-              {loading ? "Tracking..." : "Track Order"}
+              {loading ? 'Tracking...' : 'Track Order'}
             </button>
           </form>
         </div>
@@ -177,10 +177,10 @@ const TrackOrder = () => {
                     Order Date
                   </p>
                   <p className="text-lg font-bold text-gray-900 mt-2">
-                    {new Date(order.createdAt).toLocaleDateString("en-US", {
-                      year: "numeric",
-                      month: "long",
-                      day: "numeric",
+                    {new Date(order.createdAt).toLocaleDateString('en-US', {
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric',
                     })}
                   </p>
                 </div>
@@ -209,7 +209,7 @@ const TrackOrder = () => {
                       Full Name
                     </p>
                     <p className="text-gray-900 font-semibold mt-2">
-                      {order.shippingInfo?.fullName || "N/A"}
+                      {order.shippingInfo?.fullName || 'N/A'}
                     </p>
                   </div>
                   <div>
@@ -218,7 +218,7 @@ const TrackOrder = () => {
                       Email Address
                     </p>
                     <p className="text-gray-900 font-semibold mt-2 break-all">
-                      {order.shippingInfo?.email || "N/A"}
+                      {order.shippingInfo?.email || 'N/A'}
                     </p>
                   </div>
                   <div>
@@ -227,7 +227,7 @@ const TrackOrder = () => {
                       Phone Number
                     </p>
                     <p className="text-gray-900 font-semibold mt-2">
-                      {order.shippingInfo?.mobileNo || "N/A"}
+                      {order.shippingInfo?.mobileNo || 'N/A'}
                     </p>
                   </div>
                 </div>
@@ -249,7 +249,7 @@ const TrackOrder = () => {
                       {order.shippingInfo?.fullName}
                     </p>
                     <p className="text-gray-700 mt-2">
-                      {order.shippingInfo?.address || "N/A"}
+                      {order.shippingInfo?.address || 'N/A'}
                     </p>
                     <p className="text-gray-700">
                       {order.shippingInfo?.city}
@@ -259,7 +259,7 @@ const TrackOrder = () => {
                         `, ${order.shippingInfo.postalCode}`}
                     </p>
                     <p className="text-gray-700">
-                      {order.shippingInfo?.country || "Bangladesh"}
+                      {order.shippingInfo?.country || 'Bangladesh'}
                     </p>
                   </div>
                 </div>
@@ -287,7 +287,7 @@ const TrackOrder = () => {
                         Qty: {item.quantity}
                         {item.variantId && (
                           <span className="ml-2">
-                            •{" "}
+                            •{' '}
                             {getVariantDisplayName(
                               item.productId?.variants?.find(
                                 (v) => v._id === item.variantId,
@@ -376,7 +376,9 @@ const TrackOrder = () => {
                         {item.productId?.shortDesc && (
                           <span
                             dangerouslySetInnerHTML={{
-                              __html: sanitizeHtml(item.productId.shortDesc.substring(0, 100)),
+                              __html: sanitizeHtml(
+                                item.productId.shortDesc.substring(0, 100),
+                              ),
                             }}
                           />
                         )}
@@ -434,7 +436,7 @@ const TrackOrder = () => {
                     Delivery Type
                   </p>
                   <p className="text-gray-900 font-bold text-lg capitalize">
-                    {order.deliveryType || "Home Delivery"}
+                    {order.deliveryType || 'Home Delivery'}
                   </p>
                 </div>
                 <div className="bg-green-50 p-6 rounded-lg border border-green-200">

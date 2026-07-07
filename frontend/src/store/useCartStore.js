@@ -1,14 +1,14 @@
-import { create } from "zustand";
-import axios from "axios";
+import { create } from 'zustand';
+import axios from 'axios';
 const apiUrl = import.meta.env.VITE_API_URL;
 
 const loadCart = () => {
-  const savedCart = localStorage.getItem("cart");
+  const savedCart = localStorage.getItem('cart');
   return savedCart ? JSON.parse(savedCart) : [];
 };
 
 const saveCart = (cart) => {
-  localStorage.setItem("cart", JSON.stringify(cart));
+  localStorage.setItem('cart', JSON.stringify(cart));
 };
 
 const useCartStore = create((set, get) => ({
@@ -26,34 +26,32 @@ const useCartStore = create((set, get) => ({
         name: item.name,
         originalPrice: item.originalPrice,
         discountPrice: item.discountPrice,
-        variant: item.variant || "Default",
+        variant: item.variant || 'Default',
         quantity: item.quantity,
         thumbnail: item.thumbnail,
         slug: item.slug,
-        variantId: item.variantId || "Default",
+        variantId: item.variantId || 'Default',
         freeShipping: item.freeShipping,
       }));
 
       saveCart(serverCartItems);
       set({ cart: serverCartItems });
     } catch (error) {
-      console.error("Error loading cart from backend:", error);
+      console.error('Error loading cart from backend:', error);
     }
   },
 
   addToCart: async (product, quantity, selectedVariant) => {
     // Extract variant name from attributes (e.g., "Size: L, Color: Red")
     const variant = selectedVariant?.attributes
-      ? selectedVariant.attributes
-          .map((attr) => `${attr.value}`)
-          .join(" / ")
-      : "Default";
-    const variantId = selectedVariant?._id || "Default";
-    const token = localStorage.getItem("user_token");
+      ? selectedVariant.attributes.map((attr) => `${attr.value}`).join(' / ')
+      : 'Default';
+    const variantId = selectedVariant?._id || 'Default';
+    const token = localStorage.getItem('user_token');
 
     set((state) => {
       const existingIndex = state.cart.findIndex(
-        (item) => item.productId === product.id && item.variant === variant
+        (item) => item.productId === product.id && item.variant === variant,
       );
 
       let updatedCart = [...state.cart];
@@ -114,23 +112,23 @@ const useCartStore = create((set, get) => ({
             variantId,
             freeShipping: product.freeShipping,
           },
-          { headers: { Authorization: `Bearer ${token}` } }
+          { headers: { Authorization: `Bearer ${token}` } },
         );
       } catch (error) {
-        console.error("Error adding item to DB cart:", error);
+        console.error('Error adding item to DB cart:', error);
       }
     }
   },
 
   updateQuantity: async (productId, variant, quantity) => {
     const newQuantity = Math.min(quantity, 5);
-    const token = localStorage.getItem("user_token");
+    const token = localStorage.getItem('user_token');
 
     set((state) => {
       const updatedCart = state.cart.map((item) =>
         item.productId === productId && item.variant === variant
           ? { ...item, quantity: newQuantity }
-          : item
+          : item,
       );
       saveCart(updatedCart);
       return { cart: updatedCart };
@@ -142,23 +140,23 @@ const useCartStore = create((set, get) => ({
       await axios.patch(
         `${apiUrl}/updateCartItem`,
         { productId, variant, quantity: newQuantity },
-        { headers: { Authorization: `Bearer ${token}` } }
+        { headers: { Authorization: `Bearer ${token}` } },
       );
     } catch (error) {
-      console.error("Error updating quantity in DB:", error);
+      console.error('Error updating quantity in DB:', error);
     }
   },
 
   removeFromCart: async (productId, variant) => {
     set((state) => {
       const updatedCart = state.cart.filter(
-        (item) => !(item.productId === productId && item.variant === variant)
+        (item) => !(item.productId === productId && item.variant === variant),
       );
       saveCart(updatedCart);
       return { cart: updatedCart };
     });
 
-    const token = localStorage.getItem("user_token");
+    const token = localStorage.getItem('user_token');
     if (token) {
       try {
         await axios.delete(`${apiUrl}/removeCartItem`, {
@@ -166,7 +164,7 @@ const useCartStore = create((set, get) => ({
           data: { productId, variant },
         });
       } catch (error) {
-        console.error("Error removing cart item from DB:", error);
+        console.error('Error removing cart item from DB:', error);
       }
     }
   },
@@ -177,14 +175,14 @@ const useCartStore = create((set, get) => ({
       return { cart: [] };
     });
 
-    const token = localStorage.getItem("user_token");
+    const token = localStorage.getItem('user_token');
     if (token) {
       try {
         await axios.delete(`${apiUrl}/clearCart`, {
           headers: { Authorization: `Bearer ${token}` },
         });
       } catch (error) {
-        console.error("Error clearing cart in DB:", error);
+        console.error('Error clearing cart in DB:', error);
       }
     }
   },
@@ -213,7 +211,7 @@ const useCartStore = create((set, get) => ({
             headers: {
               Authorization: `Bearer ${token}`,
             },
-          }
+          },
         );
       }
 
@@ -240,7 +238,7 @@ const useCartStore = create((set, get) => ({
       saveCart(serverCartItems);
       set({ cart: serverCartItems });
     } catch (error) {
-      console.error("Error syncing entire cart to DB:", error);
+      console.error('Error syncing entire cart to DB:', error);
     }
   },
 }));

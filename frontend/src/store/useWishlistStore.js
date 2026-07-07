@@ -1,5 +1,5 @@
-import { create } from "zustand";
-import axios from "axios";
+import { create } from 'zustand';
+import axios from 'axios';
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
@@ -11,7 +11,7 @@ const useWishlistStore = create((set, get) => ({
   initialized: false,
 
   getWishlist: async () => {
-    const token = localStorage.getItem("user_token");
+    const token = localStorage.getItem('user_token');
     if (!token) return;
 
     set({ loading: true, error: null });
@@ -30,7 +30,7 @@ const useWishlistStore = create((set, get) => ({
       });
     } catch (error) {
       set({
-        error: error?.response?.data?.message || "Failed to fetch wishlist",
+        error: error?.response?.data?.message || 'Failed to fetch wishlist',
         loading: false,
         initialized: true,
       });
@@ -38,9 +38,9 @@ const useWishlistStore = create((set, get) => ({
   },
 
   addToWishlist: async (productId) => {
-    const token = localStorage.getItem("user_token");
+    const token = localStorage.getItem('user_token');
     if (!token) {
-      return { success: false, message: "Please login to add to wishlist" };
+      return { success: false, message: 'Please login to add to wishlist' };
     }
 
     const previousWishlist = get().wishlist;
@@ -54,7 +54,7 @@ const useWishlistStore = create((set, get) => ({
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        }
+        },
       );
 
       set({
@@ -67,13 +67,13 @@ const useWishlistStore = create((set, get) => ({
       set({ wishlist: previousWishlist, removing: false });
       return {
         success: false,
-        message: error?.response?.data?.message || "Failed to add to wishlist",
+        message: error?.response?.data?.message || 'Failed to add to wishlist',
       };
     }
   },
 
   removeFromWishlist: async (productId) => {
-    const token = localStorage.getItem("user_token");
+    const token = localStorage.getItem('user_token');
     if (!token) return;
 
     const previousWishlist = get().wishlist;
@@ -97,13 +97,14 @@ const useWishlistStore = create((set, get) => ({
       set({ wishlist: previousWishlist, removing: false });
       return {
         success: false,
-        message: error?.response?.data?.message || "Failed to remove from wishlist",
+        message:
+          error?.response?.data?.message || 'Failed to remove from wishlist',
       };
     }
   },
 
   clearWishlist: async () => {
-    const token = localStorage.getItem("user_token");
+    const token = localStorage.getItem('user_token');
     if (!token) return;
 
     set({ removing: true, error: null });
@@ -125,14 +126,14 @@ const useWishlistStore = create((set, get) => ({
       set({ removing: false });
       return {
         success: false,
-        message: error?.response?.data?.message || "Failed to clear wishlist",
+        message: error?.response?.data?.message || 'Failed to clear wishlist',
       };
     }
   },
 
   isInWishlist: (productId) => {
     return get().wishlist.some(
-      (item) => item.product?._id === productId || item.product === productId
+      (item) => item.product?._id === productId || item.product === productId,
     );
   },
 
@@ -141,7 +142,7 @@ const useWishlistStore = create((set, get) => ({
   },
 
   initialize: async () => {
-    const token = localStorage.getItem("user_token");
+    const token = localStorage.getItem('user_token');
     if (!token) {
       set({ initialized: true });
       return;

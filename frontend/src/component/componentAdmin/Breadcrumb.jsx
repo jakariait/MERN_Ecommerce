@@ -1,12 +1,18 @@
-import React, { useEffect, useRef, useState } from "react";
-import { ChevronRight, Menu, ExternalLink, LogOut, ChevronDown } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import SidebarMenu from "./SidebarMenu.jsx";
-import useAuthAdminStore from "../../store/AuthAdminStore.js";
-import { useNavigate } from "react-router-dom";
+import React, { useEffect, useRef, useState } from 'react';
+import {
+  ChevronRight,
+  Menu,
+  ExternalLink,
+  LogOut,
+  ChevronDown,
+} from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import SidebarMenu from './SidebarMenu.jsx';
+import useAuthAdminStore from '../../store/AuthAdminStore.js';
+import { useNavigate } from 'react-router-dom';
 
-import useBreadcrumbStore from "../../store/BreadcrumbStore.js";
+import useBreadcrumbStore from '../../store/BreadcrumbStore.js';
 
 const Breadcrumb = () => {
   const { pageDetails, title } = useBreadcrumbStore();
@@ -38,10 +44,10 @@ const Breadcrumb = () => {
 
   useEffect(() => {
     if (isMenuOpen || isDropdownOpen) {
-      document.addEventListener("mousedown", handleClickOutside);
+      document.addEventListener('mousedown', handleClickOutside);
     }
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [isMenuOpen, isDropdownOpen]);
 
@@ -51,12 +57,17 @@ const Breadcrumb = () => {
 
   const handleLogout = () => {
     logout();
-    navigate("/admin/login");
+    navigate('/admin/login');
   };
 
   const initials = admin?.name
-    ? admin.name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)
-    : "A";
+    ? admin.name
+        .split(' ')
+        .map((n) => n[0])
+        .join('')
+        .toUpperCase()
+        .slice(0, 2)
+    : 'A';
 
   return (
     <>
@@ -73,7 +84,9 @@ const Breadcrumb = () => {
           <div className="min-w-0">
             {pageDetails && (
               <nav className="flex items-center gap-1.5 text-xs text-muted-foreground mb-0.5">
-                <span className="font-medium tracking-wider uppercase">Pages</span>
+                <span className="font-medium tracking-wider uppercase">
+                  Pages
+                </span>
                 <ChevronRight className="size-3" />
                 <span className="truncate">{pageDetails}</span>
               </nav>
@@ -87,7 +100,12 @@ const Breadcrumb = () => {
         </div>
 
         <div className="flex items-center gap-2 lg:gap-3 shrink-0">
-          <Button variant="outline" size="sm" asChild className="hidden sm:inline-flex">
+          <Button
+            variant="outline"
+            size="sm"
+            asChild
+            className="hidden sm:inline-flex"
+          >
             <a href="/" target="_blank" rel="noopener noreferrer">
               <ExternalLink className="size-3.5 mr-1.5" />
               Visit Website
@@ -107,11 +125,11 @@ const Breadcrumb = () => {
               </Avatar>
               <div className="hidden lg:flex items-center gap-1.5">
                 <span className="text-sm font-medium text-foreground max-w-[120px] truncate">
-                  {admin?.name || "Admin"}
+                  {admin?.name || 'Admin'}
                 </span>
                 <ChevronDown
                   className={`size-3.5 text-muted-foreground transition-transform duration-200 ${
-                    isDropdownOpen ? "rotate-180" : ""
+                    isDropdownOpen ? 'rotate-180' : ''
                   }`}
                 />
               </div>
@@ -123,8 +141,12 @@ const Breadcrumb = () => {
                 className="absolute top-full right-0 mt-2 w-48 bg-popover border border-border rounded-lg shadow-lg p-1 z-50"
               >
                 <div className="px-3 py-2 border-b border-border mb-1">
-                  <p className="text-sm font-medium truncate">{admin?.name || "Admin"}</p>
-                  <p className="text-xs text-muted-foreground truncate">{admin?.email || ""}</p>
+                  <p className="text-sm font-medium truncate">
+                    {admin?.name || 'Admin'}
+                  </p>
+                  <p className="text-xs text-muted-foreground truncate">
+                    {admin?.email || ''}
+                  </p>
                 </div>
                 <button
                   onClick={handleLogout}
@@ -142,8 +164,8 @@ const Breadcrumb = () => {
       <div
         className={`fixed inset-0 z-50 lg:hidden transition-all duration-300 ${
           isMenuOpen
-            ? "opacity-100 pointer-events-auto"
-            : "opacity-0 pointer-events-none"
+            ? 'opacity-100 pointer-events-auto'
+            : 'opacity-0 pointer-events-none'
         }`}
       >
         <div
@@ -153,7 +175,7 @@ const Breadcrumb = () => {
         <div
           ref={menuRef}
           className={`relative h-full w-64 bg-white shadow-xl transition-transform duration-300 ${
-            isMenuOpen ? "translate-x-0" : "-translate-x-full"
+            isMenuOpen ? 'translate-x-0' : '-translate-x-full'
           }`}
         >
           <div className="h-full overflow-y-auto bg-primary text-primary-foreground">

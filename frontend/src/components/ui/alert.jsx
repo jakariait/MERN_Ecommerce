@@ -1,38 +1,46 @@
-import { cn } from "@/lib/utils"
-import { AlertCircle, CheckCircle2, Info, TriangleAlert, X } from "lucide-react"
+import { cn } from '@/lib/utils';
+import {
+  AlertCircle,
+  CheckCircle2,
+  Info,
+  TriangleAlert,
+  X,
+} from 'lucide-react';
 
 const iconMap = {
   error: AlertCircle,
   warning: TriangleAlert,
   info: Info,
   success: CheckCircle2,
-}
+};
 
 const colorMap = {
-  error: "bg-destructive/15 text-destructive border-destructive/30",
-  warning: "bg-amber-50 text-amber-800 border-amber-200 dark:bg-amber-950 dark:text-amber-200 dark:border-amber-800",
-  info: "bg-blue-50 text-blue-800 border-blue-200 dark:bg-blue-950 dark:text-blue-200 dark:border-blue-800",
-  success: "bg-green-50 text-green-800 border-green-200 dark:bg-green-950 dark:text-green-200 dark:border-green-800",
-}
+  error: 'bg-destructive/15 text-destructive border-destructive/30',
+  warning:
+    'bg-amber-50 text-amber-800 border-amber-200 dark:bg-amber-950 dark:text-amber-200 dark:border-amber-800',
+  info: 'bg-blue-50 text-blue-800 border-blue-200 dark:bg-blue-950 dark:text-blue-200 dark:border-blue-800',
+  success:
+    'bg-green-50 text-green-800 border-green-200 dark:bg-green-950 dark:text-green-200 dark:border-green-800',
+};
 
 function Alert({
   className,
-  severity = "info",
-  variant = "standard",
+  severity = 'info',
+  variant = 'standard',
   onClose,
   children,
   ...props
 }) {
-  const Icon = iconMap[severity] || iconMap.info
+  const Icon = iconMap[severity] || iconMap.info;
 
   return (
     <div
       data-slot="alert"
       className={cn(
-        "relative flex items-start gap-3 rounded-lg border p-4 text-sm",
+        'relative flex items-start gap-3 rounded-lg border p-4 text-sm',
         colorMap[severity],
-        variant === "filled" && "bg-foreground text-background",
-        className
+        variant === 'filled' && 'bg-foreground text-background',
+        className,
       )}
       role="alert"
       {...props}
@@ -48,7 +56,7 @@ function Alert({
         </button>
       )}
     </div>
-  )
+  );
 }
 
-export { Alert }
+export { Alert };

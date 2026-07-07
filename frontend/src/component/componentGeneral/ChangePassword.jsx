@@ -1,30 +1,30 @@
-import React, { useState, useEffect } from "react";
-import axios from "axios";
-import { TextField } from "@/components/ui/text-field";
-import { Button } from "@/components/ui/button";
-import { Paper } from "@/components/ui/paper";
-import { Typography } from "@/components/ui/typography";
-import { CircularProgress } from "@/components/ui/circular-progress";
-import { KeyRound, AlertCircle, CheckCircle2, Eye, EyeOff } from "lucide-react";
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { TextField } from '@/components/ui/text-field';
+import { Button } from '@/components/ui/button';
+import { Paper } from '@/components/ui/paper';
+import { Typography } from '@/components/ui/typography';
+import { CircularProgress } from '@/components/ui/circular-progress';
+import { KeyRound, AlertCircle, CheckCircle2, Eye, EyeOff } from 'lucide-react';
 
 const ChangePassword = ({ token }) => {
   const baseUrl = import.meta.env.VITE_API_URL;
   const changePasswordUrl = `${baseUrl}/change-password`;
 
   const [formData, setFormData] = useState({
-    currentPassword: "",
-    newPassword: "",
-    confirmNewPassword: "",
+    currentPassword: '',
+    newPassword: '',
+    confirmNewPassword: '',
   });
 
   const [showPasswords, setShowPasswords] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
 
   useEffect(() => {
     if (success) {
-      const timer = setTimeout(() => setSuccess(""), 3000);
+      const timer = setTimeout(() => setSuccess(''), 3000);
       return () => clearTimeout(timer);
     }
   }, [success]);
@@ -36,16 +36,16 @@ const ChangePassword = ({ token }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
-    setSuccess("");
+    setError('');
+    setSuccess('');
 
     if (formData.newPassword !== formData.confirmNewPassword) {
-      setError("New password and confirm password do not match.");
+      setError('New password and confirm password do not match.');
       return;
     }
 
     if (!formData.currentPassword || !formData.newPassword) {
-      setError("Please fill in all required fields.");
+      setError('Please fill in all required fields.');
       return;
     }
 
@@ -60,7 +60,7 @@ const ChangePassword = ({ token }) => {
         {
           headers: {
             Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
           },
         },
       );
@@ -68,15 +68,15 @@ const ChangePassword = ({ token }) => {
       if (res.data.message) {
         setSuccess(res.data.message);
         setFormData({
-          currentPassword: "",
-          newPassword: "",
-          confirmNewPassword: "",
+          currentPassword: '',
+          newPassword: '',
+          confirmNewPassword: '',
         });
       } else {
-        setError("Failed to change password.");
+        setError('Failed to change password.');
       }
     } catch (err) {
-      setError(err.response?.data?.message || "Something went wrong.");
+      setError(err.response?.data?.message || 'Something went wrong.');
     } finally {
       setLoading(false);
     }
@@ -89,7 +89,9 @@ const ChangePassword = ({ token }) => {
           <div className="flex size-10 items-center justify-center rounded-xl bg-primary/10">
             <KeyRound className="size-5 text-primary" />
           </div>
-          <Typography variant="h5" className="font-semibold">Change Password</Typography>
+          <Typography variant="h5" className="font-semibold">
+            Change Password
+          </Typography>
         </div>
 
         {error && (
@@ -110,7 +112,7 @@ const ChangePassword = ({ token }) => {
             <TextField
               label="Current Password"
               name="currentPassword"
-              type={showPasswords ? "text" : "password"}
+              type={showPasswords ? 'text' : 'password'}
               value={formData.currentPassword}
               onChange={handleChange}
               required
@@ -119,7 +121,7 @@ const ChangePassword = ({ token }) => {
           <TextField
             label="New Password"
             name="newPassword"
-            type={showPasswords ? "text" : "password"}
+            type={showPasswords ? 'text' : 'password'}
             value={formData.newPassword}
             onChange={handleChange}
             required
@@ -127,7 +129,7 @@ const ChangePassword = ({ token }) => {
           <TextField
             label="Confirm New Password"
             name="confirmNewPassword"
-            type={showPasswords ? "text" : "password"}
+            type={showPasswords ? 'text' : 'password'}
             value={formData.confirmNewPassword}
             onChange={handleChange}
             required
@@ -138,15 +140,22 @@ const ChangePassword = ({ token }) => {
             onClick={() => setShowPasswords(!showPasswords)}
             className="flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors"
           >
-            {showPasswords ? <EyeOff className="size-3.5" /> : <Eye className="size-3.5" />}
-            {showPasswords ? "Hide" : "Show"} passwords
+            {showPasswords ? (
+              <EyeOff className="size-3.5" />
+            ) : (
+              <Eye className="size-3.5" />
+            )}
+            {showPasswords ? 'Hide' : 'Show'} passwords
           </button>
 
           <Button type="submit" disabled={loading} className="w-full">
             {loading ? (
-              <><CircularProgress className="size-4 mr-2" />Changing...</>
+              <>
+                <CircularProgress className="size-4 mr-2" />
+                Changing...
+              </>
             ) : (
-              "Change Password"
+              'Change Password'
             )}
           </Button>
         </form>

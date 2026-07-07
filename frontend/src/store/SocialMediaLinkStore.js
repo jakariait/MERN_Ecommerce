@@ -1,5 +1,5 @@
-import { create } from "zustand";
-import axios from "axios";
+import { create } from 'zustand';
+import axios from 'axios';
 const apiUrl = import.meta.env.VITE_API_URL;
 
 const useSocialMediaLinkStore = create((set) => ({
@@ -19,7 +19,7 @@ const useSocialMediaLinkStore = create((set) => ({
         error:
           error?.response?.data?.message ||
           error.message ||
-          "Something went wrong",
+          'Something went wrong',
       });
     }
   },

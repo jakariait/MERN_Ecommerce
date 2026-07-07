@@ -1,8 +1,8 @@
-import { create } from "zustand";
+import { create } from 'zustand';
 
 const useBreadcrumbStore = create((set) => ({
-  pageDetails: "",
-  title: "",
+  pageDetails: '',
+  title: '',
   setBreadcrumb: (pageDetails, title) => set({ pageDetails, title }),
 }));
 

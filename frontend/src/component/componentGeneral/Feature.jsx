@@ -76,11 +76,10 @@
 //
 // export default Feature;
 
-
-import React from "react";
-import FeatureStore from "../../store/FeatureStore";
-import ImageComponent from "./ImageComponent.jsx";
-import Skeleton from "react-loading-skeleton";
+import React from 'react';
+import FeatureStore from '../../store/FeatureStore';
+import ImageComponent from './ImageComponent.jsx';
+import Skeleton from 'react-loading-skeleton';
 
 const Feature = () => {
   const { FeatureStoreList, FeatureStoreListLoading, FeatureStoreListError } =
@@ -89,7 +88,7 @@ const Feature = () => {
   if (FeatureStoreListError) {
     return (
       <div className="primaryTextColor  container md:mx-auto text-center p-3">
-        <h1 className={"p-10"}>{FeatureStoreListError}</h1>
+        <h1 className={'p-10'}>{FeatureStoreListError}</h1>
       </div>
     ); // Display error message
   }
@@ -97,11 +96,11 @@ const Feature = () => {
     <div className="xl:container xl:mx-auto  px-3 ">
       {FeatureStoreListLoading ? (
         <>
-          <div className={"grid grid-cols-2 md:grid-cols-4 gap-6 mb-6"}>
-            <Skeleton height={200} width={"100%"} />
-            <Skeleton height={200} width={"100%"} />
-            <Skeleton height={200} width={"100%"} />
-            <Skeleton height={200} width={"100%"} />
+          <div className={'grid grid-cols-2 md:grid-cols-4 gap-6 mb-6'}>
+            <Skeleton height={200} width={'100%'} />
+            <Skeleton height={200} width={'100%'} />
+            <Skeleton height={200} width={'100%'} />
+            <Skeleton height={200} width={'100%'} />
           </div>
         </>
       ) : (
@@ -120,11 +119,8 @@ const Feature = () => {
                     altName={feature.title}
                   />
                   {/* Title */}
-                  <h3 className=" text-gray-700  ">
-                    {feature.title}
-                  </h3>
+                  <h3 className=" text-gray-700  ">{feature.title}</h3>
                 </div>
-
               </div>
             ))}
           </div>

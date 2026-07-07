@@ -1,5 +1,5 @@
-import { create } from "zustand";
-import axios from "axios";
+import { create } from 'zustand';
+import axios from 'axios';
 const apiUrl = import.meta.env.VITE_API_URL;
 
 const FeatureStore = create((set) => ({
@@ -20,11 +20,11 @@ const FeatureStore = create((set) => ({
           FeatureStoreListLoading: false,
         });
       } else {
-        throw new Error("Invalid data format: Expected an array");
+        throw new Error('Invalid data format: Expected an array');
       }
     } catch (error) {
       set({
-        FeatureStoreListError: error.message || "Unknown Error",
+        FeatureStoreListError: error.message || 'Unknown Error',
         FeatureStoreListLoading: false,
       });
     }

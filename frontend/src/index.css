@@ -1,4 +1,4 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 @custom-variant dark (&:is(.dark *));
 
@@ -113,7 +113,7 @@
 }
 
 * {
-  font-family: "Jost", sans-serif;
+  font-family: 'Jost', sans-serif;
   font-optical-sizing: auto;
   font-weight: 400;
   font-style: normal;

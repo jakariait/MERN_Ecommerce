@@ -1,20 +1,20 @@
-import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import useAuthUserStore from "../../store/AuthUserStore.js";
-import axios from "axios";
-import { Button } from "@/components/ui/button";
-import { CircularProgress } from "@/components/ui/circular-progress";
-import { Package, Eye, ShoppingBag } from "lucide-react";
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import useAuthUserStore from '../../store/AuthUserStore.js';
+import axios from 'axios';
+import { Button } from '@/components/ui/button';
+import { CircularProgress } from '@/components/ui/circular-progress';
+import { Package, Eye, ShoppingBag } from 'lucide-react';
 
 const statusStyles = {
-  pending: "bg-amber-50 text-amber-700 ring-1 ring-amber-600/20",
-  processing: "bg-sky-50 text-sky-700 ring-1 ring-sky-600/20",
-  approved: "bg-indigo-50 text-indigo-700 ring-1 ring-indigo-600/20",
-  shipped: "bg-violet-50 text-violet-700 ring-1 ring-violet-600/20",
-  delivered: "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-600/20",
-  cancelled: "bg-rose-50 text-rose-700 ring-1 ring-rose-600/20",
-  returned: "bg-orange-50 text-orange-700 ring-1 ring-orange-600/20",
-}
+  pending: 'bg-amber-50 text-amber-700 ring-1 ring-amber-600/20',
+  processing: 'bg-sky-50 text-sky-700 ring-1 ring-sky-600/20',
+  approved: 'bg-indigo-50 text-indigo-700 ring-1 ring-indigo-600/20',
+  shipped: 'bg-violet-50 text-violet-700 ring-1 ring-violet-600/20',
+  delivered: 'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-600/20',
+  cancelled: 'bg-rose-50 text-rose-700 ring-1 ring-rose-600/20',
+  returned: 'bg-orange-50 text-orange-700 ring-1 ring-orange-600/20',
+};
 
 const RecentOrders = () => {
   const apiUrl = import.meta.env.VITE_API_URL;
@@ -38,7 +38,7 @@ const RecentOrders = () => {
           setOrders(sortedOrders);
         }
       } catch (error) {
-        console.error("Failed to fetch orders:", error);
+        console.error('Failed to fetch orders:', error);
       } finally {
         setLoading(false);
       }
@@ -55,14 +55,22 @@ const RecentOrders = () => {
             <Package className="size-4.5 text-primary" />
           </div>
           <div>
-            <h2 className="text-lg font-semibold tracking-tight">Recent Orders</h2>
+            <h2 className="text-lg font-semibold tracking-tight">
+              Recent Orders
+            </h2>
             <p className="text-sm text-muted-foreground">
-              {loading ? "Loading..." : `Last ${orders.length} order${orders.length !== 1 ? "s" : ""}`}
+              {loading
+                ? 'Loading...'
+                : `Last ${orders.length} order${orders.length !== 1 ? 's' : ''}`}
             </p>
           </div>
         </div>
         {orders.length > 0 && (
-          <Button variant="ghost" size="sm" onClick={() => navigate("/user/orders")}>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => navigate('/user/orders')}
+          >
             View all
           </Button>
         )}
@@ -81,7 +89,7 @@ const RecentOrders = () => {
           <p className="text-xs text-muted-foreground/70 mb-5 text-center max-w-xs">
             When you place an order, it will show up here.
           </p>
-          <Button onClick={() => navigate("/shop")} size="sm">
+          <Button onClick={() => navigate('/shop')} size="sm">
             <ShoppingBag className="size-3.5 mr-2" />
             Browse products
           </Button>
@@ -92,34 +100,62 @@ const RecentOrders = () => {
             <table className="w-full">
               <thead>
                 <tr className="border-b border-border/50">
-                  <th className="text-left px-4 py-3 text-xs font-medium uppercase tracking-wider text-muted-foreground/60">Order</th>
-                  <th className="text-left px-4 py-3 text-xs font-medium uppercase tracking-wider text-muted-foreground/60">Date</th>
-                  <th className="text-left px-4 py-3 text-xs font-medium uppercase tracking-wider text-muted-foreground/60">Status</th>
-                  <th className="text-right px-4 py-3 text-xs font-medium uppercase tracking-wider text-muted-foreground/60">Items</th>
-                  <th className="text-right px-4 py-3 text-xs font-medium uppercase tracking-wider text-muted-foreground/60">Total</th>
+                  <th className="text-left px-4 py-3 text-xs font-medium uppercase tracking-wider text-muted-foreground/60">
+                    Order
+                  </th>
+                  <th className="text-left px-4 py-3 text-xs font-medium uppercase tracking-wider text-muted-foreground/60">
+                    Date
+                  </th>
+                  <th className="text-left px-4 py-3 text-xs font-medium uppercase tracking-wider text-muted-foreground/60">
+                    Status
+                  </th>
+                  <th className="text-right px-4 py-3 text-xs font-medium uppercase tracking-wider text-muted-foreground/60">
+                    Items
+                  </th>
+                  <th className="text-right px-4 py-3 text-xs font-medium uppercase tracking-wider text-muted-foreground/60">
+                    Total
+                  </th>
                   <th className="text-center px-4 py-3 text-xs font-medium uppercase tracking-wider text-muted-foreground/60"></th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border/30">
                 {orders.map((order) => {
                   const qty = order.items?.reduce((s, i) => s + i.quantity, 0);
-                  const date = new Date(order.createdAt).toLocaleDateString("en-US", {
-                    month: "short", day: "numeric", year: "numeric",
-                  });
-                  const cls = statusStyles[order.orderStatus] || "bg-gray-50 text-gray-700 ring-1 ring-gray-600/20";
+                  const date = new Date(order.createdAt).toLocaleDateString(
+                    'en-US',
+                    {
+                      month: 'short',
+                      day: 'numeric',
+                      year: 'numeric',
+                    },
+                  );
+                  const cls =
+                    statusStyles[order.orderStatus] ||
+                    'bg-gray-50 text-gray-700 ring-1 ring-gray-600/20';
 
                   return (
-                    <tr key={order._id} className="hover:bg-muted/20 transition-colors">
+                    <tr
+                      key={order._id}
+                      className="hover:bg-muted/20 transition-colors"
+                    >
                       <td className="px-4 py-3">
-                        <span className="text-sm font-medium">{order.orderNo}</span>
+                        <span className="text-sm font-medium">
+                          {order.orderNo}
+                        </span>
                       </td>
-                      <td className="px-4 py-3 text-sm text-muted-foreground">{date}</td>
+                      <td className="px-4 py-3 text-sm text-muted-foreground">
+                        {date}
+                      </td>
                       <td className="px-4 py-3">
-                        <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${cls}`}>
+                        <span
+                          className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${cls}`}
+                        >
                           {order.orderStatus}
                         </span>
                       </td>
-                      <td className="px-4 py-3 text-sm text-right tabular-nums text-muted-foreground">{qty}</td>
+                      <td className="px-4 py-3 text-sm text-right tabular-nums text-muted-foreground">
+                        {qty}
+                      </td>
                       <td className="px-4 py-3 text-sm text-right font-medium tabular-nums">
                         ৳{order.totalAmount?.toFixed(2)}
                       </td>
@@ -127,7 +163,9 @@ const RecentOrders = () => {
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => navigate(`/user/orders/${order.orderNo}`)}
+                          onClick={() =>
+                            navigate(`/user/orders/${order.orderNo}`)
+                          }
                         >
                           <Eye className="size-3.5 mr-1.5" />
                           Details

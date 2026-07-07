@@ -1,26 +1,26 @@
-import React, { useEffect, useState } from "react";
-import useAuthAdminStore from "../../store/AuthAdminStore.js";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+import React, { useEffect, useState } from 'react';
+import useAuthAdminStore from '../../store/AuthAdminStore.js';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Skeleton } from "@/components/ui/skeleton";
-import { toast } from "sonner";
+} from '@/components/ui/select';
+import { Skeleton } from '@/components/ui/skeleton';
+import { toast } from 'sonner';
 
 const statusOptions = [
-  { value: "pending", label: "Pending" },
-  { value: "approved", label: "Approved" },
-  { value: "intransit", label: "In Transit" },
-  { value: "delivered", label: "Delivered" },
-  { value: "returned", label: "Returned" },
-  { value: "cancelled", label: "Cancelled" },
+  { value: 'pending', label: 'Pending' },
+  { value: 'approved', label: 'Approved' },
+  { value: 'intransit', label: 'In Transit' },
+  { value: 'delivered', label: 'Delivered' },
+  { value: 'returned', label: 'Returned' },
+  { value: 'cancelled', label: 'Cancelled' },
 ];
 
 const OrderStatusUpdate = ({ orderId, onUpdate }) => {
@@ -32,8 +32,8 @@ const OrderStatusUpdate = ({ orderId, onUpdate }) => {
 
   const [advanceAmount, setAdvanceAmount] = useState(0);
   const [specialDiscount, setSpecialDiscount] = useState(0);
-  const [adminNote, setAdminNote] = useState("");
-  const [orderStatus, setOrderStatus] = useState("pending");
+  const [adminNote, setAdminNote] = useState('');
+  const [orderStatus, setOrderStatus] = useState('pending');
 
   useEffect(() => {
     const fetchOrderDetails = async () => {
@@ -48,14 +48,14 @@ const OrderStatusUpdate = ({ orderId, onUpdate }) => {
           const order = data.order;
           setAdvanceAmount(order.advanceAmount || 0);
           setSpecialDiscount(order.specialDiscount || 0);
-          setAdminNote(order.adminNote || "");
-          setOrderStatus(order.orderStatus || "pending");
+          setAdminNote(order.adminNote || '');
+          setOrderStatus(order.orderStatus || 'pending');
         } else {
-          toast.error(data.message || "Failed to load order");
+          toast.error(data.message || 'Failed to load order');
         }
       } catch (err) {
         console.error(err);
-        toast.error("Error fetching order details.");
+        toast.error('Error fetching order details.');
       } finally {
         setLoading(false);
       }
@@ -68,19 +68,24 @@ const OrderStatusUpdate = ({ orderId, onUpdate }) => {
 
   const handleSubmit = async () => {
     if (advanceAmount < 0 || specialDiscount < 0) {
-      toast.error("Amounts cannot be negative.");
+      toast.error('Amounts cannot be negative.');
       return;
     }
 
     try {
       setSubmitting(true);
 
-      const updatedData = { advanceAmount, specialDiscount, adminNote, orderStatus };
+      const updatedData = {
+        advanceAmount,
+        specialDiscount,
+        adminNote,
+        orderStatus,
+      };
 
       const res = await fetch(`${apiUrl}/orders/${orderId}`, {
-        method: "PUT",
+        method: 'PUT',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(updatedData),
@@ -89,14 +94,14 @@ const OrderStatusUpdate = ({ orderId, onUpdate }) => {
       const data = await res.json();
 
       if (res.ok && data.success) {
-        toast.success("Order updated successfully!");
+        toast.success('Order updated successfully!');
         if (onUpdate) onUpdate(data.order);
       } else {
-        toast.error(data.message || "Failed to update order");
+        toast.error(data.message || 'Failed to update order');
       }
     } catch (err) {
       console.error(err);
-      toast.error("Something went wrong while updating the order.");
+      toast.error('Something went wrong while updating the order.');
     } finally {
       setSubmitting(false);
     }
@@ -165,7 +170,7 @@ const OrderStatusUpdate = ({ orderId, onUpdate }) => {
 
       <div className="flex justify-center pt-2">
         <Button onClick={handleSubmit} disabled={submitting}>
-          {submitting ? "Saving..." : "Save Changes"}
+          {submitting ? 'Saving...' : 'Save Changes'}
         </Button>
       </div>
     </div>

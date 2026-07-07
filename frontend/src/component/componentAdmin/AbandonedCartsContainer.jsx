@@ -1,19 +1,19 @@
-import { useEffect, useState } from "react";
-import ImageComponent from "../componentGeneral/ImageComponent.jsx";
-import CourierSummery from "./CourierSummery.jsx";
-import useAuthAdminStore from "../../store/AuthAdminStore.js";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
+import { useEffect, useState } from 'react';
+import ImageComponent from '../componentGeneral/ImageComponent.jsx';
+import CourierSummery from './CourierSummery.jsx';
+import useAuthAdminStore from '../../store/AuthAdminStore.js';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent } from '@/components/ui/card';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from '@/components/ui/select';
 import {
   Dialog,
   DialogContent,
@@ -21,8 +21,8 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
-} from "@/components/ui/dialog";
-import { toast } from "sonner";
+} from '@/components/ui/dialog';
+import { toast } from 'sonner';
 import {
   Search,
   RotateCcw,
@@ -32,8 +32,8 @@ import {
   ChevronLeft,
   ChevronRight,
   Loader2,
-} from "lucide-react";
-import RequirePermission from "./RequirePermission.jsx";
+} from 'lucide-react';
+import RequirePermission from './RequirePermission.jsx';
 
 const AbandonedCartsList = ({
   data,
@@ -93,23 +93,35 @@ const AbandonedCartsList = ({
                   <Checkbox
                     checked={selectedCarts.includes(cart._id)}
                     onCheckedChange={() => onToggleSelect(cart._id)}
-                    disabled={cart.status === "converted"}
+                    disabled={cart.status === 'converted'}
                     className="mt-1"
                   />
                   <div className="grid grid-cols-2 md:grid-cols-3 flex-1 gap-4">
                     <div>
                       <h3 className="font-semibold mb-1">
-                        {cart.fullName || "Unnamed Customer"}
+                        {cart.fullName || 'Unnamed Customer'}
                       </h3>
                       <div className="text-sm text-muted-foreground space-y-0.5">
-                        <p><strong>Number:</strong> {cart.number || "N/A"}</p>
-                        <p><strong>Email:</strong> {cart.email || "N/A"}</p>
-                        <p><strong>Address:</strong> {cart.address || "N/A"}</p>
+                        <p>
+                          <strong>Number:</strong> {cart.number || 'N/A'}
+                        </p>
+                        <p>
+                          <strong>Email:</strong> {cart.email || 'N/A'}
+                        </p>
+                        <p>
+                          <strong>Address:</strong> {cart.address || 'N/A'}
+                        </p>
                         <div className="mt-1">
                           <Badge
-                            variant={cart.status === "converted" ? "default" : "secondary"}
+                            variant={
+                              cart.status === 'converted'
+                                ? 'default'
+                                : 'secondary'
+                            }
                           >
-                            {cart.status === "converted" ? "Converted" : "Abandoned"}
+                            {cart.status === 'converted'
+                              ? 'Converted'
+                              : 'Abandoned'}
                           </Badge>
                         </div>
                       </div>
@@ -121,16 +133,16 @@ const AbandonedCartsList = ({
 
                     <div className="text-right flex flex-col items-end gap-1">
                       <p className="font-semibold">
-                        Total: Tk.{cart.totalAmount?.toFixed(2) || "0.00"}
+                        Total: Tk.{cart.totalAmount?.toFixed(2) || '0.00'}
                       </p>
                       <p className="text-xs text-muted-foreground">
                         {new Date(cart.createdAt).toLocaleString(undefined, {
-                          dateStyle: "medium",
-                          timeStyle: "short",
+                          dateStyle: 'medium',
+                          timeStyle: 'short',
                         })}
                       </p>
                       <div className="flex gap-1 mt-1">
-                        {cart.status !== "converted" && (
+                        {cart.status !== 'converted' && (
                           <>
                             <RequirePermission
                               permission="edit_incomplete_orders"
@@ -192,20 +204,20 @@ const AbandonedCartsList = ({
                         />
                         <div className="flex-1 text-sm">
                           <p className="font-medium">
-                            {item.product?.name || "-"}
+                            {item.product?.name || '-'}
                           </p>
                           <p className="text-muted-foreground">
-                            {item.product?.category || "-"} |{" "}
-                            {item.variant?.displayName || "No variant"}
+                            {item.product?.category || '-'} |{' '}
+                            {item.variant?.displayName || 'No variant'}
                           </p>
                           <p className="text-foreground">
-                            Tk.{item.price?.toFixed(2) || "0.00"} ×{" "}
-                            {item.quantity} ={" "}
+                            Tk.{item.price?.toFixed(2) || '0.00'} ×{' '}
+                            {item.quantity} ={' '}
                             <span className="font-semibold">
                               Tk.
-                              {((item.price || 0) * (item.quantity || 0)).toFixed(
-                                2,
-                              )}
+                              {(
+                                (item.price || 0) * (item.quantity || 0)
+                              ).toFixed(2)}
                             </span>
                           </p>
                         </div>
@@ -213,7 +225,9 @@ const AbandonedCartsList = ({
                     ))}
                   </div>
                 ) : (
-                  <p className="text-sm text-muted-foreground mt-2">No items in cart.</p>
+                  <p className="text-sm text-muted-foreground mt-2">
+                    No items in cart.
+                  </p>
                 )}
               </CardContent>
             </Card>
@@ -252,20 +266,20 @@ const AbandonedCartsList = ({
 
 const EditCartDialog = ({ open, cart, onClose, onSave }) => {
   const [formData, setFormData] = useState({
-    fullName: "",
-    number: "",
-    email: "",
-    address: "",
+    fullName: '',
+    number: '',
+    email: '',
+    address: '',
     totalAmount: 0,
   });
 
   useEffect(() => {
     if (cart) {
       setFormData({
-        fullName: cart.fullName || "",
-        number: cart.number || "",
-        email: cart.email || "",
-        address: cart.address || "",
+        fullName: cart.fullName || '',
+        number: cart.number || '',
+        email: cart.email || '',
+        address: cart.address || '',
         totalAmount: cart.totalAmount || 0,
       });
     }
@@ -275,7 +289,7 @@ const EditCartDialog = ({ open, cart, onClose, onSave }) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: name === "totalAmount" ? parseFloat(value) || 0 : value,
+      [name]: name === 'totalAmount' ? parseFloat(value) || 0 : value,
     }));
   };
 
@@ -339,7 +353,9 @@ const EditCartDialog = ({ open, cart, onClose, onSave }) => {
           </div>
         </div>
         <DialogFooter>
-          <Button variant="outline" onClick={onClose}>Cancel</Button>
+          <Button variant="outline" onClick={onClose}>
+            Cancel
+          </Button>
           <Button onClick={handleSubmit}>Save</Button>
         </DialogFooter>
       </DialogContent>
@@ -355,24 +371,24 @@ const ConvertToOrderDialog = ({
   shippingOptions,
 }) => {
   const [formData, setFormData] = useState({
-    fullName: "",
-    number: "",
-    email: "",
-    address: "",
-    shippingId: "",
-    paymentMethod: "cash_on_delivery",
+    fullName: '',
+    number: '',
+    email: '',
+    address: '',
+    shippingId: '',
+    paymentMethod: 'cash_on_delivery',
     specialDiscount: 0,
   });
 
   useEffect(() => {
     if (cart) {
       setFormData({
-        fullName: cart.fullName || "",
-        number: cart.number || "",
-        email: cart.email || "",
-        address: cart.address || "",
-        shippingId: shippingOptions[0]?._id || "",
-        paymentMethod: "cash_on_delivery",
+        fullName: cart.fullName || '',
+        number: cart.number || '',
+        email: cart.email || '',
+        address: cart.address || '',
+        shippingId: shippingOptions[0]?._id || '',
+        paymentMethod: 'cash_on_delivery',
         specialDiscount: 0,
       });
     }
@@ -385,7 +401,7 @@ const ConvertToOrderDialog = ({
 
   const handleSubmit = () => {
     if (!formData.shippingId) {
-      toast.warning("Please select a shipping method");
+      toast.warning('Please select a shipping method');
       return;
     }
     onConvert(cart._id, formData);
@@ -483,7 +499,9 @@ const ConvertToOrderDialog = ({
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="cash_on_delivery">Cash on Delivery</SelectItem>
+                <SelectItem value="cash_on_delivery">
+                  Cash on Delivery
+                </SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -498,7 +516,9 @@ const ConvertToOrderDialog = ({
           </div>
         </div>
         <DialogFooter>
-          <Button variant="outline" onClick={onClose}>Cancel</Button>
+          <Button variant="outline" onClick={onClose}>
+            Cancel
+          </Button>
           <Button onClick={handleSubmit} disabled={!isFormValid}>
             Create Order
           </Button>
@@ -530,12 +550,12 @@ const AbandonedCartsContainer = () => {
     ratio: 0,
   });
 
-  const [sort, setSort] = useState("desc");
-  const [statusFilter, setStatusFilter] = useState("all");
+  const [sort, setSort] = useState('desc');
+  const [statusFilter, setStatusFilter] = useState('all');
   const [itemsPerPage, setItemsPerPage] = useState(10);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
+  const [searchQuery, setSearchQuery] = useState('');
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
 
   const [selectedCarts, setSelectedCarts] = useState([]);
 
@@ -563,16 +583,16 @@ const AbandonedCartsContainer = () => {
         status: currentStatus,
       });
 
-      if (searchQuery) params.append("search", searchQuery);
-      if (startDate) params.append("startDate", startDate);
-      if (endDate) params.append("endDate", endDate);
+      if (searchQuery) params.append('search', searchQuery);
+      if (startDate) params.append('startDate', startDate);
+      if (endDate) params.append('endDate', endDate);
 
       const response = await fetch(
         `${apiUrl}/abandoned-cart?${params.toString()}`,
         {
-          method: "GET",
+          method: 'GET',
           headers: {
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
             Authorization: `Bearer ${token}`,
           },
         },
@@ -592,7 +612,7 @@ const AbandonedCartsContainer = () => {
         setError(null);
         setSelectedCarts([]);
       } else {
-        throw new Error(json.message || "Failed to fetch abandoned carts");
+        throw new Error(json.message || 'Failed to fetch abandoned carts');
       }
     } catch (err) {
       setError(err.message);
@@ -613,7 +633,7 @@ const AbandonedCartsContainer = () => {
         setStats(json.data);
       }
     } catch (err) {
-      console.error("Failed to fetch stats:", err);
+      console.error('Failed to fetch stats:', err);
     }
   };
 
@@ -629,7 +649,7 @@ const AbandonedCartsContainer = () => {
         setShippingOptions(json.data);
       }
     } catch (err) {
-      console.error("Failed to fetch shipping options:", err);
+      console.error('Failed to fetch shipping options:', err);
     }
   };
 
@@ -674,16 +694,16 @@ const AbandonedCartsContainer = () => {
         : `${apiUrl}/abandoned-cart/${selectedCartId}`;
 
       const res = await fetch(url, {
-        method: "DELETE",
+        method: 'DELETE',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
         body: isBulk ? JSON.stringify({ ids: selectedCartId }) : undefined,
       });
 
       if (!res.ok) {
-        throw new Error("Failed to delete cart(s)");
+        throw new Error('Failed to delete cart(s)');
       }
 
       const json = await res.json();
@@ -693,7 +713,7 @@ const AbandonedCartsContainer = () => {
       fetchAbandonedCarts(data.page, itemsPerPage, statusFilter);
       fetchStats();
     } catch (err) {
-      toast.error("Error: " + err.message);
+      toast.error('Error: ' + err.message);
     }
   };
 
@@ -705,16 +725,16 @@ const AbandonedCartsContainer = () => {
   const handleSaveEdit = async (cartId, updateData) => {
     try {
       const res = await fetch(`${apiUrl}/abandoned-cart/${cartId}`, {
-        method: "PUT",
+        method: 'PUT',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(updateData),
       });
 
       if (!res.ok) {
-        throw new Error("Failed to update cart");
+        throw new Error('Failed to update cart');
       }
 
       const json = await res.json();
@@ -724,7 +744,7 @@ const AbandonedCartsContainer = () => {
       fetchAbandonedCarts(data.page, itemsPerPage, statusFilter);
       fetchStats();
     } catch (err) {
-      toast.error("Error: " + err.message);
+      toast.error('Error: ' + err.message);
     }
   };
 
@@ -738,9 +758,9 @@ const AbandonedCartsContainer = () => {
       const res = await fetch(
         `${apiUrl}/abandoned-cart/${cartId}/convert-to-order`,
         {
-          method: "POST",
+          method: 'POST',
           headers: {
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
             Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify(orderData),
@@ -749,7 +769,7 @@ const AbandonedCartsContainer = () => {
 
       if (!res.ok) {
         const errorJson = await res.json();
-        throw new Error(errorJson.message || "Failed to convert to order");
+        throw new Error(errorJson.message || 'Failed to convert to order');
       }
 
       const json = await res.json();
@@ -759,7 +779,7 @@ const AbandonedCartsContainer = () => {
       fetchAbandonedCarts(data.page, itemsPerPage, statusFilter);
       fetchStats();
     } catch (err) {
-      toast.error("Error: " + err.message);
+      toast.error('Error: ' + err.message);
     }
   };
 
@@ -802,13 +822,13 @@ const AbandonedCartsContainer = () => {
   };
 
   const handleResetFilters = () => {
-    setSort("desc");
-    setStatusFilter("all");
-    setSearchQuery("");
-    setStartDate("");
-    setEndDate("");
+    setSort('desc');
+    setStatusFilter('all');
+    setSearchQuery('');
+    setStartDate('');
+    setEndDate('');
     setItemsPerPage(10);
-    fetchAbandonedCarts(1, 10, "all");
+    fetchAbandonedCarts(1, 10, 'all');
   };
 
   if (loading)
@@ -852,7 +872,9 @@ const AbandonedCartsContainer = () => {
       <div className="bg-muted/30 rounded-lg p-4 space-y-3">
         <div className="flex flex-wrap gap-3 items-center">
           <div className="flex items-center gap-2">
-            <label className="text-sm text-muted-foreground whitespace-nowrap">Sort by Date:</label>
+            <label className="text-sm text-muted-foreground whitespace-nowrap">
+              Sort by Date:
+            </label>
             <Select value={sort} onValueChange={handleSortChange}>
               <SelectTrigger className="w-[130px] h-8 bg-background">
                 <SelectValue />
@@ -864,8 +886,13 @@ const AbandonedCartsContainer = () => {
             </Select>
           </div>
           <div className="flex items-center gap-2">
-            <label className="text-sm text-muted-foreground whitespace-nowrap">Status:</label>
-            <Select value={statusFilter} onValueChange={handleStatusFilterChange}>
+            <label className="text-sm text-muted-foreground whitespace-nowrap">
+              Status:
+            </label>
+            <Select
+              value={statusFilter}
+              onValueChange={handleStatusFilterChange}
+            >
               <SelectTrigger className="w-[130px] h-8 bg-background">
                 <SelectValue />
               </SelectTrigger>
@@ -876,7 +903,10 @@ const AbandonedCartsContainer = () => {
               </SelectContent>
             </Select>
           </div>
-          <form onSubmit={handleSearchSubmit} className="flex items-center gap-2">
+          <form
+            onSubmit={handleSearchSubmit}
+            className="flex items-center gap-2"
+          >
             <Input
               placeholder="Search by number..."
               value={searchQuery}
@@ -892,7 +922,9 @@ const AbandonedCartsContainer = () => {
 
         <div className="flex flex-wrap gap-3 items-center">
           <div className="flex items-center gap-2">
-            <label className="text-sm text-muted-foreground whitespace-nowrap">From:</label>
+            <label className="text-sm text-muted-foreground whitespace-nowrap">
+              From:
+            </label>
             <Input
               type="date"
               value={startDate}
@@ -901,7 +933,9 @@ const AbandonedCartsContainer = () => {
             />
           </div>
           <div className="flex items-center gap-2">
-            <label className="text-sm text-muted-foreground whitespace-nowrap">To:</label>
+            <label className="text-sm text-muted-foreground whitespace-nowrap">
+              To:
+            </label>
             <Input
               type="date"
               value={endDate}
@@ -914,8 +948,13 @@ const AbandonedCartsContainer = () => {
             Reset
           </Button>
           <div className="flex items-center gap-2 ml-auto">
-            <label className="text-sm text-muted-foreground whitespace-nowrap">Items per page:</label>
-            <Select value={String(itemsPerPage)} onValueChange={handleItemsPerPageChange}>
+            <label className="text-sm text-muted-foreground whitespace-nowrap">
+              Items per page:
+            </label>
+            <Select
+              value={String(itemsPerPage)}
+              onValueChange={handleItemsPerPageChange}
+            >
               <SelectTrigger className="w-[80px] h-8 bg-background">
                 <SelectValue />
               </SelectTrigger>
@@ -949,11 +988,14 @@ const AbandonedCartsContainer = () => {
             <DialogDescription>
               {Array.isArray(selectedCartId)
                 ? `Are you sure you want to delete ${selectedCartId.length} abandoned cart(s)? This action cannot be undone.`
-                : "Are you sure you want to delete this abandoned cart? This action cannot be undone."}
+                : 'Are you sure you want to delete this abandoned cart? This action cannot be undone.'}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setOpenDeleteDialog(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setOpenDeleteDialog(false)}
+            >
               Cancel
             </Button>
             <Button variant="destructive" onClick={handleConfirmDelete}>

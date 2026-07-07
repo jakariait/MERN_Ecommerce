@@ -1,11 +1,11 @@
 import React from 'react';
-import AllBlogs from "../component/componentGeneral/AllBlogs.jsx";
+import AllBlogs from '../component/componentGeneral/AllBlogs.jsx';
 
 const BlogsPage = () => {
   return (
-  <>
-      <AllBlogs/>
-  </>
+    <>
+      <AllBlogs />
+    </>
   );
 };
 

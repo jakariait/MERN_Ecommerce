@@ -1,7 +1,16 @@
-import React, { useState } from "react";
-import axios from "axios";
-import { Accordion, AccordionSummary, AccordionDetails } from "@/components/ui/accordion";
-import { Plus as Add, Minus as Remove, CheckCircle2 as CheckCircle, AlertCircle as ErrorOutline } from "lucide-react";
+import React, { useState } from 'react';
+import axios from 'axios';
+import {
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
+} from '@/components/ui/accordion';
+import {
+  Plus as Add,
+  Minus as Remove,
+  CheckCircle2 as CheckCircle,
+  AlertCircle as ErrorOutline,
+} from 'lucide-react';
 
 const CouponSection = ({
   orderAmount,
@@ -9,8 +18,8 @@ const CouponSection = ({
 }) => {
   const apiUrl = import.meta.env.VITE_API_URL;
 
-  const [coupon, setCoupon] = useState("");
-  const [couponError, setCouponError] = useState("");
+  const [coupon, setCoupon] = useState('');
+  const [couponError, setCouponError] = useState('');
   const [appliedCoupon, setAppliedCoupon] = useState(null);
   const [expanded, setExpanded] = useState(false);
 
@@ -18,7 +27,7 @@ const CouponSection = ({
     e.preventDefault();
 
     if (!coupon.trim()) {
-      setCouponError("Please enter a coupon code.");
+      setCouponError('Please enter a coupon code.');
       return;
     }
 
@@ -34,7 +43,7 @@ const CouponSection = ({
         // Check if the orderAmount is below the minimumOrder
         if (orderAmount < couponData.minimumOrder) {
           setCouponError(
-            `Minimum order amount should be ৳${couponData.minimumOrder}.`
+            `Minimum order amount should be ৳${couponData.minimumOrder}.`,
           );
           setAppliedCoupon(null);
           setAppliedCouponGlobal(null);
@@ -47,14 +56,14 @@ const CouponSection = ({
         const endDate = new Date(couponData.endDate);
 
         if (now < startDate || now > endDate) {
-          setCouponError("This coupon is not valid at this time.");
+          setCouponError('This coupon is not valid at this time.');
           setAppliedCoupon(null);
           setAppliedCouponGlobal(null);
           return;
         }
 
         const discountAmount =
-          couponData.type === "percentage"
+          couponData.type === 'percentage'
             ? (orderAmount * couponData.value) / 100
             : couponData.value;
 
@@ -62,22 +71,24 @@ const CouponSection = ({
 
         setAppliedCoupon(finalCoupon);
         setAppliedCouponGlobal(finalCoupon);
-        setCouponError("");
+        setCouponError('');
       } else {
         // If the API returns a failure (e.g., minimum order error)
-        setCouponError(res.data.message || "Invalid coupon.");
+        setCouponError(res.data.message || 'Invalid coupon.');
         setAppliedCoupon(null);
         setAppliedCouponGlobal(null);
       }
     } catch (err) {
       // Capture any unexpected errors
-      setCouponError(err.response?.data?.message || "Failed to apply coupon. Please try again.");
+      setCouponError(
+        err.response?.data?.message ||
+          'Failed to apply coupon. Please try again.',
+      );
       setAppliedCoupon(null);
       setAppliedCouponGlobal(null);
       console.error(err);
     }
   };
-
 
   return (
     <div className="rounded-md shadow overflow-hidden bg-white">
@@ -90,7 +101,7 @@ const CouponSection = ({
 
         <AccordionDetails>
           <div className="flex flex-col items-center space-x-3">
-            <div className={"flex gap-2 accentBgColor w-full p-3 rounded-md"}>
+            <div className={'flex gap-2 accentBgColor w-full p-3 rounded-md'}>
               <input
                 type="text"
                 placeholder="Enter your coupon code"
@@ -109,11 +120,11 @@ const CouponSection = ({
             {/* Applied coupon success message */}
             {appliedCoupon && (
               <div className="flex items-center space-x-2 bg-green-100 w-full p-3 rounded-md mt-3">
-                <CheckCircle sx={{ color: "#5cb85c" }} />
+                <CheckCircle sx={{ color: '#5cb85c' }} />
                 <span className="text-green-600 text-sm">
                   Coupon <strong>{appliedCoupon.code}</strong> applied! You
-                  saved{" "}
-                  {appliedCoupon.type === "percentage"
+                  saved{' '}
+                  {appliedCoupon.type === 'percentage'
                     ? `${appliedCoupon.value}%`
                     : `Tk.${appliedCoupon.value}`}
                   .
@@ -124,7 +135,7 @@ const CouponSection = ({
             {/* Error message */}
             {couponError && (
               <div className="flex items-center space-x-2 bg-red-100 w-full p-3 rounded-md mt-3">
-                <ErrorOutline sx={{ color: "#d9534f" }} />
+                <ErrorOutline sx={{ color: '#d9534f' }} />
                 <span className="text-red-500 text-sm">{couponError}</span>
               </div>
             )}

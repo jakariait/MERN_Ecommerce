@@ -1,7 +1,7 @@
-import React, { useEffect } from "react";
-import useAuthUserStore from "../../store/AuthUserStore";
-import ImageComponent from "./ImageComponent.jsx";
-import { Link, useNavigate, useLocation } from "react-router-dom";
+import React, { useEffect } from 'react';
+import useAuthUserStore from '../../store/AuthUserStore';
+import ImageComponent from './ImageComponent.jsx';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 
 import {
   FaSignOutAlt,
@@ -10,15 +10,19 @@ import {
   FaUserCog,
   FaKey,
   FaHeart,
-} from "react-icons/fa";
-import Skeleton from "react-loading-skeleton";
+} from 'react-icons/fa';
+import Skeleton from 'react-loading-skeleton';
 
 const menuItems = [
-  { icon: <FaTachometerAlt />, label: "Dashboard", path: "/user/home" },
-  { icon: <FaHeart />, label: "My Wishlist", path: "/user/wishlist" },
-  { icon: <FaShoppingCart />, label: "My orders", path: "/user/orders" },
-  { icon: <FaUserCog />, label: "Manage profile", path: "/user/manage-profile" },
-  { icon: <FaKey />, label: "Change password", path: "/user/change-password" },
+  { icon: <FaTachometerAlt />, label: 'Dashboard', path: '/user/home' },
+  { icon: <FaHeart />, label: 'My Wishlist', path: '/user/wishlist' },
+  { icon: <FaShoppingCart />, label: 'My orders', path: '/user/orders' },
+  {
+    icon: <FaUserCog />,
+    label: 'Manage profile',
+    path: '/user/manage-profile',
+  },
+  { icon: <FaKey />, label: 'Change password', path: '/user/change-password' },
 ];
 const UserMenu = () => {
   const { initialize, user, loading, error, logout } = useAuthUserStore();
@@ -31,29 +35,27 @@ const UserMenu = () => {
 
   const handleLogout = () => {
     logout();
-    navigate("/login"); // redirect to login page after logout
+    navigate('/login'); // redirect to login page after logout
   };
 
   if (error) {
     return <div className="p-10 text-red-500 text-center">{error}</div>;
   }
 
-
-
   return (
     <div>
       <div className="bg-white md:shadow-md rounded-xl p-4">
         {loading ? (
-          <div className={"grid gap-2"}>
-            <Skeleton height={200} width={"100%"} />
-            <Skeleton height={50} width={"100%"} />
-            <Skeleton height={50} width={"100%"} />
-            <Skeleton height={50} width={"100%"} />
-            <Skeleton height={50} width={"100%"} />
-            <Skeleton height={50} width={"100%"} />
-            <Skeleton height={50} width={"100%"} />
-            <Skeleton height={50} width={"100%"} />
-            <Skeleton height={50} width={"100%"} />
+          <div className={'grid gap-2'}>
+            <Skeleton height={200} width={'100%'} />
+            <Skeleton height={50} width={'100%'} />
+            <Skeleton height={50} width={'100%'} />
+            <Skeleton height={50} width={'100%'} />
+            <Skeleton height={50} width={'100%'} />
+            <Skeleton height={50} width={'100%'} />
+            <Skeleton height={50} width={'100%'} />
+            <Skeleton height={50} width={'100%'} />
+            <Skeleton height={50} width={'100%'} />
           </div>
         ) : (
           <div>
@@ -63,16 +65,16 @@ const UserMenu = () => {
                 <ImageComponent
                   imageName={user?.userImage}
                   className={
-                    "w-24 h-24 rounded-full object-cover border-white border-4"
+                    'w-24 h-24 rounded-full object-cover border-white border-4'
                   }
                 />
               ) : (
                 <span className="accentTextColor text-xl font-semibold w-24 h-24 rounded-full border-4 border-white flex items-center justify-center text-center">
-                  {user?.fullName || "User"}
+                  {user?.fullName || 'User'}
                 </span>
               )}
               <h2 className="text-xl font-bold mt-2">
-                {user?.fullName || "User"}
+                {user?.fullName || 'User'}
               </h2>
               <p className="text-sm mt-1">{user?.phone || user?.email}</p>
               <p className="text-sm">Reward Points: {user?.rewardPoints}</p>
@@ -88,15 +90,15 @@ const UserMenu = () => {
             {/* Menu */}
             <nav className="mt-6 space-y-2">
               {menuItems.map((item, idx) => {
-                const isActive = location.pathname === item.path
+                const isActive = location.pathname === item.path;
                 return (
                   <Link
                     key={idx}
                     to={item.path}
                     className={`flex items-center justify-between px-4 py-3 rounded-lg cursor-pointer transition-colors ${
                       isActive
-                        ? "primaryBgColor accentTextColor"
-                        : "text-gray-600 hover:bg-gray-100"
+                        ? 'primaryBgColor accentTextColor'
+                        : 'text-gray-600 hover:bg-gray-100'
                     }`}
                   >
                     <div className="flex items-center gap-3">

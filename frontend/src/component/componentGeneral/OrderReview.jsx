@@ -1,11 +1,16 @@
 // OrderReview.jsx
-import React from "react";
-import {FaPlus, FaTrash} from "react-icons/fa";
-import ImageComponent from "./ImageComponent.jsx";
-import { Link } from "react-router-dom";
-import {FiMinus} from "react-icons/fi";
+import React from 'react';
+import { FaPlus, FaTrash } from 'react-icons/fa';
+import ImageComponent from './ImageComponent.jsx';
+import { Link } from 'react-router-dom';
+import { FiMinus } from 'react-icons/fi';
 
-const OrderReview = ({ cart, removeFromCart, updateQuantity, formattedTotalAmount }) => {
+const OrderReview = ({
+  cart,
+  removeFromCart,
+  updateQuantity,
+  formattedTotalAmount,
+}) => {
   return (
     <div>
       <h1 className="border-l-4 primaryBorderColor primaryTextColor mb-6 pl-2 text-lg font-semibold">
@@ -29,7 +34,7 @@ const OrderReview = ({ cart, removeFromCart, updateQuantity, formattedTotalAmoun
                   imageName={item.thumbnail}
                   altName={item.name}
                   className="object-cover"
-                  skeletonHeight={"100"}
+                  skeletonHeight={'100'}
                 />
               </Link>
             </div>
@@ -39,23 +44,19 @@ const OrderReview = ({ cart, removeFromCart, updateQuantity, formattedTotalAmoun
                   {item.name}
                 </h3>
               </Link>
-              {item.variant !== "Default" && <p>Variant: {item.variant}</p>}
+              {item.variant !== 'Default' && <p>Variant: {item.variant}</p>}
             </div>
             <div className="flex flex-col items-center justify-baseline gap-4">
               <div>
                 {item.discountPrice > 0 ? (
                   <p>
-                    Price: Tk.{" "}
-                    {formattedTotalAmount(
-                      item.discountPrice * item.quantity,
-                    )}
+                    Price: Tk.{' '}
+                    {formattedTotalAmount(item.discountPrice * item.quantity)}
                   </p>
                 ) : (
                   <p>
-                    Price: Tk.{" "}
-                    {formattedTotalAmount(
-                      item.originalPrice * item.quantity,
-                    )}
+                    Price: Tk.{' '}
+                    {formattedTotalAmount(item.originalPrice * item.quantity)}
                   </p>
                 )}
               </div>
@@ -74,7 +75,7 @@ const OrderReview = ({ cart, removeFromCart, updateQuantity, formattedTotalAmoun
                   >
                     <FiMinus />
                   </button>
-                  <span className={"px-3 py-1 bg-gray-200"}>
+                  <span className={'px-3 py-1 bg-gray-200'}>
                     {item.quantity}
                   </span>
                   <button

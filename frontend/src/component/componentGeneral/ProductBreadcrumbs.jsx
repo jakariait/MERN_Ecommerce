@@ -1,13 +1,16 @@
-import React from "react";
-import { Breadcrumbs } from "@/components/ui/breadcrumbs";
-import { Typography } from "@/components/ui/typography";
-import { Link as RouterLink } from "react-router-dom";
+import React from 'react';
+import { Breadcrumbs } from '@/components/ui/breadcrumbs';
+import { Typography } from '@/components/ui/typography';
+import { Link as RouterLink } from 'react-router-dom';
 
 const ProductBreadcrumbs = ({ product }) => {
   return (
-    <div className={"md:p-3"}>
+    <div className={'md:p-3'}>
       <Breadcrumbs separator="/" aria-label="breadcrumb">
-        <RouterLink to="/" className="text-inherit no-underline hover:underline">
+        <RouterLink
+          to="/"
+          className="text-inherit no-underline hover:underline"
+        >
           Home
         </RouterLink>
 
@@ -39,7 +42,9 @@ const ProductBreadcrumbs = ({ product }) => {
         )}
 
         {product?.name && (
-          <Typography className="text-muted-foreground">{product.name}</Typography>
+          <Typography className="text-muted-foreground">
+            {product.name}
+          </Typography>
         )}
       </Breadcrumbs>
     </div>

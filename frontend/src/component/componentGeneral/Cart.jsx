@@ -1,11 +1,11 @@
-import React from "react";
-import useCartStore from "../../store/useCartStore.js";
-import { Link } from "react-router-dom";
-import { FaTrash } from "react-icons/fa";
-import ImageComponent from "./ImageComponent.jsx";
-import { FiMinus } from "react-icons/fi";
-import { FaPlus } from "react-icons/fa6";
-import emptyCart from "../../assets/empty_cart.png";
+import React from 'react';
+import useCartStore from '../../store/useCartStore.js';
+import { Link } from 'react-router-dom';
+import { FaTrash } from 'react-icons/fa';
+import ImageComponent from './ImageComponent.jsx';
+import { FiMinus } from 'react-icons/fi';
+import { FaPlus } from 'react-icons/fa6';
+import emptyCart from '../../assets/empty_cart.png';
 
 const Cart = ({ onCloseCartMenu }) => {
   const { cart, removeFromCart, updateQuantity, clearCart } = useCartStore();
@@ -44,11 +44,11 @@ const Cart = ({ onCloseCartMenu }) => {
         </div>
       ) : (
         <div className="grid gap-4">
-           {cart.map((item) => (
-             <div
-               key={`${item.productId}-${item.variantId}`}
-               className="grid grid-cols-2 gap-3 border-t border-dashed py-2"
-             >
+          {cart.map((item) => (
+            <div
+              key={`${item.productId}-${item.variantId}`}
+              className="grid grid-cols-2 gap-3 border-t border-dashed py-2"
+            >
               {/*Product Thumbnail*/}
 
               <Link to={`/product/${item.slug}`}>
@@ -69,26 +69,26 @@ const Cart = ({ onCloseCartMenu }) => {
 
                   {/*Original Price*/}
                   <p>
-                    Price: Tk.{" "}
+                    Price: Tk.{' '}
                     {formattedTotalAmount(item.originalPrice * item.quantity)}
                   </p>
                   {/*Discount Price*/}
                   {item.discountPrice > 0 && (
-                    <p className={"text-red-800"}>
-                      Offer Price: Tk.{" "}
+                    <p className={'text-red-800'}>
+                      Offer Price: Tk.{' '}
                       {formattedTotalAmount(item.discountPrice * item.quantity)}
                     </p>
                   )}
                   {/*Discount Amount*/}
                   {item.discountPrice > 0 && (
                     <p>
-                      You Save: Tk.{" "}
+                      You Save: Tk.{' '}
                       {formattedTotalAmount(
                         item.originalPrice - item.discountPrice,
                       )}
                     </p>
                   )}
-                  {item.variant !== "Default" && <p>Variant: {item.variant}</p>}
+                  {item.variant !== 'Default' && <p>Variant: {item.variant}</p>}
                   <div className="flex items-center gap-2 justify-between">
                     <div className="flex items-center">
                       {/*Decrease Button*/}
@@ -105,7 +105,7 @@ const Cart = ({ onCloseCartMenu }) => {
                       >
                         <FiMinus />
                       </button>
-                      <span className={"px-3 py-1 bg-gray-200"}>
+                      <span className={'px-3 py-1 bg-gray-200'}>
                         {item.quantity}
                       </span>
                       {/*Increase Button*/}

@@ -1,6 +1,6 @@
-import { create } from "zustand";
-import axios from "axios";
-import useAuthStore from "./AuthAdminStore"; // If required for authentication
+import { create } from 'zustand';
+import axios from 'axios';
+import useAuthStore from './AuthAdminStore'; // If required for authentication
 
 const apiUrl = import.meta.env.VITE_API_URL; // API base URL
 
@@ -23,7 +23,9 @@ const useProductStore = create((set) => ({
 
     try {
       const queryString = new URLSearchParams(params).toString();
-      const response = await axios.get(`${apiUrl}/getAllProducts?${queryString}`);
+      const response = await axios.get(
+        `${apiUrl}/getAllProducts?${queryString}`,
+      );
 
       set({
         products: response.data.products || [],
@@ -34,20 +36,20 @@ const useProductStore = create((set) => ({
       });
     } catch (error) {
       set({
-        error: error.response?.data?.message || "Failed to fetch products",
+        error: error.response?.data?.message || 'Failed to fetch products',
         loading: false,
       });
     }
   },
-
-
 
   fetchProductsAdmin: async (params) => {
     set({ loading: true, error: null });
 
     try {
       const queryString = new URLSearchParams(params).toString();
-      const response = await axios.get(`${apiUrl}/getAllProductsAdmin?${queryString}`);
+      const response = await axios.get(
+        `${apiUrl}/getAllProductsAdmin?${queryString}`,
+      );
 
       set({
         products: response.data.products || [],
@@ -60,7 +62,7 @@ const useProductStore = create((set) => ({
       });
     } catch (error) {
       set({
-        error: error.response?.data?.message || "Failed to fetch products",
+        error: error.response?.data?.message || 'Failed to fetch products',
         loading: false,
       });
     }
@@ -75,7 +77,7 @@ const useProductStore = create((set) => ({
       set({ product: response.data || null, loading: false });
     } catch (error) {
       set({
-        error: error.response?.data?.message || "Failed to fetch product",
+        error: error.response?.data?.message || 'Failed to fetch product',
         loading: false,
       });
     }
@@ -90,7 +92,8 @@ const useProductStore = create((set) => ({
       set({ product: response.data.data || null, loading: false });
     } catch (error) {
       set({
-        error: error.response?.data?.message || "Failed to fetch product by slug",
+        error:
+          error.response?.data?.message || 'Failed to fetch product by slug',
         loading: false,
       });
     }
@@ -104,7 +107,7 @@ const useProductStore = create((set) => ({
 
     try {
       const token = useAuthStore.getState().token;
-      if (!token) throw new Error("Unauthorized: No token found");
+      if (!token) throw new Error('Unauthorized: No token found');
 
       const response = await axios.put(`${apiUrl}/products/${id}`, data, {
         headers: { Authorization: `Bearer ${token}` },
@@ -112,13 +115,13 @@ const useProductStore = create((set) => ({
 
       set((state) => ({
         products: state.products.map((prod) =>
-          prod._id === id ? response.data : prod
+          prod._id === id ? response.data : prod,
         ),
         loading: false,
       }));
     } catch (error) {
       set({
-        error: error.response?.data?.message || "Failed to update product",
+        error: error.response?.data?.message || 'Failed to update product',
         loading: false,
       });
     }
@@ -130,7 +133,7 @@ const useProductStore = create((set) => ({
 
     try {
       const token = useAuthStore.getState().token;
-      if (!token) throw new Error("Unauthorized: No token found");
+      if (!token) throw new Error('Unauthorized: No token found');
 
       await axios.delete(`${apiUrl}/products/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
@@ -142,7 +145,7 @@ const useProductStore = create((set) => ({
       }));
     } catch (error) {
       set({
-        error: error.response?.data?.message || "Failed to delete product",
+        error: error.response?.data?.message || 'Failed to delete product',
         loading: false,
       });
     }
@@ -153,7 +156,7 @@ const useProductStore = create((set) => ({
 
     try {
       const token = useAuthStore.getState().token;
-      if (!token) throw new Error("Unauthorized: No token found");
+      if (!token) throw new Error('Unauthorized: No token found');
 
       await axios.post(
         `${apiUrl}/products/${id}/duplicate`,
@@ -164,7 +167,7 @@ const useProductStore = create((set) => ({
       set({ loading: false });
     } catch (error) {
       set({
-        error: error.response?.data?.message || "Failed to duplicate product",
+        error: error.response?.data?.message || 'Failed to duplicate product',
         loading: false,
       });
       throw error;
@@ -179,14 +182,12 @@ const useProductStore = create((set) => ({
       set({ homeProducts: response.data.data || {}, loading: false });
     } catch (error) {
       set({
-        error: error.response?.data?.message || "Failed to fetch homepage products",
+        error:
+          error.response?.data?.message || 'Failed to fetch homepage products',
         loading: false,
       });
     }
   },
-
-
-
 }));
 
 export default useProductStore;

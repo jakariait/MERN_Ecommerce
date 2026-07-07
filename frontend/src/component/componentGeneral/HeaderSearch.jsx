@@ -1,12 +1,12 @@
-import React, { useState, useRef } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
-import { CiSearch } from "react-icons/ci";
+import React, { useState, useRef } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { CiSearch } from 'react-icons/ci';
 
 const HeaderSearch = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [searchInput, setSearchInput] = useState(
-    searchParams.get("search") || "",
+    searchParams.get('search') || '',
   );
   const searchTimeoutRef = useRef(null);
 
@@ -18,7 +18,7 @@ const HeaderSearch = () => {
   };
 
   const handleKeyPress = (e) => {
-    if (e.key === "Enter") {
+    if (e.key === 'Enter') {
       handleSearch();
     }
   };

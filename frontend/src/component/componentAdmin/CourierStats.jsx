@@ -1,42 +1,38 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 import {
   FaTruck,
   FaCheckCircle,
   FaTimesCircle,
   FaChartPie,
   FaBoxOpen,
-} from "react-icons/fa";
+} from 'react-icons/fa';
 
 const CourierStats = ({ phone }) => {
   const [courierData, setCourierData] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState('');
 
   const apiUrl = import.meta.env.VITE_API_URL;
-
 
   useEffect(() => {
     if (!phone) return;
 
     const fetchCourierStats = async () => {
       setLoading(true);
-      setError("");
+      setError('');
       setCourierData(null);
 
       try {
-        const response = await axios.post(
-          `${apiUrl}/courier-check`,
-          { phone }
-        );
+        const response = await axios.post(`${apiUrl}/courier-check`, { phone });
 
-        if (response.data.status === "success") {
+        if (response.data.status === 'success') {
           setCourierData(response.data.courierData);
         } else {
-          setError("No data found.");
+          setError('No data found.');
         }
       } catch (err) {
-        setError("Error fetching data.");
+        setError('Error fetching data.');
         console.error(err);
       } finally {
         setLoading(false);
@@ -56,10 +52,10 @@ const CourierStats = ({ phone }) => {
         <span
           className={`text-sm font-semibold px-2 py-1 rounded-full ${
             data.success_ratio >= 80
-              ? "bg-green-100 text-green-700"
+              ? 'bg-green-100 text-green-700'
               : data.success_ratio >= 50
-                ? "bg-yellow-100 text-yellow-700"
-                : "bg-red-100 text-red-700"
+                ? 'bg-yellow-100 text-yellow-700'
+                : 'bg-red-100 text-red-700'
           }`}
         >
           {data.success_ratio}% Success
@@ -84,10 +80,10 @@ const CourierStats = ({ phone }) => {
           <div
             className={`h-2 rounded-full ${
               data.success_ratio >= 80
-                ? "bg-green-500"
+                ? 'bg-green-500'
                 : data.success_ratio >= 50
-                  ? "bg-yellow-400"
-                  : "bg-red-400"
+                  ? 'bg-yellow-400'
+                  : 'bg-red-400'
             }`}
             style={{ width: `${data.success_ratio}%` }}
           ></div>
@@ -108,7 +104,7 @@ const CourierStats = ({ phone }) => {
         <>
           <div className="grid md:grid-cols-2 gap-6">
             {Object.entries(courierData)
-              .filter(([key]) => key !== "summary")
+              .filter(([key]) => key !== 'summary')
               .map(([key, value]) => (
                 <StatCard key={key} name={key} data={value} />
               ))}

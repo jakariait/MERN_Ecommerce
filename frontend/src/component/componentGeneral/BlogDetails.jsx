@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
-import ImageComponent from "../componentGeneral/ImageComponent.jsx";
-import sanitizeHtml from "../../utils/sanitizeHtml.js";
+import React, { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
+import ImageComponent from '../componentGeneral/ImageComponent.jsx';
+import sanitizeHtml from '../../utils/sanitizeHtml.js';
 
 const BlogDetails = () => {
   const { slug } = useParams();
@@ -15,12 +15,12 @@ const BlogDetails = () => {
     const fetchBlog = async () => {
       try {
         const res = await fetch(`${apiUrl}/blog/slug/${slug}`);
-        if (!res.ok) throw new Error("Failed to load blog");
+        if (!res.ok) throw new Error('Failed to load blog');
 
         const data = await res.json();
         setBlog(data.data);
       } catch (err) {
-        setError(err.message || "Error fetching blog");
+        setError(err.message || 'Error fetching blog');
       }
     };
 
@@ -52,12 +52,12 @@ const BlogDetails = () => {
       </div>
 
       <div className="flex justify-between items-center">
-        <p className="text-gray-600 mb-2">By {blog.author || "Unknown"}</p>
+        <p className="text-gray-600 mb-2">By {blog.author || 'Unknown'}</p>
         <p className="text-gray-600 mb-2">
           {new Date(blog.updatedAt).toLocaleDateString(undefined, {
-            year: "numeric",
-            month: "long",
-            day: "numeric",
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
           })}
         </p>
       </div>

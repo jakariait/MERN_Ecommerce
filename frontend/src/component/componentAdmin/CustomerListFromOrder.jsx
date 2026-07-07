@@ -1,15 +1,15 @@
-import React, { useEffect, useState } from "react";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Badge } from "@/components/ui/badge";
+import React, { useEffect, useState } from 'react';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Badge } from '@/components/ui/badge';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from '@/components/ui/select';
 import {
   Table,
   TableBody,
@@ -17,15 +17,15 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { Card, CardContent } from "@/components/ui/card";
+} from '@/components/ui/table';
+import { Card, CardContent } from '@/components/ui/card';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { toast } from "sonner";
+} from '@/components/ui/dialog';
+import { toast } from 'sonner';
 import {
   Search,
   Eye,
@@ -39,20 +39,20 @@ import {
   ShoppingBag,
   Loader2,
   Download,
-} from "lucide-react";
-import axios from "axios";
-import { saveAs } from "file-saver";
-import useAuthAdminStore from "../../store/AuthAdminStore";
-import { SectionHeader } from "#component/componentAdmin/SectionHeader.jsx";
-import ImageComponent from "../componentGeneral/ImageComponent.jsx";
+} from 'lucide-react';
+import axios from 'axios';
+import { saveAs } from 'file-saver';
+import useAuthAdminStore from '../../store/AuthAdminStore';
+import { SectionHeader } from '#component/componentAdmin/SectionHeader.jsx';
+import ImageComponent from '../componentGeneral/ImageComponent.jsx';
 
 const statusVariantMap = {
-  pending: "warning",
-  approved: "info",
-  intransit: "default",
-  delivered: "success",
-  returned: "destructive",
-  cancelled: "destructive",
+  pending: 'warning',
+  approved: 'info',
+  intransit: 'default',
+  delivered: 'success',
+  returned: 'destructive',
+  cancelled: 'destructive',
 };
 
 const CustomerListFromOrder = () => {
@@ -60,7 +60,7 @@ const CustomerListFromOrder = () => {
   const apiUrl = import.meta.env.VITE_API_URL;
 
   const [customers, setCustomers] = useState([]);
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
@@ -82,7 +82,7 @@ const CustomerListFromOrder = () => {
       setTotalCustomers(res.data.totalCustomers);
       setTotalPages(res.data.totalPages);
     } catch (err) {
-      toast.error(err.response?.data?.message || "Failed to fetch customers");
+      toast.error(err.response?.data?.message || 'Failed to fetch customers');
     } finally {
       setLoading(false);
     }
@@ -98,38 +98,49 @@ const CustomerListFromOrder = () => {
   };
 
   const handleKeyDown = (e) => {
-    if (e.key === "Enter") handleSearch();
+    if (e.key === 'Enter') handleSearch();
   };
 
   const handleExportCsv = () => {
-    const headers = ["SL No", "Name", "Email", "Phone", "Address", "Total Orders", "Total Spent", "Last Order Date"];
+    const headers = [
+      'SL No',
+      'Name',
+      'Email',
+      'Phone',
+      'Address',
+      'Total Orders',
+      'Total Spent',
+      'Last Order Date',
+    ];
 
     const escapeCsv = (field) => {
-      if (field === null || field === undefined) return "";
+      if (field === null || field === undefined) return '';
       let str = String(field);
       str = str.replace(/"/g, '""');
       if (str.search(/("|,|\n)/g) >= 0) str = `"${str}"`;
       return str;
     };
 
-    const csvHeader = headers.map(escapeCsv).join(",");
+    const csvHeader = headers.map(escapeCsv).join(',');
     const csvRows = customers.map((cus, index) => {
       const row = [
         index + 1,
-        cus.fullName || "N/A",
-        cus.email || "N/A",
-        cus.phone || "N/A",
-        cus.address || "N/A",
+        cus.fullName || 'N/A',
+        cus.email || 'N/A',
+        cus.phone || 'N/A',
+        cus.address || 'N/A',
         cus.orderCount || 0,
-        cus.totalSpent ? `৳${cus.totalSpent.toLocaleString()}` : "N/A",
-        cus.lastOrderDate ? new Date(cus.lastOrderDate).toLocaleDateString() : "N/A",
+        cus.totalSpent ? `৳${cus.totalSpent.toLocaleString()}` : 'N/A',
+        cus.lastOrderDate
+          ? new Date(cus.lastOrderDate).toLocaleDateString()
+          : 'N/A',
       ];
-      return row.map(escapeCsv).join(",");
+      return row.map(escapeCsv).join(',');
     });
 
-    const csvData = [csvHeader, ...csvRows].join("\n");
-    const blob = new Blob([csvData], { type: "text/csv;charset=utf-8;" });
-    saveAs(blob, "customers_from_orders.csv");
+    const csvData = [csvHeader, ...csvRows].join('\n');
+    const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' });
+    saveAs(blob, 'customers_from_orders.csv');
   };
 
   const handleViewOrders = async (customer) => {
@@ -144,7 +155,7 @@ const CustomerListFromOrder = () => {
       setCustomerOrders(res.data.orders);
     } catch (err) {
       toast.error(
-        err.response?.data?.message || "Failed to fetch customer orders",
+        err.response?.data?.message || 'Failed to fetch customer orders',
       );
       setCustomerOrders([]);
     } finally {
@@ -154,7 +165,7 @@ const CustomerListFromOrder = () => {
 
   return (
     <div className="space-y-6">
-      <SectionHeader title={"Customers from Orders"} />
+      <SectionHeader title={'Customers from Orders'} />
 
       <div className="flex items-center justify-between gap-4 bg-muted/30 rounded-lg p-3">
         <div className="relative flex-1 max-w-sm">
@@ -196,7 +207,7 @@ const CustomerListFromOrder = () => {
             <p className="text-sm text-muted-foreground">entries</p>
           </div>
           <p className="text-sm text-muted-foreground">
-            {totalCustomers} customer{totalCustomers !== 1 ? "s" : ""}
+            {totalCustomers} customer{totalCustomers !== 1 ? 's' : ''}
           </p>
         </div>
       </div>
@@ -246,7 +257,7 @@ const CustomerListFromOrder = () => {
                     <TableCell className="font-medium">
                       <div className="flex items-center gap-2">
                         <User className="size-4 text-muted-foreground shrink-0" />
-                        {cus.fullName || "N/A"}
+                        {cus.fullName || 'N/A'}
                       </div>
                     </TableCell>
                     <TableCell>
@@ -342,7 +353,10 @@ const CustomerListFromOrder = () => {
           ) : (
             <div className="space-y-3">
               {customerOrders.map((order) => (
-                <Card key={order._id} className="border-0 shadow-sm bg-muted/20 border-l-4 border-l-primary/60">
+                <Card
+                  key={order._id}
+                  className="border-0 shadow-sm bg-muted/20 border-l-4 border-l-primary/60"
+                >
                   <CardContent className="p-4">
                     <div className="flex items-start justify-between flex-wrap gap-2">
                       <div className="space-y-1">
@@ -352,16 +366,16 @@ const CustomerListFromOrder = () => {
                           </span>
                           <Badge
                             variant={
-                              statusVariantMap[order.orderStatus] || "default"
+                              statusVariantMap[order.orderStatus] || 'default'
                             }
                           >
                             {order.orderStatus}
                           </Badge>
                           <Badge
                             variant={
-                              order.paymentStatus === "paid"
-                                ? "success"
-                                : "secondary"
+                              order.paymentStatus === 'paid'
+                                ? 'success'
+                                : 'secondary'
                             }
                           >
                             {order.paymentStatus}
@@ -382,56 +396,63 @@ const CustomerListFromOrder = () => {
                         )}
                       </div>
                     </div>
-                      <div className="text-xs text-muted-foreground flex items-center gap-2 flex-wrap">
-                        <span className="flex items-center gap-1">
-                          <ShoppingBag className="size-3" />
-                          {order.items?.length || 0} item(s)
-                        </span>
-                        <span>-</span>
-                        <span>{order.paymentMethod?.replace(/_/g, " ")}</span>
-                        {order.deliveryMethod && (
-                          <>
-                            <span>-</span>
-                            <span>
-                              {order.deliveryMethod?.replace(/_/g, " ")}
+                    <div className="text-xs text-muted-foreground flex items-center gap-2 flex-wrap">
+                      <span className="flex items-center gap-1">
+                        <ShoppingBag className="size-3" />
+                        {order.items?.length || 0} item(s)
+                      </span>
+                      <span>-</span>
+                      <span>{order.paymentMethod?.replace(/_/g, ' ')}</span>
+                      {order.deliveryMethod && (
+                        <>
+                          <span>-</span>
+                          <span>
+                            {order.deliveryMethod?.replace(/_/g, ' ')}
+                          </span>
+                        </>
+                      )}
+                    </div>
+                    <div className="mt-3 border-t pt-2 space-y-1">
+                      {order.items?.map((item, idx) => (
+                        <div
+                          key={idx}
+                          className="flex items-center justify-between text-xs"
+                        >
+                          <div className="flex items-center gap-2 min-w-0 flex-1">
+                            {item.productId?.images?.[0] ? (
+                              <ImageComponent
+                                imageName={item.productId.images[0]}
+                                className="size-8 rounded object-cover shrink-0"
+                                skeletonHeight={32}
+                                altName={item.productId.name}
+                              />
+                            ) : (
+                              <div className="size-8 rounded bg-muted shrink-0" />
+                            )}
+                            <span className="truncate font-medium text-foreground">
+                              {item.productId?.name || 'Unknown Product'}
                             </span>
-                          </>
-                        )}
-                      </div>
-                      <div className="mt-3 border-t pt-2 space-y-1">
-                        {order.items?.map((item, idx) => (
-                          <div key={idx} className="flex items-center justify-between text-xs">
-                            <div className="flex items-center gap-2 min-w-0 flex-1">
-                              {item.productId?.images?.[0] ? (
-                                <ImageComponent
-                                  imageName={item.productId.images[0]}
-                                  className="size-8 rounded object-cover shrink-0"
-                                  skeletonHeight={32}
-                                  altName={item.productId.name}
-                                />
-                              ) : (
-                                <div className="size-8 rounded bg-muted shrink-0" />
-                              )}
-                              <span className="truncate font-medium text-foreground">
-                                {item.productId?.name || "Unknown Product"}
+                            {item.variantId?.attributes?.length > 0 && (
+                              <span className="text-muted-foreground shrink-0">
+                                (
+                                {item.variantId.attributes
+                                  .map((a) => a.value)
+                                  .join(', ')}
+                                )
                               </span>
-                              {item.variantId?.attributes?.length > 0 && (
-                                <span className="text-muted-foreground shrink-0">
-                                  ({item.variantId.attributes.map((a) => a.value).join(", ")})
-                                </span>
-                              )}
-                            </div>
-                            <div className="flex items-center gap-3 shrink-0 ml-2">
-                              <span className="text-muted-foreground">
-                                x{item.quantity}
-                              </span>
-                              <span className="font-medium text-foreground w-16 text-right">
-                                ৳{item.price?.toLocaleString()}
-                              </span>
-                            </div>
+                            )}
                           </div>
-                        ))}
-                      </div>
+                          <div className="flex items-center gap-3 shrink-0 ml-2">
+                            <span className="text-muted-foreground">
+                              x{item.quantity}
+                            </span>
+                            <span className="font-medium text-foreground w-16 text-right">
+                              ৳{item.price?.toLocaleString()}
+                            </span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                   </CardContent>
                 </Card>
               ))}

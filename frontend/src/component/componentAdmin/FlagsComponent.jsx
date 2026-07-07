@@ -1,12 +1,12 @@
-import React, { useEffect, useState } from "react";
-import useFlagStore from "../../store/useFlagStore";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import React, { useEffect, useState } from 'react';
+import useFlagStore from '../../store/useFlagStore';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
+import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import {
   Dialog,
   DialogContent,
@@ -14,10 +14,10 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
-} from "@/components/ui/dialog";
-import { Separator } from "@/components/ui/separator";
-import { toast } from "sonner";
-import { GripVertical, Plus, Pencil, Trash2, Loader2 } from "lucide-react";
+} from '@/components/ui/dialog';
+import { Separator } from '@/components/ui/separator';
+import { toast } from 'sonner';
+import { GripVertical, Plus, Pencil, Trash2, Loader2 } from 'lucide-react';
 import {
   DndContext,
   closestCenter,
@@ -25,16 +25,16 @@ import {
   PointerSensor,
   useSensor,
   useSensors,
-} from "@dnd-kit/core";
+} from '@dnd-kit/core';
 import {
   arrayMove,
   SortableContext,
   sortableKeyboardCoordinates,
   useSortable,
   verticalListSortingStrategy,
-} from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
-import { SectionHeader } from "#component/componentAdmin/SectionHeader.jsx";
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+import { SectionHeader } from '#component/componentAdmin/SectionHeader.jsx';
 
 const SortableFlag = ({ flag, onUpdate, onDelete }) => {
   const { attributes, listeners, setNodeRef, transform, transition } =
@@ -66,9 +66,9 @@ const SortableFlag = ({ flag, onUpdate, onDelete }) => {
         isActive: updateIsActive,
       });
       setEditing(false);
-      toast.success("Flag updated successfully!");
+      toast.success('Flag updated successfully!');
     } catch {
-      toast.error("Failed to update flag");
+      toast.error('Failed to update flag');
     } finally {
       setUpdating(false);
     }
@@ -78,15 +78,15 @@ const SortableFlag = ({ flag, onUpdate, onDelete }) => {
     try {
       await onDelete(flag._id);
       setDeleteDialogOpen(false);
-      toast.success("Flag deleted successfully!");
+      toast.success('Flag deleted successfully!');
     } catch {
-      toast.error("Failed to delete flag");
+      toast.error('Failed to delete flag');
     }
   };
 
   return (
     <div ref={setNodeRef} style={style}>
-      <Card className={editing ? "border-primary/50" : ""}>
+      <Card className={editing ? 'border-primary/50' : ''}>
         <CardContent className="p-2">
           {editing ? (
             <div className="space-y-2">
@@ -121,7 +121,7 @@ const SortableFlag = ({ flag, onUpdate, onDelete }) => {
                       Saving...
                     </>
                   ) : (
-                    "Save"
+                    'Save'
                   )}
                 </Button>
                 <Button
@@ -147,10 +147,10 @@ const SortableFlag = ({ flag, onUpdate, onDelete }) => {
                   {flag.name}
                 </span>
                 <Badge
-                  variant={flag.isActive ? "default" : "secondary"}
+                  variant={flag.isActive ? 'default' : 'secondary'}
                   className="shrink-0 text-[10px] px-1.5 py-0"
                 >
-                  {flag.isActive ? "Active" : "Inactive"}
+                  {flag.isActive ? 'Active' : 'Inactive'}
                 </Badge>
               </div>
               <div className="flex items-center gap-1 shrink-0">
@@ -213,7 +213,7 @@ const FlagsComponent = () => {
     updateFlagPositions,
   } = useFlagStore();
 
-  const [newFlagName, setNewFlagName] = useState("");
+  const [newFlagName, setNewFlagName] = useState('');
   const [items, setItems] = useState([]);
   const [creating, setCreating] = useState(false);
   const [savingOrder, setSavingOrder] = useState(false);
@@ -249,11 +249,11 @@ const FlagsComponent = () => {
     setCreating(true);
     try {
       await createFlag({ name: newFlagName.trim(), isActive: true });
-      setNewFlagName("");
+      setNewFlagName('');
       fetchFlags();
-      toast.success("Flag created successfully!");
+      toast.success('Flag created successfully!');
     } catch {
-      toast.error("Failed to create flag");
+      toast.error('Failed to create flag');
     } finally {
       setCreating(false);
     }
@@ -265,9 +265,9 @@ const FlagsComponent = () => {
       const flagIds = items.map((item) => item._id);
       await updateFlagPositions(flagIds);
       fetchFlags();
-      toast.success("Flag order updated successfully!");
+      toast.success('Flag order updated successfully!');
     } catch {
-      toast.error("Failed to update flag order.");
+      toast.error('Failed to update flag order.');
     } finally {
       setSavingOrder(false);
     }
@@ -276,8 +276,8 @@ const FlagsComponent = () => {
   return (
     <div className="space-y-6">
       <SectionHeader
-        title={" Flags Management"}
-        action={"Create, edit, reorder and manage product flags."}
+        title={' Flags Management'}
+        action={'Create, edit, reorder and manage product flags.'}
       />
 
       <Card>
@@ -290,7 +290,7 @@ const FlagsComponent = () => {
               value={newFlagName}
               onChange={(e) => setNewFlagName(e.target.value)}
               placeholder="Enter flag name"
-              onKeyDown={(e) => e.key === "Enter" && handleCreateFlag()}
+              onKeyDown={(e) => e.key === 'Enter' && handleCreateFlag()}
               className="max-w-sm"
             />
             <Button onClick={handleCreateFlag} disabled={creating}>
@@ -327,7 +327,7 @@ const FlagsComponent = () => {
                     Saving...
                   </>
                 ) : (
-                  "Save Order"
+                  'Save Order'
                 )}
               </Button>
             )}

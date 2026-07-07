@@ -1,20 +1,20 @@
-import React, { useEffect, useState } from "react";
-import ImageComponent from "../componentGeneral/ImageComponent.jsx";
-import { useSearchParams, useNavigate } from "react-router-dom"; // for SPA routing
-import { Link } from "react-router-dom";
+import React, { useEffect, useState } from 'react';
+import ImageComponent from '../componentGeneral/ImageComponent.jsx';
+import { useSearchParams, useNavigate } from 'react-router-dom'; // for SPA routing
+import { Link } from 'react-router-dom';
 
 const AllBlogs = () => {
   const [blogs, setBlogs] = useState([]);
   const [totalPages, setTotalPages] = useState(1);
   const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(true);
-  const [errorMsg, setErrorMsg] = useState("");
+  const [errorMsg, setErrorMsg] = useState('');
 
   const searchParams = new URLSearchParams(window.location.search);
   const navigate = useNavigate();
 
   useEffect(() => {
-    const page = parseInt(searchParams.get("page")) || 1;
+    const page = parseInt(searchParams.get('page')) || 1;
     setCurrentPage(page);
 
     const fetchBlogs = async () => {
@@ -22,14 +22,14 @@ const AllBlogs = () => {
         setLoading(true);
         const apiUrl = import.meta.env.VITE_API_URL;
         const res = await fetch(`${apiUrl}/activeblog?page=${page}&limit=20`);
-        if (!res.ok) throw new Error("Failed to fetch blogs");
+        if (!res.ok) throw new Error('Failed to fetch blogs');
         const data = await res.json();
 
         setBlogs(data.data || []);
         setTotalPages(data.totalPages || 1);
-        setErrorMsg("");
+        setErrorMsg('');
       } catch (err) {
-        setErrorMsg(err.message || "Something went wrong");
+        setErrorMsg(err.message || 'Something went wrong');
         setBlogs([]);
       } finally {
         setLoading(false);
@@ -121,7 +121,7 @@ function PaginationButton({ disabled, onClick, label }) {
       onClick={onClick}
       disabled={disabled}
       className={`px-4 py-2 rounded-md border border-gray-300 text-gray-700 hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed ${
-        disabled ? "pointer-events-none" : ""
+        disabled ? 'pointer-events-none' : ''
       }`}
     >
       {label}

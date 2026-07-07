@@ -1,5 +1,5 @@
-import { create } from "zustand";
-import axios from "axios";
+import { create } from 'zustand';
+import axios from 'axios';
 const apiUrl = import.meta.env.VITE_API_URL;
 
 const CarouselStore = create((set) => ({
@@ -20,11 +20,11 @@ const CarouselStore = create((set) => ({
           CarouselStoreListLoading: false,
         });
       } else {
-        throw new Error("Failed to fetch Carousel");
+        throw new Error('Failed to fetch Carousel');
       }
     } catch (error) {
       set({
-        CarouselStoreListError: error.message || "Unknown Error",
+        CarouselStoreListError: error.message || 'Unknown Error',
         CarouselStoreListLoading: false,
       });
     }

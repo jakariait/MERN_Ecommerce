@@ -1,6 +1,6 @@
-import { create } from "zustand";
-import axios from "axios";
-import useAuthStore from "./AuthAdminStore.js";
+import { create } from 'zustand';
+import axios from 'axios';
+import useAuthStore from './AuthAdminStore.js';
 
 const apiUrl = import.meta.env.VITE_API_URL; // Ensure API URL is set correctly
 
@@ -16,7 +16,7 @@ const useNewsletterStore = create((set, get) => ({
     try {
       const token = useAuthStore.getState().token;
       if (!token) {
-        set({ error: "No token found. Please log in.", isLoading: false });
+        set({ error: 'No token found. Please log in.', isLoading: false });
         return;
       }
 
@@ -29,9 +29,9 @@ const useNewsletterStore = create((set, get) => ({
         isLoading: false,
       });
     } catch (error) {
-      console.error("Fetch Subscribers Error:", error.response || error);
+      console.error('Fetch Subscribers Error:', error.response || error);
       set({
-        error: error.response?.data?.message || "Failed to fetch subscribers",
+        error: error.response?.data?.message || 'Failed to fetch subscribers',
         isLoading: false,
       });
     }
@@ -44,7 +44,7 @@ const useNewsletterStore = create((set, get) => ({
       const response = await axios.post(
         `${apiUrl}/subscribe`,
         { Email: email }, // Use "Email" if your backend expects this key
-        { headers: { "Content-Type": "application/json" } }
+        { headers: { 'Content-Type': 'application/json' } },
       );
 
       // Accept any successful status code (200-299)
@@ -61,7 +61,7 @@ const useNewsletterStore = create((set, get) => ({
       }
     } catch (error) {
       set({
-        error: error.response?.data?.message || "Subscription failed",
+        error: error.response?.data?.message || 'Subscription failed',
         isLoading: false,
       });
       return false;
@@ -85,13 +85,11 @@ const useNewsletterStore = create((set, get) => ({
       }));
     } catch (error) {
       set({
-        error: error.response?.data?.message || "Failed to delete subscriber",
+        error: error.response?.data?.message || 'Failed to delete subscriber',
         isLoading: false,
       });
     }
   },
-
 }));
 
 export default useNewsletterStore;
-

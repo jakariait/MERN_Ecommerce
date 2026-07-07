@@ -1,28 +1,28 @@
-import React, { useEffect, useState } from "react";
-import { ResponsivePie } from "@nivo/pie";
-import useOrderStore from "../../store/useOrderStore.js";
-import { Button } from "@/components/ui/button";
-import dayjs from "dayjs";
+import React, { useEffect, useState } from 'react';
+import { ResponsivePie } from '@nivo/pie';
+import useOrderStore from '../../store/useOrderStore.js';
+import { Button } from '@/components/ui/button';
+import dayjs from 'dayjs';
 
 const timeframeLabels = {
-  weekly: "Weekly",
-  monthly: "Monthly",
-  yearly: "Yearly",
-  lifetime: "Lifetime",
+  weekly: 'Weekly',
+  monthly: 'Monthly',
+  yearly: 'Yearly',
+  lifetime: 'Lifetime',
 };
 
 const statusLabels = {
-  pending: "Pending",
-  approved: "Approved",
-  intransit: "In Transit",
-  delivered: "Delivered",
-  returned: "Returned",
-  cancelled: "Cancelled",
+  pending: 'Pending',
+  approved: 'Approved',
+  intransit: 'In Transit',
+  delivered: 'Delivered',
+  returned: 'Returned',
+  cancelled: 'Cancelled',
 };
 
 const OrdersPieChart = () => {
   const { fetchAllOrdersWithoutPagination, allOrders } = useOrderStore();
-  const [timeframe, setTimeframe] = useState("monthly");
+  const [timeframe, setTimeframe] = useState('monthly');
   const [statusCounts, setStatusCounts] = useState({});
 
   useEffect(() => {
@@ -33,25 +33,25 @@ const OrdersPieChart = () => {
     const now = dayjs();
     let filteredOrders = [];
 
-    if (timeframe === "weekly") {
+    if (timeframe === 'weekly') {
       filteredOrders = allOrders.filter((order) =>
-        dayjs(order.createdAt).isAfter(now.subtract(7, "day")),
+        dayjs(order.createdAt).isAfter(now.subtract(7, 'day')),
       );
-    } else if (timeframe === "monthly") {
+    } else if (timeframe === 'monthly') {
       filteredOrders = allOrders.filter((order) =>
-        dayjs(order.createdAt).isAfter(now.startOf("month")),
+        dayjs(order.createdAt).isAfter(now.startOf('month')),
       );
-    } else if (timeframe === "yearly") {
+    } else if (timeframe === 'yearly') {
       filteredOrders = allOrders.filter((order) =>
-        dayjs(order.createdAt).isAfter(now.startOf("year")),
+        dayjs(order.createdAt).isAfter(now.startOf('year')),
       );
-    } else if (timeframe === "lifetime") {
+    } else if (timeframe === 'lifetime') {
       filteredOrders = allOrders;
     }
 
     const counts = {};
     filteredOrders.forEach((order) => {
-      const status = order.orderStatus || "unknown";
+      const status = order.orderStatus || 'unknown';
       if (!counts[status]) counts[status] = 0;
       counts[status]++;
     });
@@ -81,7 +81,7 @@ const OrdersPieChart = () => {
           {Object.entries(timeframeLabels).map(([value, label]) => (
             <Button
               key={value}
-              variant={timeframe === value ? "default" : "outline"}
+              variant={timeframe === value ? 'default' : 'outline'}
               size="sm"
               onClick={() => setTimeframe(value)}
             >
@@ -99,7 +99,7 @@ const OrdersPieChart = () => {
           padAngle={1.5}
           cornerRadius={3}
           activeOuterRadiusOffset={8}
-          colors={{ scheme: "category10" }}
+          colors={{ scheme: 'category10' }}
           enableArcLabels={false}
           enableArcLinkLabels={false}
         />

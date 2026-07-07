@@ -1,11 +1,18 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
-import { useParams } from "react-router-dom";
-import useAuthUserStore from "../../store/AuthUserStore";
-import { Paper } from "@/components/ui/paper";
-import { Typography } from "@/components/ui/typography";
-import { CircularProgress } from "@/components/ui/circular-progress";
-import { Table, TableBody, TableRow, TableCell, TableHead, TableContainer } from "@/components/ui/table";
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+import { useParams } from 'react-router-dom';
+import useAuthUserStore from '../../store/AuthUserStore';
+import { Paper } from '@/components/ui/paper';
+import { Typography } from '@/components/ui/typography';
+import { CircularProgress } from '@/components/ui/circular-progress';
+import {
+  Table,
+  TableBody,
+  TableRow,
+  TableCell,
+  TableHead,
+  TableContainer,
+} from '@/components/ui/table';
 
 const OrderDetailsByNo = () => {
   const { orderNo } = useParams(); // Get orderNo from URL
@@ -17,74 +24,74 @@ const OrderDetailsByNo = () => {
 
   const getStatusColor = (status) => {
     switch (status) {
-      case "pending":
-        return { color: "orange", text: "Pending" };
-      case "intransit":
-        return { color: "blue", text: "In Transit" };
-      case "approved":
-        return { color: "teal", text: "Approved" };
-      case "delivered":
-        return { color: "green", text: "Delivered" };
-      case "cancelled":
-        return { color: "red", text: "Cancelled" };
-      case "returned":
-        return { color: "purple", text: "Returned" };
+      case 'pending':
+        return { color: 'orange', text: 'Pending' };
+      case 'intransit':
+        return { color: 'blue', text: 'In Transit' };
+      case 'approved':
+        return { color: 'teal', text: 'Approved' };
+      case 'delivered':
+        return { color: 'green', text: 'Delivered' };
+      case 'cancelled':
+        return { color: 'red', text: 'Cancelled' };
+      case 'returned':
+        return { color: 'purple', text: 'Returned' };
       default:
-        return { color: "gray", text: "Unknown" };
+        return { color: 'gray', text: 'Unknown' };
     }
   };
 
   const getPaymentStatusColor = (status) => {
     switch (status) {
-      case "unpaid":
-        return { backgroundColor: "#fff3cd", color: "#856404", text: "Unpaid" };
-      case "paid":
-        return { backgroundColor: "#d4edda", color: "#155724", text: "Paid" };
+      case 'unpaid':
+        return { backgroundColor: '#fff3cd', color: '#856404', text: 'Unpaid' };
+      case 'paid':
+        return { backgroundColor: '#d4edda', color: '#155724', text: 'Paid' };
       default:
-        return { backgroundColor: "lightgray", color: "gray", text: "Unknown" };
+        return { backgroundColor: 'lightgray', color: 'gray', text: 'Unknown' };
     }
   };
 
   const getPaymentMethodText = (paymentMethod) => {
     switch (paymentMethod) {
-      case "cash_on_delivery":
-        return "Cash on Delivery";
-      case "bkash":
-        return "bKash";
-      case "nagad":
-        return "Nagad";
-      case "card":
-        return "Card";
+      case 'cash_on_delivery':
+        return 'Cash on Delivery';
+      case 'bkash':
+        return 'bKash';
+      case 'nagad':
+        return 'Nagad';
+      case 'card':
+        return 'Card';
       default:
-        return "Unknown Method";
+        return 'Unknown Method';
     }
   };
 
   const getDeliveryMethodText = (deliveryMethod) => {
     switch (deliveryMethod) {
-      case "home_delivery":
-        return "Home Delivery";
+      case 'home_delivery':
+        return 'Home Delivery';
       default:
-        return "Unknown Method";
+        return 'Unknown Method';
     }
   };
 
   // Helper function to get variant display name from attributes
   const getVariantDisplayName = (variant) => {
-    if (!variant) return "N/A";
+    if (!variant) return 'N/A';
     if (variant.attributes && Array.isArray(variant.attributes)) {
       const attributeValues = variant.attributes
         .map((attr) => attr.value)
         .filter((val) => val);
       if (attributeValues.length > 0) {
-        return attributeValues.join(" / ");
+        return attributeValues.join(' / ');
       }
     }
     // Fallback for old structure
     if (variant.size?.name) {
       return variant.size.name;
     }
-    return "N/A";
+    return 'N/A';
   };
 
   const fetchOrderByOrderNo = async () => {
@@ -102,7 +109,7 @@ const OrderDetailsByNo = () => {
         setOrder(null);
       }
     } catch (err) {
-      console.error("Error fetching order by orderNo:", err);
+      console.error('Error fetching order by orderNo:', err);
       setOrder(null);
     } finally {
       setLoading(false);
@@ -113,11 +120,12 @@ const OrderDetailsByNo = () => {
     fetchOrderByOrderNo();
   }, [orderNo]);
 
-  if (loading) return (
-    <div className="flex items-center justify-center min-h-[50vh]">
-      <CircularProgress />
-    </div>
-  );
+  if (loading)
+    return (
+      <div className="flex items-center justify-center min-h-[50vh]">
+        <CircularProgress />
+      </div>
+    );
   if (!order) return <Typography>Order not found</Typography>;
 
   const orderStatusColor = getStatusColor(order.orderStatus);
@@ -144,35 +152,35 @@ const OrderDetailsByNo = () => {
               <strong>Order No:</strong> {order.orderNo}
             </p>
             <p>
-              <strong>Order Date:</strong>{" "}
+              <strong>Order Date:</strong>{' '}
               {new Date(order.createdAt).toLocaleDateString(undefined, {
-                year: "numeric",
-                month: "long",
-                day: "numeric",
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
               })}
             </p>
             <p>
-              <strong>Status:</strong>{" "}
+              <strong>Status:</strong>{' '}
               <span
-                style={{ color: orderStatusColor.color, fontWeight: "bold" }}
+                style={{ color: orderStatusColor.color, fontWeight: 'bold' }}
               >
                 {orderStatusColor.text}
               </span>
             </p>
             <p>
-              <strong>Payment Method:</strong>{" "}
+              <strong>Payment Method:</strong>{' '}
               {getPaymentMethodText(order.paymentMethod)}
             </p>
             <p>
-              <strong>Payment Status:</strong>{" "}
+              <strong>Payment Status:</strong>{' '}
               <span
                 style={{
                   backgroundColor: paymentStatusColor.backgroundColor,
                   color: paymentStatusColor.color,
-                  padding: "5px",
-                  borderRadius: "5px",
-                  fontSize: "0.875rem",
-                  fontWeight: "bold",
+                  padding: '5px',
+                  borderRadius: '5px',
+                  fontSize: '0.875rem',
+                  fontWeight: 'bold',
                 }}
               >
                 {paymentStatusColor.text}
@@ -180,7 +188,7 @@ const OrderDetailsByNo = () => {
             </p>
 
             <p>
-              <strong>Delivery Method:</strong>{" "}
+              <strong>Delivery Method:</strong>{' '}
               {getDeliveryMethodText(order.deliveryMethod)}
             </p>
           </div>
@@ -212,9 +220,9 @@ const OrderDetailsByNo = () => {
                     <TableCell>{index + 1}</TableCell>
                     <TableCell>
                       <div>
-                        <div>{product.name || item.productName || "N/A"}</div>
-                        <div>Category: {product?.category?.name || "N/A"}</div>
-                        <div>Code: {product.productCode || "N/A"}</div>
+                        <div>{product.name || item.productName || 'N/A'}</div>
+                        <div>Category: {product?.category?.name || 'N/A'}</div>
+                        <div>Code: {product.productCode || 'N/A'}</div>
                       </div>
                     </TableCell>
                     <TableCell>{getVariantDisplayName(variant)}</TableCell>
@@ -245,7 +253,7 @@ const OrderDetailsByNo = () => {
           <p>VAT/TAX: Tk. {(order.vat ?? 0).toFixed(2)}</p>
           <p>Delivery Charge: Tk. {(order.deliveryCharge ?? 0).toFixed(2)}</p>
           <p>
-            Special Discount Amount: Tk.{" "}
+            Special Discount Amount: Tk.{' '}
             {(order.specialDiscount ?? 0).toFixed(2)}
           </p>
           <p className="text-2xl font-bold">

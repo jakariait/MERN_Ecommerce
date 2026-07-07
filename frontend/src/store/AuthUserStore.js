@@ -1,12 +1,12 @@
-import { create } from "zustand";
-import axios from "axios";
-import useWishlistStore from "./useWishlistStore";
+import { create } from 'zustand';
+import axios from 'axios';
+import useWishlistStore from './useWishlistStore';
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
 const useAuthUserStore = create((set, get) => ({
   user: null,
-  token: localStorage.getItem("user_token") || null,
+  token: localStorage.getItem('user_token') || null,
   error: null,
   loading: false,
 
@@ -23,15 +23,15 @@ const useAuthUserStore = create((set, get) => ({
       const { user } = res.data;
 
       // Save token and user
-      localStorage.setItem("user_token", user.token);
+      localStorage.setItem('user_token', user.token);
       set({ user, token: user.token, loading: false });
 
       // Fetch wishlist after successful login
       useWishlistStore.getState().getWishlist();
     } catch (error) {
-      console.error("Login error:", error.response || error);
+      console.error('Login error:', error.response || error);
       set({
-        error: "Login failed. Please check your credentials.",
+        error: 'Login failed. Please check your credentials.',
         loading: false,
       });
     }
@@ -39,7 +39,7 @@ const useAuthUserStore = create((set, get) => ({
 
   // Initialize
   initialize: async () => {
-    const token = localStorage.getItem("user_token");
+    const token = localStorage.getItem('user_token');
     if (!token) return set({ loading: false });
 
     set({ loading: true });
@@ -56,13 +56,13 @@ const useAuthUserStore = create((set, get) => ({
       // Fetch wishlist on initialization
       useWishlistStore.getState().getWishlist();
     } catch (error) {
-      console.error("Initialization error:", error.response || error);
-      localStorage.removeItem("user_token");
+      console.error('Initialization error:', error.response || error);
+      localStorage.removeItem('user_token');
 
       set({
         user: null,
         token: null,
-        error: "Session expired. Please log in again.",
+        error: 'Session expired. Please log in again.',
         loading: false,
       });
     }
@@ -70,10 +70,10 @@ const useAuthUserStore = create((set, get) => ({
 
   // Logout
   logout: () => {
-    const token = localStorage.getItem("user_token");
-    localStorage.removeItem("user_token");
+    const token = localStorage.getItem('user_token');
+    localStorage.removeItem('user_token');
     set({ user: null, token: null });
-    
+
     // Clear wishlist locally on logout (no need to call API since token is removed)
     useWishlistStore.getState().setWishlist([]);
   },

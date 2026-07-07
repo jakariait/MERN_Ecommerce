@@ -1,13 +1,13 @@
-import React, { useState, useEffect, useRef } from "react";
-import LightGallery from "lightgallery/react";
-import "lightgallery/css/lightgallery.css";
-import "lightgallery/css/lg-thumbnail.css";
-import "lightgallery/css/lg-zoom.css";
-import lgThumbnail from "lightgallery/plugins/thumbnail";
-import lgZoom from "lightgallery/plugins/zoom";
-import ImageComponent from "./ImageComponent.jsx";
-import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
-import { BsArrowsFullscreen } from "react-icons/bs";
+import React, { useState, useEffect, useRef } from 'react';
+import LightGallery from 'lightgallery/react';
+import 'lightgallery/css/lightgallery.css';
+import 'lightgallery/css/lg-thumbnail.css';
+import 'lightgallery/css/lg-zoom.css';
+import lgThumbnail from 'lightgallery/plugins/thumbnail';
+import lgZoom from 'lightgallery/plugins/zoom';
+import ImageComponent from './ImageComponent.jsx';
+import { IoIosArrowBack, IoIosArrowForward } from 'react-icons/io';
+import { BsArrowsFullscreen } from 'react-icons/bs';
 
 const ProductGallery = ({ images, discount, zoom = true, productName }) => {
   const [imageUrls, setImageUrls] = useState([]);
@@ -19,7 +19,7 @@ const ProductGallery = ({ images, discount, zoom = true, productName }) => {
     if (images?.length > 0) {
       const apiUrl = import.meta.env.VITE_API_URL;
       const urls = images.map(
-        (imageName) => `${apiUrl.replace("/api", "")}/uploads/${imageName}`,
+        (imageName) => `${apiUrl.replace('/api', '')}/uploads/${imageName}`,
       );
       setImageUrls(urls);
     }
@@ -28,16 +28,16 @@ const ProductGallery = ({ images, discount, zoom = true, productName }) => {
   useEffect(() => {
     if (thumbnailRefs.current[activeIndex]) {
       thumbnailRefs.current[activeIndex].scrollIntoView({
-        behavior: "smooth",
-        inline: "center",
-        block: "nearest",
+        behavior: 'smooth',
+        inline: 'center',
+        block: 'nearest',
       });
     }
   }, [activeIndex]);
 
   const changeImage = (direction) => {
     setActiveIndex((prevIndex) => {
-      if (direction === "next") {
+      if (direction === 'next') {
         return prevIndex === imageUrls.length - 1 ? 0 : prevIndex + 1;
       } else {
         return prevIndex === 0 ? imageUrls.length - 1 : prevIndex - 1;
@@ -66,7 +66,7 @@ const ProductGallery = ({ images, discount, zoom = true, productName }) => {
               </div>
               <button
                 className="bg-white p-2 cursor-pointer"
-                onClick={() => changeImage("prev")}
+                onClick={() => changeImage('prev')}
                 disabled={activeIndex === 0}
                 aria-label="previous"
               >
@@ -74,7 +74,7 @@ const ProductGallery = ({ images, discount, zoom = true, productName }) => {
               </button>
               <button
                 className="bg-white p-2 cursor-pointer"
-                onClick={() => changeImage("next")}
+                onClick={() => changeImage('next')}
                 disabled={activeIndex === imageUrls.length - 1}
                 aria-label="next"
               >
@@ -90,17 +90,17 @@ const ProductGallery = ({ images, discount, zoom = true, productName }) => {
               <a
                 key={index}
                 href={url}
-                className={activeIndex === index ? "block" : "hidden"}
+                className={activeIndex === index ? 'block' : 'hidden'}
               >
                 <ImageComponent
                   imageName={images[index]}
                   altName={productName}
                   className="w-full aspect-square object-cover"
-                  skeletonHeight={"400px"}
+                  skeletonHeight={'400px'}
                 />
                 <button
                   className="absolute md:bottom-4 bottom-1 left-1 p-3 md:left-3 bg-white rounded-full cursor-pointer"
-                  aria-label={"full screen"}
+                  aria-label={'full screen'}
                 >
                   <BsArrowsFullscreen />
                 </button>
@@ -113,7 +113,7 @@ const ProductGallery = ({ images, discount, zoom = true, productName }) => {
               imageName={images[activeIndex]}
               altName={productName}
               className="w-full aspect-square object-cover"
-              skeletonHeight={"200px"}
+              skeletonHeight={'200px'}
             />
           </div>
         )}
@@ -122,7 +122,7 @@ const ProductGallery = ({ images, discount, zoom = true, productName }) => {
       {imageUrls.length > 1 && (
         <div className="flex items-center gap-2 w-full justify-center">
           <button
-            onClick={() => changeImage("prev")}
+            onClick={() => changeImage('prev')}
             className="text-xl hover:text-gray-500 transition-colors duration-150 cursor-pointer"
             disabled={activeIndex === 0}
             aria-label="previous"
@@ -138,8 +138,8 @@ const ProductGallery = ({ images, discount, zoom = true, productName }) => {
                   ref={(el) => (thumbnailRefs.current[index] = el)}
                   className={`cursor-pointer overflow-hidden transition-all duration-200 border-1 shrink-0 md:w-30 md:h-30 w-20 h-20 ${
                     activeIndex === index
-                      ? "primaryBorderColor scale-105"
-                      : "border-transparent opacity-80"
+                      ? 'primaryBorderColor scale-105'
+                      : 'border-transparent opacity-80'
                   }`}
                   onClick={() => setActiveIndex(index)}
                 >
@@ -147,7 +147,7 @@ const ProductGallery = ({ images, discount, zoom = true, productName }) => {
                     imageName={images[index]}
                     altName={productName}
                     className="w-full aspect-square object-cover"
-                    skeletonHeight={"200px"}
+                    skeletonHeight={'200px'}
                   />
                 </div>
               ))}
@@ -155,7 +155,7 @@ const ProductGallery = ({ images, discount, zoom = true, productName }) => {
           </div>
 
           <button
-            onClick={() => changeImage("next")}
+            onClick={() => changeImage('next')}
             className="text-xl hover:text-gray-500 transition-colors duration-150 cursor-pointer"
             disabled={activeIndex === imageUrls.length - 1}
             aria-label="next"

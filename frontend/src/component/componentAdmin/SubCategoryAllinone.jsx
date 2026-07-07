@@ -1,16 +1,16 @@
-import React, { useEffect, useState, useMemo } from "react";
-import axios from "axios";
-import useAuthAdminStore from "../../store/AuthAdminStore.js";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import React, { useEffect, useState, useMemo } from 'react';
+import axios from 'axios';
+import useAuthAdminStore from '../../store/AuthAdminStore.js';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from '@/components/ui/select';
 import {
   Table,
   TableBody,
@@ -18,8 +18,8 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+} from '@/components/ui/table';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import {
   Dialog,
   DialogContent,
@@ -27,9 +27,9 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
-} from "@/components/ui/dialog";
-import { Separator } from "@/components/ui/separator";
-import { toast } from "sonner";
+} from '@/components/ui/dialog';
+import { Separator } from '@/components/ui/separator';
+import { toast } from 'sonner';
 import {
   Plus,
   Search,
@@ -38,8 +38,8 @@ import {
   Loader2,
   ChevronLeft,
   ChevronRight,
-} from "lucide-react";
-import { SectionHeader } from "@/component/componentAdmin/SectionHeader.jsx";
+} from 'lucide-react';
+import { SectionHeader } from '@/component/componentAdmin/SectionHeader.jsx';
 
 const SubCategoryAllinone = () => {
   const apiUrl = import.meta.env.VITE_API_URL;
@@ -48,7 +48,7 @@ const SubCategoryAllinone = () => {
   const [subCategories, setSubCategories] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState('');
   const [page, setPage] = useState(0);
   const rowsPerPage = 10;
 
@@ -56,8 +56,8 @@ const SubCategoryAllinone = () => {
   const [isEdit, setIsEdit] = useState(false);
   const [editId, setEditId] = useState(null);
   const [formData, setFormData] = useState({
-    name: "",
-    category: "",
+    name: '',
+    category: '',
     isActive: true,
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -76,7 +76,7 @@ const SubCategoryAllinone = () => {
         setLoading(false);
       })
       .catch(() => {
-        toast.error("Error fetching subcategories.");
+        toast.error('Error fetching subcategories.');
         setLoading(false);
       });
   };
@@ -98,7 +98,7 @@ const SubCategoryAllinone = () => {
   const handleOpenCreate = () => {
     setIsEdit(false);
     setEditId(null);
-    setFormData({ name: "", category: "", isActive: true });
+    setFormData({ name: '', category: '', isActive: true });
     setDialogOpen(true);
   };
 
@@ -107,7 +107,7 @@ const SubCategoryAllinone = () => {
     setEditId(subCat._id);
     setFormData({
       name: subCat.name,
-      category: subCat.category?._id || "",
+      category: subCat.category?._id || '',
       isActive: subCat.isActive,
     });
     setDialogOpen(true);
@@ -115,7 +115,7 @@ const SubCategoryAllinone = () => {
 
   const handleSave = async () => {
     if (!formData.name.trim() || !formData.category) {
-      toast.warning("Name and category are required.");
+      toast.warning('Name and category are required.');
       return;
     }
     setIsSubmitting(true);
@@ -131,11 +131,11 @@ const SubCategoryAllinone = () => {
           {
             headers: {
               Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
+              'Content-Type': 'application/json',
             },
           },
         );
-        toast.success("Subcategory updated successfully!");
+        toast.success('Subcategory updated successfully!');
       } else {
         await axios.post(
           `${apiUrl}/sub-category`,
@@ -143,16 +143,16 @@ const SubCategoryAllinone = () => {
           {
             headers: {
               Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
+              'Content-Type': 'application/json',
             },
           },
         );
-        toast.success("Subcategory added successfully!");
+        toast.success('Subcategory added successfully!');
       }
       setDialogOpen(false);
       fetchSubCategories();
     } catch (err) {
-      toast.error(err.response?.data?.message || "Operation failed.");
+      toast.error(err.response?.data?.message || 'Operation failed.');
     } finally {
       setIsSubmitting(false);
     }
@@ -169,10 +169,10 @@ const SubCategoryAllinone = () => {
       await axios.delete(`${apiUrl}/sub-category/${subCategoryToDelete._id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      toast.success("Subcategory deleted successfully!");
+      toast.success('Subcategory deleted successfully!');
       fetchSubCategories();
     } catch {
-      toast.error("Failed to delete subcategory.");
+      toast.error('Failed to delete subcategory.');
     } finally {
       setDeleteDialogOpen(false);
       setSubCategoryToDelete(null);
@@ -183,10 +183,10 @@ const SubCategoryAllinone = () => {
     return subCategories
       .filter(
         (subCat) =>
-          (subCat.name || "")
+          (subCat.name || '')
             .toLowerCase()
             .includes(searchTerm.toLowerCase()) ||
-          (subCat.category?.name || "")
+          (subCat.category?.name || '')
             .toLowerCase()
             .includes(searchTerm.toLowerCase()),
       )
@@ -202,7 +202,7 @@ const SubCategoryAllinone = () => {
   return (
     <div className="space-y-6">
       <SectionHeader
-        title={"Subcategory Management"}
+        title={'Subcategory Management'}
         action={`${subCategories.length} total subcategories`}
       />
 
@@ -262,18 +262,18 @@ const SubCategoryAllinone = () => {
                     paginated.map((subCat) => (
                       <TableRow key={subCat._id}>
                         <TableCell className="font-medium">
-                          {subCat.name || "N/A"}
+                          {subCat.name || 'N/A'}
                         </TableCell>
                         <TableCell className="text-center">
                           <Badge variant="outline">
-                            {subCat.category?.name || "N/A"}
+                            {subCat.category?.name || 'N/A'}
                           </Badge>
                         </TableCell>
                         <TableCell className="text-center">
                           <Badge
-                            variant={subCat.isActive ? "default" : "secondary"}
+                            variant={subCat.isActive ? 'default' : 'secondary'}
                           >
-                            {subCat.isActive ? "Yes" : "No"}
+                            {subCat.isActive ? 'Yes' : 'No'}
                           </Badge>
                         </TableCell>
                         <TableCell className="text-center">
@@ -335,12 +335,12 @@ const SubCategoryAllinone = () => {
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>
-              {isEdit ? "Edit Subcategory" : "Add New Subcategory"}
+              {isEdit ? 'Edit Subcategory' : 'Add New Subcategory'}
             </DialogTitle>
             <DialogDescription>
               {isEdit
-                ? "Update the subcategory details."
-                : "Create a new subcategory."}
+                ? 'Update the subcategory details.'
+                : 'Create a new subcategory.'}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-2">
@@ -390,7 +390,7 @@ const SubCategoryAllinone = () => {
                   onValueChange={(value) =>
                     setFormData({
                       ...formData,
-                      isActive: value === "true",
+                      isActive: value === 'true',
                     })
                   }
                 >
@@ -416,9 +416,9 @@ const SubCategoryAllinone = () => {
                   Saving...
                 </>
               ) : isEdit ? (
-                "Update"
+                'Update'
               ) : (
-                "Save"
+                'Save'
               )}
             </Button>
           </DialogFooter>
@@ -430,7 +430,7 @@ const SubCategoryAllinone = () => {
           <DialogHeader>
             <DialogTitle>Confirm Delete</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete{" "}
+              Are you sure you want to delete{' '}
               <strong>{subCategoryToDelete?.name}</strong>? This action cannot
               be undone.
             </DialogDescription>

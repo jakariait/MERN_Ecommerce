@@ -1,6 +1,6 @@
-import { create } from "zustand";
-import axios from "axios";
-import useAuthStore from "./AuthAdminStore.js"; // Import auth store
+import { create } from 'zustand';
+import axios from 'axios';
+import useAuthStore from './AuthAdminStore.js'; // Import auth store
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
@@ -18,12 +18,12 @@ const useFlagStore = create((set) => ({
       if (response.data.success && response.data.data) {
         set({ flags: response.data.data, loading: false });
       } else {
-        throw new Error("Flags not found in the response");
+        throw new Error('Flags not found in the response');
       }
     } catch (error) {
-      console.error("Error fetching flags:", error);
+      console.error('Error fetching flags:', error);
       set({
-        error: error.response?.data?.message || "Failed to fetch flags",
+        error: error.response?.data?.message || 'Failed to fetch flags',
         loading: false,
       });
     }
@@ -37,11 +37,11 @@ const useFlagStore = create((set) => ({
       if (response.data?.flag) {
         set({ selectedFlag: response.data.flag, loading: false });
       } else {
-        throw new Error("Flag not found");
+        throw new Error('Flag not found');
       }
     } catch (error) {
       set({
-        error: error.response?.data?.message || "Failed to fetch flag",
+        error: error.response?.data?.message || 'Failed to fetch flag',
         loading: false,
       });
     }
@@ -52,7 +52,7 @@ const useFlagStore = create((set) => ({
     set({ loading: true, error: null });
     try {
       const token = useAuthStore.getState().token;
-      if (!token) throw new Error("Unauthorized: No token found");
+      if (!token) throw new Error('Unauthorized: No token found');
 
       const response = await axios.post(`${apiUrl}/flags`, data, {
         headers: { Authorization: `Bearer ${token}` },
@@ -63,7 +63,7 @@ const useFlagStore = create((set) => ({
       }));
     } catch (error) {
       set({
-        error: error.response?.data?.message || "Failed to create flag",
+        error: error.response?.data?.message || 'Failed to create flag',
         loading: false,
       });
     }
@@ -74,7 +74,7 @@ const useFlagStore = create((set) => ({
     set({ loading: true, error: null });
     try {
       const token = useAuthStore.getState().token;
-      if (!token) throw new Error("Unauthorized: No token found");
+      if (!token) throw new Error('Unauthorized: No token found');
 
       const response = await axios.put(`${apiUrl}/flags/${id}`, data, {
         headers: { Authorization: `Bearer ${token}` },
@@ -82,13 +82,13 @@ const useFlagStore = create((set) => ({
 
       set((state) => ({
         flags: state.flags.map((flag) =>
-          flag._id === id ? response.data : flag
+          flag._id === id ? response.data : flag,
         ),
         loading: false,
       }));
     } catch (error) {
       set({
-        error: error.response?.data?.message || "Failed to update flag",
+        error: error.response?.data?.message || 'Failed to update flag',
         loading: false,
       });
     }
@@ -99,7 +99,7 @@ const useFlagStore = create((set) => ({
     set({ loading: true, error: null });
     try {
       const token = useAuthStore.getState().token;
-      if (!token) throw new Error("Unauthorized: No token found");
+      if (!token) throw new Error('Unauthorized: No token found');
 
       await axios.delete(`${apiUrl}/flags/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
@@ -110,7 +110,7 @@ const useFlagStore = create((set) => ({
       }));
     } catch (error) {
       set({
-        error: error.response?.data?.message || "Failed to delete flag",
+        error: error.response?.data?.message || 'Failed to delete flag',
         loading: false,
       });
     }
@@ -121,7 +121,7 @@ const useFlagStore = create((set) => ({
     set({ loading: true, error: null });
     try {
       const token = useAuthStore.getState().token;
-      if (!token) throw new Error("Unauthorized: No token found");
+      if (!token) throw new Error('Unauthorized: No token found');
 
       await axios.put(
         `${apiUrl}/flags/rearrange`,
@@ -134,7 +134,8 @@ const useFlagStore = create((set) => ({
       set({ loading: false });
     } catch (error) {
       set({
-        error: error.response?.data?.message || "Failed to update flag positions",
+        error:
+          error.response?.data?.message || 'Failed to update flag positions',
         loading: false,
       });
     }

@@ -1,11 +1,11 @@
-import React, { useEffect } from "react";
-import { Link } from "react-router-dom";
-import useWishlistStore from "../store/useWishlistStore.js";
-import useAuthUserStore from "../store/AuthUserStore.js";
-import WishlistButton from "../component/componentGeneral/WishlistButton.jsx";
-import ImageComponent from "../component/componentGeneral/ImageComponent.jsx";
-import BuyNowButton from "../component/componentGeneral/BuyNowButton.jsx";
-import { Heart } from "lucide-react";
+import React, { useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import useWishlistStore from '../store/useWishlistStore.js';
+import useAuthUserStore from '../store/AuthUserStore.js';
+import WishlistButton from '../component/componentGeneral/WishlistButton.jsx';
+import ImageComponent from '../component/componentGeneral/ImageComponent.jsx';
+import BuyNowButton from '../component/componentGeneral/BuyNowButton.jsx';
+import { Heart } from 'lucide-react';
 
 const formatPrice = (price) => {
   if (isNaN(price)) return price;
@@ -153,9 +153,9 @@ const WishlistPage = () => {
           <h1 className="wishlist-title">My Wishlist</h1>
           {!showLoading && !isEmpty && (
             <div className="wishlist-count">
-              <Heart size={11} className={"text-red-500"} />
-              {displayWishlist.length}{" "}
-              {displayWishlist.length === 1 ? "item" : "items"} saved
+              <Heart size={11} className={'text-red-500'} />
+              {displayWishlist.length}{' '}
+              {displayWishlist.length === 1 ? 'item' : 'items'} saved
             </div>
           )}
         </div>
@@ -215,7 +215,7 @@ const WishlistPage = () => {
                     {product.variants?.length
                       ? product.variants[0].discount > 0 && (
                           <div className="text-red-800">
-                            Tk.{" "}
+                            Tk.{' '}
                             {formatPrice(Number(product.variants[0].discount))}
                           </div>
                         )
@@ -251,7 +251,7 @@ const WishlistPage = () => {
                   </div>
 
                   <div
-                    className={"py-3 flex gap-2 justify-center items-center"}
+                    className={'py-3 flex gap-2 justify-center items-center'}
                   >
                     <BuyNowButton product={product} />
                   </div>

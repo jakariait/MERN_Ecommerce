@@ -1,11 +1,11 @@
-import React from "react";
-import LoginForm from "../component/componentGeneral/LoginForm.jsx";
+import React from 'react';
+import LoginForm from '../component/componentGeneral/LoginForm.jsx';
 
 const LoginPage = () => {
   return (
-  <>
-        <LoginForm />
-  </>
+    <>
+      <LoginForm />
+    </>
   );
 };
 

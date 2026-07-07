@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from "react";
-import { ResponsiveBar } from "@nivo/bar";
-import useOrderStore from "../../store/useOrderStore";
-import dayjs from "dayjs";
+import React, { useEffect, useState } from 'react';
+import { ResponsiveBar } from '@nivo/bar';
+import useOrderStore from '../../store/useOrderStore';
+import dayjs from 'dayjs';
 
 const MonthlyOrderStatusGroupedChart = () => {
   const { fetchAllOrdersWithoutPagination, allOrders } = useOrderStore();
@@ -18,9 +18,9 @@ const MonthlyOrderStatusGroupedChart = () => {
     const monthlyData = {};
 
     for (let i = 11; i >= 0; i--) {
-      const key = now.subtract(i, "month").format("YYYY-MM");
+      const key = now.subtract(i, 'month').format('YYYY-MM');
       monthlyData[key] = {
-        month: dayjs(key).format("MMM YY"),
+        month: dayjs(key).format('MMM YY'),
         Success: 0,
         Failed: 0,
         Returned: 0,
@@ -28,15 +28,15 @@ const MonthlyOrderStatusGroupedChart = () => {
     }
 
     allOrders.forEach((order) => {
-      const key = dayjs(order.createdAt).format("YYYY-MM");
+      const key = dayjs(order.createdAt).format('YYYY-MM');
       if (!monthlyData[key]) return;
 
       const status = order.orderStatus?.toLowerCase();
-      if (["delivered"].includes(status)) {
+      if (['delivered'].includes(status)) {
         monthlyData[key].Success += 1;
-      } else if (status === "cancelled") {
+      } else if (status === 'cancelled') {
         monthlyData[key].Failed += 1;
-      } else if (status === "returned") {
+      } else if (status === 'returned') {
         monthlyData[key].Returned += 1;
       }
     });
@@ -52,21 +52,21 @@ const MonthlyOrderStatusGroupedChart = () => {
       <div className="h-[300px]">
         <ResponsiveBar
           data={chartData}
-          keys={["Success", "Failed", "Returned"]}
+          keys={['Success', 'Failed', 'Returned']}
           indexBy="month"
           groupMode="grouped"
           margin={{ top: 30, right: 80, bottom: 60, left: 50 }}
           padding={0.3}
           colors={({ id }) =>
-            id === "Success"
-              ? "#4caf50"
-              : id === "Failed"
-                ? "#f44336"
-                : "#ff9800"
+            id === 'Success'
+              ? '#4caf50'
+              : id === 'Failed'
+                ? '#f44336'
+                : '#ff9800'
           }
           axisLeft={{
-            legend: "Number of Orders",
-            legendPosition: "middle",
+            legend: 'Number of Orders',
+            legendPosition: 'middle',
             legendOffset: -40,
           }}
           labelSkipWidth={12}
@@ -74,13 +74,13 @@ const MonthlyOrderStatusGroupedChart = () => {
           labelTextColor="#fff"
           legends={[
             {
-              dataFrom: "keys",
-              anchor: "bottom",
-              direction: "row",
+              dataFrom: 'keys',
+              anchor: 'bottom',
+              direction: 'row',
               translateY: 50,
               itemWidth: 80,
               itemHeight: 20,
-              itemDirection: "left-to-right",
+              itemDirection: 'left-to-right',
               symbolSize: 12,
             },
           ]}

@@ -1,11 +1,17 @@
-import React, { useState, useEffect } from "react";
-import axios from "axios";
-import { TextField } from "@/components/ui/text-field";
-import { Button } from "@/components/ui/button";
-import { Paper } from "@/components/ui/paper";
-import { Typography } from "@/components/ui/typography";
-import { CircularProgress } from "@/components/ui/circular-progress";
-import { Trash2 as DeleteIcon, Upload, User, CheckCircle2, AlertCircle } from "lucide-react";
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { TextField } from '@/components/ui/text-field';
+import { Button } from '@/components/ui/button';
+import { Paper } from '@/components/ui/paper';
+import { Typography } from '@/components/ui/typography';
+import { CircularProgress } from '@/components/ui/circular-progress';
+import {
+  Trash2 as DeleteIcon,
+  Upload,
+  User,
+  CheckCircle2,
+  AlertCircle,
+} from 'lucide-react';
 
 const UpdateUserForm = ({ token }) => {
   const baseUrl = import.meta.env.VITE_API_URL;
@@ -13,10 +19,10 @@ const UpdateUserForm = ({ token }) => {
   const updateUrl = `${baseUrl}/updateUser`;
 
   const [formData, setFormData] = useState({
-    fullName: "",
-    email: "",
-    address: "",
-    phone: "",
+    fullName: '',
+    email: '',
+    address: '',
+    phone: '',
     userImage: null,
   });
 
@@ -24,12 +30,12 @@ const UpdateUserForm = ({ token }) => {
   const [imageRemoved, setImageRemoved] = useState(false);
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
 
   useEffect(() => {
     if (success) {
-      const timer = setTimeout(() => setSuccess(""), 3000);
+      const timer = setTimeout(() => setSuccess(''), 3000);
       return () => clearTimeout(timer);
     }
   }, [success]);
@@ -46,17 +52,17 @@ const UpdateUserForm = ({ token }) => {
         const user = res.data.user || res.data;
         setUserId(user._id);
         setFormData({
-          fullName: user.fullName || "",
-          email: user.email || "",
-          address: user.address || "",
-          phone: user.phone || "",
+          fullName: user.fullName || '',
+          email: user.email || '',
+          address: user.address || '',
+          phone: user.phone || '',
           userImage: user?.userImage || null,
         });
         setPreviewImage(null);
         setImageRemoved(false);
       } catch (err) {
-        setError("Failed to fetch user data.");
-        console.error("Fetch user error:", err);
+        setError('Failed to fetch user data.');
+        console.error('Fetch user error:', err);
       } finally {
         setFetching(false);
       }
@@ -88,8 +94,10 @@ const UpdateUserForm = ({ token }) => {
 
   const getImageSource = () => {
     if (previewImage) return previewImage;
-    if (formData.userImage && typeof formData.userImage === "string") {
-      const staticBaseUrl = baseUrl.endsWith('/api') ? baseUrl.slice(0, -4) : baseUrl;
+    if (formData.userImage && typeof formData.userImage === 'string') {
+      const staticBaseUrl = baseUrl.endsWith('/api')
+        ? baseUrl.slice(0, -4)
+        : baseUrl;
       return `${staticBaseUrl}/uploads/${formData.userImage}`;
     }
     return null;
@@ -98,39 +106,42 @@ const UpdateUserForm = ({ token }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setError("");
-    setSuccess("");
+    setError('');
+    setSuccess('');
 
     if (!userId) {
-      setError("User ID not available. Cannot update profile.");
+      setError('User ID not available. Cannot update profile.');
       setLoading(false);
       return;
     }
 
     try {
       const data = new FormData();
-      data.append("fullName", formData.fullName);
-      data.append("email", formData.email);
-      data.append("address", formData.address);
-      data.append("phone", formData.phone);
+      data.append('fullName', formData.fullName);
+      data.append('email', formData.email);
+      data.append('address', formData.address);
+      data.append('phone', formData.phone);
 
       if (imageRemoved) {
-        data.append("userImage", "");
+        data.append('userImage', '');
       } else if (formData.userImage instanceof File) {
-        data.append("userImage", formData.userImage);
+        data.append('userImage', formData.userImage);
       }
 
       const res = await axios.put(`${updateUrl}/${userId}`, data, {
         headers: {
           Authorization: `Bearer ${token}`,
-          "Content-Type": "multipart/form-data",
+          'Content-Type': 'multipart/form-data',
         },
       });
 
       if (res.data.message) {
         setSuccess(res.data.message);
         if (res.data.user && res.data.user.userImage) {
-          setFormData((prev) => ({ ...prev, userImage: res.data.user.userImage }));
+          setFormData((prev) => ({
+            ...prev,
+            userImage: res.data.user.userImage,
+          }));
           setPreviewImage(null);
           setImageRemoved(false);
         } else if (imageRemoved) {
@@ -139,11 +150,13 @@ const UpdateUserForm = ({ token }) => {
           setImageRemoved(false);
         }
       } else {
-        setError("Failed to update user.");
+        setError('Failed to update user.');
       }
     } catch (err) {
-      setError(err.response?.data?.message || "Something went wrong during update.");
-      console.error("Update user error:", err);
+      setError(
+        err.response?.data?.message || 'Something went wrong during update.',
+      );
+      console.error('Update user error:', err);
     } finally {
       setLoading(false);
     }
@@ -162,7 +175,9 @@ const UpdateUserForm = ({ token }) => {
   return (
     <Paper className="max-w-lg mx-auto">
       <div className="px-6 pt-6 pb-5 border-b border-border/50">
-        <Typography variant="h5" className="font-semibold text-center">Update Your Profile</Typography>
+        <Typography variant="h5" className="font-semibold text-center">
+          Update Your Profile
+        </Typography>
       </div>
 
       {error && (
@@ -187,12 +202,14 @@ const UpdateUserForm = ({ token }) => {
               className="size-28 rounded-full object-cover ring-4 ring-border shadow-sm"
               onError={(e) => {
                 e.target.onerror = null;
-                e.target.style.display = "none";
-                e.target.nextElementSibling?.classList.remove("hidden");
+                e.target.style.display = 'none';
+                e.target.nextElementSibling?.classList.remove('hidden');
               }}
             />
           ) : null}
-          <div className={`size-28 rounded-full bg-muted flex items-center justify-center text-muted-foreground ${currentImageSrc ? "hidden" : ""}`}>
+          <div
+            className={`size-28 rounded-full bg-muted flex items-center justify-center text-muted-foreground ${currentImageSrc ? 'hidden' : ''}`}
+          >
             <User className="size-10" />
           </div>
 
@@ -205,13 +222,22 @@ const UpdateUserForm = ({ token }) => {
               className="hidden"
             />
             <label htmlFor="user-image-upload">
-              <Button variant="outline" size="sm" asChild className="cursor-pointer">
-                <span><Upload className="size-3.5 mr-1.5" />Upload Image</span>
+              <Button
+                variant="outline"
+                size="sm"
+                asChild
+                className="cursor-pointer"
+              >
+                <span>
+                  <Upload className="size-3.5 mr-1.5" />
+                  Upload Image
+                </span>
               </Button>
             </label>
             {(currentImageSrc || previewImage) && (
               <Button variant="outline" size="sm" onClick={handleRemoveImage}>
-                <DeleteIcon className="size-3.5 mr-1.5" />Remove
+                <DeleteIcon className="size-3.5 mr-1.5" />
+                Remove
               </Button>
             )}
           </div>
@@ -247,9 +273,12 @@ const UpdateUserForm = ({ token }) => {
 
         <Button type="submit" disabled={loading} className="w-full">
           {loading ? (
-            <><CircularProgress className="size-4 mr-2" />Updating...</>
+            <>
+              <CircularProgress className="size-4 mr-2" />
+              Updating...
+            </>
           ) : (
-            "Update Profile"
+            'Update Profile'
           )}
         </Button>
       </form>

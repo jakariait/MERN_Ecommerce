@@ -1,17 +1,17 @@
-import { useState } from "react";
-import useNewsletterStore from "../../store/useNewsletterStore.js"; // Adjust the path as needed
+import { useState } from 'react';
+import useNewsletterStore from '../../store/useNewsletterStore.js'; // Adjust the path as needed
 
 export default function NewsletterForm() {
-  const [email, setEmail] = useState("");
-  const [message, setMessage] = useState("");
+  const [email, setEmail] = useState('');
+  const [message, setMessage] = useState('');
   const { subscribe, isLoading, error } = useNewsletterStore();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setMessage("");
+    setMessage('');
 
     if (!email.trim()) {
-      setMessage("Please enter an email.");
+      setMessage('Please enter an email.');
       return;
     }
 
@@ -19,11 +19,11 @@ export default function NewsletterForm() {
     const success = await subscribe(email);
 
     if (success) {
-      setMessage("✅ Successfully subscribed!");
-      setEmail("");
+      setMessage('✅ Successfully subscribed!');
+      setEmail('');
     } else {
       // Use the updated error from the store if available
-      setMessage(`❌ ${error || "Subscription failed"}`);
+      setMessage(`❌ ${error || 'Subscription failed'}`);
     }
   };
 
@@ -41,7 +41,7 @@ export default function NewsletterForm() {
         className="w-full primaryBgColor accentTextColor p-3 mt-5 hover:bg-green-600 transition cursor-pointer"
         disabled={isLoading}
       >
-        {isLoading ? "Subscribing..." : "Subscribe"}
+        {isLoading ? 'Subscribing...' : 'Subscribe'}
       </button>
       {message && <p className="mt-3 text-sm text-center">{message}</p>}
     </form>

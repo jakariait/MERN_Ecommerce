@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from "react";
-import { ResponsiveLine } from "@nivo/line";
-import useOrderStore from "../../store/useOrderStore";
-import dayjs from "dayjs";
+import React, { useEffect, useState } from 'react';
+import { ResponsiveLine } from '@nivo/line';
+import useOrderStore from '../../store/useOrderStore';
+import dayjs from 'dayjs';
 
 const MonthlyRevenueChart = () => {
   const { fetchAllOrdersWithoutPagination, allOrders } = useOrderStore();
@@ -18,14 +18,14 @@ const MonthlyRevenueChart = () => {
     const revenueMap = {};
 
     for (let i = 11; i >= 0; i--) {
-      const monthKey = now.subtract(i, "month").format("YYYY-MM");
+      const monthKey = now.subtract(i, 'month').format('YYYY-MM');
       revenueMap[monthKey] = 0;
     }
 
     allOrders
-      .filter((order) => order.orderStatus === "delivered")
+      .filter((order) => order.orderStatus === 'delivered')
       .forEach((order) => {
-        const monthKey = dayjs(order.createdAt).format("YYYY-MM");
+        const monthKey = dayjs(order.createdAt).format('YYYY-MM');
         if (revenueMap[monthKey] !== undefined) {
           revenueMap[monthKey] += Number(order.totalAmount || 0);
         }
@@ -33,9 +33,9 @@ const MonthlyRevenueChart = () => {
 
     const chartData = [
       {
-        id: "Revenue",
+        id: 'Revenue',
         data: Object.entries(revenueMap).map(([month, value]) => ({
-          x: dayjs(month).format("MMM YYYY"),
+          x: dayjs(month).format('MMM YYYY'),
           y: parseFloat(value.toFixed(2)),
         })),
       },
@@ -53,19 +53,19 @@ const MonthlyRevenueChart = () => {
         <ResponsiveLine
           data={monthlyRevenue}
           margin={{ top: 20, right: 80, bottom: 50, left: 60 }}
-          xScale={{ type: "point" }}
-          yScale={{ type: "linear", min: 0, max: "auto", stacked: false }}
+          xScale={{ type: 'point' }}
+          yScale={{ type: 'linear', min: 0, max: 'auto', stacked: false }}
           axisLeft={{
-            orient: "left",
-            legend: "Revenue (৳)",
+            orient: 'left',
+            legend: 'Revenue (৳)',
             legendOffset: -50,
-            legendPosition: "middle",
+            legendPosition: 'middle',
           }}
-          colors={{ scheme: "category10" }}
+          colors={{ scheme: 'category10' }}
           pointSize={8}
-          pointColor={{ theme: "background" }}
+          pointColor={{ theme: 'background' }}
           pointBorderWidth={2}
-          pointBorderColor={{ from: "serieColor" }}
+          pointBorderColor={{ from: 'serieColor' }}
           useMesh={true}
         />
       </div>

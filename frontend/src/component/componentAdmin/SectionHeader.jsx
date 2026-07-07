@@ -1,4 +1,4 @@
-export function SectionHeader({ title, description}) {
+export function SectionHeader({ title, description }) {
   return (
     <div className="border-b border-border py-3 text-center">
       <div>
@@ -12,7 +12,6 @@ export function SectionHeader({ title, description}) {
           </p>
         )}
       </div>
-
     </div>
   );
 }

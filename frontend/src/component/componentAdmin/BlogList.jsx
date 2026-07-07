@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '@/components/ui/skeleton';
 import {
   Table,
   TableBody,
@@ -10,8 +10,8 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { Card, CardContent } from "@/components/ui/card";
+} from '@/components/ui/table';
+import { Card, CardContent } from '@/components/ui/card';
 import {
   Dialog,
   DialogContent,
@@ -19,8 +19,8 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
-} from "@/components/ui/dialog";
-import { toast } from "sonner";
+} from '@/components/ui/dialog';
+import { toast } from 'sonner';
 import {
   Edit,
   Trash2,
@@ -28,10 +28,10 @@ import {
   ChevronRight,
   Plus,
   Loader2,
-} from "lucide-react";
-import { useNavigate, Link } from "react-router-dom";
-import AuthAdminStore from "../../store/AuthAdminStore.js";
-import { SectionHeader } from "#component/componentAdmin/SectionHeader.jsx";
+} from 'lucide-react';
+import { useNavigate, Link } from 'react-router-dom';
+import AuthAdminStore from '../../store/AuthAdminStore.js';
+import { SectionHeader } from '#component/componentAdmin/SectionHeader.jsx';
 
 const BlogList = () => {
   const navigate = useNavigate();
@@ -56,8 +56,8 @@ const BlogList = () => {
       setCurrentPage(res.data.currentPage || 1);
       setTotalPages(res.data.totalPages || 1);
     } catch (error) {
-      console.error("Failed to fetch blogs", error);
-      toast.error("Failed to fetch blogs.");
+      console.error('Failed to fetch blogs', error);
+      toast.error('Failed to fetch blogs.');
     } finally {
       setLoading(false);
     }
@@ -76,11 +76,11 @@ const BlogList = () => {
       await axios.delete(`${apiURL}/blog/${selectedBlogId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      toast.success("Blog deleted successfully!");
+      toast.success('Blog deleted successfully!');
       fetchBlogs(currentPage);
     } catch (error) {
-      console.error("Delete error:", error);
-      toast.error("Failed to delete blog.");
+      console.error('Delete error:', error);
+      toast.error('Failed to delete blog.');
     } finally {
       setDeleteDialogOpen(false);
       setSelectedBlogId(null);
@@ -90,8 +90,8 @@ const BlogList = () => {
   return (
     <div className="space-y-6">
       <SectionHeader
-        title={"Blog List"}
-        description={loading ? "..." : `${blogs.length} blogs`}
+        title={'Blog List'}
+        description={loading ? '...' : `${blogs.length} blogs`}
       />
 
       <Card className="shadow-md border-0">

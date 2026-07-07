@@ -1,23 +1,23 @@
-import React, { useState, useEffect, useCallback, useMemo } from "react";
-import axios from "axios";
-import { useNavigate } from "react-router-dom";
-import useOrderStore from "../../store/useOrderStore.js";
-import OrderStatusSelector from "./OrderStatusSelector.jsx";
-import SendToCourierButton from "./SendToCourierButton.jsx";
-import CourierSummary from "../componentAdmin/CourierSummery.jsx";
-import RequirePermission from "./RequirePermission.jsx";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Skeleton } from "@/components/ui/skeleton";
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
+import useOrderStore from '../../store/useOrderStore.js';
+import OrderStatusSelector from './OrderStatusSelector.jsx';
+import SendToCourierButton from './SendToCourierButton.jsx';
+import CourierSummary from '../componentAdmin/CourierSummery.jsx';
+import RequirePermission from './RequirePermission.jsx';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Skeleton } from '@/components/ui/skeleton';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from '@/components/ui/select';
 import {
   Table,
   TableBody,
@@ -25,8 +25,8 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { Card, CardContent } from "@/components/ui/card";
+} from '@/components/ui/table';
+import { Card, CardContent } from '@/components/ui/card';
 import {
   Dialog,
   DialogContent,
@@ -34,13 +34,13 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
-} from "@/components/ui/dialog";
+} from '@/components/ui/dialog';
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
-} from "@/components/ui/tooltip";
-import { toast } from "sonner";
+} from '@/components/ui/tooltip';
+import { toast } from 'sonner';
 import {
   Search,
   X,
@@ -53,9 +53,9 @@ import {
   ArrowDown,
   ArrowUpDown,
   Loader2,
-} from "lucide-react";
+} from 'lucide-react';
 
-const AllOrders = ({ title, status = "" }) => {
+const AllOrders = ({ title, status = '' }) => {
   const {
     fetchAllOrders,
     totalOrders,
@@ -78,39 +78,39 @@ const AllOrders = ({ title, status = "" }) => {
     [status, orderListByStatus, allOrdersFromStore],
   );
 
-  const [sortDirection, setSortDirection] = useState("desc");
-  const [orderBy, setOrderBy] = useState("orderNo");
+  const [sortDirection, setSortDirection] = useState('desc');
+  const [orderBy, setOrderBy] = useState('orderNo');
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [searchInput, setSearchInput] = useState("");
+  const [searchInput, setSearchInput] = useState('');
   const [localStartDate, setLocalStartDate] = useState(
-    startDateFromStore || "",
+    startDateFromStore || '',
   );
-  const [localEndDate, setLocalEndDate] = useState(endDateFromStore || "");
+  const [localEndDate, setLocalEndDate] = useState(endDateFromStore || '');
 
   // Bulk selection state
   const [selectedOrders, setSelectedOrders] = useState([]);
   const [bulkUpdateDialog, setBulkUpdateDialog] = useState(false);
-  const [bulkNewStatus, setBulkNewStatus] = useState("");
+  const [bulkNewStatus, setBulkNewStatus] = useState('');
   const [bulkUpdating, setBulkUpdating] = useState(false);
   const [bulkDeleteDialog, setBulkDeleteDialog] = useState(false);
   const [bulkDeleting, setBulkDeleting] = useState(false);
   const [bulkCourierDialog, setBulkCourierDialog] = useState(false);
-  const [selectedCourier, setSelectedCourier] = useState("");
+  const [selectedCourier, setSelectedCourier] = useState('');
   const [sendingToCourier, setSendingToCourier] = useState(false);
   const [downloadingOrders, setDownloadingOrders] = useState(false);
 
   const apiUrl = import.meta.env.VITE_API_URL;
   const navigate = useNavigate();
-  const token = localStorage.getItem("token");
+  const token = localStorage.getItem('token');
 
   useEffect(() => {
     setCurrentPage(1);
-    setSearchInput("");
-    setSearchQuery("");
-    setLocalStartDate("");
-    setLocalEndDate("");
+    setSearchInput('');
+    setSearchQuery('');
+    setLocalStartDate('');
+    setLocalEndDate('');
     setDateRange(null, null);
     setSelectedOrders([]);
   }, [status, setSearchQuery, setDateRange]);
@@ -147,14 +147,14 @@ const AllOrders = ({ title, status = "" }) => {
   };
 
   const handleClearDateFilter = () => {
-    setLocalStartDate("");
-    setLocalEndDate("");
+    setLocalStartDate('');
+    setLocalEndDate('');
     setDateRange(null, null);
   };
 
   const handleSearchKeyPress = useCallback(
     (e) => {
-      if (e.key === "Enter") {
+      if (e.key === 'Enter') {
         e.preventDefault();
         handleSearchExecute();
       }
@@ -163,8 +163,8 @@ const AllOrders = ({ title, status = "" }) => {
   );
 
   const handleClearSearch = useCallback(() => {
-    setSearchInput("");
-    setSearchQuery("");
+    setSearchInput('');
+    setSearchQuery('');
     setCurrentPage(1);
   }, [setSearchQuery]);
 
@@ -183,8 +183,8 @@ const AllOrders = ({ title, status = "" }) => {
   const handleSortRequest = useCallback(
     (property) => {
       setSortDirection((prev) => {
-        const isAsc = orderBy === property && prev === "asc";
-        return isAsc ? "desc" : "asc";
+        const isAsc = orderBy === property && prev === 'asc';
+        return isAsc ? 'desc' : 'asc';
       });
       setOrderBy(property);
     },
@@ -197,11 +197,11 @@ const AllOrders = ({ title, status = "" }) => {
     return (
       <button
         onClick={() => handleSortRequest(column)}
-        className={`inline-flex items-center gap-1 font-medium text-sm hover:text-foreground transition-colors ${className || ""}`}
+        className={`inline-flex items-center gap-1 font-medium text-sm hover:text-foreground transition-colors ${className || ''}`}
       >
         {label}
         {isActive ? (
-          direction === "asc" ? (
+          direction === 'asc' ? (
             <ArrowUp className="size-3.5" />
           ) : (
             <ArrowDown className="size-3.5" />
@@ -218,35 +218,35 @@ const AllOrders = ({ title, status = "" }) => {
       let aVal, bVal;
 
       switch (orderBy) {
-        case "orderNo":
+        case 'orderNo':
           aVal = a.orderNo;
           bVal = b.orderNo;
           break;
-        case "orderDate":
+        case 'orderDate':
           aVal = new Date(a.orderDate);
           bVal = new Date(b.orderDate);
           break;
-        case "totalAmount":
+        case 'totalAmount':
           aVal = a.totalAmount;
           bVal = b.totalAmount;
           break;
-        case "shippingInfo.fullName":
+        case 'shippingInfo.fullName':
           aVal = a.shippingInfo.fullName;
           bVal = b.shippingInfo.fullName;
           break;
-        case "shippingInfo.mobileNo":
+        case 'shippingInfo.mobileNo':
           aVal = a.shippingInfo.mobileNo;
           bVal = b.shippingInfo.mobileNo;
           break;
-        case "orderStatus":
+        case 'orderStatus':
           aVal = a.orderStatus;
           bVal = b.orderStatus;
           break;
-        case "orderSource":
+        case 'orderSource':
           aVal = a.orderSource;
           bVal = b.orderSource;
           break;
-        case "paymentStatus":
+        case 'paymentStatus':
           aVal = a.paymentStatus;
           bVal = b.paymentStatus;
           break;
@@ -254,8 +254,8 @@ const AllOrders = ({ title, status = "" }) => {
           return 0;
       }
 
-      if (aVal < bVal) return sortDirection === "asc" ? -1 : 1;
-      if (aVal > bVal) return sortDirection === "asc" ? 1 : -1;
+      if (aVal < bVal) return sortDirection === 'asc' ? -1 : 1;
+      if (aVal > bVal) return sortDirection === 'asc' ? 1 : -1;
       return 0;
     };
 
@@ -283,15 +283,13 @@ const AllOrders = ({ title, status = "" }) => {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (response.data.success) {
-        toast.success("Order deleted successfully");
+        toast.success('Order deleted successfully');
         fetchOrders();
       } else {
-        toast.error(response.data.message || "Failed to delete order");
+        toast.error(response.data.message || 'Failed to delete order');
       }
     } catch (error) {
-      toast.error(
-        error.response?.data?.message || "Error deleting order",
-      );
+      toast.error(error.response?.data?.message || 'Error deleting order');
     }
     setDeleteDialogOpen(false);
     setDeleteId(null);
@@ -317,59 +315,59 @@ const AllOrders = ({ title, status = "" }) => {
       const ordersToDownload = response.data.orders || [];
 
       if (ordersToDownload.length === 0) {
-        toast.warning("No orders to download");
+        toast.warning('No orders to download');
         setDownloadingOrders(false);
         return;
       }
 
       const headers = [
-        "Order No",
-        "Source",
-        "Order Date",
-        "Customer Name",
-        "Mobile Number",
-        "Email",
-        "Address",
-        "Billed Amount",
+        'Order No',
+        'Source',
+        'Order Date',
+        'Customer Name',
+        'Mobile Number',
+        'Email',
+        'Address',
+        'Billed Amount',
       ];
 
       const rows = ordersToDownload.map((order) => [
-        order.orderNo || "",
-        order.orderSource || "web",
+        order.orderNo || '',
+        order.orderSource || 'web',
         order.orderDate
           ? new Date(order.orderDate).toLocaleDateString()
           : new Date(order.createdAt).toLocaleDateString(),
-        order.shippingInfo?.fullName || "",
-        order.shippingInfo?.mobileNo || "",
-        order.shippingInfo?.email || "",
-        order.shippingInfo?.address || "",
-        order.totalAmount?.toFixed(2) || "0",
+        order.shippingInfo?.fullName || '',
+        order.shippingInfo?.mobileNo || '',
+        order.shippingInfo?.email || '',
+        order.shippingInfo?.address || '',
+        order.totalAmount?.toFixed(2) || '0',
       ]);
 
       const csvContent = [
-        headers.map((h) => `"${h}"`).join(","),
+        headers.map((h) => `"${h}"`).join(','),
         ...rows.map((row) =>
           row
-            .map((cell) => `"${cell?.toString().replace(/"/g, '""') || ""}"`)
-            .join(","),
+            .map((cell) => `"${cell?.toString().replace(/"/g, '""') || ''}"`)
+            .join(','),
         ),
-      ].join("\n");
+      ].join('\n');
 
       const blob = new Blob([csvContent], {
-        type: "text/csv;charset=utf-8;",
+        type: 'text/csv;charset=utf-8;',
       });
-      const link = document.createElement("a");
+      const link = document.createElement('a');
       const url = URL.createObjectURL(blob);
       link.href = url;
       link.download = `Orders_${new Date().toISOString().slice(0, 10)}.csv`;
       link.click();
       URL.revokeObjectURL(url);
 
-      toast.success(`Downloaded ${ordersToDownload.length} orders successfully`);
-    } catch (error) {
-      toast.error(
-        error.response?.data?.message || "Error downloading orders",
+      toast.success(
+        `Downloaded ${ordersToDownload.length} orders successfully`,
       );
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Error downloading orders');
     } finally {
       setDownloadingOrders(false);
     }
@@ -405,20 +403,20 @@ const AllOrders = ({ title, status = "" }) => {
         { headers: { Authorization: `Bearer ${token}` } },
       );
       if (response.data.success) {
-        toast.success(`${response.data.totalUpdated} orders updated successfully`);
+        toast.success(
+          `${response.data.totalUpdated} orders updated successfully`,
+        );
         setSelectedOrders([]);
         fetchOrders();
       } else {
-        toast.error(response.data.message || "Failed to update orders");
+        toast.error(response.data.message || 'Failed to update orders');
       }
     } catch (error) {
-      toast.error(
-        error.response?.data?.message || "Error updating orders",
-      );
+      toast.error(error.response?.data?.message || 'Error updating orders');
     } finally {
       setBulkUpdating(false);
       setBulkUpdateDialog(false);
-      setBulkNewStatus("");
+      setBulkNewStatus('');
     }
   }, [bulkNewStatus, selectedOrders, apiUrl, token, fetchOrders]);
 
@@ -431,16 +429,16 @@ const AllOrders = ({ title, status = "" }) => {
         data: { orderIds: selectedOrders },
       });
       if (response.data.success) {
-        toast.success(`${response.data.totalDeleted} orders deleted successfully`);
+        toast.success(
+          `${response.data.totalDeleted} orders deleted successfully`,
+        );
         setSelectedOrders([]);
         fetchOrders();
       } else {
-        toast.error(response.data.message || "Failed to delete orders");
+        toast.error(response.data.message || 'Failed to delete orders');
       }
     } catch (error) {
-      toast.error(
-        error.response?.data?.message || "Error deleting orders",
-      );
+      toast.error(error.response?.data?.message || 'Error deleting orders');
     } finally {
       setBulkDeleting(false);
       setBulkDeleteDialog(false);
@@ -455,21 +453,21 @@ const AllOrders = ({ title, status = "" }) => {
         .filter((order) => selectedOrders.includes(order._id))
         .map((order) => ({
           invoice: order.orderNo,
-          recipient_name: order.shippingInfo?.fullName || "N/A",
-          recipient_phone: order.shippingInfo?.mobileNo || "",
-          recipient_address: order.shippingInfo?.address || "N/A",
+          recipient_name: order.shippingInfo?.fullName || 'N/A',
+          recipient_phone: order.shippingInfo?.mobileNo || '',
+          recipient_address: order.shippingInfo?.address || 'N/A',
           cod_amount: String(order.dueAmount || 0),
-          note: order.note || "",
+          note: order.note || '',
         }));
 
       let response;
-      if (selectedCourier === "steadfast") {
+      if (selectedCourier === 'steadfast') {
         response = await axios.post(
           `${apiUrl}/steadfast/bulk-order`,
           { data: ordersToSend },
           { headers: { Authorization: `Bearer ${token}` } },
         );
-      } else if (selectedCourier === "pathao") {
+      } else if (selectedCourier === 'pathao') {
         response = await axios.post(
           `${apiUrl}/pathao/orders/bulk`,
           { data: ordersToSend },
@@ -477,27 +475,27 @@ const AllOrders = ({ title, status = "" }) => {
         );
       }
 
-      if (response.data.status === "success") {
+      if (response.data.status === 'success') {
         const responseData = Array.isArray(response.data.data)
           ? response.data.data
           : [];
 
         const successCount = responseData.filter(
-          (r) => r.status === "success",
+          (r) => r.status === 'success',
         ).length;
         const errorCount = responseData.filter(
-          (r) => r.status === "error",
+          (r) => r.status === 'error',
         ).length;
 
         if (successCount > 0) {
           const updatePromises = responseData
-            .filter((r) => r.status === "success")
+            .filter((r) => r.status === 'success')
             .map((result) => {
               const order = allOrders.find((o) => o.orderNo === result.invoice);
               if (!order) return null;
               const updatePayload = {
                 sentToCourier: true,
-                orderStatus: "intransit",
+                orderStatus: 'intransit',
                 courierProvider: selectedCourier,
                 courierConsignmentId: result.consignment_id,
               };
@@ -510,41 +508,46 @@ const AllOrders = ({ title, status = "" }) => {
           try {
             await Promise.all(updatePromises);
           } catch (updateError) {
-            console.error("Error updating orders:", updateError);
+            console.error('Error updating orders:', updateError);
           }
         }
 
-        if (successCount === 0 && errorCount === 0 && responseData.length === 0) {
+        if (
+          successCount === 0 &&
+          errorCount === 0 &&
+          responseData.length === 0
+        ) {
           toast.error(
-            "All orders were rejected by Steadfast. Check console logs and your Steadfast dashboard for details.",
+            'All orders were rejected by Steadfast. Check console logs and your Steadfast dashboard for details.',
           );
         } else {
           toast.success(
-            `${successCount} orders sent to ${selectedCourier} successfully${errorCount > 0 ? `, ${errorCount} failed` : ""}`,
+            `${successCount} orders sent to ${selectedCourier} successfully${errorCount > 0 ? `, ${errorCount} failed` : ''}`,
           );
         }
         setSelectedOrders([]);
         fetchOrders();
       } else {
         toast.error(
-          response.data.message || "Failed to send orders to courier",
+          response.data.message || 'Failed to send orders to courier',
         );
       }
     } catch (error) {
       const errorMsg =
         error.response?.data?.message ||
         error.message ||
-        "Error sending orders to courier";
-      console.error("Bulk courier error:", error);
+        'Error sending orders to courier';
+      console.error('Bulk courier error:', error);
       toast.error(errorMsg);
     } finally {
       setSendingToCourier(false);
       setBulkCourierDialog(false);
-      setSelectedCourier("");
+      setSelectedCourier('');
     }
   }, [selectedCourier, selectedOrders, allOrders, apiUrl, token, fetchOrders]);
 
-  const allSelected = allOrders.length > 0 && selectedOrders.length === allOrders.length;
+  const allSelected =
+    allOrders.length > 0 && selectedOrders.length === allOrders.length;
 
   const LoadingSkeleton = useMemo(
     () => (
@@ -554,17 +557,17 @@ const AllOrders = ({ title, status = "" }) => {
             <TableHeader>
               <TableRow>
                 {[
-                  "Order No",
-                  "Order Date & Time",
-                  "Customer",
-                  "Mobile No",
-                  "Courier",
-                  "Courier Status",
-                  "Status",
-                  "Payment Status",
-                  "Total Amount",
-                  "Source",
-                  "Actions",
+                  'Order No',
+                  'Order Date & Time',
+                  'Customer',
+                  'Mobile No',
+                  'Courier',
+                  'Courier Status',
+                  'Status',
+                  'Payment Status',
+                  'Total Amount',
+                  'Source',
+                  'Actions',
                 ].map((header, i) => (
                   <TableHead key={i}>
                     <Skeleton className="h-4 w-24" />
@@ -605,7 +608,7 @@ const AllOrders = ({ title, status = "" }) => {
           disabled={downloadingOrders}
         >
           <Download className="size-4 mr-1" />
-          {downloadingOrders ? "Downloading..." : "Download All Orders (CSV)"}
+          {downloadingOrders ? 'Downloading...' : 'Download All Orders (CSV)'}
         </Button>
       </div>
 
@@ -701,7 +704,7 @@ const AllOrders = ({ title, status = "" }) => {
         <div className="flex items-center gap-2">
           <p className="text-sm text-muted-foreground">
             {orderListLoading
-              ? "Searching..."
+              ? 'Searching...'
               : `Search results for: "${searchQuery}"`}
           </p>
           <Button variant="ghost" size="sm" onClick={handleClearSearch}>
@@ -724,8 +727,8 @@ const AllOrders = ({ title, status = "" }) => {
             <div className="text-center py-8">
               <p className="text-lg text-muted-foreground">
                 {searchQuery
-                  ? "No orders found matching your search."
-                  : "No orders found."}
+                  ? 'No orders found matching your search.'
+                  : 'No orders found.'}
               </p>
               {searchQuery && (
                 <p className="text-sm text-muted-foreground mt-1">
@@ -839,12 +842,8 @@ const AllOrders = ({ title, status = "" }) => {
                           <TableCell>
                             {new Date(order.createdAt).toLocaleString()}
                           </TableCell>
-                          <TableCell>
-                            {order.shippingInfo.fullName}
-                          </TableCell>
-                          <TableCell>
-                            {order.shippingInfo.mobileNo}
-                          </TableCell>
+                          <TableCell>{order.shippingInfo.fullName}</TableCell>
+                          <TableCell>{order.shippingInfo.mobileNo}</TableCell>
                           <TableCell>
                             <SendToCourierButton
                               orderData={{
@@ -853,7 +852,7 @@ const AllOrders = ({ title, status = "" }) => {
                                 recipient_phone: order.shippingInfo?.mobileNo,
                                 recipient_address: order.shippingInfo?.address,
                                 cod_amount: order.dueAmount,
-                                note: order.note || "",
+                                note: order.note || '',
                                 order_id: order._id,
                                 courier_status: order.sentToCourier,
                                 items: order.items.length,
@@ -876,12 +875,12 @@ const AllOrders = ({ title, status = "" }) => {
                           <TableCell>
                             <Badge
                               variant={
-                                order.orderSource === "admin"
-                                  ? "default"
-                                  : "secondary"
+                                order.orderSource === 'admin'
+                                  ? 'default'
+                                  : 'secondary'
                               }
                             >
-                              {order.orderSource === "admin" ? "Admin" : "Web"}
+                              {order.orderSource === 'admin' ? 'Admin' : 'Web'}
                             </Badge>
                           </TableCell>
                           <TableCell>
@@ -934,7 +933,7 @@ const AllOrders = ({ title, status = "" }) => {
               <div className="flex items-center justify-between bg-muted/30 rounded-lg p-3 mt-4">
                 <p className="text-sm text-muted-foreground">
                   Showing {startEntry} to {endEntry} of {totalOrders} entries
-                  {searchQuery && " (filtered)"}
+                  {searchQuery && ' (filtered)'}
                 </p>
                 <div className="flex items-center gap-1">
                   <Button
@@ -951,19 +950,22 @@ const AllOrders = ({ title, status = "" }) => {
                     const left = Math.max(2, currentPage - delta);
                     const right = Math.min(totalPages - 1, currentPage + delta);
                     pages.push(1);
-                    if (left > 2) pages.push("...");
+                    if (left > 2) pages.push('...');
                     for (let i = left; i <= right; i++) pages.push(i);
-                    if (right < totalPages - 1) pages.push("...");
+                    if (right < totalPages - 1) pages.push('...');
                     if (totalPages > 1) pages.push(totalPages);
                     return pages.map((p, i) =>
-                      p === "..." ? (
-                        <span key={`ellipsis-${i}`} className="px-1 text-muted-foreground">
+                      p === '...' ? (
+                        <span
+                          key={`ellipsis-${i}`}
+                          className="px-1 text-muted-foreground"
+                        >
                           ...
                         </span>
                       ) : (
                         <Button
                           key={p}
-                          variant={p === currentPage ? "default" : "ghost"}
+                          variant={p === currentPage ? 'default' : 'ghost'}
                           size="sm"
                           className="min-w-9"
                           disabled={orderListLoading}
@@ -1023,10 +1025,7 @@ const AllOrders = ({ title, status = "" }) => {
           </DialogHeader>
           <div className="space-y-2 py-2">
             <label className="text-sm font-medium">New Status</label>
-            <Select
-              value={bulkNewStatus}
-              onValueChange={setBulkNewStatus}
-            >
+            <Select value={bulkNewStatus} onValueChange={setBulkNewStatus}>
               <SelectTrigger>
                 <SelectValue placeholder="Select status" />
               </SelectTrigger>
@@ -1058,7 +1057,7 @@ const AllOrders = ({ title, status = "" }) => {
                   Updating...
                 </>
               ) : (
-                "Update"
+                'Update'
               )}
             </Button>
           </DialogFooter>
@@ -1071,7 +1070,8 @@ const AllOrders = ({ title, status = "" }) => {
             <DialogTitle>Confirm Bulk Delete</DialogTitle>
             <DialogDescription>
               Are you sure you want to delete {selectedOrders.length} order(s)?
-              This action cannot be undone and will restore stock for each order.
+              This action cannot be undone and will restore stock for each
+              order.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
@@ -1093,7 +1093,7 @@ const AllOrders = ({ title, status = "" }) => {
                   Deleting...
                 </>
               ) : (
-                "Delete"
+                'Delete'
               )}
             </Button>
           </DialogFooter>
@@ -1111,10 +1111,7 @@ const AllOrders = ({ title, status = "" }) => {
           </DialogHeader>
           <div className="space-y-2 py-2">
             <label className="text-sm font-medium">Select Courier</label>
-            <Select
-              value={selectedCourier}
-              onValueChange={setSelectedCourier}
-            >
+            <Select value={selectedCourier} onValueChange={setSelectedCourier}>
               <SelectTrigger>
                 <SelectValue placeholder="Select courier" />
               </SelectTrigger>
@@ -1142,7 +1139,7 @@ const AllOrders = ({ title, status = "" }) => {
                   Sending...
                 </>
               ) : (
-                "Send"
+                'Send'
               )}
             </Button>
           </DialogFooter>

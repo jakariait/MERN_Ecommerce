@@ -1,18 +1,22 @@
-import { useState } from "react";
-import axios from "axios";
-import { useNavigate, Link } from "react-router-dom";
-import { Snackbar } from "@/components/ui/snackbar";
-import { Alert as MuiAlert } from "@/components/ui/alert";
-import { CircularProgress } from "@/components/ui/circular-progress";
-import { Mail, Lock, ArrowLeft } from "lucide-react";
+import { useState } from 'react';
+import axios from 'axios';
+import { useNavigate, Link } from 'react-router-dom';
+import { Snackbar } from '@/components/ui/snackbar';
+import { Alert as MuiAlert } from '@/components/ui/alert';
+import { CircularProgress } from '@/components/ui/circular-progress';
+import { Mail, Lock, ArrowLeft } from 'lucide-react';
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
 export default function ForgotPassword() {
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
-  const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" });
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: '',
+    severity: 'success',
+  });
   const navigate = useNavigate();
 
   const handleSnackbarClose = () => {
@@ -29,8 +33,8 @@ export default function ForgotPassword() {
       setSubmitted(true);
       setSnackbar({
         open: true,
-        message: res.data.message || "OTP sent successfully! Check your email.",
-        severity: "success",
+        message: res.data.message || 'OTP sent successfully! Check your email.',
+        severity: 'success',
       });
 
       // Redirect after delay
@@ -40,8 +44,10 @@ export default function ForgotPassword() {
     } catch (err) {
       setSnackbar({
         open: true,
-        message: err.response?.data?.message || "Failed to send OTP. Please try again.",
-        severity: "error",
+        message:
+          err.response?.data?.message ||
+          'Failed to send OTP. Please try again.',
+        severity: 'error',
       });
     } finally {
       setLoading(false);
@@ -58,8 +64,13 @@ export default function ForgotPassword() {
               <Lock className="w-8 h-8 text-gray-700" />
             </div>
           </div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Reset Password</h1>
-          <p className="text-gray-600">Enter your email address and we'll send you a code to reset your password</p>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            Reset Password
+          </h1>
+          <p className="text-gray-600">
+            Enter your email address and we'll send you a code to reset your
+            password
+          </p>
         </div>
 
         {/* Main Card */}
@@ -68,7 +79,10 @@ export default function ForgotPassword() {
             <form onSubmit={handleSendOTP} className="space-y-6">
               {/* Email Input */}
               <div>
-                <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-2">
+                <label
+                  htmlFor="email"
+                  className="block text-sm font-semibold text-gray-700 mb-2"
+                >
                   Email Address
                 </label>
                 <div className="relative">
@@ -84,7 +98,9 @@ export default function ForgotPassword() {
                     className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition disabled:bg-gray-50 disabled:text-gray-500"
                   />
                 </div>
-                <p className="text-xs text-gray-500 mt-2">We'll send a verification code to this email</p>
+                <p className="text-xs text-gray-500 mt-2">
+                  We'll send a verification code to this email
+                </p>
               </div>
 
               {/* Submit Button */}
@@ -108,8 +124,11 @@ export default function ForgotPassword() {
 
               {/* Help Text */}
               <p className="text-center text-sm text-gray-600">
-                Remember your password?{" "}
-                <Link to="/login" className="text-blue-600 font-semibold hover:underline">
+                Remember your password?{' '}
+                <Link
+                  to="/login"
+                  className="text-blue-600 font-semibold hover:underline"
+                >
                   Sign In
                 </Link>
               </p>
@@ -122,11 +141,16 @@ export default function ForgotPassword() {
                   <Mail className="w-8 h-8 text-green-600" />
                 </div>
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">Check Your Email</h3>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">
+                Check Your Email
+              </h3>
               <p className="text-gray-600 mb-4">
-                We've sent a verification code to <span className="font-semibold">{email}</span>
+                We've sent a verification code to{' '}
+                <span className="font-semibold">{email}</span>
               </p>
-              <p className="text-sm text-gray-500">Redirecting you to reset your password...</p>
+              <p className="text-sm text-gray-500">
+                Redirecting you to reset your password...
+              </p>
             </div>
           )}
         </div>
@@ -148,14 +172,14 @@ export default function ForgotPassword() {
         open={snackbar.open}
         autoHideDuration={4000}
         onClose={handleSnackbarClose}
-        anchorOrigin={{ vertical: "top", horizontal: "right" }}
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
       >
         <MuiAlert
           elevation={6}
           variant="filled"
           onClose={handleSnackbarClose}
           severity={snackbar.severity}
-          sx={{ borderRadius: "8px" }}
+          sx={{ borderRadius: '8px' }}
         >
           {snackbar.message}
         </MuiAlert>

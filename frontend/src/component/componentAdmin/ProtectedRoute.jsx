@@ -1,5 +1,5 @@
-import { Navigate, Outlet } from "react-router-dom";
-import useAuthAdminStore from "../../store/AuthAdminStore.js";
+import { Navigate, Outlet } from 'react-router-dom';
+import useAuthAdminStore from '../../store/AuthAdminStore.js';
 
 const ProtectedRoute = () => {
   const { token } = useAuthAdminStore();

@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 
 const MarqueeModern = () => {
   const [messages, setMessages] = useState([]);
@@ -14,7 +14,7 @@ const MarqueeModern = () => {
           setMessages(res.data.messages);
         }
       } catch (err) {
-        console.error("Failed to load marquee messages:", err.message);
+        console.error('Failed to load marquee messages:', err.message);
       } finally {
         setLoading(false);
       }

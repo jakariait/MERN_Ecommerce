@@ -1,8 +1,16 @@
-import React, { useState, useEffect } from "react";
-import { Accordion, AccordionSummary, AccordionDetails } from "@/components/ui/accordion";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Button } from "@/components/ui/button";
-import { Plus as Add, Minus as Remove, CheckCircle2 as CheckCircle } from "lucide-react";
+import React, { useState, useEffect } from 'react';
+import {
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
+} from '@/components/ui/accordion';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Button } from '@/components/ui/button';
+import {
+  Plus as Add,
+  Minus as Remove,
+  CheckCircle2 as CheckCircle,
+} from 'lucide-react';
 
 const RewardPoints = ({ availablePoints, points, onPointsChange }) => {
   const [expanded, setExpanded] = useState(false);
@@ -41,8 +49,8 @@ const RewardPoints = ({ availablePoints, points, onPointsChange }) => {
         <AccordionSummary
           expandIcon={expanded ? <Remove /> : <Add />}
           sx={{
-            backgroundColor: "transparent",
-            fontWeight: "bold",
+            backgroundColor: 'transparent',
+            fontWeight: 'bold',
           }}
         >
           <h1 className="border-l-4 primaryBorderColor primaryTextColor pl-2  font-semibold">
@@ -51,10 +59,10 @@ const RewardPoints = ({ availablePoints, points, onPointsChange }) => {
         </AccordionSummary>
         <AccordionDetails className="bg-white px-4 py-4 space-y-4">
           <p className="text-gray-800">
-            You have{" "}
+            You have{' '}
             <span className="text-blue-900 font-medium">
               {availablePoints} Reward Points
-            </span>{" "}
+            </span>{' '}
             available
           </p>
 
@@ -73,7 +81,7 @@ const RewardPoints = ({ availablePoints, points, onPointsChange }) => {
               checkedIcon={<CheckCircle className="text-blue-900" />}
             />
             <span className="text-gray-800">
-              Use maximum{" "}
+              Use maximum{' '}
               <span className="text-blue-900 font-medium">
                 {availablePoints} Reward Points
               </span>
@@ -86,9 +94,9 @@ const RewardPoints = ({ availablePoints, points, onPointsChange }) => {
             fullWidth
             onClick={handleApply}
             sx={{
-              textTransform: "none",
-              backgroundColor: "black",
-              "&:hover": { backgroundColor: "#222" },
+              textTransform: 'none',
+              backgroundColor: 'black',
+              '&:hover': { backgroundColor: '#222' },
             }}
           >
             Apply

@@ -1,11 +1,11 @@
-import * as React from "react"
-import { Separator as SeparatorPrimitive } from "radix-ui"
+import * as React from 'react';
+import { Separator as SeparatorPrimitive } from 'radix-ui';
 
-import { cn } from "@/lib/utils"
+import { cn } from '@/lib/utils';
 
 function Separator({
   className,
-  orientation = "horizontal",
+  orientation = 'horizontal',
   decorative = true,
   ...props
 }) {
@@ -15,11 +15,12 @@ function Separator({
       decorative={decorative}
       orientation={orientation}
       className={cn(
-        "shrink-0 bg-border data-[orientation=horizontal]:h-px data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-px",
-        className
+        'shrink-0 bg-border data-[orientation=horizontal]:h-px data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-px',
+        className,
       )}
-      {...props} />
+      {...props}
+    />
   );
 }
 
-export { Separator }
+export { Separator };

@@ -1,13 +1,13 @@
-import React, { useState } from "react";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { Typography } from "@/components/ui/typography";
-import { Link } from "react-router-dom";
-import { FaEye } from "react-icons/fa";
-import ProductGallery from "./ProductGallery.jsx";
-import ProductAddToCart from "./ProductAddToCart.jsx";
-import BuyNowButton from "./BuyNowButton.jsx";
-import ImageComponent from "./ImageComponent.jsx";
-import WishlistButton from "./WishlistButton.jsx";
+import React, { useState } from 'react';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Typography } from '@/components/ui/typography';
+import { Link } from 'react-router-dom';
+import { FaEye } from 'react-icons/fa';
+import ProductGallery from './ProductGallery.jsx';
+import ProductAddToCart from './ProductAddToCart.jsx';
+import BuyNowButton from './BuyNowButton.jsx';
+import ImageComponent from './ImageComponent.jsx';
+import WishlistButton from './WishlistButton.jsx';
 
 // Memoize the formatted price function
 const formatPrice = (price) => {
@@ -49,7 +49,7 @@ const ProductList = ({ products }) => {
       ) : (
         <div
           className={
-            "grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 mt-4"
+            'grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 mt-4'
           }
         >
           {/*Product Display Section*/}
@@ -144,7 +144,7 @@ const ProductList = ({ products }) => {
                   <FaEye aria-hidden="true" />
                 </button>
               </div>
-              <div className={"pt-5"}>
+              <div className={'pt-5'}>
                 <BuyNowButton product={product} isAddToCart={false} />
               </div>
             </div>

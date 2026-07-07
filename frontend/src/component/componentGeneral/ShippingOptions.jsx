@@ -1,7 +1,7 @@
 // ShippingOptions.jsx
-import React, { useEffect, useState } from "react";
-import axios from "axios";
-import useCartStore from "../../store/useCartStore.js";
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+import useCartStore from '../../store/useCartStore.js';
 
 const ShippingOptions = ({ onShippingChange }) => {
   const apiUrl = import.meta.env.VITE_API_URL;
@@ -10,7 +10,7 @@ const ShippingOptions = ({ onShippingChange }) => {
   const [shipping, setShipping] = useState([]);
   const [selectedShipping, setSelectedShipping] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [message, setMessage] = useState("");
+  const [message, setMessage] = useState('');
 
   const hasFreeShippingProduct = cart.some((item) => item.freeShipping);
 
@@ -23,10 +23,10 @@ const ShippingOptions = ({ onShippingChange }) => {
           setShipping(res.data.data);
           setMessage(res.data.message);
         } else {
-          setMessage("Failed to fetch shipping options.");
+          setMessage('Failed to fetch shipping options.');
         }
       } catch (err) {
-        setMessage("An error occurred while fetching shipping options.");
+        setMessage('An error occurred while fetching shipping options.');
         console.error(err);
       } finally {
         setLoading(false);
@@ -43,27 +43,25 @@ const ShippingOptions = ({ onShippingChange }) => {
       const shippingValue = hasFreeShippingProduct ? 0 : defaultOption.value;
       setSelectedShipping(shippingValue);
       onShippingChange({
-        name: hasFreeShippingProduct ? "Free Shipping" : defaultOption.name,
+        name: hasFreeShippingProduct ? 'Free Shipping' : defaultOption.name,
         value: shippingValue,
         id: defaultOption._id,
       });
     }
   }, [shipping, hasFreeShippingProduct]);
 
-
   const handleChange = (option) => {
     const shippingValue = hasFreeShippingProduct ? 0 : option.value;
     setSelectedShipping(shippingValue);
-    onShippingChange({ 
-      name: hasFreeShippingProduct ? "Free Shipping" : option.name, 
-      value: shippingValue, 
-      id: option._id 
+    onShippingChange({
+      name: hasFreeShippingProduct ? 'Free Shipping' : option.name,
+      value: shippingValue,
+      id: option._id,
     });
   };
 
-
   return (
-    <div className={"flex flex-col gap-4"}>
+    <div className={'flex flex-col gap-4'}>
       <h1 className="border-l-4 primaryBorderColor primaryTextColor pl-2 text-lg font-semibold">
         Select Shipping Option
       </h1>

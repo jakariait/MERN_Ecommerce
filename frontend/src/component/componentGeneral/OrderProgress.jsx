@@ -1,16 +1,11 @@
-import {
-  FaClock,
-  FaCheckCircle,
-  FaShippingFast,
-  FaBox,
-} from "react-icons/fa";
+import { FaClock, FaCheckCircle, FaShippingFast, FaBox } from 'react-icons/fa';
 
 const OrderProgress = ({ status }) => {
   const steps = [
-    { key: "pending", label: "Pending", description: "Order Placed" },
-    { key: "approved", label: "Approved", description: "Confirmed" },
-    { key: "intransit", label: "In Transit", description: "On the Way" },
-    { key: "delivered", label: "Delivered", description: "Completed" },
+    { key: 'pending', label: 'Pending', description: 'Order Placed' },
+    { key: 'approved', label: 'Approved', description: 'Confirmed' },
+    { key: 'intransit', label: 'In Transit', description: 'On the Way' },
+    { key: 'delivered', label: 'Delivered', description: 'Completed' },
   ];
 
   const currentIndex = steps.findIndex((step) => step.key === status);
@@ -18,13 +13,13 @@ const OrderProgress = ({ status }) => {
 
   const getIcon = (step) => {
     switch (step) {
-      case "pending":
+      case 'pending':
         return <FaClock className="text-lg" />;
-      case "approved":
+      case 'approved':
         return <FaCheckCircle className="text-lg" />;
-      case "intransit":
+      case 'intransit':
         return <FaShippingFast className="text-lg" />;
-      case "delivered":
+      case 'delivered':
         return <FaBox className="text-lg" />;
       default:
         return null;
@@ -33,16 +28,16 @@ const OrderProgress = ({ status }) => {
 
   const getStatusColor = (step) => {
     switch (step) {
-      case "pending":
-        return "bg-orange-500";
-      case "approved":
-        return "bg-blue-500";
-      case "intransit":
-        return "bg-purple-500";
-      case "delivered":
-        return "bg-green-500";
+      case 'pending':
+        return 'bg-orange-500';
+      case 'approved':
+        return 'bg-blue-500';
+      case 'intransit':
+        return 'bg-purple-500';
+      case 'delivered':
+        return 'bg-green-500';
       default:
-        return "bg-gray-400";
+        return 'bg-gray-400';
     }
   };
 
@@ -83,7 +78,7 @@ const OrderProgress = ({ status }) => {
                 className={`w-12 h-12 md:w-14 md:h-14 rounded-full flex items-center justify-center transition-all duration-300 ${
                   isActive
                     ? `${getStatusColor(step.key)} accentTextColor shadow-lg`
-                    : "bg-gray-300 text-gray-500"
+                    : 'bg-gray-300 text-gray-500'
                 }`}
               >
                 {getIcon(step.key)}
@@ -92,7 +87,7 @@ const OrderProgress = ({ status }) => {
               {/* Step Label */}
               <p
                 className={`mt-2 text-xs md:text-sm font-semibold capitalize transition-colors duration-300 text-center ${
-                  isActive ? "secondaryTextColor" : "text-gray-400"
+                  isActive ? 'secondaryTextColor' : 'text-gray-400'
                 }`}
               >
                 {step.label}
@@ -101,8 +96,8 @@ const OrderProgress = ({ status }) => {
               {/* Step Description */}
               <p
                 className={`text-xs text-center transition-colors duration-300 mt-1 ${
-                  isCurrent ? "font-semibold" : ""
-                } ${isActive ? "text-gray-600" : "text-gray-400"}`}
+                  isCurrent ? 'font-semibold' : ''
+                } ${isActive ? 'text-gray-600' : 'text-gray-400'}`}
               >
                 {step.description}
               </p>
@@ -113,7 +108,14 @@ const OrderProgress = ({ status }) => {
 
       {/* Current Status Message */}
       {currentIndex >= 0 && (
-        <div className="mt-6 p-3 bg-white rounded-lg border-l-4" style={{borderLeftColor: getStatusColor(status).replace('bg-', '#').split('-')[0] || '#666'}}>
+        <div
+          className="mt-6 p-3 bg-white rounded-lg border-l-4"
+          style={{
+            borderLeftColor:
+              getStatusColor(status).replace('bg-', '#').split('-')[0] ||
+              '#666',
+          }}
+        >
           <p className="text-sm">
             <span className="font-semibold">Current Status: </span>
             <span className="capitalize">{steps[currentIndex].label}</span>

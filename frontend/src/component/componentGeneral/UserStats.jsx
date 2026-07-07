@@ -1,13 +1,13 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState } from 'react';
 import {
   FaShoppingBag,
   FaBox,
   FaShoppingCart,
   FaMoneyBillWave,
-} from "react-icons/fa";
-import useCartStore from "../../store/useCartStore.js";
-import useAuthUserStore from "../../store/AuthUserStore.js";
-import axios from "axios";
+} from 'react-icons/fa';
+import useCartStore from '../../store/useCartStore.js';
+import useAuthUserStore from '../../store/AuthUserStore.js';
+import axios from 'axios';
 
 const UserStats = () => {
   const apiUrl = import.meta.env.VITE_API_URL;
@@ -35,13 +35,13 @@ const UserStats = () => {
 
           // Delivered orders
           const deliveredOrders = orders.filter(
-            (order) => order.orderStatus === "delivered",
+            (order) => order.orderStatus === 'delivered',
           );
 
           // Running orders: orders not delivered, not returned, and not cancelled
           const runningOrders = orders.filter(
             (order) =>
-              !["delivered", "returned", "cancelled"].includes(
+              !['delivered', 'returned', 'cancelled'].includes(
                 order.orderStatus,
               ),
           );
@@ -56,7 +56,7 @@ const UserStats = () => {
           setRunningOrders(runningOrders.length); // You'll need a new state for runningOrders
         }
       } catch (error) {
-        console.error("Failed to fetch orders:", error);
+        console.error('Failed to fetch orders:', error);
       }
     };
 
@@ -66,22 +66,22 @@ const UserStats = () => {
   const statsData = [
     {
       value: totalOrders,
-      label: "Total order placed",
+      label: 'Total order placed',
       icon: <FaShoppingBag className="text-3xl text-blue-500" />,
     },
     {
       value: runningOrders,
-      label: "Running orders",
+      label: 'Running orders',
       icon: <FaBox className="text-3xl text-yellow-500" />,
     },
     {
       value: cart?.reduce((total, item) => total + item.quantity, 0) || 0,
-      label: "Items in cart",
+      label: 'Items in cart',
       icon: <FaShoppingCart className="text-3xl text-green-500" />,
     },
     {
       value: deliveredAmount,
-      label: "Amount spent on delivered orders",
+      label: 'Amount spent on delivered orders',
       icon: <FaMoneyBillWave className="text-3xl text-blue-600" />,
     },
   ];

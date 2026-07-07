@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from "react";
-import axios from "axios";
-import { motion, AnimatePresence } from "framer-motion";
-import { Upload, Trash2 } from "lucide-react";
-import ImageComponent from "../componentGeneral/ImageComponent.jsx";
-import useAuthAdminStore from "../../store/AuthAdminStore.js"; // Import your store
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Upload, Trash2 } from 'lucide-react';
+import ImageComponent from '../componentGeneral/ImageComponent.jsx';
+import useAuthAdminStore from '../../store/AuthAdminStore.js'; // Import your store
 
 const CarouselUpload = () => {
   const [images, setImages] = useState([]);
@@ -17,7 +17,7 @@ const CarouselUpload = () => {
         const response = await axios.get(`${apiUrl}/getallcarousel`);
         setImages(response.data);
       } catch (error) {
-        console.error("Error fetching images", error);
+        console.error('Error fetching images', error);
       }
     };
     fetchImages();
@@ -28,26 +28,22 @@ const CarouselUpload = () => {
     if (!file) return;
 
     const formData = new FormData();
-    formData.append("imgSrc", file);
+    formData.append('imgSrc', file);
 
     setLoading(true);
     try {
-      const response = await axios.post(
-        `${apiUrl}/createcarousel`,
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-            Authorization: `Bearer ${token}`, // Add authorization header
-          },
+      const response = await axios.post(`${apiUrl}/createcarousel`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          Authorization: `Bearer ${token}`, // Add authorization header
         },
-      );
+      });
 
       if (response.data.imgSrc) {
         setImages((prevImages) => [...prevImages, response.data]);
       }
     } catch (error) {
-      console.error("Error uploading image", error);
+      console.error('Error uploading image', error);
     } finally {
       setLoading(false);
     }
@@ -55,7 +51,7 @@ const CarouselUpload = () => {
 
   const handleImageDelete = async (imageId) => {
     const confirmation = window.confirm(
-      "Are you sure you want to delete this image? This action cannot be undone.",
+      'Are you sure you want to delete this image? This action cannot be undone.',
     );
 
     if (confirmation) {
@@ -69,7 +65,7 @@ const CarouselUpload = () => {
           prevImages.filter((image) => image._id !== imageId),
         );
       } catch (error) {
-        console.error("Error deleting image", error);
+        console.error('Error deleting image', error);
       }
     }
   };
@@ -105,7 +101,7 @@ const CarouselUpload = () => {
               >
                 <ImageComponent
                   imageName={image.imgSrc}
-                  className={" object-cover rounded-lg"}
+                  className={' object-cover rounded-lg'}
                 />
                 <button
                   onClick={() => handleImageDelete(image._id)}

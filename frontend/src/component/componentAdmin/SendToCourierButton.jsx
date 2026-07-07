@@ -1,32 +1,32 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from '@/components/ui/select';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogFooter,
-} from "@/components/ui/dialog";
-import { Card, CardContent } from "@/components/ui/card";
-import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
-import useCourierStatus from "../../store/useCourierStatus.js";
-import useAuthAdminStore from "../../store/AuthAdminStore.js";
+} from '@/components/ui/dialog';
+import { Card, CardContent } from '@/components/ui/card';
+import { toast } from 'sonner';
+import { Loader2 } from 'lucide-react';
+import useCourierStatus from '../../store/useCourierStatus.js';
+import useAuthAdminStore from '../../store/AuthAdminStore.js';
 
 const SendToCourierButton = ({ orderData, onSuccess }) => {
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
-  const [note, setNote] = useState(orderData.note || "");
+  const [note, setNote] = useState(orderData.note || '');
   const [sent, setSent] = useState(orderData.courier_status || false);
   const [showDeliveryStatus, setShowDeliveryStatus] = useState(false);
   const {
@@ -34,7 +34,7 @@ const SendToCourierButton = ({ orderData, onSuccess }) => {
     loading: statusLoading,
     refetch,
   } = useCourierStatus(orderData, sent, !sent);
-  const [selectedCourier, setSelectedCourier] = useState("steadfast");
+  const [selectedCourier, setSelectedCourier] = useState('steadfast');
   const [pathaoStoreId, setPathaoStoreId] = useState(null);
 
   const apiURL = import.meta.env.VITE_API_URL;
@@ -51,7 +51,7 @@ const SendToCourierButton = ({ orderData, onSuccess }) => {
           setPathaoStoreId(response.data.data.storeId);
         }
       } catch (error) {
-        console.error("Failed to fetch Pathao config:", error);
+        console.error('Failed to fetch Pathao config:', error);
       }
     };
     fetchPathaoConfig();
@@ -86,14 +86,14 @@ const SendToCourierButton = ({ orderData, onSuccess }) => {
       const result = response.data;
       const statusCode = result.data.status;
 
-      if (result.status === "success") {
+      if (result.status === 'success') {
         if (statusCode === 200) {
           await axios.put(
             `${apiURL}/orders/${orderData.order_id}`,
             {
               sentToCourier: true,
-              orderStatus: "intransit",
-              courierProvider: "steadfast",
+              orderStatus: 'intransit',
+              courierProvider: 'steadfast',
               courierConsignmentId: result.data.consignment.consignment_id,
             },
             {
@@ -101,29 +101,31 @@ const SendToCourierButton = ({ orderData, onSuccess }) => {
             },
           );
 
-          toast.success(`Order sent to Steadfast! Consignment ID: ${result.data.consignment.consignment_id}`);
+          toast.success(
+            `Order sent to Steadfast! Consignment ID: ${result.data.consignment.consignment_id}`,
+          );
           setSent(true);
           if (onSuccess) onSuccess();
           setOpen(false);
         } else if (statusCode === 400) {
           const errors = result.data.errors;
-          let errorMessage = "Failed to send order:";
+          let errorMessage = 'Failed to send order:';
           if (errors) {
             errorMessage +=
-              "\n" +
+              '\n' +
               Object.entries(errors)
-                .map(([key, value]) => `${key}: ${value.join(", ")}`)
-                .join("\n");
+                .map(([key, value]) => `${key}: ${value.join(', ')}`)
+                .join('\n');
           }
           toast.error(errorMessage);
         } else {
-          toast.warning("Unknown status received from the server.");
+          toast.warning('Unknown status received from the server.');
         }
       } else {
-        toast.error("API call was not successful.");
+        toast.error('API call was not successful.');
       }
     } catch (err) {
-      toast.error("Network error while sending order.");
+      toast.error('Network error while sending order.');
       console.error(err);
     } finally {
       setLoading(false);
@@ -138,10 +140,10 @@ const SendToCourierButton = ({ orderData, onSuccess }) => {
         recipient_phone: orderData.recipient_phone,
         merchant_order_id: orderData.invoice,
         recipient_address: orderData.recipient_address,
-        delivery_type: "48",
-        item_type: "2",
+        delivery_type: '48',
+        item_type: '2',
         item_quantity: orderData.items,
-        item_weight: "0.5",
+        item_weight: '0.5',
         amount_to_collect: orderData.cod_amount,
         special_instruction: note,
       };
@@ -151,36 +153,39 @@ const SendToCourierButton = ({ orderData, onSuccess }) => {
       });
 
       const result = response.data;
-      if (result.type === "success") {
+      if (result.type === 'success') {
         await axios.put(
           `${apiURL}/orders/${orderData.order_id}`,
           {
             sentToCourier: true,
-            orderStatus: "intransit",
-            courierProvider: "pathao",
+            orderStatus: 'intransit',
+            courierProvider: 'pathao',
             courierConsignmentId: result.data.consignment_id,
           },
           { headers: { Authorization: `Bearer ${token}` } },
         );
 
-        toast.success(`Order sent to Pathao! Consignment ID: ${result.data.consignment_id}`);
+        toast.success(
+          `Order sent to Pathao! Consignment ID: ${result.data.consignment_id}`,
+        );
         setSent(true);
         if (onSuccess) onSuccess();
         setOpen(false);
       } else {
         const errorMessage =
-          result.message || "Failed to create Pathao consignment.";
+          result.message || 'Failed to create Pathao consignment.';
         const errorDetails = result.errors
-          ? "\n" +
+          ? '\n' +
             Object.entries(result.errors)
-              .map(([key, value]) => `${key}: ${value.join(", ")}`)
-              .join("\n")
-          : "";
+              .map(([key, value]) => `${key}: ${value.join(', ')}`)
+              .join('\n')
+          : '';
         toast.error(`${errorMessage}${errorDetails}`);
       }
     } catch (err) {
       const errorMessage =
-        err.response?.data?.message || "Network error while sending order to Pathao.";
+        err.response?.data?.message ||
+        'Network error while sending order to Pathao.';
       toast.error(errorMessage);
       console.error(err);
     } finally {
@@ -190,11 +195,11 @@ const SendToCourierButton = ({ orderData, onSuccess }) => {
 
   const handleSend = () => {
     setLoading(true);
-    if (selectedCourier === "steadfast") {
+    if (selectedCourier === 'steadfast') {
       sendToSteadfast();
-    } else if (selectedCourier === "pathao") {
+    } else if (selectedCourier === 'pathao') {
       if (!pathaoStoreId) {
-        toast.error("Pathao configuration is not loaded yet.");
+        toast.error('Pathao configuration is not loaded yet.');
         setLoading(false);
         return;
       }
@@ -207,7 +212,7 @@ const SendToCourierButton = ({ orderData, onSuccess }) => {
       <Button
         variant="default"
         size="sm"
-        className={`w-48 ${sent ? "opacity-50" : ""}`}
+        className={`w-48 ${sent ? 'opacity-50' : ''}`}
         onClick={handleButtonClick}
         disabled={statusLoading}
       >
@@ -218,11 +223,11 @@ const SendToCourierButton = ({ orderData, onSuccess }) => {
             <>
               {showDeliveryStatus && deliveryStatus
                 ? `${deliveryStatus} | ${orderData.courierProvider}`
-                : "Sent | Click to show status"}
+                : 'Sent | Click to show status'}
             </>
           )
         ) : (
-          "Send to Courier"
+          'Send to Courier'
         )}
       </Button>
 
@@ -234,7 +239,10 @@ const SendToCourierButton = ({ orderData, onSuccess }) => {
           <div className="space-y-4">
             <div className="space-y-2">
               <Label>Courier:</Label>
-              <Select value={selectedCourier} onValueChange={setSelectedCourier}>
+              <Select
+                value={selectedCourier}
+                onValueChange={setSelectedCourier}
+              >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -247,21 +255,28 @@ const SendToCourierButton = ({ orderData, onSuccess }) => {
 
             <Card className="shadow-sm">
               <CardContent className="p-4 space-y-2">
-                <h3 className="font-semibold border-b pb-1">Order Information</h3>
+                <h3 className="font-semibold border-b pb-1">
+                  Order Information
+                </h3>
                 <p className="text-sm">
-                  <span className="font-medium">Invoice:</span> {orderData.invoice}
+                  <span className="font-medium">Invoice:</span>{' '}
+                  {orderData.invoice}
                 </p>
                 <p className="text-sm">
-                  <span className="font-medium">Recipient Name:</span> {orderData.recipient_name}
+                  <span className="font-medium">Recipient Name:</span>{' '}
+                  {orderData.recipient_name}
                 </p>
                 <p className="text-sm">
-                  <span className="font-medium">Recipient Phone:</span> {orderData.recipient_phone}
+                  <span className="font-medium">Recipient Phone:</span>{' '}
+                  {orderData.recipient_phone}
                 </p>
                 <p className="text-sm">
-                  <span className="font-medium">Recipient Address:</span> {orderData.recipient_address}
+                  <span className="font-medium">Recipient Address:</span>{' '}
+                  {orderData.recipient_address}
                 </p>
                 <p className="text-sm">
-                  <span className="font-medium">COD Amount:</span> Tk {orderData.cod_amount}
+                  <span className="font-medium">COD Amount:</span> Tk{' '}
+                  {orderData.cod_amount}
                 </p>
               </CardContent>
             </Card>
@@ -277,12 +292,18 @@ const SendToCourierButton = ({ orderData, onSuccess }) => {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setOpen(false)} disabled={loading}>
+            <Button
+              variant="outline"
+              onClick={() => setOpen(false)}
+              disabled={loading}
+            >
               Cancel
             </Button>
             <Button
               onClick={handleSend}
-              disabled={loading || (selectedCourier === "pathao" && !pathaoStoreId)}
+              disabled={
+                loading || (selectedCourier === 'pathao' && !pathaoStoreId)
+              }
             >
               {loading && <Loader2 className="size-4 animate-spin mr-2" />}
               Send
