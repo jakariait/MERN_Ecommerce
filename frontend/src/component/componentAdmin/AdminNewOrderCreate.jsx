@@ -29,8 +29,28 @@ import {
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
-import { Plus, Trash2, Search, Loader2 } from 'lucide-react';
+import { Plus, Trash2, Search, Loader2, Package } from 'lucide-react';
+import ImageComponent from '../componentGeneral/ImageComponent.jsx';
 import useOrderStore from '../../store/useOrderStore.js';
+
+const formatPrice = (price) => {
+  if (isNaN(price)) return price;
+  return price.toLocaleString();
+};
+
+const calculateDiscountPercentage = (
+  priceBeforeDiscount,
+  priceAfterDiscount,
+) => {
+  if (
+    !priceBeforeDiscount ||
+    !priceAfterDiscount ||
+    priceBeforeDiscount <= priceAfterDiscount
+  )
+    return 0;
+  const discountAmount = priceBeforeDiscount - priceAfterDiscount;
+  return Math.ceil((discountAmount / priceBeforeDiscount) * 100);
+};
 
 const AdminNewOrderCreate = () => {
   const apiUrl = import.meta.env.VITE_API_URL;
@@ -439,13 +459,13 @@ const AdminNewOrderCreate = () => {
       <Button onClick={handleOpenDialog}>+ Create New Order</Button>
 
       <Dialog open={openDialog} onOpenChange={setOpenDialog}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-[95vw] sm:max-w-3xl lg:max-w-5xl">
           <DialogHeader>
             <DialogTitle>Create New Admin Order</DialogTitle>
           </DialogHeader>
 
-          <div className="space-y-6">
-            <Card className="shadow-sm border">
+          <div className="space-y-4 sm:space-y-5 overflow-y-auto max-h-[75vh] [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+            <Card className="shadow-sm">
               <CardContent className="p-4 space-y-4">
                 <h3 className="font-semibold">Customer Information</h3>
                 <div className="space-y-2">
@@ -467,8 +487,8 @@ const AdminNewOrderCreate = () => {
                 </div>
 
                 {isGuest ? (
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                    <div className="space-y-1.5 sm:space-y-2">
                       <Label>Full Name</Label>
                       <Input
                         value={guestInfo.fullName}
@@ -488,7 +508,7 @@ const AdminNewOrderCreate = () => {
                         </p>
                       )}
                     </div>
-                    <div className="space-y-2">
+                    <div className="space-y-1.5 sm:space-y-2">
                       <Label>Mobile Number</Label>
                       <Input
                         value={guestInfo.mobileNo}
@@ -508,7 +528,7 @@ const AdminNewOrderCreate = () => {
                         </p>
                       )}
                     </div>
-                    <div className="space-y-2">
+                    <div className="space-y-1.5 sm:space-y-2">
                       <Label>Email</Label>
                       <Input
                         type="email"
@@ -521,7 +541,7 @@ const AdminNewOrderCreate = () => {
                         }
                       />
                     </div>
-                    <div className="space-y-2">
+                    <div className="space-y-1.5 sm:space-y-2">
                       <Label>Address</Label>
                       <Input
                         value={guestInfo.address}
@@ -593,8 +613,8 @@ const AdminNewOrderCreate = () => {
                           <p className="text-sm font-medium">
                             Customer Details (Editable)
                           </p>
-                          <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-2">
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                            <div className="space-y-1.5 sm:space-y-2">
                               <Label>Full Name</Label>
                               <Input
                                 value={guestInfo.fullName}
@@ -616,7 +636,7 @@ const AdminNewOrderCreate = () => {
                                 </p>
                               )}
                             </div>
-                            <div className="space-y-2">
+                            <div className="space-y-1.5 sm:space-y-2">
                               <Label>Mobile Number</Label>
                               <Input
                                 value={guestInfo.mobileNo}
@@ -638,7 +658,7 @@ const AdminNewOrderCreate = () => {
                                 </p>
                               )}
                             </div>
-                            <div className="space-y-2">
+                            <div className="space-y-1.5 sm:space-y-2">
                               <Label>Email</Label>
                               <Input
                                 type="email"
@@ -651,7 +671,7 @@ const AdminNewOrderCreate = () => {
                                 }
                               />
                             </div>
-                            <div className="space-y-2">
+                            <div className="space-y-1.5 sm:space-y-2">
                               <Label>Address</Label>
                               <Input
                                 value={guestInfo.address}
@@ -680,114 +700,177 @@ const AdminNewOrderCreate = () => {
               </CardContent>
             </Card>
 
-            <Card className="shadow-sm border">
+            <Card className="shadow-sm">
               <CardContent className="p-4 space-y-4">
                 <h3 className="font-semibold">Add Products</h3>
-                <div className="grid grid-cols-12 gap-4 items-end">
-                  <div className="col-span-5 space-y-2">
-                    <Label>Select Product</Label>
-                    <div className="relative">
-                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
-                      <Input
-                        placeholder="Search products..."
-                        value={productSearch}
-                        onChange={(e) => {
-                          setProductSearch(e.target.value);
-                          setSelectedProduct(null);
-                          setSelectedVariant(null);
-                        }}
-                        className="pl-9"
-                      />
-                    </div>
-                    {productSearch && (
-                      <div className="max-h-40 overflow-y-auto border rounded-md">
-                        {filteredProducts.map((p) => (
-                          <button
-                            type="button"
-                            key={p._id}
-                            className={`w-full text-left px-3 py-2 text-sm hover:bg-muted transition-colors ${
-                              selectedProduct?._id === p._id
-                                ? 'bg-muted font-medium'
-                                : ''
-                            }`}
-                            onClick={() => {
-                              setSelectedProduct(p);
-                              setSelectedVariant(null);
-                            }}
-                          >
-                            {p.name}
+
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Search products..."
+                    value={productSearch}
+                    onChange={(e) => {
+                      setProductSearch(e.target.value);
+                      setSelectedProduct(null);
+                      setSelectedVariant(null);
+                    }}
+                    className="pl-9"
+                  />
+                </div>
+
+                <div className="max-h-100 overflow-y-auto">
+                  {filteredProducts.length > 0 ? (
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3">
+                      {filteredProducts.map((p) => (
+                        <button
+                          type="button"
+                          key={p._id}
+                          onClick={() => {
+                            setSelectedProduct(p);
+                            setSelectedVariant(null);
+                          }}
+                          className={`relative block w-full text-left transition-all rounded-xl overflow-hidden ${
+                            selectedProduct?._id === p._id
+                              ? 'ring-2 ring-primary/20 shadow-sm'
+                              : 'hover:shadow-sm'
+                          }`}
+                        >
+                          <div className="relative">
+                            <ImageComponent
+                              imageName={p.thumbnailImage || p.images?.[0]}
+                              className="w-full aspect-square object-cover"
+                              altName={p.name}
+                              skeletonHeight={120}
+                            />
+                            {(() => {
+                              const hasVariants = p.variants?.length > 0;
+                              const origPrice = hasVariants
+                                ? p.variants[0].price
+                                : p.finalPrice;
+                              const discPrice = hasVariants
+                                ? p.variants[0].discount
+                                : p.finalDiscount;
+                              const pct = calculateDiscountPercentage(
+                                origPrice,
+                                discPrice,
+                              );
+                              return pct > 0 ? (
+                                <span className="absolute top-2 left-0 bg-red-400 px-2 py-1 rounded text-white text-xs font-semibold">
+                                  -{pct}%
+                                </span>
+                              ) : null;
+                            })()}
+                          </div>
+                          <div className="p-1.5 text-center">
+                            <div className="text-sm font-medium truncate">
+                              {p.name}
+                            </div>
+                            <div className="flex gap-1.5 justify-center mt-0.5">
+                              {(() => {
+                                const hasVariants = p.variants?.length > 0;
+                                const origPrice = hasVariants
+                                  ? Number(p.variants[0].price)
+                                  : Number(p.finalPrice);
+                                const discPrice = hasVariants
+                                  ? Number(p.variants[0].discount)
+                                  : Number(p.finalDiscount);
+                                if (
+                                  hasVariants
+                                    ? p.variants[0].discount > 0
+                                    : p.finalDiscount > 0
+                                ) {
+                                  return (
+                                    <>
+                                      <span className="text-xs text-muted-foreground line-through">
+                                        Tk. {formatPrice(origPrice)}
+                                      </span>
+                                      <span className="text-xs text-red-800 font-semibold">
+                                        Tk. {formatPrice(discPrice)}
+                                      </span>
+                                    </>
+                                  );
+                                }
+                                return (
+                                  <span className="text-xs text-muted-foreground">
+                                    Tk. {formatPrice(origPrice)}
+                                  </span>
+                                );
+                              })()}
+                            </div>
                             {p.freeShipping && (
                               <Badge
-                                variant="outline"
-                                className="ml-2 text-[10px] text-green-600 border-green-300"
+                                variant="secondary"
+                                className="mt-1 text-[9px] leading-none px-1.5 py-0.5"
                               >
-                                Free Shipping
+                                Free Ship
                               </Badge>
                             )}
-                          </button>
-                        ))}
-                        {filteredProducts.length === 0 && (
-                          <p className="px-3 py-2 text-sm text-muted-foreground">
-                            No products found
-                          </p>
-                        )}
-                      </div>
-                    )}
-                  </div>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center justify-center py-12 text-sm text-muted-foreground">
+                      <Package className="size-8 mb-2 opacity-40" />
+                      <p>No products found</p>
+                    </div>
+                  )}
+                </div>
 
-                  {selectedProduct &&
-                    selectedProduct.variants &&
-                    selectedProduct.variants.length > 0 && (
-                      <div className="col-span-3 space-y-2">
-                        <Label>Variant</Label>
-                        <Select
-                          value={selectedVariant?._id || ''}
-                          onValueChange={(value) => {
-                            const variant = (
-                              selectedProduct.variants || []
-                            ).find((v) => v._id === value);
-                            setSelectedVariant(variant);
-                          }}
-                        >
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select variant" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {selectedProduct.variants.map((variant) => (
-                              <SelectItem key={variant._id} value={variant._id}>
-                                {getVariantName(variant)} - ৳
-                                {variant.discount > 0
-                                  ? variant.discount
-                                  : variant.price || 0}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    )}
-
-                  <div className="col-span-2 space-y-2">
-                    <Label>Quantity</Label>
-                    <Input
-                      type="number"
-                      value={quantity}
-                      onChange={(e) => setQuantity(e.target.value)}
-                      min={1}
-                    />
-                  </div>
-
-                  <div className="col-span-2">
-                    <Button className="w-full" onClick={handleAddProduct}>
-                      <Plus className="size-4 mr-2" />
+                {selectedProduct && (
+                  <div className="flex items-end gap-3 p-3 rounded-xl bg-muted/40">
+                    {selectedProduct.variants &&
+                      selectedProduct.variants.length > 0 && (
+                        <div className="flex-1 space-y-1.5">
+                          <Label className="text-xs">Variant</Label>
+                          <Select
+                            value={selectedVariant?._id || ''}
+                            onValueChange={(value) => {
+                              const variant = (
+                                selectedProduct.variants || []
+                              ).find((v) => v._id === value);
+                              setSelectedVariant(variant);
+                            }}
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select variant" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {selectedProduct.variants.map((variant) => (
+                                <SelectItem
+                                  key={variant._id}
+                                  value={variant._id}
+                                >
+                                  {getVariantName(variant)} - ৳
+                                  {variant.discount > 0
+                                    ? variant.discount
+                                    : variant.price || 0}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      )}
+                    <div className="w-24 space-y-1.5">
+                      <Label className="text-xs">Qty</Label>
+                      <Input
+                        type="number"
+                        value={quantity}
+                        onChange={(e) => setQuantity(e.target.value)}
+                        min={1}
+                      />
+                    </div>
+                    <Button onClick={handleAddProduct}>
+                      <Plus className="size-4 mr-1" />
                       Add
                     </Button>
                   </div>
-                </div>
+                )}
 
                 {orderItems.length > 0 && (
                   <>
                     <h3 className="font-semibold pt-2">Order Items</h3>
-                    <div className="border rounded-md">
+                    <div className="rounded-xl bg-muted/40 overflow-hidden">
                       <Table>
                         <TableHeader>
                           <TableRow>
@@ -837,11 +920,11 @@ const AdminNewOrderCreate = () => {
               </CardContent>
             </Card>
 
-            <Card className="shadow-sm border">
+            <Card className="shadow-sm">
               <CardContent className="p-4 space-y-4">
                 <h3 className="font-semibold">Shipping & Payment</h3>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                  <div className="space-y-1.5 sm:space-y-2">
                     <Label>Shipping Option</Label>
                     {hasFreeShippingProduct ? (
                       <Input
@@ -884,7 +967,7 @@ const AdminNewOrderCreate = () => {
                     )}
                   </div>
 
-                  <div className="space-y-2">
+                  <div className="space-y-1.5 sm:space-y-2">
                     <Label>Payment Method</Label>
                     <Select
                       value={paymentMethod}
@@ -901,7 +984,7 @@ const AdminNewOrderCreate = () => {
                     </Select>
                   </div>
 
-                  <div className="space-y-2">
+                  <div className="space-y-1.5 sm:space-y-2">
                     <Label>Payment Status</Label>
                     <Select
                       value={paymentStatus}
@@ -917,7 +1000,7 @@ const AdminNewOrderCreate = () => {
                     </Select>
                   </div>
 
-                  <div className="space-y-2">
+                  <div className="space-y-1.5 sm:space-y-2">
                     <Label>Special Discount (৳)</Label>
                     <Input
                       type="number"
@@ -941,7 +1024,7 @@ const AdminNewOrderCreate = () => {
               />
             </div>
 
-            <Card className="shadow-sm border">
+            <Card className="shadow-sm">
               <CardContent className="p-4">
                 <h3 className="font-semibold mb-3">Order Summary</h3>
                 <div className="space-y-2 text-sm">
