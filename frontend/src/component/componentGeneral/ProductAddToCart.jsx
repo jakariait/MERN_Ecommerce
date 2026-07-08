@@ -235,9 +235,11 @@ const ProductAddToCart = ({ product }) => {
   return (
     <div>
       <div>
-        <div className="flex flex-col gap-3 md:col-span-4 lg:col-span-3 xl:col-span-4 pt-4 md:pt-0">
-          <h2 className="text-xl md:text-2xl  ">{product.name}</h2>
-          <div className="flex text-center flex-col gap-2">
+        <div className="flex flex-col gap-1.5 md:gap-3 pt-1 md:pt-0">
+          <h2 className="text-base md:text-2xl leading-tight">
+            {product.name}
+          </h2>
+          <div className="flex text-center flex-col gap-1 md:gap-2">
             {/* Without Variant Price Display */}
             {!product.variants?.length && (
               <div className="flex gap-2 items-center">
@@ -249,7 +251,7 @@ const ProductAddToCart = ({ product }) => {
                     <div className="text-red-800">
                       Tk. {formatPrice(Number(product.finalDiscount))}
                     </div>
-                    <div>
+                    <div className="hidden sm:block">
                       You Save: Tk{' '}
                       {formatPrice(
                         Number(product.finalPrice - product.finalDiscount),
@@ -266,16 +268,16 @@ const ProductAddToCart = ({ product }) => {
 
             {/*With Variant Price Display */}
             {variantForPrice && (
-              <div className="flex gap-2">
+              <div className="flex gap-1 md:gap-2 flex-wrap">
                 {variantForPrice.discount > 0 ? (
                   <>
-                    <div className="line-through">
+                    <div className="line-through text-xs md:text-sm">
                       Tk. {formatPrice(Number(variantForPrice.price))}
                     </div>
-                    <div className="text-red-800">
+                    <div className="text-red-800 text-xs md:text-sm">
                       Tk. {formatPrice(Number(variantForPrice.discount))}
                     </div>
-                    <div>
+                    <div className="hidden sm:block text-xs md:text-sm">
                       You Save: Tk{' '}
                       {formatPrice(
                         Number(
@@ -293,24 +295,20 @@ const ProductAddToCart = ({ product }) => {
             )}
 
             {product.freeShipping && (
-              <p className="text-[#2E7D31] flex gap-2 items-start justify-start text-start">
-                <span
-                  className={'font-bold flex items-center justify-center gap-2'}
-                >
-                  <FaTruck className={'rotate-y-180'} />
-                  Free Shipping
-                </span>
-                on this product
+              <p className="text-[#2E7D31] flex gap-1 items-center text-xs md:text-sm">
+                <FaTruck className="rotate-y-180 shrink-0" />
+                <span className="font-bold">Free Shipping</span>
+                <span className="hidden sm:inline">on this product</span>
               </p>
             )}
 
             {product.productCode && (
-              <div className={'bg-gray-100 px-2 py-1 rounded-lg'}>
+              <div className={'bg-gray-100 px-2 py-0.5 rounded text-xs'}>
                 <strong>Product Code:</strong> {product.productCode}
               </div>
             )}
             {product.rewardPoints && (
-              <div className={'bg-gray-100 px-2 py-1 rounded-lg'}>
+              <div className={'bg-gray-100 px-2 py-0.5 rounded text-xs'}>
                 Purchase & Earn: {product.rewardPoints} points.
               </div>
             )}
@@ -319,23 +317,24 @@ const ProductAddToCart = ({ product }) => {
           {!selectedVariant && product.variants?.length > 0 && (
             <div className=" text-red-500">
               {validationMessage || 'Select options to see price.'}{' '}
-              {/* Default message if no selection */}
             </div>
           )}
 
           {options.map((option) => (
-            <div key={option.name} className={'flex flex-col gap-2'}>
-              <h2 className="text-lg font-semibold">{option.name} :</h2>
+            <div key={option.name} className={'flex flex-col gap-1'}>
+              <h2 className="text-sm md:text-lg font-semibold">
+                {option.name} :
+              </h2>
               <div className="flex gap-2 flex-wrap ">
                 {option.values.map(({ value, available }) => (
                   <button
                     key={value}
                     onClick={() => handleOptionChange(option.name, value)}
                     disabled={!available}
-                    className={`px-3 py-1 rounded-md transition-all duration-200 ${
+                    className={`px-2 py-0.5 md:px-3 md:py-1 rounded text-xs md:text-sm transition-all duration-200 ${
                       selectedOptions[option.name] === value
-                        ? 'primaryBgColor text-white   '
-                        : 'bg-gray-200 text-gray-800 hover:bg-gray-300   '
+                        ? 'primaryBgColor text-white'
+                        : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
                     } ${!available ? 'opacity-50 cursor-not-allowed' : ''}`}
                   >
                     {value}
@@ -345,12 +344,10 @@ const ProductAddToCart = ({ product }) => {
             </div>
           ))}
 
-          <div
-            className={
-              'flex gap-2  md:gap-6 xl:gap-15 items-center justify-baseline mt-2'
-            }
-          >
-            <div className={'rounded flex items-center justify-between'}>
+          <div className={'flex flex-wrap gap-2 md:gap-4 items-center mt-2'}>
+            <div
+              className={'rounded flex items-center justify-between shrink-0'}
+            >
               <button
                 className={
                   'primaryBgColor accentTextColor px-2 py-2 md:py-3 rounded-l cursor-pointer'
@@ -386,7 +383,7 @@ const ProductAddToCart = ({ product }) => {
               </button>
             ) : (
               <button
-                className="primaryBgColor accentTextColor px-2 py-1 md:py-2 rounded w-full cursor-pointer"
+                className="primaryBgColor accentTextColor px-2 py-1 md:py-2 rounded flex-1 min-w-[120px] cursor-pointer"
                 onClick={handleAddToCart}
               >
                 ADD TO CART
@@ -394,34 +391,38 @@ const ProductAddToCart = ({ product }) => {
             )}
             <WishlistButton
               product={product}
-              className={'primaryBgColor accentTextColor px-2 py-1'}
+              className={'primaryBgColor accentTextColor px-2 py-1 shrink-0'}
             />
           </div>
           {selectedVariant?.stock !== 0 && (
-            <button
-              className="primaryBgColor  accentTextColor px-2 py-1 md:py-2 rounded cursor-pointer"
-              onClick={() => {
-                if (product.variants?.length > 0 && !selectedVariant) {
-                  const requiredOptions = options.map((o) => o.name);
-                  const missingOptions = requiredOptions.filter(
-                    (opt) => !selectedOptions[opt],
-                  );
-                  if (missingOptions.length > 0) {
-                    setValidationMessage(
-                      `${missingOptions.join(' / ')} required!`,
+            <div className={'flex items-center justify-center'}>
+              <button
+                className="primaryBgColor flex-1   accentTextColor px-2 py-1 md:py-2 rounded cursor-pointer"
+                onClick={() => {
+                  if (product.variants?.length > 0 && !selectedVariant) {
+                    const requiredOptions = options.map((o) => o.name);
+                    const missingOptions = requiredOptions.filter(
+                      (opt) => !selectedOptions[opt],
                     );
-                  } else if (product.variants?.length > 0) {
-                    setValidationMessage('Please select all variant options.');
+                    if (missingOptions.length > 0) {
+                      setValidationMessage(
+                        `${missingOptions.join(' / ')} required!`,
+                      );
+                    } else if (product.variants?.length > 0) {
+                      setValidationMessage(
+                        'Please select all variant options.',
+                      );
+                    }
+                    return;
                   }
-                  return;
-                }
-                addToCart(product, quantity, selectedVariant);
-                navigate('/checkout');
-                setValidationMessage('');
-              }}
-            >
-              Order With Cash On Delivery
-            </button>
+                  addToCart(product, quantity, selectedVariant);
+                  navigate('/checkout');
+                  setValidationMessage('');
+                }}
+              >
+                Order With Cash On Delivery
+              </button>
+            </div>
           )}
         </div>
       </div>

@@ -55,17 +55,14 @@ const ProductList = ({ products }) => {
           {/*Product Display Section*/}
           {products.map((product) => (
             <div key={product.slug} className="relative min-h-[250px]">
-              <Link to={`/product/${product.slug}`}>
-                {/*With Compression*/}
+              <Link to={`/product/${product.slug}`} className="block">
                 <ImageComponent
                   imageName={product.thumbnailImage}
                   className="w-full aspect-square object-cover"
                   altName={product.name}
                   skeletonHeight={250}
                 />
-              </Link>
-              <Link to={`/product/${product.slug}`}>
-                <div className="text-center mt-2 mb-1 hover:underline truncate">
+                <div className="text-center mt-1 mb-1 hover:underline truncate">
                   {product.name}
                 </div>
               </Link>
@@ -156,8 +153,8 @@ const ProductList = ({ products }) => {
               open={Boolean(selectedProduct)}
               onOpenChange={(open) => !open && handleClose()}
             >
-              <DialogContent className="sm:max-w-4xl">
-                <div className="flex flex-col md:grid md:grid-cols-2 gap-4">
+              <DialogContent className="sm:max-w-4xl w-[calc(100%-1.5rem)] p-3 sm:p-6 max-h-[95vh] overflow-y-auto scrollbar-hide">
+                <div className="flex flex-col md:grid md:grid-cols-2 gap-2 sm:gap-4">
                   <ProductGallery
                     images={selectedProduct.images}
                     discount={calculateDiscountPercentage(

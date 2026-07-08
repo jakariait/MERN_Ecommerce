@@ -7,7 +7,6 @@ import {
   AccordionSummary,
   AccordionDetails,
 } from '@/components/ui/accordion';
-import { Typography } from '@/components/ui/typography';
 import { ChevronDown as ExpandMoreIcon } from 'lucide-react';
 import NewsletterForm from './NewsletterForm.jsx';
 import SocialMedia from './SocialMedia.jsx';
@@ -49,70 +48,50 @@ const Footer = () => {
             {/*Mobile Footer*/}
             <div className={' lg:hidden px-0 py-3'}>
               {/* About Us */}
-              <Accordion
-                style={{
-                  background: 'transparent',
-                  boxShadow: 'none',
-                  width: '100%',
-                  color: 'white',
-                }}
-              >
+              <Accordion className="bg-transparent border-0 shadow-none rounded-none text-white">
                 <AccordionSummary
-                  expandIcon={<ExpandMoreIcon className={'text-white'} />}
-                  aria-controls="panel1a-content"
+                  expandIcon={<ExpandMoreIcon className="text-white" />}
                 >
-                  <Typography>About Us</Typography>
+                  About Us
                 </AccordionSummary>
                 <AccordionDetails>
-                  <div>
-                    <p>{GeneralInfoList?.ShortDescription}</p>
-                    <h2 className={'mb-3 mt-3'}>Follow Us</h2>
-                    <SocialMedia />
-                  </div>
+                  <p>{GeneralInfoList?.ShortDescription}</p>
+                  <h2 className="mb-3 mt-3">Follow Us</h2>
+                  <SocialMedia />
                 </AccordionDetails>
               </Accordion>
 
               {/* Quick Links */}
-              <Accordion
-                style={{
-                  background: 'transparent',
-                  boxShadow: 'none',
-                  width: '100%',
-                  color: 'white',
-                }}
-              >
+              <Accordion className="bg-transparent border-0 shadow-none rounded-none text-white">
                 <AccordionSummary
-                  expandIcon={<ExpandMoreIcon className={'text-white'} />}
-                  aria-controls="panel3a-content"
+                  expandIcon={<ExpandMoreIcon className="text-white" />}
                 >
-                  <Typography>Quick Links</Typography>
+                  Quick Links
                 </AccordionSummary>
                 <AccordionDetails>
-                  <ul className="text-white">
-                    <li className={'hover:text-gray-300'}>
+                  <ul>
+                    <li className="hover:text-gray-300">
                       <Link to="/about">About</Link>
                     </li>
-                    <li className={'hover:text-gray-300'}>
+                    <li className="hover:text-gray-300">
                       <Link to="/blog">Blog</Link>
                     </li>
-                    <li className={'hover:text-gray-300'}>
-                      <Link to="/contact-us" className={'hover:text-gray-300'}>
-                        Contact
-                      </Link>
+                    <li className="hover:text-gray-300">
+                      <Link to="/contact-us">Contact</Link>
                     </li>
-                    <li className={'hover:text-gray-300'}>
+                    <li className="hover:text-gray-300">
                       <Link to="/termofservice">Terms of Services</Link>
                     </li>
-                    <li className={'hover:text-gray-300'}>
+                    <li className="hover:text-gray-300">
                       <Link to="/privacypolicy">Privacy Policy</Link>
                     </li>
-                    <li className={'hover:text-gray-300'}>
+                    <li className="hover:text-gray-300">
                       <Link to="/refundpolicy">Refund Policy</Link>
                     </li>
-                    <li className={'hover:text-gray-300'}>
+                    <li className="hover:text-gray-300">
                       <Link to="/shippinpolicy">Shipping Policy</Link>
                     </li>
-                    <li className={'hover:text-gray-300'}>
+                    <li className="hover:text-gray-300">
                       <Link to="/faqs">FAQ</Link>
                     </li>
                   </ul>
@@ -120,22 +99,14 @@ const Footer = () => {
               </Accordion>
 
               {/* Newsletter */}
-              <Accordion
-                style={{
-                  background: 'transparent',
-                  boxShadow: 'none',
-                  width: '100%',
-                  color: 'white',
-                }}
-              >
+              <Accordion className="bg-transparent border-0 shadow-none rounded-none text-white">
                 <AccordionSummary
-                  expandIcon={<ExpandMoreIcon className={'text-white'} />}
-                  aria-controls="panel5a-content"
+                  expandIcon={<ExpandMoreIcon className="text-white" />}
                 >
-                  <Typography>Newsletter</Typography>
+                  Newsletter
                 </AccordionSummary>
                 <AccordionDetails>
-                  <h2>
+                  <h2 className="text-sm font-medium">
                     Take advantage of our special offer. Do not worry, we would
                     not spam you.
                   </h2>

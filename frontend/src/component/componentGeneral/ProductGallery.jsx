@@ -50,15 +50,15 @@ const ProductGallery = ({ images, discount, zoom = true, productName }) => {
   if (imageUrls.length === 0) return <p>Loading images...</p>;
 
   return (
-    <div className="flex flex-col items-center">
-      <div className="relative w-full md:p-3">
+              <div className="flex flex-col items-center">
+      <div className="relative w-full p-1 md:p-3">
         {discount > 0 && (
           <span className="absolute md:top-3 md:left-3 bg-red-400 px-3 py-1 text-white">
             -{discount}%
           </span>
         )}
 
-        <div className="absolute bottom-1 right-1 md:bottom-4 flex md:right-4 z-10 gap-1 justify-center items-center">
+        <div className="absolute bottom-1 right-1 md:bottom-4 md:right-4 z-10 gap-1 flex justify-center items-center">
           {imageUrls.length > 1 && (
             <div className="flex items-center gap-1">
               <div className="bg-white p-2 text-xs">
@@ -130,13 +130,13 @@ const ProductGallery = ({ images, discount, zoom = true, productName }) => {
             <IoIosArrowBack />
           </button>
 
-          <div className="p-2 flex items-center justify-center-safe gap-4 overflow-x-auto w-full md:w-[calc(40rem)] scrollbar-hide">
-            <div className="flex gap-4">
+          <div className="p-1 md:p-2 flex items-center justify-center-safe gap-1 overflow-x-auto w-full scrollbar-hide">
+            <div className="flex gap-1 md:gap-4">
               {imageUrls.map((imgUrl, index) => (
                 <div
                   key={index}
                   ref={(el) => (thumbnailRefs.current[index] = el)}
-                  className={`cursor-pointer overflow-hidden transition-all duration-200 border-1 shrink-0 md:w-30 md:h-30 w-20 h-20 ${
+                  className={`cursor-pointer overflow-hidden transition-all duration-200 border-1 shrink-0 w-10 h-10 md:w-30 md:h-30 ${
                     activeIndex === index
                       ? 'primaryBorderColor scale-105'
                       : 'border-transparent opacity-80'

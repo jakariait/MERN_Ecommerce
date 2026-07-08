@@ -38,7 +38,7 @@ function Accordion({
       data-slot="accordion"
       data-state={open ? 'open' : 'closed'}
       className={cn(
-        'group relative overflow-hidden rounded-md border bg-card transition-all duration-200',
+        'group relative overflow-hidden rounded-md border bg-card text-foreground transition-all duration-200',
         open
           ? 'border-primary/30 shadow-[0_1px_0_0_rgba(0,0,0,0.02),0_8px_24px_-8px_rgba(0,0,0,0.08)]'
           : 'border-border/60 shadow-sm',
@@ -73,8 +73,8 @@ function Accordion({
             className={cn(
               'flex size-9 shrink-0 items-center justify-center rounded-lg transition-colors duration-200',
               open
-                ? 'bg-primary/10 text-primary'
-                : 'bg-muted text-muted-foreground',
+                ? 'bg-current/10'
+                : 'bg-current/5',
             )}
           >
             {icon}
@@ -85,13 +85,13 @@ function Accordion({
           <span
             className={cn(
               'truncate text-sm font-semibold tracking-tight transition-colors duration-150',
-              open ? 'text-foreground' : 'text-foreground/90',
+              open ? 'text-inherit' : 'text-inherit/80',
             )}
           >
             {summary?.props?.children}
           </span>
           {description && (
-            <span className="truncate text-xs text-muted-foreground">
+            <span className="truncate text-xs text-inherit/60">
               {description}
             </span>
           )}
@@ -101,15 +101,15 @@ function Accordion({
           className={cn(
             'flex size-7 shrink-0 items-center justify-center rounded-full transition-all duration-200',
             open
-              ? 'bg-primary/10'
-              : 'bg-muted group-hover:bg-muted-foreground/10',
+              ? 'bg-current/10'
+              : 'bg-current/5 group-hover:bg-current/10',
           )}
         >
           {summary?.props?.expandIcon || (
             <ChevronDown
               className={cn(
                 'size-4 transition-transform duration-300 ease-out',
-                open ? 'rotate-180 text-primary' : 'text-muted-foreground',
+                open ? 'rotate-180 text-inherit' : 'text-inherit/60',
               )}
             />
           )}
@@ -127,7 +127,7 @@ function Accordion({
           <div
             data-slot="accordion-content"
             className={cn(
-              'border-t border-border/50 px-5 pb-5 pt-3.5 text-sm leading-relaxed text-muted-foreground',
+              'border-t border-border/50 px-5 pb-5 pt-3.5 text-sm leading-relaxed text-inherit/70',
               icon && 'ml-[52px]',
               'transition-opacity duration-200',
               open ? 'opacity-100 delay-75' : 'opacity-0',
