@@ -24,14 +24,10 @@ function Accordion({
 
   const childrenArray = React.Children.toArray(children);
   const summary = childrenArray.find(
-    (child) =>
-      child.type?.name === 'AccordionSummary' ||
-      child.type?.displayName === 'AccordionSummary',
+    (child) => child.type?._accordionType === 'summary',
   );
   const details = childrenArray.find(
-    (child) =>
-      child.type?.name === 'AccordionDetails' ||
-      child.type?.displayName === 'AccordionDetails',
+    (child) => child.type?._accordionType === 'details',
   );
 
   const icon = summary?.props?.icon;
@@ -156,9 +152,11 @@ function AccordionSummary({
 }) {
   return null;
 }
+AccordionSummary._accordionType = 'summary';
 
 function AccordionDetails({ children, ...props }) {
   return null;
 }
+AccordionDetails._accordionType = 'details';
 
 export { Accordion, AccordionSummary, AccordionDetails };
