@@ -76,24 +76,7 @@ const DeliveryChargePage = lazy(
 const ConfigSetupPage = lazy(() => import('./pagesAdmin/ConfigSetupPage.jsx'));
 const ThankYouPage = lazy(() => import('./pagesUser/ThankYouPage.jsx'));
 const AllOrdersPage = lazy(() => import('./pagesAdmin/AllOrdersPage.jsx'));
-const PendingOrdersPage = lazy(
-  () => import('./pagesAdmin/PendingOrdersPage.jsx'),
-);
-const ApprovedOrdersPage = lazy(
-  () => import('./pagesAdmin/ApprovedOrdersPage.jsx'),
-);
-const InTransitOrdersPage = lazy(
-  () => import('./pagesAdmin/InTransitOrdersPage.jsx'),
-);
-const DeliveredOrdersPage = lazy(
-  () => import('./pagesAdmin/DeliveredOrdersPage.jsx'),
-);
-const ReturnedOrdersPage = lazy(
-  () => import('./pagesAdmin/ReturnedOrdersPage.jsx'),
-);
-const CancelledOrdersPage = lazy(
-  () => import('./pagesAdmin/CancelledOrdersPage.jsx'),
-);
+
 const ViewOrderPage = lazy(() => import('./pagesAdmin/ViewOrderPage.jsx'));
 const BkashCallbackPage = lazy(
   () => import('./pagesUser/BkashCallbackPage.jsx'),
@@ -338,31 +321,7 @@ function App() {
                 element={<DeliveryChargePage />}
               />
               <Route path="/admin/configsetup" element={<ConfigSetupPage />} />
-              <Route path="/admin/allorders" element={<AllOrdersPage />} />
-              <Route
-                path="/admin/pendingorders"
-                element={<PendingOrdersPage />}
-              />
-              <Route
-                path="/admin/approvedorders"
-                element={<ApprovedOrdersPage />}
-              />
-              <Route
-                path="/admin/intransitorders"
-                element={<InTransitOrdersPage />}
-              />
-              <Route
-                path="/admin/deliveredorders"
-                element={<DeliveredOrdersPage />}
-              />
-              <Route
-                path="/admin/returnedorders"
-                element={<ReturnedOrdersPage />}
-              />
-              <Route
-                path="/admin/cancelledorders"
-                element={<CancelledOrdersPage />}
-              />
+              <Route path="/admin/manage-orders" element={<AllOrdersPage />} />
               <Route
                 path="/admin/orders/:orderId"
                 element={<ViewOrderPage />}

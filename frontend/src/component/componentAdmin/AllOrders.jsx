@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import useOrderStore from '../../store/useOrderStore.js';
 import OrderStatusSelector from './OrderStatusSelector.jsx';
 import SendToCourierButton from './SendToCourierButton.jsx';
@@ -71,11 +71,56 @@ const AllOrders = ({ title, status = '' }) => {
     startDate: startDateFromStore,
     endDate: endDateFromStore,
     setDateRange,
+    totalByStatus,
   } = useOrderStore();
 
+  const STATUS_TABS = [
+    { label: 'All', value: '' },
+    { label: 'Pending', value: 'pending' },
+    { label: 'Approved', value: 'approved' },
+    { label: 'In Transit', value: 'intransit' },
+    { label: 'Delivered', value: 'delivered' },
+    { label: 'Returned', value: 'returned' },
+    { label: 'Cancelled', value: 'cancelled' },
+  ];
+
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [activeStatus, setActiveStatus] = useState(
+    () => searchParams.get('status') || status,
+  );
+
+  useEffect(() => {
+    const urlStatus = searchParams.get('status') || '';
+    if (urlStatus !== activeStatus) {
+      if (urlStatus) {
+        setActiveStatus(urlStatus);
+      }
+    }
+  }, [searchParams]);
+
+  const handleTabChange = useCallback(
+    (newStatus) => {
+      setActiveStatus(newStatus);
+      setSearchParams(newStatus ? { status: newStatus } : {}, { replace: true });
+    },
+    [setSearchParams],
+  );
+
+  const allOrdersTotal = useMemo(
+    () =>
+      Object.values(totalByStatus).reduce(
+        (sum, count) => sum + (count || 0),
+        0,
+      ),
+    [totalByStatus],
+  );
+
   const allOrders = useMemo(
-    () => (status ? orderListByStatus[status] : allOrdersFromStore) || [],
-    [status, orderListByStatus, allOrdersFromStore],
+    () =>
+      activeStatus
+        ? orderListByStatus[activeStatus]
+        : allOrdersFromStore || [],
+    [activeStatus, orderListByStatus, allOrdersFromStore],
   );
 
   const [sortDirection, setSortDirection] = useState('desc');
@@ -113,11 +158,11 @@ const AllOrders = ({ title, status = '' }) => {
     setLocalEndDate('');
     setDateRange(null, null);
     setSelectedOrders([]);
-  }, [status, setSearchQuery, setDateRange]);
+  }, [activeStatus, setSearchQuery, setDateRange]);
 
   const fetchOrders = useCallback(() => {
-    fetchAllOrders(status, currentPage, itemsPerPage);
-  }, [status, currentPage, itemsPerPage, fetchAllOrders]);
+    fetchAllOrders(activeStatus, currentPage, itemsPerPage);
+  }, [activeStatus, currentPage, itemsPerPage, fetchAllOrders]);
 
   useEffect(() => {
     fetchOrders();
@@ -125,7 +170,7 @@ const AllOrders = ({ title, status = '' }) => {
     searchQuery,
     currentPage,
     itemsPerPage,
-    status,
+    activeStatus,
     startDateFromStore,
     endDateFromStore,
   ]);
@@ -307,7 +352,7 @@ const AllOrders = ({ title, status = '' }) => {
         params: {
           limit: 10000,
           page: 1,
-          ...(status && { orderStatus: status }),
+          ...(activeStatus && { orderStatus: activeStatus }),
           ...(searchQuery && { search: searchQuery }),
         },
       });
@@ -371,7 +416,7 @@ const AllOrders = ({ title, status = '' }) => {
     } finally {
       setDownloadingOrders(false);
     }
-  }, [apiUrl, token, status, searchQuery]);
+  }, [apiUrl, token, activeStatus, searchQuery]);
 
   const handleSelectAll = useCallback(
     (checked) => {
@@ -597,6 +642,30 @@ const AllOrders = ({ title, status = '' }) => {
 
   return (
     <div className="space-y-6">
+      <div className="flex flex-wrap items-center gap-1 border-b border-border pb-2">
+        {STATUS_TABS.map((tab) => (
+          <button
+            key={tab.value}
+            onClick={() => handleTabChange(tab.value)}
+            className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-t-md transition-colors ${
+              activeStatus === tab.value
+                ? 'bg-[#00395d] text-white'
+                : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+            }`}
+          >
+            {tab.label}
+            <span
+              className={`text-xs px-1.5 py-0.5 rounded-full ${
+                activeStatus === tab.value
+                  ? 'bg-white/20 text-white'
+                  : 'bg-muted-foreground/10 text-muted-foreground'
+              }`}
+            >
+              {tab.value ? totalByStatus[tab.value] ?? 0 : allOrdersTotal}
+            </span>
+          </button>
+        ))}
+      </div>
       <div className="flex items-center justify-between">
         <h1 className="border-l-4 border-[#00395d] pl-2 text-lg font-semibold text-[#00395d]">
           {title}

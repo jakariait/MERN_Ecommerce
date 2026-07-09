@@ -191,58 +191,14 @@ export const MENU_CONFIG = [
   },
   {
     section: 'orders',
-    label: 'Manage Orders',
-    icon: FaShoppingBag,
-    permission: 'view_orders',
     items: [
       {
         type: 'link',
-        label: 'All Orders',
-        path: '/admin/allorders',
+        label: 'Manage Orders',
+        icon: FaShoppingBag,
+        path: '/admin/manage-orders',
         permission: 'view_orders',
         showCount: 'totalOrders',
-      },
-      {
-        type: 'link',
-        label: 'Pending Orders',
-        path: '/admin/pendingorders',
-        permission: 'view_orders',
-        countKey: 'pendingCount',
-      },
-      {
-        type: 'link',
-        label: 'Approved Orders',
-        path: '/admin/approvedorders',
-        permission: 'view_orders',
-        countKey: 'approvedCount',
-      },
-      {
-        type: 'link',
-        label: 'In Transit Orders',
-        path: '/admin/intransitorders',
-        permission: 'view_orders',
-        countKey: 'intransitCount',
-      },
-      {
-        type: 'link',
-        label: 'Delivered Orders',
-        path: '/admin/deliveredorders',
-        permission: 'view_orders',
-        countKey: 'deliveredCount',
-      },
-      {
-        type: 'link',
-        label: 'Returned Orders',
-        path: '/admin/returnedorders',
-        permission: 'view_orders',
-        countKey: 'returnedCount',
-      },
-      {
-        type: 'link',
-        label: 'Cancelled Orders',
-        path: '/admin/cancelledorders',
-        permission: 'view_orders',
-        countKey: 'cancelledCount',
       },
     ],
   },
@@ -425,21 +381,15 @@ function MenuAccordion({ item, countValue, expanded, onChange }) {
 }
 
 export default function SidebarMenu() {
-  const { totalProductsAdmin } = useProductStore();
+  const { totalProductsAdmin, fetchProductsAdmin } = useProductStore();
   const { logout } = useAuthAdminStore();
   const { totalByStatus, fetchAllStatusCounts } = useOrderStore();
   const { loading } = useAuthAdminStore();
 
   useEffect(() => {
+    fetchProductsAdmin({ page: 1, limit: 1 });
     fetchAllStatusCounts();
-  }, [fetchAllStatusCounts]);
-
-  const pendingCount = totalByStatus.pending;
-  const approvedCount = totalByStatus.approved;
-  const intransitCount = totalByStatus.intransit;
-  const deliveredCount = totalByStatus.delivered;
-  const returnedCount = totalByStatus.returned;
-  const cancelledCount = totalByStatus.cancelled;
+  }, [fetchProductsAdmin, fetchAllStatusCounts]);
 
   const totalOrders = Object.values(totalByStatus).reduce(
     (acc, count) => acc + count,
@@ -449,12 +399,6 @@ export default function SidebarMenu() {
   const countValues = {
     totalProductsAdmin,
     totalOrders,
-    pendingCount,
-    approvedCount,
-    intransitCount,
-    deliveredCount,
-    returnedCount,
-    cancelledCount,
   };
 
   const [expandedSections, setExpandedSections] = useState(() => {
@@ -494,6 +438,11 @@ export default function SidebarMenu() {
           if (singleItem) {
             const item = section.items[0];
             const Icon = item.icon;
+            const count =
+              item.showCount !== undefined
+                ? countValues[item.showCount]
+                : undefined;
+
             return (
               <RequirePermission
                 key={sectionIdx}
@@ -507,6 +456,11 @@ export default function SidebarMenu() {
                   >
                     {Icon && <Icon />}
                     <span>{item.label}</span>
+                    {count !== undefined && (
+                      <span className="ml-auto bg-white/20 px-2 py-0.5 rounded-full text-xs">
+                        {count}
+                      </span>
+                    )}
                   </Link>
                 </li>
               </RequirePermission>

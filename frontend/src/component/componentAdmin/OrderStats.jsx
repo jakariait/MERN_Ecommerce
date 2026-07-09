@@ -77,7 +77,7 @@ const OrderStats = () => {
         const Icon = config?.icon || Hourglass;
         return (
           <Card key={status} className="shadow-md border-0">
-            <CardContent className="text-center space-y-2 py-5">
+            <CardContent className="text-center space-y-2 ">
               <Icon className={`size-8 mx-auto ${config?.color || ''}`} />
               <p className="text-sm text-muted-foreground capitalize">
                 Total {status} Orders
