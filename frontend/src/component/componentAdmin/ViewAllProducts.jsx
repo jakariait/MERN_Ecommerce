@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import useProductStore from '../../store/useProductStore.js';
 import ImageComponent from '../componentGeneral/ImageComponent.jsx';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import RequirePermission from './RequirePermission.jsx';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -63,6 +63,8 @@ const ViewAllProducts = () => {
     deleteProduct,
     duplicateProduct,
   } = useProductStore();
+
+  const navigate = useNavigate();
 
   const [filters, setFilters] = useState({
     page: 1,
@@ -170,7 +172,16 @@ const ViewAllProducts = () => {
 
   return (
     <div className="space-y-6">
-      <SectionHeader title={'All Products'} />
+      <div className="flex items-center justify-between">
+        <SectionHeader title={'All Products'} />
+        <Button
+          variant="default"
+          size="sm"
+          onClick={() => navigate('/admin/addnewproduct')}
+        >
+          + Add New Product
+        </Button>
+      </div>
 
       <div className="grid grid-cols-3 gap-4">
         <Card className="shadow-md border-0 border-l-4 border-l-[#00395d]">

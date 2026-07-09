@@ -308,7 +308,7 @@ function App() {
                 element={<AddNewProductPage />}
               />
               <Route
-                path="/admin/viewallproducts"
+                path="/admin/manage-products"
                 element={<ViewAllProductPage />}
               />
               <Route

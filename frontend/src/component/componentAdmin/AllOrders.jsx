@@ -72,6 +72,7 @@ const AllOrders = ({ title, status = '' }) => {
     endDate: endDateFromStore,
     setDateRange,
     totalByStatus,
+    fetchAllStatusCounts,
   } = useOrderStore();
 
   const STATUS_TABS = [
@@ -162,7 +163,8 @@ const AllOrders = ({ title, status = '' }) => {
 
   const fetchOrders = useCallback(() => {
     fetchAllOrders(activeStatus, currentPage, itemsPerPage);
-  }, [activeStatus, currentPage, itemsPerPage, fetchAllOrders]);
+    fetchAllStatusCounts();
+  }, [activeStatus, currentPage, itemsPerPage, fetchAllOrders, fetchAllStatusCounts]);
 
   useEffect(() => {
     fetchOrders();
@@ -174,6 +176,8 @@ const AllOrders = ({ title, status = '' }) => {
     startDateFromStore,
     endDateFromStore,
   ]);
+
+
 
   const handleSearchInputChange = useCallback((e) => {
     setSearchInput(e.target.value);

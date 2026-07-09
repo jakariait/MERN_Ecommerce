@@ -164,26 +164,12 @@ export const MENU_CONFIG = [
   },
   {
     section: 'products',
-    label: 'Manage Products',
-    icon: FaTags,
-    permission: [
-      'add_products',
-      'delete_products',
-      'view_products',
-      'edit_products',
-    ],
-    match: 'any',
     items: [
       {
         type: 'link',
-        label: 'Add New Product',
-        path: '/admin/addnewproduct',
-        permission: 'add_products',
-      },
-      {
-        type: 'link',
-        label: 'View All Products',
-        path: '/admin/viewallproducts',
+        label: 'Manage Products',
+        icon: FaTags,
+        path: '/admin/manage-products',
         permission: 'view_products',
         showCount: 'totalProductsAdmin',
       },
