@@ -155,6 +155,7 @@ const Cart = ({ onCloseCartMenu }) => {
           <Link
             to="/checkout"
             className="primaryBgColor accentTextColor text-center py-2 px-4 rounded"
+            onClick={onCloseCartMenu}
           >
             Proceed to Checkout
           </Link>

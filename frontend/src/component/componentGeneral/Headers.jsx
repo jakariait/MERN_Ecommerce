@@ -212,6 +212,7 @@ const Headers = () => {
               imageName={GeneralInfoList?.PrimaryLogo}
               className="w-30 h-10"
               altName={GeneralInfoList?.CompanyName}
+              skeletonHeight={'10'}
             />
           </Link>
 
