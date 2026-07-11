@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { DialogActions } from '@/components/ui/dialog-actions';
@@ -6,7 +6,6 @@ import { FaPlus } from 'react-icons/fa6';
 import { FiMinus } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 import useCartStore from '../../store/useCartStore.js';
-import { FaCartArrowDown, FaCreditCard } from 'react-icons/fa';
 
 const BuyNowButton = ({ product, isAddToCart = false }) => {
   const [open, setOpen] = useState(false);
@@ -16,15 +15,11 @@ const BuyNowButton = ({ product, isAddToCart = false }) => {
   const navigate = useNavigate();
   const MAX_QUANTITY = 5;
 
-  useEffect(() => {
-    if (product?.variants?.length > 0) {
-      setSelectedVariant(product.variants[0]);
-    } else {
-      setSelectedVariant(null);
-    }
-  }, [product]);
-
-  const handleOpen = () => setOpen(true);
+  const handleOpen = () => {
+    setSelectedVariant(null);
+    setQuantity(1);
+    setOpen(true);
+  };
   const handleClose = () => setOpen(false);
 
   const handleQuantityChange = (type) => {
@@ -165,6 +160,10 @@ const BuyNowButton = ({ product, isAddToCart = false }) => {
             </div>
           )}
 
+          {product.variants?.length > 0 && !selectedVariant && (
+            <p className="text-red-500 text-sm mt-2">Please select an option</p>
+          )}
+
           {/* Quantity */}
           <div className="flex gap-4 items-center mt-4">
             <h2 className="text-lg">Quantity</h2>
@@ -203,7 +202,9 @@ const BuyNowButton = ({ product, isAddToCart = false }) => {
             <Button
               onClick={handleConfirm}
               disabled={
-                selectedVariant?.stock === 0 || product.finalStock === 0
+                (product.variants?.length > 0 && !selectedVariant) ||
+                selectedVariant?.stock === 0 ||
+                product.finalStock === 0
               }
               className="primaryBgColor"
             >

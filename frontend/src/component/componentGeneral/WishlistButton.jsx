@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Heart } from 'lucide-react';
+import { toast } from 'sonner';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { useNavigate } from 'react-router-dom';
 import useWishlistStore from '../../store/useWishlistStore.js';
@@ -49,8 +50,10 @@ const WishlistButton = ({ product, size = 24, className = '' }) => {
 
     if (isInWishlist) {
       await removeFromWishlist(productId);
+      toast.success('Removed from wishlist!');
     } else {
       await addToWishlist(productId);
+      toast.success('Added to wishlist!');
     }
 
     setLoading(false);
