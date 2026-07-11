@@ -99,10 +99,7 @@ const MarqueeAdminPage = lazy(
   () => import('./pagesAdmin/MarqueeAdminPage.jsx'),
 );
 const AdminMetaPage = lazy(() => import('./pagesAdmin/AdminMetaPage.jsx'));
-const BKashConfigPage = lazy(() => import('./pagesAdmin/BKashConfigPage.jsx'));
-const SteadFastConfigPag = lazy(
-  () => import('./pagesAdmin/SteadFastConfigPag.jsx'),
-);
+const GatewayApiPage = lazy(() => import('./pagesAdmin/GatewayApiPage.jsx'));
 const DashboardPage = lazy(() => import('./pagesAdmin/DashboardPage.jsx'));
 const UserAllOrdersPage = lazy(
   () => import('./pagesUser/UserAllOrdersPage.jsx'),
@@ -139,9 +136,6 @@ const ChildCategoryPage = lazy(
 );
 const ProductOptionsPage = lazy(
   () => import('./pagesAdmin/ProductOptionsPage.jsx'),
-);
-const PathaoConfigPage = lazy(
-  () => import('./pagesAdmin/PathaoConfigPage.jsx'),
 );
 const WishlistPage = lazy(() => import('./pagesUser/WishlistPage.jsx'));
 
@@ -332,15 +326,7 @@ function App() {
               <Route path="/admin/faqs" element={<AdminFAQSPage />} />
               <Route path="/admin/scroll-text" element={<MarqueeAdminPage />} />
               <Route path="/admin/homepage-seo" element={<AdminMetaPage />} />
-              <Route path="/admin/bkash-config" element={<BKashConfigPage />} />
-              <Route
-                path="/admin/steadfast-config"
-                element={<SteadFastConfigPag />}
-              />
-              <Route
-                path="/admin/pathao-config"
-                element={<PathaoConfigPage />}
-              />
+              <Route path="/admin/gateway-api" element={<GatewayApiPage />} />
               <Route path="/admin/dashboard" element={<DashboardPage />} />
               <Route path="/admin/adminlist" element={<AdminListPage />} />
               <Route path="/admin/createadmin" element={<CreateAdminPage />} />

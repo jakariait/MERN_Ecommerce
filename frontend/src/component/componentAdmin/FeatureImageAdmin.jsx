@@ -1,20 +1,34 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import axios from 'axios';
-import { Pencil, Trash2 } from 'lucide-react';
+import { Pencil, Trash2, Loader2 } from 'lucide-react';
 import ImageComponent from '../componentGeneral/ImageComponent.jsx';
-import useAuthAdminStore from '../../store/AuthAdminStore.js'; // Import your store
+import useAuthAdminStore from '../../store/AuthAdminStore.js';
+import { Card, CardContent } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from '@/components/ui/dialog';
+import { toast } from 'sonner';
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
 const FeatureImageAdmin = () => {
   const [featureImages, setFeatureImages] = useState([]);
   const [editingFeature, setEditingFeature] = useState(null);
-  const [successMessage, setSuccessMessage] = useState('');
-  const [errorMessage, setErrorMessage] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [preview, setPreview] = useState(null);
   const { register, handleSubmit, reset, setValue, control } = useForm();
   const fileInputRef = useRef(null);
-  const { token } = useAuthAdminStore(); // Access token from the store
+  const { token } = useAuthAdminStore();
 
   useEffect(() => {
     const fetchFeatureImages = async () => {
@@ -25,7 +39,6 @@ const FeatureImageAdmin = () => {
         console.error('Error fetching images:', error);
       }
     };
-
     fetchFeatureImages();
   }, []);
 
@@ -35,10 +48,9 @@ const FeatureImageAdmin = () => {
 
     if (data.imgSrc && data.imgSrc.length > 0) {
       formData.append('imgSrc', data.imgSrc[0]);
-    } else {
-      console.warn('No image file selected');
     }
 
+    setSubmitting(true);
     try {
       if (editingFeature) {
         await axios.put(
@@ -47,147 +59,197 @@ const FeatureImageAdmin = () => {
           {
             headers: {
               'Content-Type': 'multipart/form-data',
-              Authorization: `Bearer ${token}`, // Add authorization header
+              Authorization: `Bearer ${token}`,
             },
           },
         );
-        setSuccessMessage('Update successful!');
+        toast.success('Feature image updated successfully!');
       } else {
         await axios.post(`${apiUrl}/feature-images/create`, formData, {
           headers: {
             'Content-Type': 'multipart/form-data',
-            Authorization: `Bearer ${token}`, // Add authorization header
+            Authorization: `Bearer ${token}`,
           },
         });
-        setSuccessMessage('Image added successfully!');
+        toast.success('Feature image added successfully!');
       }
 
-      const { data } = await axios.get(`${apiUrl}/feature-images`);
-      setFeatureImages(data.data);
+      const { data: refreshData } = await axios.get(`${apiUrl}/feature-images`);
+      setFeatureImages(refreshData.data);
 
       setEditingFeature(null);
+      setPreview(null);
       reset();
       if (fileInputRef.current) fileInputRef.current.value = '';
     } catch (error) {
       console.error('Error submitting form:', error);
-      setErrorMessage('An error occurred. Please try again.');
+      toast.error('An error occurred. Please try again.');
+    } finally {
+      setSubmitting(false);
     }
-
-    setTimeout(() => {
-      setSuccessMessage('');
-      setErrorMessage('');
-    }, 3000);
   };
 
   const handleEdit = (feature) => {
     setEditingFeature(feature);
+    setPreview(null);
     setValue('title', feature.title);
   };
 
   const handleDelete = async (id) => {
-    if (
-      !window.confirm('Are you sure you want to delete this feature image?')
-    ) {
-      return;
-    }
-
     try {
       await axios.delete(`${apiUrl}/feature-images/${id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`, // Add authorization header
-        },
+        headers: { Authorization: `Bearer ${token}` },
       });
-
       setFeatureImages(featureImages.filter((item) => item._id !== id));
-
-      setSuccessMessage('Image deleted successfully!');
-      setTimeout(() => setSuccessMessage(''), 3000);
+      toast.success('Feature image deleted successfully!');
     } catch (error) {
       console.error('Error deleting image:', error);
-      setErrorMessage('Failed to delete image.');
+      toast.error('Failed to delete image.');
+    } finally {
+      setDeleteTarget(null);
     }
   };
 
+  const handleCancelEdit = () => {
+    setEditingFeature(null);
+    setPreview(null);
+    reset();
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
   return (
-    <div className="container mx-auto p-4 shadow rouded-lg mt-4">
-      <h1 className="border-l-4 primaryBorderColor primaryTextColor mb-6 pl-2 text-lg font-semibold ">
-        Feature Images
-      </h1>
-      {successMessage && (
-        <p className="text-green-600 text-center font-semibold mb-4">
-          {successMessage}
-        </p>
-      )}
+    <div className="space-y-6">
+      <Card>
+        <CardContent className="pt-6">
+          <h1 className="border-l-4 primaryBorderColor primaryTextColor mb-6 pl-2 text-lg font-semibold">
+            Feature Images
+          </h1>
 
-      {errorMessage && (
-        <p className="text-red-600 text-center font-semibold mb-4">
-          {errorMessage}
-        </p>
-      )}
-
-      <form
-        onSubmit={handleSubmit(onSubmit)}
-        className="bg-white p-4 rounded-lg shadow w-full max-w-md mx-auto"
-      >
-        <label className="block font-medium">Title:</label>
-        <input
-          {...register('title', { required: true })}
-          className="w-full border p-2 rounded-lg mb-3"
-        />
-
-        <label className="block font-medium">Image:</label>
-        <Controller
-          name="imgSrc"
-          control={control}
-          defaultValue={null}
-          render={({ field }) => (
-            <input
-              type="file"
-              className="w-full border p-2 rounded-lg mb-3"
-              accept="image/*"
-              onChange={(e) => {
-                field.onChange(e.target.files);
-              }}
-              ref={fileInputRef}
-            />
-          )}
-        />
-
-        <button
-          type="submit"
-          className="bg-blue-600 text-white py-2 px-4 rounded-lg w-full"
-        >
-          {editingFeature ? 'Update Image' : 'Add Image'}
-        </button>
-      </form>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-        {featureImages.map((feature) => (
-          <div key={feature._id} className="rounded-lg shadow p-4 relative">
-            <ImageComponent
-              imageName={feature.imgSrc}
-              className="w-full h-60 "
-              skeletonHeight={200}
-            />
-            <h3 className="text-center font-semibold mt-2">{feature.title}</h3>
-
-            <div className="absolute top-2 right-2 flex gap-2">
-              <button
-                onClick={() => handleEdit(feature)}
-                className="p-2 bg-yellow-500 text-white rounded-full"
-              >
-                <Pencil size={20} />
-              </button>
-              <button
-                onClick={() => handleDelete(feature._id)}
-                className="p-2 bg-red-500 rounded-full text-white "
-              >
-                <Trash2 size={20} />
-              </button>
+          <form
+            onSubmit={handleSubmit(onSubmit)}
+            className="space-y-4 max-w-md"
+          >
+            <div className="space-y-2">
+              <Label htmlFor="title">Title</Label>
+              <Input
+                id="title"
+                {...register('title', { required: true })}
+                placeholder="Enter feature title"
+              />
             </div>
-          </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="imgSrc">Image</Label>
+              <Controller
+                name="imgSrc"
+                control={control}
+                defaultValue={null}
+                render={({ field }) => (
+                  <Input
+                    id="imgSrc"
+                    type="file"
+                    accept="image/*"
+                    ref={fileInputRef}
+                    onChange={(e) => {
+                      field.onChange(e.target.files);
+                      if (e.target.files?.[0]) {
+                        setPreview(URL.createObjectURL(e.target.files[0]));
+                      }
+                    }}
+                  />
+                )}
+              />
+              {(preview || editingFeature) && (
+                <div className="mt-2">
+                  <p className="text-xs text-muted-foreground mb-1">
+                    {preview ? 'New image preview:' : 'Current image:'}
+                  </p>
+                  {preview ? (
+                    <img src={preview} alt="Preview" className=" " />
+                  ) : (
+                    <ImageComponent imageName={editingFeature.imgSrc} />
+                  )}
+                </div>
+              )}
+            </div>
+
+            <div className="flex gap-2">
+              <Button type="submit" disabled={submitting}>
+                {submitting && <Loader2 className="size-4 mr-2 animate-spin" />}
+                {editingFeature ? 'Update Image' : 'Add Image'}
+              </Button>
+              {editingFeature && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleCancelEdit}
+                >
+                  Cancel
+                </Button>
+              )}
+            </div>
+          </form>
+        </CardContent>
+      </Card>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {featureImages.map((feature) => (
+          <Card key={feature._id} className="relative overflow-hidden">
+            <CardContent className="p-0">
+              <ImageComponent
+                imageName={feature.imgSrc}
+                className="w-full h-60 object-contain"
+                skeletonHeight={200}
+              />
+              <div className="p-4">
+                <h3 className="text-center font-semibold">{feature.title}</h3>
+              </div>
+            </CardContent>
+            <div className="absolute top-2 right-2 flex gap-2">
+              <Button
+                size="icon"
+                variant="secondary"
+                onClick={() => handleEdit(feature)}
+              >
+                <Pencil size={16} />
+              </Button>
+              <Button
+                size="icon"
+                variant="destructive"
+                onClick={() => setDeleteTarget(feature._id)}
+              >
+                <Trash2 size={16} />
+              </Button>
+            </div>
+          </Card>
         ))}
       </div>
+
+      <Dialog
+        open={!!deleteTarget}
+        onOpenChange={(open) => !open && setDeleteTarget(null)}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete Feature Image</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete this feature image? This action
+              cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDeleteTarget(null)}>
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={() => deleteTarget && handleDelete(deleteTarget)}
+            >
+              Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

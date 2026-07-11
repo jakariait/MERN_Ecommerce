@@ -1,12 +1,8 @@
 import React, { useEffect } from 'react';
 import CarouselUpload from '../component/componentAdmin/CarouselUpload.jsx';
 import FeatureImageAdmin from '../component/componentAdmin/FeatureImageAdmin.jsx';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import RequirePermission from '../component/componentAdmin/RequirePermission.jsx';
 import useBreadcrumbStore from '../store/BreadcrumbStore.js';
-
-// Create a QueryClient instance
-const queryClient = new QueryClient();
 
 const SliderBannerPage = () => {
   const setBreadcrumb = useBreadcrumbStore((s) => s.setBreadcrumb);

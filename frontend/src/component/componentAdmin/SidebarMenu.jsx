@@ -202,28 +202,13 @@ export const MENU_CONFIG = [
   },
   {
     section: 'gateway',
-    label: 'Gateway & API',
-    icon: FaCreditCard,
-    permission: ['bkash_api', 'steadfast_api', 'pathao_api'],
-    match: 'any',
     items: [
       {
         type: 'link',
-        label: 'bKash',
-        path: '/admin/bkash-config',
-        permission: 'bkash_api',
-      },
-      {
-        type: 'link',
-        label: 'Steadfast',
-        path: '/admin/steadfast-config',
-        permission: 'steadfast_api',
-      },
-      {
-        type: 'link',
-        label: 'Pathao',
-        path: '/admin/pathao-config',
-        permission: 'pathao_api',
+        label: 'Gateway & API',
+        icon: FaCreditCard,
+        path: '/admin/gateway-api',
+        permission: ['bkash_api', 'steadfast_api', 'pathao_api'],
       },
     ],
   },

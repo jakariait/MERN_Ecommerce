@@ -3,13 +3,23 @@ import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Upload, Trash2 } from 'lucide-react';
 import ImageComponent from '../componentGeneral/ImageComponent.jsx';
-import useAuthAdminStore from '../../store/AuthAdminStore.js'; // Import your store
+import useAuthAdminStore from '../../store/AuthAdminStore.js';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
 
 const CarouselUpload = () => {
   const [images, setImages] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState(null);
   const apiUrl = import.meta.env.VITE_API_URL;
-  const { token } = useAuthAdminStore(); // Access token from the store
+  const { token } = useAuthAdminStore();
 
   useEffect(() => {
     const fetchImages = async () => {
@@ -35,7 +45,7 @@ const CarouselUpload = () => {
       const response = await axios.post(`${apiUrl}/createcarousel`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
-          Authorization: `Bearer ${token}`, // Add authorization header
+          Authorization: `Bearer ${token}`,
         },
       });
 
@@ -50,23 +60,19 @@ const CarouselUpload = () => {
   };
 
   const handleImageDelete = async (imageId) => {
-    const confirmation = window.confirm(
-      'Are you sure you want to delete this image? This action cannot be undone.',
-    );
-
-    if (confirmation) {
-      try {
-        await axios.delete(`${apiUrl}/deletebyidcarousel/${imageId}`, {
-          headers: {
-            Authorization: `Bearer ${token}`, // Add authorization header
-          },
-        });
-        setImages((prevImages) =>
-          prevImages.filter((image) => image._id !== imageId),
-        );
-      } catch (error) {
-        console.error('Error deleting image', error);
-      }
+    try {
+      await axios.delete(`${apiUrl}/deletebyidcarousel/${imageId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setImages((prevImages) =>
+        prevImages.filter((image) => image._id !== imageId),
+      );
+    } catch (error) {
+      console.error('Error deleting image', error);
+    } finally {
+      setDeleteTarget(null);
     }
   };
 
@@ -104,7 +110,7 @@ const CarouselUpload = () => {
                   className={' object-cover rounded-lg'}
                 />
                 <button
-                  onClick={() => handleImageDelete(image._id)}
+                  onClick={() => setDeleteTarget(image._id)}
                   className="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white p-2 rounded-full shadow transition duration-300"
                 >
                   <Trash2 size={20} />
@@ -116,6 +122,28 @@ const CarouselUpload = () => {
           )}
         </AnimatePresence>
       </div>
+
+      <Dialog open={!!deleteTarget} onOpenChange={(open) => !open && setDeleteTarget(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete Image</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete this image? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDeleteTarget(null)}>
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={() => deleteTarget && handleImageDelete(deleteTarget)}
+            >
+              Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
