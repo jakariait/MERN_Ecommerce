@@ -1,4 +1,4 @@
-const NewslettersModel = require("../models/NewslettersModel");
+const NewslettersModel = require('../models/NewslettersModel');
 
 // Subscribe to Newsletter
 
@@ -7,12 +7,12 @@ const subscribeEmail = async (email) => {
     // Check if the email already exists
     const existingEmail = await NewslettersModel.findOne({ Email: email });
     if (existingEmail) {
-      throw new Error("Email already subscribed!");
+      throw new Error('Email already subscribed!');
     }
     // Save email
     const newSubscription = new NewslettersModel({ Email: email });
     await newSubscription.save();
-    return { message: "Successfully subscribed!" };
+    return { message: 'Successfully subscribed!' };
   } catch (error) {
     throw new Error(error.message);
   }
@@ -35,10 +35,10 @@ const deleteSubscriber = async (email) => {
     const deletedSubscriber = await NewslettersModel.findOneAndDelete({ Email: email });
     if (!deletedSubscriber) {
       // If no subscriber found
-      throw new Error("Subscriber not found");
+      throw new Error('Subscriber not found');
     }
     // Return a success message if the subscriber was deleted
-    return { success: true, message: "Subscriber deleted successfully" };
+    return { success: true, message: 'Subscriber deleted successfully' };
   } catch (error) {
     // Handle any error that occurs
     throw new Error(error.message);

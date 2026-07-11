@@ -1,5 +1,5 @@
-const mongoose = require("mongoose");
-const bcrypt = require("bcryptjs");
+const mongoose = require('mongoose');
+const bcrypt = require('bcryptjs');
 
 const adminSchema = new mongoose.Schema(
   {
@@ -13,14 +13,14 @@ const adminSchema = new mongoose.Schema(
       required: true,
       unique: true,
       trim: true,
-      match: [/.+\@.+\..+/, "Please fill a valid email address"],
+      match: [/.+\@.+\..+/, 'Please fill a valid email address'],
     },
     mobileNo: {
       type: String,
       required: true,
       unique: true,
       trim: true,
-      match: [/^\d{10,15}$/, "Please enter a valid phone number"],
+      match: [/^\d{10,15}$/, 'Please enter a valid phone number'],
     },
 
     password: {
@@ -31,12 +31,12 @@ const adminSchema = new mongoose.Schema(
       type: [String],
     },
   },
-  { timestamps: true, versionKey: false },
+  { timestamps: true, versionKey: false }
 );
 
 // Hash the password before saving the document
-adminSchema.pre("save", async function (next) {
-  if (!this.isModified("password")) {
+adminSchema.pre('save', async function (next) {
+  if (!this.isModified('password')) {
     return next();
   }
   try {
@@ -58,7 +58,6 @@ adminSchema.methods.matchPassword = async function (enteredPassword) {
 };
 
 // Conditionally create the model if it doesn't exist already
-const AdminModel =
-  mongoose.models.Admin || mongoose.model("Admin", adminSchema);
+const AdminModel = mongoose.models.Admin || mongoose.model('Admin', adminSchema);
 
 module.exports = AdminModel;

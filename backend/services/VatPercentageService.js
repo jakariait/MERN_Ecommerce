@@ -1,4 +1,4 @@
-const VatPercentage = require("../models/VatPercentage");
+const VatPercentage = require('../models/VatPercentage');
 
 const getAmount = async () => {
   try {
@@ -8,7 +8,7 @@ const getAmount = async () => {
     }
     return doc;
   } catch (error) {
-    throw new Error("Failed to fetch VAT Percentage.");
+    throw new Error('Failed to fetch VAT Percentage.');
   }
 };
 
@@ -23,7 +23,7 @@ const updateAmount = async (newValue) => {
     }
     return doc;
   } catch (error) {
-    throw new Error("Failed to update VAT Percentage.");
+    throw new Error('Failed to update VAT Percentage.');
   }
 };
 

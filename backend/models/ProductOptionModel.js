@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
 const productOptionSchema = new mongoose.Schema(
   {
@@ -22,6 +22,6 @@ const productOptionSchema = new mongoose.Schema(
   }
 );
 
-const ProductOptionModel = mongoose.model("ProductOption", productOptionSchema);
+const ProductOptionModel = mongoose.model('ProductOption', productOptionSchema);
 
 module.exports = ProductOptionModel;

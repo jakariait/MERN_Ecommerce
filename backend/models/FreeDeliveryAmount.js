@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
 const freeDeliveryAmountSchema = new mongoose.Schema(
   {
@@ -8,9 +8,9 @@ const freeDeliveryAmountSchema = new mongoose.Schema(
       default: 0,
     },
   },
-  { timestamps: true, versionKey: false },
+  { timestamps: true, versionKey: false }
 );
 
-const FreeDeliveryAmount = mongoose.model("FreeDeliveryAmount", freeDeliveryAmountSchema);
+const FreeDeliveryAmount = mongoose.model('FreeDeliveryAmount', freeDeliveryAmountSchema);
 
 module.exports = FreeDeliveryAmount;

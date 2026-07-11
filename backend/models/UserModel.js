@@ -1,5 +1,5 @@
-const mongoose = require("mongoose");
-const bcrypt = require("bcryptjs");
+const mongoose = require('mongoose');
+const bcrypt = require('bcryptjs');
 
 const userSchema = new mongoose.Schema(
   {
@@ -7,11 +7,11 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
       trim: true,
-      maxlength: [100, "Name cannot exceed 100 characters"],
+      maxlength: [100, 'Name cannot exceed 100 characters'],
     },
     userImage: {
       type: String,
-      maxlength: [500, "Image path cannot exceed 500 characters"],
+      maxlength: [500, 'Image path cannot exceed 500 characters'],
     },
     email: {
       type: String,
@@ -19,11 +19,8 @@ const userSchema = new mongoose.Schema(
       unique: true,
       sparse: true,
       trim: true,
-      maxlength: [254, "Email cannot exceed 254 characters"],
-      match: [
-        /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-        "Please fill a valid email address",
-      ],
+      maxlength: [254, 'Email cannot exceed 254 characters'],
+      match: [/^[^\s@]+@[^\s@]+\.[^\s@]+$/, 'Please fill a valid email address'],
     },
     accountDeletion: {
       requested: {
@@ -41,15 +38,15 @@ const userSchema = new mongoose.Schema(
     address: {
       type: String,
       required: true,
-      maxlength: [500, "Address cannot exceed 500 characters"],
+      maxlength: [500, 'Address cannot exceed 500 characters'],
     },
     phone: {
       type: String,
       required: true,
       unique: true,
       sparse: true,
-      maxlength: [15, "Phone number cannot exceed 15 characters"],
-      match: [/^\d{10,15}$/, "Please enter a valid phone number"],
+      maxlength: [15, 'Phone number cannot exceed 15 characters'],
+      match: [/^\d{10,15}$/, 'Please enter a valid phone number'],
     },
     password: {
       type: String,
@@ -65,23 +62,23 @@ const userSchema = new mongoose.Schema(
       select: false,
     },
   },
-  { timestamps: true, versionKey: false },
+  { timestamps: true, versionKey: false }
 );
 
 // 🔁 Ensure both email and phone are provided
-userSchema.pre("validate", function (next) {
+userSchema.pre('validate', function (next) {
   if (!this.email) {
-    this.invalidate("email", "Email is required.");
+    this.invalidate('email', 'Email is required.');
   }
   if (!this.phone) {
-    this.invalidate("phone", "Phone number is required.");
+    this.invalidate('phone', 'Phone number is required.');
   }
   next();
 });
 
 // 🔐 Hash password before saving
-userSchema.pre("save", async function (next) {
-  if (!this.isModified("password")) return next();
+userSchema.pre('save', async function (next) {
+  if (!this.isModified('password')) return next();
 
   try {
     const salt = await bcrypt.genSalt(10); // Salt rounds
@@ -97,4 +94,4 @@ userSchema.methods.comparePassword = async function (candidatePassword) {
   return bcrypt.compare(candidatePassword, this.password);
 };
 
-module.exports = mongoose.model("User", userSchema);
+module.exports = mongoose.model('User', userSchema);

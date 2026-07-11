@@ -1,28 +1,31 @@
-const mongoose = require("mongoose");
-const CounterModel = require("./CounterModel");
-const slugify = require("slugify");
+const mongoose = require('mongoose');
+const CounterModel = require('./CounterModel');
+const slugify = require('slugify');
 
-const attributeSchema = new mongoose.Schema({
-  option: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "ProductOption",
-    required: true,
+const attributeSchema = new mongoose.Schema(
+  {
+    option: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'ProductOption',
+      required: true,
+    },
+    value: {
+      type: String,
+      required: true,
+    },
   },
-  value: {
-    type: String,
-    required: true,
-  },
-}, { _id: false });
+  { _id: false }
+);
 
 const productVariantSchema = new mongoose.Schema({
   attributes: {
     type: [attributeSchema],
     required: true,
     validate: {
-      validator: function(value) {
+      validator: function (value) {
         return value.length > 0;
       },
-      message: "At least one attribute is required",
+      message: 'At least one attribute is required',
     },
   },
   stock: {
@@ -34,7 +37,7 @@ const productVariantSchema = new mongoose.Schema({
       validator: function (value) {
         return value >= 0;
       },
-      message: "Stock cannot be negative",
+      message: 'Stock cannot be negative',
     },
   },
   price: {
@@ -45,7 +48,7 @@ const productVariantSchema = new mongoose.Schema({
       validator: function (value) {
         return value >= 0;
       },
-      message: "Price cannot be negative",
+      message: 'Price cannot be negative',
     },
   },
   discount: {
@@ -55,7 +58,7 @@ const productVariantSchema = new mongoose.Schema({
       validator: function (value) {
         return value >= 0;
       },
-      message: "Discount cannot be negative",
+      message: 'Discount cannot be negative',
     },
   },
 });
@@ -75,7 +78,7 @@ const productSchema = new mongoose.Schema(
         validator: function (value) {
           return value >= 0; // Ensure the value is greater than or equal to 0
         },
-        message: "Reward points cannot be negative",
+        message: 'Reward points cannot be negative',
       },
     },
     videoUrl: { type: String, trim: true },
@@ -83,16 +86,16 @@ const productSchema = new mongoose.Schema(
 
     category: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Category",
+      ref: 'Category',
       required: true,
     },
-    subCategory: { type: mongoose.Schema.Types.ObjectId, ref: "SubCategory" },
+    subCategory: { type: mongoose.Schema.Types.ObjectId, ref: 'SubCategory' },
     childCategory: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "ChildCategory",
+      ref: 'ChildCategory',
     },
 
-    flags: [{ type: mongoose.Schema.Types.ObjectId, ref: "Flag" }],
+    flags: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Flag' }],
 
     metaTitle: { type: String, trim: true },
     metaDescription: { type: String, trim: true },
@@ -114,7 +117,7 @@ const productSchema = new mongoose.Schema(
         validator: function (value) {
           return value >= 0; // Ensure the value is greater than or equal to 0
         },
-        message: "Price cannot be negative",
+        message: 'Price cannot be negative',
       },
     },
 
@@ -126,7 +129,7 @@ const productSchema = new mongoose.Schema(
         validator: function (value) {
           return value >= 0; // Ensure the value is greater than or equal to 0
         },
-        message: "Discount cannot be negative",
+        message: 'Discount cannot be negative',
       },
     },
     finalStock: {
@@ -139,7 +142,7 @@ const productSchema = new mongoose.Schema(
         validator: function (value) {
           return value >= 0; // Ensure the value is greater than or equal to 0
         },
-        message: "Stock cannot be negative",
+        message: 'Stock cannot be negative',
       },
     },
     purchasePrice: {
@@ -149,7 +152,7 @@ const productSchema = new mongoose.Schema(
         validator: function (value) {
           return value >= 0; // Ensure the value is greater than or equal to 0
         },
-        message: "Purchase cannot be negative",
+        message: 'Purchase cannot be negative',
       },
     },
 
@@ -163,17 +166,17 @@ const productSchema = new mongoose.Schema(
     versionKey: false,
     toJSON: { virtuals: true },
     toObject: { virtuals: true },
-  },
+  }
 );
 
 // Auto-increment productId before validation
-productSchema.pre("validate", async function (next) {
+productSchema.pre('validate', async function (next) {
   if (!this.productId) {
     try {
       const counter = await CounterModel.findOneAndUpdate(
-        { name: "productId" },
+        { name: 'productId' },
         { $inc: { value: 1 } },
-        { new: true, upsert: true },
+        { new: true, upsert: true }
       );
       this.productId = counter.value;
     } catch (err) {
@@ -182,7 +185,7 @@ productSchema.pre("validate", async function (next) {
   }
 
   // Generate slug when name changes
-  if (this.isModified("name") || this.isNew) {
+  if (this.isModified('name') || this.isNew) {
     this.slug = `${slugify(this.name, { lower: true })}-${this.productId}`;
   }
 
@@ -190,14 +193,12 @@ productSchema.pre("validate", async function (next) {
 });
 
 // Pre-save hook to calculate finalPrice, finalDiscount, and finalStock
-productSchema.pre("save", function (next) {
+productSchema.pre('save', function (next) {
   if (this.variants.length > 0) {
     // If variants exist, set finalPrice, finalDiscount, and finalStock based on variants
-    this.finalPrice =
-      this.variants.reduce((sum, v) => sum + v.price, 0) / this.variants.length;
+    this.finalPrice = this.variants.reduce((sum, v) => sum + v.price, 0) / this.variants.length;
     this.finalDiscount =
-      this.variants.reduce((sum, v) => sum + v.discount, 0) /
-      this.variants.length;
+      this.variants.reduce((sum, v) => sum + v.discount, 0) / this.variants.length;
     this.finalStock = this.variants.reduce((total, v) => total + v.stock, 0);
   } else {
     // If no variants, set finalPrice, finalDiscount, and finalStock to direct product input values
@@ -209,13 +210,11 @@ productSchema.pre("save", function (next) {
   next();
 });
 
-
 // Indexing for faster queries
 productSchema.index({ name: 1, slug: 1 });
 productSchema.index({ category: 1 });
-productSchema.index({ name: "text" });
+productSchema.index({ name: 'text' });
 
-
-const ProductModel = mongoose.model("Product", productSchema);
+const ProductModel = mongoose.model('Product', productSchema);
 
 module.exports = ProductModel;

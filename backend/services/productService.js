@@ -1,13 +1,13 @@
-const fs = require("fs");
-const path = require("path");
-const ProductModel = require("../models/ProductModel");
-const FlagModel = require("../models/FlagModel");
-const CategoryModel = require("../models/CategoryModel");
-const SubCategoryModel = require("../models/SubCategoryModel");
-const ChildCategoryModel = require("../models/ChildCategoryModel");
-const mongoose = require("mongoose");
+const fs = require('fs');
+const path = require('path');
+const ProductModel = require('../models/ProductModel');
+const FlagModel = require('../models/FlagModel');
+const CategoryModel = require('../models/CategoryModel');
+const SubCategoryModel = require('../models/SubCategoryModel');
+const ChildCategoryModel = require('../models/ChildCategoryModel');
+const mongoose = require('mongoose');
 
-const uploadsDir = path.join(__dirname, "../uploads");
+const uploadsDir = path.join(__dirname, '../uploads');
 
 const deleteOldFile = (filename) => {
   if (filename) {
@@ -42,15 +42,15 @@ const getProducts = async () => {
   try {
     // Fetch all products without any pagination or filters
     const products = await ProductModel.find()
-      .select("-createdAt -updatedAt") // Optional fields to exclude from the response
+      .select('-createdAt -updatedAt') // Optional fields to exclude from the response
       .populate([
-      { path: "category", select: "-createdAt -updatedAt" },
-      { path: "subCategory", select: "-createdAt -updatedAt" },
-      { path: "childCategory", select: "-createdAt -updatedAt" },
-      { path: "flags", select: "-createdAt -updatedAt" },
-      { path: "variants", select: "-createdAt -updatedAt" },
-      { path: "variants.attributes.option", select: "-createdAt -updatedAt" },
-    ]);
+        { path: 'category', select: '-createdAt -updatedAt' },
+        { path: 'subCategory', select: '-createdAt -updatedAt' },
+        { path: 'childCategory', select: '-createdAt -updatedAt' },
+        { path: 'flags', select: '-createdAt -updatedAt' },
+        { path: 'variants', select: '-createdAt -updatedAt' },
+        { path: 'variants.attributes.option', select: '-createdAt -updatedAt' },
+      ]);
 
     return products;
   } catch (error) {
@@ -64,14 +64,14 @@ const getProducts = async () => {
 const getProductById = async (productId) => {
   try {
     const product = await ProductModel.findById(productId).populate([
-      { path: "category", select: "-createdAt -updatedAt" },
-      { path: "subCategory", select: "-createdAt -updatedAt" },
-      { path: "childCategory", select: "-createdAt -updatedAt" },
-      { path: "flags", select: "-createdAt -updatedAt" },
-      { path: "variants", select: "-createdAt -updatedAt" },
-      { path: "variants.attributes.option", select: "-createdAt -updatedAt" },
+      { path: 'category', select: '-createdAt -updatedAt' },
+      { path: 'subCategory', select: '-createdAt -updatedAt' },
+      { path: 'childCategory', select: '-createdAt -updatedAt' },
+      { path: 'flags', select: '-createdAt -updatedAt' },
+      { path: 'variants', select: '-createdAt -updatedAt' },
+      { path: 'variants.attributes.option', select: '-createdAt -updatedAt' },
     ]);
-    if (!product) throw new Error("Product not found");
+    if (!product) throw new Error('Product not found');
     return product;
   } catch (error) {
     throw new Error(error.message);
@@ -83,15 +83,15 @@ const getProductBySlug = async (slug) => {
   try {
     // Ensure to use the slug directly, not the productId
     const product = await ProductModel.findOne({ slug }).populate([
-      { path: "category", select: "-createdAt -updatedAt" },
-      { path: "subCategory", select: "-createdAt -updatedAt" },
-      { path: "childCategory", select: "-createdAt -updatedAt" },
-      { path: "flags", select: "-createdAt -updatedAt" },
-      { path: "variants", select: "-createdAt -updatedAt" },
-      { path: "variants.attributes.option", select: "-createdAt -updatedAt" },
+      { path: 'category', select: '-createdAt -updatedAt' },
+      { path: 'subCategory', select: '-createdAt -updatedAt' },
+      { path: 'childCategory', select: '-createdAt -updatedAt' },
+      { path: 'flags', select: '-createdAt -updatedAt' },
+      { path: 'variants', select: '-createdAt -updatedAt' },
+      { path: 'variants.attributes.option', select: '-createdAt -updatedAt' },
     ]);
 
-    if (!product) throw new Error("Product not found");
+    if (!product) throw new Error('Product not found');
 
     return product;
   } catch (error) {
@@ -105,15 +105,15 @@ const getProductBySlug = async (slug) => {
 const deleteProduct = async (productId) => {
   try {
     const deletedProduct = await ProductModel.findByIdAndDelete(productId);
-    if (!deletedProduct) throw new Error("Product not found");
-    
+    if (!deletedProduct) throw new Error('Product not found');
+
     if (deletedProduct.thumbnailImage) {
       deleteOldFile(deletedProduct.thumbnailImage);
     }
     if (deletedProduct.images && deletedProduct.images.length > 0) {
       deleteOldFiles(deletedProduct.images);
     }
-    
+
     return deletedProduct;
   } catch (error) {
     throw new Error(error.message);
@@ -306,30 +306,27 @@ const getAllProducts = async ({
 }) => {
   try {
     // Fetch category, subcategory, childCategory, and flags independently
-    const [categoryDoc, subCategoryDoc, childCategoryDoc, flagDocs] =
-      await Promise.all([
-        category
-          ? CategoryModel.findOne({ name: category }).select("_id")
-          : null,
-        subcategory
-          ? SubCategoryModel.findOne({
-              slug: subcategory,
-              isActive: true,
-            }).select("_id")
-          : null,
-        childCategory
-          ? ChildCategoryModel.findOne({
-              slug: childCategory,
-              isActive: true,
-            }).select("_id")
-          : null,
-        flags
-          ? FlagModel.find({
-              name: { $in: flags.split(",") },
-              isActive: true,
-            }).select("_id")
-          : [],
-      ]);
+    const [categoryDoc, subCategoryDoc, childCategoryDoc, flagDocs] = await Promise.all([
+      category ? CategoryModel.findOne({ name: category }).select('_id') : null,
+      subcategory
+        ? SubCategoryModel.findOne({
+            slug: subcategory,
+            isActive: true,
+          }).select('_id')
+        : null,
+      childCategory
+        ? ChildCategoryModel.findOne({
+            slug: childCategory,
+            isActive: true,
+          }).select('_id')
+        : null,
+      flags
+        ? FlagModel.find({
+            name: { $in: flags.split(',') },
+            isActive: true,
+          }).select('_id')
+        : [],
+    ]);
 
     // If any provided category, subcategory, childCategory, or flags are invalid, return empty result
     if (
@@ -349,7 +346,7 @@ const getAllProducts = async ({
     // Build the query object
     let query = {};
 
-    if (typeof isActive === "boolean") {
+    if (typeof isActive === 'boolean') {
       query.isActive = isActive;
     }
 
@@ -357,8 +354,8 @@ const getAllProducts = async ({
     if (subCategoryDoc) query.subCategory = subCategoryDoc._id;
     if (childCategoryDoc) query.childCategory = childCategoryDoc._id;
 
-    if (stock === "in") query.finalStock = { $gt: 0 };
-    if (stock === "out") query.finalStock = { $lte: 0 };
+    if (stock === 'in') query.finalStock = { $gt: 0 };
+    if (stock === 'out') query.finalStock = { $lte: 0 };
 
     if (flagDocs.length) {
       query.flags = { $in: flagDocs.map((flag) => flag._id) };
@@ -366,17 +363,17 @@ const getAllProducts = async ({
 
     // Add search filter: partial, case-insensitive match on product name
     if (search && search.trim()) {
-      query.name = { $regex: search.trim(), $options: "i" };
+      query.name = { $regex: search.trim(), $options: 'i' };
     }
 
     // Validate sort option
     const validSortValues = [
-      "price_high",
-      "price_low",
-      "name_asc",
-      "name_desc",
-      "latest",
-      "oldest",
+      'price_high',
+      'price_low',
+      'name_asc',
+      'name_desc',
+      'latest',
+      'oldest',
     ];
     if (sort && !validSortValues.includes(sort)) {
       return {
@@ -389,11 +386,11 @@ const getAllProducts = async ({
 
     // Define sorting options
     let sortOption = { createdAt: -1 }; // default newest first
-    if (sort === "price_high") sortOption = { finalDiscount: -1 };
-    if (sort === "price_low") sortOption = { finalDiscount: 1 };
-    if (sort === "name_asc") sortOption = { name: 1 };
-    if (sort === "name_desc") sortOption = { name: -1 };
-    if (sort === "oldest") sortOption = { createdAt: 1 };
+    if (sort === 'price_high') sortOption = { finalDiscount: -1 };
+    if (sort === 'price_low') sortOption = { finalDiscount: 1 };
+    if (sort === 'name_asc') sortOption = { name: 1 };
+    if (sort === 'name_desc') sortOption = { name: -1 };
+    if (sort === 'oldest') sortOption = { createdAt: 1 };
 
     // Count total documents matching the query
     const totalProducts = await ProductModel.countDocuments(query);
@@ -404,12 +401,12 @@ const getAllProducts = async ({
       .skip((page - 1) * limit)
       .limit(limit)
       .select(
-        "name slug finalDiscount finalPrice finalStock thumbnailImage isActive images productId category variants flags productCode freeShipping",
+        'name slug finalDiscount finalPrice finalStock thumbnailImage isActive images productId category variants flags productCode freeShipping'
       )
       .populate([
-        { path: "category", select: "-createdAt -updatedAt" },
-        { path: "flags", select: "-createdAt -updatedAt" },
-        { path: "variants.attributes.option", select: "-createdAt -updatedAt" },
+        { path: 'category', select: '-createdAt -updatedAt' },
+        { path: 'flags', select: '-createdAt -updatedAt' },
+        { path: 'variants.attributes.option', select: '-createdAt -updatedAt' },
       ]);
 
     return {
@@ -428,7 +425,7 @@ const updateProduct = async (productId, updatedData, files) => {
     // 1. Find the existing product using MongoDB _id (not productId)
     const product = await ProductModel.findById(productId);
     if (!product) {
-      throw new Error("Product not found");
+      throw new Error('Product not found');
     }
 
     // --- IMAGE HANDLING START ---
@@ -461,7 +458,7 @@ const updateProduct = async (productId, updatedData, files) => {
       const toDelete = Array.isArray(updatedData.imagesToDelete)
         ? updatedData.imagesToDelete
         : [updatedData.imagesToDelete];
-      
+
       toDelete.forEach(deleteOldFile);
       images = images.filter((img) => !toDelete.includes(img));
     }
@@ -474,14 +471,20 @@ const updateProduct = async (productId, updatedData, files) => {
     if (updatedData.variants && Array.isArray(updatedData.variants)) {
       updatedData.variants = updatedData.variants.map((variantData, index) => {
         // Validate attributes
-        if (!variantData.attributes || !Array.isArray(variantData.attributes) || variantData.attributes.length === 0) {
+        if (
+          !variantData.attributes ||
+          !Array.isArray(variantData.attributes) ||
+          variantData.attributes.length === 0
+        ) {
           throw new Error(`Variant at index ${index} requires at least one attribute`);
         }
 
         // Validate each attribute has option and value
         for (const attr of variantData.attributes) {
           if (!attr.option || !attr.value) {
-            throw new Error(`Variant at index ${index} requires option and value for each attribute`);
+            throw new Error(
+              `Variant at index ${index} requires option and value for each attribute`
+            );
           }
         }
 
@@ -491,7 +494,10 @@ const updateProduct = async (productId, updatedData, files) => {
           return v.attributes.every((attr, i) => {
             const inputAttr = variantData.attributes[i];
             // Compare both as strings to handle ObjectId vs string comparison
-            return attr.option.toString() === String(inputAttr.option) && String(attr.value) === String(inputAttr.value);
+            return (
+              attr.option.toString() === String(inputAttr.option) &&
+              String(attr.value) === String(inputAttr.value)
+            );
           });
         });
 
@@ -499,11 +505,16 @@ const updateProduct = async (productId, updatedData, files) => {
           return {
             _id: existingVariant._id,
             attributes: existingVariant.attributes,
-            stock: variantData.stock !== undefined ? Number(variantData.stock) : existingVariant.stock,
-            price: variantData.price !== undefined ? Number(variantData.price) : existingVariant.price,
-            discount: variantData.discount !== undefined 
-              ? (variantData.discount === "" ? null : Number(variantData.discount)) 
-              : existingVariant.discount,
+            stock:
+              variantData.stock !== undefined ? Number(variantData.stock) : existingVariant.stock,
+            price:
+              variantData.price !== undefined ? Number(variantData.price) : existingVariant.price,
+            discount:
+              variantData.discount !== undefined
+                ? variantData.discount === ''
+                  ? null
+                  : Number(variantData.discount)
+                : existingVariant.discount,
           };
         }
 
@@ -513,13 +524,13 @@ const updateProduct = async (productId, updatedData, files) => {
         }
 
         return {
-          attributes: variantData.attributes.map(attr => ({
+          attributes: variantData.attributes.map((attr) => ({
             option: new mongoose.Types.ObjectId(attr.option),
-            value: String(attr.value)
+            value: String(attr.value),
           })),
           price: Number(variantData.price),
           stock: Number(variantData.stock),
-          discount: variantData.discount === "" ? null : Number(variantData.discount) || null,
+          discount: variantData.discount === '' ? null : Number(variantData.discount) || null,
         };
       });
     }
@@ -531,7 +542,7 @@ const updateProduct = async (productId, updatedData, files) => {
 
     return product;
   } catch (error) {
-    console.error("Update failed:", {
+    console.error('Update failed:', {
       error: error.message,
       inputVariants: updatedData.variants,
       existingVariants: product?.variants?.map((v) => ({
@@ -559,12 +570,12 @@ const getSimilarProducts = async (category, excludeId) => {
     })
       .limit(8) // Limiting to 12 products
       .select(
-        "name slug finalDiscount finalPrice finalStock thumbnailImage isActive images productId category variants flags productId freeShipping",
+        'name slug finalDiscount finalPrice finalStock thumbnailImage isActive images productId category variants flags productId freeShipping'
       )
       .populate([
-        { path: "category", select: "-createdAt -updatedAt" },
-        { path: "flags", select: "-createdAt -updatedAt" },
-        { path: "variants.attributes.option", select: "-createdAt -updatedAt" },
+        { path: 'category', select: '-createdAt -updatedAt' },
+        { path: 'flags', select: '-createdAt -updatedAt' },
+        { path: 'variants.attributes.option', select: '-createdAt -updatedAt' },
       ]);
 
     // Randomize the order using a Fisher-Yates shuffle
@@ -572,7 +583,7 @@ const getSimilarProducts = async (category, excludeId) => {
 
     return shuffledProducts;
   } catch (error) {
-    throw new Error("Failed to fetch similar products: " + error.message);
+    throw new Error('Failed to fetch similar products: ' + error.message);
   }
 };
 
@@ -589,39 +600,38 @@ const shuffleArray = (array) => {
 // Get Products Details For Order
 const getProductDetailsService = async ({ productId, variantId }) => {
   if (!productId) {
-    throw { status: 400, message: "⚠️ productId is required!" };
+    throw { status: 400, message: '⚠️ productId is required!' };
   }
 
   const product = await ProductModel.findById(productId).lean();
 
   if (!product) {
-    throw { status: 404, message: "❌ Product not found!" };
+    throw { status: 404, message: '❌ Product not found!' };
   }
 
   // Check if the product has variants
-  const hasVariants =
-    Array.isArray(product.variants) && product.variants.length > 0;
+  const hasVariants = Array.isArray(product.variants) && product.variants.length > 0;
 
   // 🔒 If product has variants but no variantId provided
   if (hasVariants && !variantId) {
     throw {
       status: 400,
-      message: "⚠️ variantId is required for products with variants!",
+      message: '⚠️ variantId is required for products with variants!',
     };
   }
 
   // 👉 If variantId is provided
   if (variantId) {
     const selectedVariant = product.variants.find(
-      (variant) => variant._id.toString() === variantId,
+      (variant) => variant._id.toString() === variantId
     );
 
     if (!selectedVariant) {
-      throw { status: 404, message: "❌ Variant not found!" };
+      throw { status: 404, message: '❌ Variant not found!' };
     }
 
     return {
-      message: "✅ Product variant retrieved successfully!",
+      message: '✅ Product variant retrieved successfully!',
       variant: true,
       data: {
         productId: product._id,
@@ -643,7 +653,7 @@ const getProductDetailsService = async ({ productId, variantId }) => {
 
   // ✅ If product has no variants and no variantId is required
   return {
-    message: "✅ Product (no variant) retrieved successfully!",
+    message: '✅ Product (no variant) retrieved successfully!',
     variant: false,
     data: {
       productId: product._id,
@@ -680,27 +690,27 @@ const getHomePageProducts = async () => {
         .sort({ createdAt: -1 }) // Sort products by newest first
 
         .select(
-          "name slug finalDiscount finalPrice finalStock thumbnailImage isActive images productId category variants flags freeShipping",
+          'name slug finalDiscount finalPrice finalStock thumbnailImage isActive images productId category variants flags freeShipping'
         )
-      .populate([
-        { path: "category", select: "-createdAt -updatedAt" },
-        { path: "flags", select: "-createdAt -updatedAt" },
-        { path: "variants.attributes.option", select: "-createdAt -updatedAt" },
-      ]);
+        .populate([
+          { path: 'category', select: '-createdAt -updatedAt' },
+          { path: 'flags', select: '-createdAt -updatedAt' },
+          { path: 'variants.attributes.option', select: '-createdAt -updatedAt' },
+        ]);
 
       result[flag.name] = products;
     }
 
     return result;
   } catch (error) {
-    throw new Error("Failed to load homepage products: " + error.message);
+    throw new Error('Failed to load homepage products: ' + error.message);
   }
 };
 
 const duplicateProduct = async (productId) => {
   try {
     const originalProduct = await ProductModel.findById(productId);
-    if (!originalProduct) throw new Error("Product not found");
+    if (!originalProduct) throw new Error('Product not found');
 
     const doc = originalProduct.toObject();
 

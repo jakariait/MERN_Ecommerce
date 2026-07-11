@@ -1,6 +1,6 @@
-const mongoose = require("mongoose");
-const CounterModel = require("./BlogCounterModel");
-const slugify = require("slugify");
+const mongoose = require('mongoose');
+const CounterModel = require('./BlogCounterModel');
+const slugify = require('slugify');
 
 const blogSchema = new mongoose.Schema(
   {
@@ -23,17 +23,17 @@ const blogSchema = new mongoose.Schema(
     versionKey: false,
     toJSON: { virtuals: true },
     toObject: { virtuals: true },
-  },
+  }
 );
 
 // Auto-increment productId before validation
-blogSchema.pre("validate", async function (next) {
+blogSchema.pre('validate', async function (next) {
   if (!this.blogId) {
     try {
       const counter = await CounterModel.findOneAndUpdate(
-        { name: "blogId" },
+        { name: 'blogId' },
         { $inc: { value: 1 } },
-        { new: true, upsert: true },
+        { new: true, upsert: true }
       );
       this.blogId = counter.value;
     } catch (err) {
@@ -42,7 +42,7 @@ blogSchema.pre("validate", async function (next) {
   }
 
   // Generate slug when name changes
-  if (this.isModified("name") || this.isNew) {
+  if (this.isModified('name') || this.isNew) {
     this.slug = `${slugify(this.name, { lower: true })}-${this.blogId}`;
   }
 
@@ -51,8 +51,8 @@ blogSchema.pre("validate", async function (next) {
 
 // Indexing for faster queries
 blogSchema.index({ name: 1, slug: 1 });
-blogSchema.index({ name: "text" });
+blogSchema.index({ name: 'text' });
 
-const BlogModel = mongoose.model("Blog", blogSchema);
+const BlogModel = mongoose.model('Blog', blogSchema);
 
 module.exports = BlogModel;

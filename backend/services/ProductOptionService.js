@@ -30,5 +30,5 @@ module.exports = {
   updateProductOption,
   getAllProductOptions,
   getProductOptionById,
-  deleteProductOption
+  deleteProductOption,
 };

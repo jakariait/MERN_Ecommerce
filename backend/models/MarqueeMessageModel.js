@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
 const marqueeMessageSchema = new mongoose.Schema(
   {
@@ -7,7 +7,7 @@ const marqueeMessageSchema = new mongoose.Schema(
       required: true,
       validate: {
         validator: (arr) => arr.length > 0,
-        message: "At least one message is required",
+        message: 'At least one message is required',
       },
     },
     isActive: {
@@ -22,10 +22,10 @@ const marqueeMessageSchema = new mongoose.Schema(
 marqueeMessageSchema.statics.checkIfExists = async function () {
   const count = await this.countDocuments();
   if (count > 1) {
-    throw new Error("Only one marquee message set is allowed");
+    throw new Error('Only one marquee message set is allowed');
   }
 };
 
-const MarqueeMessage = mongoose.model("MarqueeMessage", marqueeMessageSchema);
+const MarqueeMessage = mongoose.model('MarqueeMessage', marqueeMessageSchema);
 
 module.exports = MarqueeMessage;

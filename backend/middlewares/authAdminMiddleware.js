@@ -1,25 +1,22 @@
-const jwt = require("jsonwebtoken");
-const asyncHandler = require("express-async-handler");
-const AdminModel = require("../models/AdminModel");
+const jwt = require('jsonwebtoken');
+const asyncHandler = require('express-async-handler');
+const AdminModel = require('../models/AdminModel');
 
 const adminProtect = asyncHandler(async (req, res, next) => {
   let token;
 
-  if (
-    req.headers.authorization &&
-    req.headers.authorization.startsWith("Bearer")
-  ) {
+  if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
     try {
-      token = req.headers.authorization.split(" ")[1]; // Extract token
+      token = req.headers.authorization.split(' ')[1]; // Extract token
       const decoded = jwt.verify(token, process.env.JWT_SECRET); // Verify token
 
-      req.admin = await AdminModel.findById(decoded.id).select("-password"); // Attach admin to request
+      req.admin = await AdminModel.findById(decoded.id).select('-password'); // Attach admin to request
       next();
     } catch (error) {
-      res.status(401).json({ message: "Not authorized, invalid token" });
+      res.status(401).json({ message: 'Not authorized, invalid token' });
     }
   } else {
-    res.status(401).json({ message: "Not authorized, no token provided" });
+    res.status(401).json({ message: 'Not authorized, no token provided' });
   }
 });
 

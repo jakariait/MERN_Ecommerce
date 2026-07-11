@@ -1,8 +1,8 @@
-const fs = require("fs");
-const path = require("path");
-const FeatureImageModel = require("../models/FeatureImageModel");
+const fs = require('fs');
+const path = require('path');
+const FeatureImageModel = require('../models/FeatureImageModel');
 
-const uploadsDir = path.join(__dirname, "../uploads");
+const uploadsDir = path.join(__dirname, '../uploads');
 
 const deleteOldFile = (filename) => {
   if (filename) {
@@ -27,7 +27,7 @@ const getAllFeatureImages = async () => {
 const getFeatureImageById = async (id) => {
   const featureImage = await FeatureImageModel.findById(id);
   if (!featureImage) {
-    throw new Error("Feature image not found");
+    throw new Error('Feature image not found');
   }
   return featureImage;
 };
@@ -40,7 +40,7 @@ const updateFeatureImage = async (id, title, imgSrc) => {
   // Get existing feature image to check for old file
   const existingFeatureImage = await FeatureImageModel.findById(id);
   if (!existingFeatureImage) {
-    throw new Error("Feature image not found");
+    throw new Error('Feature image not found');
   }
 
   // Update the title if provided
@@ -56,22 +56,18 @@ const updateFeatureImage = async (id, title, imgSrc) => {
 
   // If no update data is provided, throw an error
   if (Object.keys(updateData).length === 0) {
-    throw new Error("No data provided for update");
+    throw new Error('No data provided for update');
   }
 
   // Perform the update
-  const updatedFeatureImage = await FeatureImageModel.findByIdAndUpdate(
-    id,
-    updateData,
-    {
-      new: true, // Return the updated document
-      runValidators: true, // Run schema validators on update
-    },
-  );
+  const updatedFeatureImage = await FeatureImageModel.findByIdAndUpdate(id, updateData, {
+    new: true, // Return the updated document
+    runValidators: true, // Run schema validators on update
+  });
 
   // If no feature image is found, throw an error
   if (!updatedFeatureImage) {
-    throw new Error("Feature image not found");
+    throw new Error('Feature image not found');
   }
 
   // Return the updated feature image
@@ -82,7 +78,7 @@ const updateFeatureImage = async (id, title, imgSrc) => {
 const deleteFeatureImage = async (id) => {
   const deletedFeatureImage = await FeatureImageModel.findById(id);
   if (!deletedFeatureImage) {
-    throw new Error("Feature image not found");
+    throw new Error('Feature image not found');
   }
   deleteOldFile(deletedFeatureImage.imgSrc);
   await FeatureImageModel.findByIdAndDelete(id);

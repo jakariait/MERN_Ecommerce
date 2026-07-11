@@ -6,13 +6,13 @@ const mockClient = {
     else return Promise.resolve(null);
   }),
   set: jest.fn().mockImplementation((key, value, ...args) => {
-    const callback = args.find((a) => typeof a === "function");
-    if (callback) callback(null, "OK");
-    else return Promise.resolve("OK");
+    const callback = args.find((a) => typeof a === 'function');
+    if (callback) callback(null, 'OK');
+    else return Promise.resolve('OK');
   }),
-  setEx: jest.fn().mockResolvedValue("OK"),
+  setEx: jest.fn().mockResolvedValue('OK'),
   del: jest.fn().mockResolvedValue(1),
-  quit: jest.fn().mockResolvedValue("OK"),
+  quit: jest.fn().mockResolvedValue('OK'),
 };
 
 module.exports = {

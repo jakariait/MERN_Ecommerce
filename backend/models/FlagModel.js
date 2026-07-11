@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
 const DataSchema = mongoose.Schema(
   {
@@ -8,7 +8,7 @@ const DataSchema = mongoose.Schema(
       trim: true,
       unique: true,
       collation: {
-        locale: "en",
+        locale: 'en',
         strength: 2, // Case-insensitive comparison
       },
     },
@@ -21,9 +21,9 @@ const DataSchema = mongoose.Schema(
   {
     timestamps: true,
     versionKey: false,
-  },
+  }
 );
 
-const FlagModel = mongoose.model("Flag", DataSchema);
+const FlagModel = mongoose.model('Flag', DataSchema);
 
 module.exports = FlagModel;

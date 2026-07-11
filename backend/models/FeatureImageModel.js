@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
 const DataSchema = mongoose.Schema(
   {
@@ -8,9 +8,9 @@ const DataSchema = mongoose.Schema(
   {
     timestamps: true,
     versionKey: false,
-  },
+  }
 );
 
-const FeatureImageModel = mongoose.model("FeatureImage", DataSchema);
+const FeatureImageModel = mongoose.model('FeatureImage', DataSchema);
 
 module.exports = FeatureImageModel;

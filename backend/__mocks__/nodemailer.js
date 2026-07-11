@@ -1,5 +1,5 @@
 const mockTransport = {
-  sendMail: jest.fn().mockResolvedValue({ messageId: "test-msg-id" }),
+  sendMail: jest.fn().mockResolvedValue({ messageId: 'test-msg-id' }),
 };
 
 const nodemailer = {

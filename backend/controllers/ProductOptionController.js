@@ -5,16 +5,21 @@ const createProductOption = async (req, res) => {
   try {
     const { name, values } = req.body;
     if (!name || !values) {
-      return res.status(400).json({ message: "Name and values are required" });
+      return res.status(400).json({ message: 'Name and values are required' });
     }
     const newProductOption = await productOptionService.createProductOption(name, values);
     return res.status(201).json({
-      message: "Product Option created successfully",
-      productOption: newProductOption
+      message: 'Product Option created successfully',
+      productOption: newProductOption,
     });
   } catch (error) {
     console.error(error);
-    return res.status(500).json({ message: "An error occurred while creating the product option", error: error.message });
+    return res
+      .status(500)
+      .json({
+        message: 'An error occurred while creating the product option',
+        error: error.message,
+      });
   }
 };
 
@@ -24,19 +29,24 @@ const updateProductOption = async (req, res) => {
     const { id } = req.params;
     const { name, values } = req.body;
     if (!name && !values) {
-      return res.status(400).json({ message: "Name or values is required" });
+      return res.status(400).json({ message: 'Name or values is required' });
     }
     const updatedProductOption = await productOptionService.updateProductOption(id, name, values);
     if (!updatedProductOption) {
       return res.status(404).json({ message: 'Product Option not found' });
     }
     return res.status(200).json({
-      message: "Product Option updated successfully",
-      productOption: updatedProductOption
+      message: 'Product Option updated successfully',
+      productOption: updatedProductOption,
     });
   } catch (error) {
     console.error(error);
-    return res.status(500).json({ message: "An error occurred while updating the product option", error: error.message });
+    return res
+      .status(500)
+      .json({
+        message: 'An error occurred while updating the product option',
+        error: error.message,
+      });
   }
 };
 
@@ -45,12 +55,17 @@ const getAllProductOptions = async (req, res) => {
   try {
     const productOptions = await productOptionService.getAllProductOptions();
     return res.status(200).json({
-      message: "Product Options fetched successfully",
-      productOptions
+      message: 'Product Options fetched successfully',
+      productOptions,
     });
   } catch (error) {
     console.error(error);
-    return res.status(500).json({ message: "An error occurred while fetching the product options", error: error.message });
+    return res
+      .status(500)
+      .json({
+        message: 'An error occurred while fetching the product options',
+        error: error.message,
+      });
   }
 };
 
@@ -63,12 +78,17 @@ const getProductOptionById = async (req, res) => {
       return res.status(404).json({ message: 'Product Option not found' });
     }
     return res.status(200).json({
-      message: "Product Option fetched successfully",
-      productOption
+      message: 'Product Option fetched successfully',
+      productOption,
     });
   } catch (error) {
     console.error(error);
-    return res.status(500).json({ message: "An error occurred while fetching the product option", error: error.message });
+    return res
+      .status(500)
+      .json({
+        message: 'An error occurred while fetching the product option',
+        error: error.message,
+      });
   }
 };
 
@@ -82,11 +102,16 @@ const deleteProductOption = async (req, res) => {
     }
     return res.status(200).json({
       message: 'Product Option deleted successfully',
-      productOption: deletedProductOption
+      productOption: deletedProductOption,
     });
   } catch (error) {
     console.error(error);
-    return res.status(500).json({ message: "An error occurred while deleting the product option", error: error.message });
+    return res
+      .status(500)
+      .json({
+        message: 'An error occurred while deleting the product option',
+        error: error.message,
+      });
   }
 };
 
@@ -95,5 +120,5 @@ module.exports = {
   updateProductOption,
   getAllProductOptions,
   getProductOptionById,
-  deleteProductOption
+  deleteProductOption,
 };

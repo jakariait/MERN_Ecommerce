@@ -1,17 +1,17 @@
-const ChildCategory = require("../models/ChildCategoryModel");
+const ChildCategory = require('../models/ChildCategoryModel');
 
 // Create a new child category
 const createChildCategory = async (childCategoryData) => {
   try {
     if (!childCategoryData.name || !childCategoryData.category || !childCategoryData.subCategory) {
-      throw new Error("Name, category, and subcategory are required fields.");
+      throw new Error('Name, category, and subcategory are required fields.');
     }
 
     const childCategory = new ChildCategory(childCategoryData);
     await childCategory.save();
     return childCategory;
   } catch (error) {
-    throw new Error("Error creating child category: " + error.message);
+    throw new Error('Error creating child category: ' + error.message);
   }
 };
 
@@ -19,13 +19,13 @@ const createChildCategory = async (childCategoryData) => {
 const getAllChildCategories = async () => {
   try {
     const childCategories = await ChildCategory.find()
-      .populate("category", "name")
-      .populate("subCategory", "name")
-      .select("-createdAt -updatedAt")
+      .populate('category', 'name')
+      .populate('subCategory', 'name')
+      .select('-createdAt -updatedAt')
       .exec();
     return childCategories;
   } catch (error) {
-    throw new Error("Error fetching child categories: " + error.message);
+    throw new Error('Error fetching child categories: ' + error.message);
   }
 };
 
@@ -33,18 +33,18 @@ const getAllChildCategories = async () => {
 const getChildCategoryById = async (id) => {
   try {
     const childCategory = await ChildCategory.findById(id)
-      .populate("category", "name")
-      .populate("subCategory", "name")
-      .select("-createdAt -updatedAt")
+      .populate('category', 'name')
+      .populate('subCategory', 'name')
+      .select('-createdAt -updatedAt')
       .exec();
 
     if (!childCategory) {
-      throw new Error("Child category not found");
+      throw new Error('Child category not found');
     }
 
     return childCategory;
   } catch (error) {
-    throw new Error("Error fetching child category: " + error.message);
+    throw new Error('Error fetching child category: ' + error.message);
   }
 };
 
@@ -54,16 +54,16 @@ const updateChildCategory = async (id, updatedData) => {
     const childCategory = await ChildCategory.findByIdAndUpdate(id, updatedData, {
       new: true,
     })
-      .populate("category", "name")
-      .populate("subCategory", "name")
-      .select("-createdAt -updatedAt")
+      .populate('category', 'name')
+      .populate('subCategory', 'name')
+      .select('-createdAt -updatedAt')
       .exec();
 
-    if (!childCategory) throw new Error("Child Category not found");
+    if (!childCategory) throw new Error('Child Category not found');
 
     return childCategory;
   } catch (error) {
-    throw new Error("Error updating child category: " + error.message);
+    throw new Error('Error updating child category: ' + error.message);
   }
 };
 
@@ -71,11 +71,11 @@ const updateChildCategory = async (id, updatedData) => {
 const deleteChildCategory = async (id) => {
   try {
     const childCategory = await ChildCategory.findByIdAndDelete(id);
-    if (!childCategory) throw new Error("Child Category not found");
+    if (!childCategory) throw new Error('Child Category not found');
 
-    return { message: "Child Category deleted successfully" };
+    return { message: 'Child Category deleted successfully' };
   } catch (error) {
-    throw new Error("Error deleting child category: " + error.message);
+    throw new Error('Error deleting child category: ' + error.message);
   }
 };
 

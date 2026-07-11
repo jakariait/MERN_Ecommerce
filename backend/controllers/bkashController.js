@@ -1,4 +1,4 @@
-const bkashService = require("../services/bkashService");
+const bkashService = require('../services/bkashService');
 
 const createPayment = async (req, res) => {
   try {
@@ -11,11 +11,10 @@ const createPayment = async (req, res) => {
       bkashURL: data.bkashURL,
     });
   } catch (error) {
-    console.error("Create Payment Error:", error?.response?.data || error.message);
-    res.status(500).json({ error: "Failed to create payment" });
+    console.error('Create Payment Error:', error?.response?.data || error.message);
+    res.status(500).json({ error: 'Failed to create payment' });
   }
 };
-
 
 const executePayment = async (req, res) => {
   try {
@@ -24,8 +23,8 @@ const executePayment = async (req, res) => {
 
     res.status(200).json(data);
   } catch (error) {
-    console.error("Execute Payment Error:", error?.response?.data || error.message);
-    res.status(500).json({ error: "Failed to execute payment" });
+    console.error('Execute Payment Error:', error?.response?.data || error.message);
+    res.status(500).json({ error: 'Failed to execute payment' });
   }
 };
 
@@ -35,12 +34,12 @@ const queryPaymentStatus = async (req, res) => {
 
   if (!paymentID) {
     return res.status(400).json({
-      error: "PaymentID is required to query the payment status",
+      error: 'PaymentID is required to query the payment status',
     });
   }
 
   try {
-    const paymentStatus = await bkashService.queryPayment(paymentID);  // Corrected this line
+    const paymentStatus = await bkashService.queryPayment(paymentID); // Corrected this line
 
     if (paymentStatus.error) {
       return res.status(500).json({
@@ -50,9 +49,9 @@ const queryPaymentStatus = async (req, res) => {
 
     return res.status(200).json(paymentStatus);
   } catch (error) {
-    console.error("Error querying payment status:", error);
+    console.error('Error querying payment status:', error);
     return res.status(500).json({
-      error: "Failed to query payment status",
+      error: 'Failed to query payment status',
     });
   }
 };
@@ -60,5 +59,5 @@ const queryPaymentStatus = async (req, res) => {
 module.exports = {
   createPayment,
   executePayment,
-  queryPaymentStatus
+  queryPaymentStatus,
 };

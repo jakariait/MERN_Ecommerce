@@ -1,8 +1,8 @@
-const fs = require("fs");
-const path = require("path");
-const CarouselModel = require("../models/CarouselModel");
+const fs = require('fs');
+const path = require('path');
+const CarouselModel = require('../models/CarouselModel');
 
-const uploadsDir = path.join(__dirname, "../uploads");
+const uploadsDir = path.join(__dirname, '../uploads');
 
 const deleteOldFile = (filename) => {
   if (filename) {

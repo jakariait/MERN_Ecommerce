@@ -1,10 +1,10 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
 const orderSchema = new mongoose.Schema(
   {
     userId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
+      ref: 'User',
       required: false, // ✅ Guest orders allowed
     },
 
@@ -26,42 +26,35 @@ const orderSchema = new mongoose.Schema(
 
     orderStatus: {
       type: String,
-      enum: [
-        "pending",
-        "approved",
-        "intransit",
-        "delivered",
-        "returned",
-        "cancelled",
-      ],
-      default: "pending",
+      enum: ['pending', 'approved', 'intransit', 'delivered', 'returned', 'cancelled'],
+      default: 'pending',
     },
 
     orderSource: {
       type: String,
-      enum: ["web", "admin"],
-      default: "web",
+      enum: ['web', 'admin'],
+      default: 'web',
       required: true,
     },
 
     deliveryMethod: {
       type: String,
-      enum: ["home_delivery"],
+      enum: ['home_delivery'],
       required: true,
-      default: "home_delivery",
+      default: 'home_delivery',
     },
 
     paymentMethod: {
       type: String,
-      enum: ["cash_on_delivery", "bkash", "nagad", "card"],
+      enum: ['cash_on_delivery', 'bkash', 'nagad', 'card'],
       required: true,
-      default: "cash_on_delivery",
+      default: 'cash_on_delivery',
     },
 
     paymentStatus: {
       type: String,
-      enum: ["unpaid", "paid"],
-      default: "unpaid",
+      enum: ['unpaid', 'paid'],
+      default: 'unpaid',
     },
 
     shippingInfo: {
@@ -75,18 +68,18 @@ const orderSchema = new mongoose.Schema(
       fullName: { type: String },
       address: { type: String },
     },
-    
+
     paymentId: {
       type: String,
     },
     items: [
       {
-        productId: { type: mongoose.Schema.Types.ObjectId, ref: "Product" },
+        productId: { type: mongoose.Schema.Types.ObjectId, ref: 'Product' },
         variantId: { type: mongoose.Schema.Types.ObjectId },
         quantity: {
           type: Number,
           required: true,
-          min: [1, "Quantity must be at least 1"],
+          min: [1, 'Quantity must be at least 1'],
         },
         price: { type: Number, required: true },
       },
@@ -95,7 +88,7 @@ const orderSchema = new mongoose.Schema(
     rewardPointsUsed: {
       type: Number,
       default: 0,
-      min: [0, "Reward points used cannot be negative"],
+      min: [0, 'Reward points used cannot be negative'],
     },
 
     promoCode: {
@@ -105,64 +98,64 @@ const orderSchema = new mongoose.Schema(
     promoDiscount: {
       type: Number,
       default: 0,
-      min: [0, "Promo discount cannot be negative"],
+      min: [0, 'Promo discount cannot be negative'],
     },
 
     vat: {
       type: Number,
       default: 0,
-      min: [0, "VAT cannot be negative"],
+      min: [0, 'VAT cannot be negative'],
     },
 
     deliveryCharge: {
       type: Number,
       required: true,
-      min: [0, "Delivery charge must be greater than or equal to 0"],
+      min: [0, 'Delivery charge must be greater than or equal to 0'],
     },
 
     shippingId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Shipping",
+      ref: 'Shipping',
       required: true,
     },
 
     specialDiscount: {
       type: Number,
       default: 0,
-      min: [0, "Special discount cannot be negative"],
+      min: [0, 'Special discount cannot be negative'],
     },
 
     subtotalAmount: {
       type: Number,
       required: true, // before discount + delivery
-      min: [0, "Subtotal amount must be greater than or equal to 0"],
+      min: [0, 'Subtotal amount must be greater than or equal to 0'],
     },
 
     totalAmount: {
       type: Number,
       required: true,
-      min: [0, "Total amount must be greater than or equal to 0"],
+      min: [0, 'Total amount must be greater than or equal to 0'],
     },
 
     advanceAmount: {
       type: Number,
       default: 0,
-      min: [0, "Advance amount cannot be negative"],
+      min: [0, 'Advance amount cannot be negative'],
     },
     dueAmount: {
       type: Number,
-      min: [0, "Due amount must be greater than or equal to 0"],
+      min: [0, 'Due amount must be greater than or equal to 0'],
     },
 
     rewardPointsEarned: {
       type: Number,
       default: 0,
-      min: [0, "Reward points earned cannot be negative"],
+      min: [0, 'Reward points earned cannot be negative'],
     },
 
     adminNote: {
       type: String,
-      default: "",
+      default: '',
     },
 
     sentToCourier: {
@@ -172,20 +165,20 @@ const orderSchema = new mongoose.Schema(
 
     courierProvider: {
       type: String,
-      enum: ["pathao", "steadfast"],
+      enum: ['pathao', 'steadfast'],
     },
 
     courierConsignmentId: {
       type: String,
     },
   },
-  { timestamps: true, versionKey: false },
+  { timestamps: true, versionKey: false }
 );
 
 // Custom validation logic
-orderSchema.pre("save", function (next) {
+orderSchema.pre('save', function (next) {
   if (this.subtotalAmount < 0) {
-    return next(new Error("Subtotal amount cannot be less than 0"));
+    return next(new Error('Subtotal amount cannot be less than 0'));
   }
 
   this.totalAmount =
@@ -200,40 +193,29 @@ orderSchema.pre("save", function (next) {
   next();
 });
 
-orderSchema.pre("findOneAndUpdate", async function (next) {
+orderSchema.pre('findOneAndUpdate', async function (next) {
   try {
     const update = this.getUpdate();
     if (!update) return next();
 
     const order = await this.model.findOne(this.getQuery());
     if (!order) {
-      return next(new Error("Order not found"));
+      return next(new Error('Order not found'));
     }
 
     const subtotalAmount =
-      update.subtotalAmount !== undefined
-        ? update.subtotalAmount
-        : order.subtotalAmount;
+      update.subtotalAmount !== undefined ? update.subtotalAmount : order.subtotalAmount;
     const promoDiscount =
-      update.promoDiscount !== undefined
-        ? update.promoDiscount
-        : order.promoDiscount;
+      update.promoDiscount !== undefined ? update.promoDiscount : order.promoDiscount;
     const specialDiscount =
-      update.specialDiscount !== undefined
-        ? update.specialDiscount
-        : order.specialDiscount;
+      update.specialDiscount !== undefined ? update.specialDiscount : order.specialDiscount;
     const deliveryCharge =
-      update.deliveryCharge !== undefined
-        ? update.deliveryCharge
-        : order.deliveryCharge;
+      update.deliveryCharge !== undefined ? update.deliveryCharge : order.deliveryCharge;
     const vat = update.vat !== undefined ? update.vat : order.vat;
     const advanceAmount =
-      update.advanceAmount !== undefined
-        ? update.advanceAmount
-        : order.advanceAmount || 0;
+      update.advanceAmount !== undefined ? update.advanceAmount : order.advanceAmount || 0;
 
-    const totalAmount =
-      subtotalAmount - promoDiscount - specialDiscount + deliveryCharge + vat;
+    const totalAmount = subtotalAmount - promoDiscount - specialDiscount + deliveryCharge + vat;
     const dueAmount = totalAmount - advanceAmount;
 
     update.totalAmount = totalAmount;
@@ -249,8 +231,8 @@ orderSchema.pre("findOneAndUpdate", async function (next) {
 
 // Add indexes for fields frequently queried
 orderSchema.index({ orderStatus: 1 });
-orderSchema.index({ "shippingInfo.fullName": 1 });
-orderSchema.index({ "shippingInfo.mobileNo": 1 });
-orderSchema.index({ "shippingInfo.email": 1 });
+orderSchema.index({ 'shippingInfo.fullName': 1 });
+orderSchema.index({ 'shippingInfo.mobileNo': 1 });
+orderSchema.index({ 'shippingInfo.email': 1 });
 
-module.exports = mongoose.model("Order", orderSchema);
+module.exports = mongoose.model('Order', orderSchema);

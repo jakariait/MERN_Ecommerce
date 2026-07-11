@@ -60,9 +60,6 @@ const deleteContact = async (req, res) => {
   }
 };
 
-
-
-
 module.exports = {
   createContact,
   getAllContacts,

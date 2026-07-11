@@ -1,4 +1,4 @@
-const FreeDeliveryAmount = require("../models/FreeDeliveryAmount");
+const FreeDeliveryAmount = require('../models/FreeDeliveryAmount');
 
 const getAmount = async () => {
   try {
@@ -8,7 +8,7 @@ const getAmount = async () => {
     }
     return doc;
   } catch (error) {
-    throw new Error("Failed to fetch free delivery amount.");
+    throw new Error('Failed to fetch free delivery amount.');
   }
 };
 
@@ -23,7 +23,7 @@ const updateAmount = async (newValue) => {
     }
     return doc;
   } catch (error) {
-    throw new Error("Failed to update free delivery amount.");
+    throw new Error('Failed to update free delivery amount.');
   }
 };
 

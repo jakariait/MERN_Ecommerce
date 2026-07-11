@@ -1,11 +1,11 @@
-const blogService = require("../services/BlogService");
+const blogService = require('../services/BlogService');
 
 // Create a new blog
 const createBlog = async (req, res) => {
   try {
     // ✅ Ensure the file is uploaded
     if (!req.files || !req.files.thumbnailImage) {
-      return res.status(400).json({ message: "Thumbnail image is required" });
+      return res.status(400).json({ message: 'Thumbnail image is required' });
     }
 
     // ✅ Get filename only (not full path)
@@ -18,12 +18,12 @@ const createBlog = async (req, res) => {
     const blog = await blogService.createBlog(req.body);
 
     res.status(201).json({
-      message: "✅ Blog created successfully",
+      message: '✅ Blog created successfully',
       data: blog,
     });
   } catch (err) {
     res.status(500).json({
-      message: "❌ Failed to create blog",
+      message: '❌ Failed to create blog',
       error: err.message,
     });
   }
@@ -39,7 +39,7 @@ const getAllBlogs = async (req, res) => {
     // Build filters object
     const filters = {};
     if (req.query.isActive !== undefined) {
-      filters.isActive = req.query.isActive === "true";
+      filters.isActive = req.query.isActive === 'true';
     }
 
     const [blogs, total] = await Promise.all([
@@ -48,7 +48,7 @@ const getAllBlogs = async (req, res) => {
     ]);
 
     res.status(200).json({
-      message: "✅ Blogs fetched successfully",
+      message: '✅ Blogs fetched successfully',
       currentPage: page,
       totalPages: Math.ceil(total / limit),
       totalItems: total,
@@ -56,9 +56,7 @@ const getAllBlogs = async (req, res) => {
       data: blogs,
     });
   } catch (err) {
-    res
-      .status(500)
-      .json({ message: "Failed to fetch blogs", error: err.message });
+    res.status(500).json({ message: 'Failed to fetch blogs', error: err.message });
   }
 };
 
@@ -75,7 +73,7 @@ const getActiveBlogs = async (req, res) => {
     ]);
 
     res.status(200).json({
-      message: "✅ Active blogs fetched successfully",
+      message: '✅ Active blogs fetched successfully',
       currentPage: page,
       totalPages: Math.ceil(total / limit),
       totalItems: total,
@@ -83,9 +81,7 @@ const getActiveBlogs = async (req, res) => {
       data: blogs,
     });
   } catch (err) {
-    res
-      .status(500)
-      .json({ message: "Failed to fetch active blogs", error: err.message });
+    res.status(500).json({ message: 'Failed to fetch active blogs', error: err.message });
   }
 };
 
@@ -94,18 +90,14 @@ const getBlogBySlug = async (req, res) => {
   try {
     const blog = await blogService.getBlogBySlug(req.params.slug);
     if (!blog) {
-      return res
-        .status(404)
-        .json({ message: "Blog not found with given slug" });
+      return res.status(404).json({ message: 'Blog not found with given slug' });
     }
     res.status(200).json({
-      message: "✅ Blog fetched successfully by slug",
+      message: '✅ Blog fetched successfully by slug',
       data: blog,
     });
   } catch (err) {
-    res
-      .status(500)
-      .json({ message: "Failed to fetch blog by slug", error: err.message });
+    res.status(500).json({ message: 'Failed to fetch blog by slug', error: err.message });
   }
 };
 
@@ -114,16 +106,14 @@ const getBlogById = async (req, res) => {
   try {
     const blog = await blogService.getBlogById(req.params.id);
     if (!blog) {
-      return res.status(404).json({ message: "Blog not found with given ID" });
+      return res.status(404).json({ message: 'Blog not found with given ID' });
     }
     res.status(200).json({
-      message: "✅ Blog fetched successfully by ID",
+      message: '✅ Blog fetched successfully by ID',
       data: blog,
     });
   } catch (err) {
-    res
-      .status(500)
-      .json({ message: "Failed to fetch blog by ID", error: err.message });
+    res.status(500).json({ message: 'Failed to fetch blog by ID', error: err.message });
   }
 };
 
@@ -131,26 +121,20 @@ const getBlogById = async (req, res) => {
 const updateBlog = async (req, res) => {
   try {
     // If new thumbnail image is uploaded, it will be in req.files.thumbnailImage (array)
-    if (
-      req.files &&
-      req.files.thumbnailImage &&
-      req.files.thumbnailImage.length > 0
-    ) {
+    if (req.files && req.files.thumbnailImage && req.files.thumbnailImage.length > 0) {
       req.body.thumbnailImage = req.files.thumbnailImage[0].filename;
     }
 
     const blog = await blogService.updateBlog(req.params.id, req.body);
     if (!blog) {
-      return res.status(404).json({ message: "Blog not found to update" });
+      return res.status(404).json({ message: 'Blog not found to update' });
     }
     res.status(200).json({
-      message: "✅ Blog updated successfully",
+      message: '✅ Blog updated successfully',
       data: blog,
     });
   } catch (err) {
-    res
-      .status(500)
-      .json({ message: "Failed to update blog", error: err.message });
+    res.status(500).json({ message: 'Failed to update blog', error: err.message });
   }
 };
 
@@ -159,15 +143,13 @@ const deleteBlog = async (req, res) => {
   try {
     const blog = await blogService.deleteBlog(req.params.id);
     if (!blog) {
-      return res.status(404).json({ message: "Blog not found to delete" });
+      return res.status(404).json({ message: 'Blog not found to delete' });
     }
     res.status(200).json({
-      message: "✅ Blog deleted successfully",
+      message: '✅ Blog deleted successfully',
     });
   } catch (err) {
-    res
-      .status(500)
-      .json({ message: "Failed to delete blog", error: err.message });
+    res.status(500).json({ message: 'Failed to delete blog', error: err.message });
   }
 };
 

@@ -1,4 +1,4 @@
-const SocialMediaLinkService = require("../services/SocialMediaLinkService");
+const SocialMediaLinkService = require('../services/SocialMediaLinkService');
 
 // Get the social media link
 const getSocialMedia = async (req, res) => {
@@ -6,11 +6,11 @@ const getSocialMedia = async (req, res) => {
     const socialMedia = await SocialMediaLinkService.getSocialMediaLink();
     if (!socialMedia) {
       return res.status(404).json({
-        message: "No social media link found",
+        message: 'No social media link found',
       });
     }
     res.status(200).json({
-      message: "Social media link fetched successfully!",
+      message: 'Social media link fetched successfully!',
       data: socialMedia,
     });
   } catch (error) {
@@ -21,15 +21,14 @@ const getSocialMedia = async (req, res) => {
 // Update the social media link
 const updateSocialMedia = async (req, res) => {
   try {
-    const updatedSocialMedia =
-      await SocialMediaLinkService.updateSocialMediaLink(req.body);
+    const updatedSocialMedia = await SocialMediaLinkService.updateSocialMediaLink(req.body);
     if (!updatedSocialMedia) {
       return res.status(404).json({
-        message: "No social media link found to update",
+        message: 'No social media link found to update',
       });
     }
     res.status(200).json({
-      message: "Social media link updated successfully!",
+      message: 'Social media link updated successfully!',
       data: updatedSocialMedia,
     });
   } catch (error) {

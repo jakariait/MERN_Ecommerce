@@ -1,4 +1,4 @@
-const steadfastService = require("../services/SteadfastConfigService");
+const steadfastService = require('../services/SteadfastConfigService');
 
 exports.getConfig = async (req, res) => {
   try {

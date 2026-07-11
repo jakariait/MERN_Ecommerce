@@ -1,5 +1,5 @@
-const axios = require("axios");
-const { getPathaoConfig, updatePathaoConfig } = require("./pathaoConfigService");
+const axios = require('axios');
+const { getPathaoConfig, updatePathaoConfig } = require('./pathaoConfigService');
 
 const issueToken = async () => {
   const config = await getPathaoConfig();
@@ -10,7 +10,7 @@ const issueToken = async () => {
     client_secret: clientSecret,
     username,
     password,
-    grant_type: "password",
+    grant_type: 'password',
   });
 
   const { access_token, refresh_token, expires_in } = response.data;
@@ -32,7 +32,7 @@ const refreshToken = async () => {
     client_id: clientId,
     client_secret: clientSecret,
     refresh_token: refreshToken,
-    grant_type: "refresh_token",
+    grant_type: 'refresh_token',
   });
 
   const { access_token, refresh_token, expires_in } = response.data;
@@ -67,123 +67,130 @@ const getAccessToken = async () => {
 };
 
 const getCities = async () => {
-    const config = await getPathaoConfig();
-    const accessToken = await getAccessToken();
-    const response = await axios.get(`${config.baseUrl}/aladdin/api/v1/city-list`, {
-        headers: {
-            Authorization: `Bearer ${accessToken}`,
-            "Content-Type": "application/json",
-        },
-    });
-    return response.data;
+  const config = await getPathaoConfig();
+  const accessToken = await getAccessToken();
+  const response = await axios.get(`${config.baseUrl}/aladdin/api/v1/city-list`, {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      'Content-Type': 'application/json',
+    },
+  });
+  return response.data;
 };
 
 const getZones = async (cityId) => {
-    const config = await getPathaoConfig();
-    const accessToken = await getAccessToken();
-    const response = await axios.get(`${config.baseUrl}/aladdin/api/v1/cities/${cityId}/zone-list`, {
-        headers: {
-            Authorization: `Bearer ${accessToken}`,
-            "Content-Type": "application/json",
-        },
-    });
-    return response.data;
+  const config = await getPathaoConfig();
+  const accessToken = await getAccessToken();
+  const response = await axios.get(`${config.baseUrl}/aladdin/api/v1/cities/${cityId}/zone-list`, {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      'Content-Type': 'application/json',
+    },
+  });
+  return response.data;
 };
 
 const getAreas = async (zoneId) => {
-    const config = await getPathaoConfig();
-    const accessToken = await getAccessToken();
-    const response = await axios.get(`${config.baseUrl}/aladdin/api/v1/zones/${zoneId}/area-list`, {
-        headers: {
-            Authorization: `Bearer ${accessToken}`,
-            "Content-Type": "application/json",
-        },
-    });
-    return response.data;
+  const config = await getPathaoConfig();
+  const accessToken = await getAccessToken();
+  const response = await axios.get(`${config.baseUrl}/aladdin/api/v1/zones/${zoneId}/area-list`, {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      'Content-Type': 'application/json',
+    },
+  });
+  return response.data;
 };
 
 const getStores = async () => {
-    const config = await getPathaoConfig();
-    const accessToken = await getAccessToken();
-    const response = await axios.get(`${config.baseUrl}/aladdin/api/v1/stores`, {
-        headers: {
-            Authorization: `Bearer ${accessToken}`,
-            "Content-Type": "application/json",
-        },
-    });
-    return response.data;
+  const config = await getPathaoConfig();
+  const accessToken = await getAccessToken();
+  const response = await axios.get(`${config.baseUrl}/aladdin/api/v1/stores`, {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      'Content-Type': 'application/json',
+    },
+  });
+  return response.data;
 };
 
 const createStore = async (storeData) => {
-    const config = await getPathaoConfig();
-    const accessToken = await getAccessToken();
-    const response = await axios.post(`${config.baseUrl}/aladdin/api/v1/stores`, storeData, {
-        headers: {
-            Authorization: `Bearer ${accessToken}`,
-            "Content-Type": "application/json",
-        },
-    });
-    return response.data;
+  const config = await getPathaoConfig();
+  const accessToken = await getAccessToken();
+  const response = await axios.post(`${config.baseUrl}/aladdin/api/v1/stores`, storeData, {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      'Content-Type': 'application/json',
+    },
+  });
+  return response.data;
 };
 
 const createOrder = async (orderData) => {
-    const config = await getPathaoConfig();
-    const accessToken = await getAccessToken();
-    const response = await axios.post(`${config.baseUrl}/aladdin/api/v1/orders`, orderData, {
-        headers: {
-            Authorization: `Bearer ${accessToken}`,
-            "Content-Type": "application/json",
-        },
-    });
+  const config = await getPathaoConfig();
+  const accessToken = await getAccessToken();
+  const response = await axios.post(`${config.baseUrl}/aladdin/api/v1/orders`, orderData, {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      'Content-Type': 'application/json',
+    },
+  });
 
-    if (response.data.type === 'error') {
-        const error = new Error(response.data.message || 'Pathao API Error');
-        error.details = response.data.errors;
-        throw error;
-    }
+  if (response.data.type === 'error') {
+    const error = new Error(response.data.message || 'Pathao API Error');
+    error.details = response.data.errors;
+    throw error;
+  }
 
-    return response.data;
+  return response.data;
 };
 
 const createBulkOrder = async (ordersData) => {
-    const config = await getPathaoConfig();
-    const accessToken = await getAccessToken();
-    const response = await axios.post(`${config.baseUrl}/aladdin/api/v1/orders/bulk`, ordersData, {
-        headers: {
-            Authorization: `Bearer ${accessToken}`,
-            "Content-Type": "application/json",
-        },
-    });
-    return response.data;
+  const config = await getPathaoConfig();
+  const accessToken = await getAccessToken();
+  const response = await axios.post(`${config.baseUrl}/aladdin/api/v1/orders/bulk`, ordersData, {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      'Content-Type': 'application/json',
+    },
+  });
+  return response.data;
 };
 
 const getOrderInfo = async (consignmentId) => {
-    const config = await getPathaoConfig();
-    const accessToken = await getAccessToken();
-    const response = await axios.get(`${config.baseUrl}/aladdin/api/v1/orders/${consignmentId}/info`, {
-        headers: {
-            Authorization: `Bearer ${accessToken}`,
-            "Content-Type": "application/json",
-        },
-    });
-    return response.data;
+  const config = await getPathaoConfig();
+  const accessToken = await getAccessToken();
+  const response = await axios.get(
+    `${config.baseUrl}/aladdin/api/v1/orders/${consignmentId}/info`,
+    {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+    }
+  );
+  return response.data;
 };
 
 const calculatePrice = async (priceData) => {
-    const config = await getPathaoConfig();
-    const accessToken = await getAccessToken();
-    const response = await axios.post(`${config.baseUrl}/aladdin/api/v1/merchant/price-plan`, priceData, {
-        headers: {
-            Authorization: `Bearer ${accessToken}`,
-            "Content-Type": "application/json",
-        },
-    });
-    return response.data;
+  const config = await getPathaoConfig();
+  const accessToken = await getAccessToken();
+  const response = await axios.post(
+    `${config.baseUrl}/aladdin/api/v1/merchant/price-plan`,
+    priceData,
+    {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+    }
+  );
+  return response.data;
 };
 
 const getPathaoOrderStatus = async (consignmentId) => {
-    // This function can be expanded later to format or simplify the response
-    return await getOrderInfo(consignmentId);
+  // This function can be expanded later to format or simplify the response
+  return await getOrderInfo(consignmentId);
 };
 
 module.exports = {

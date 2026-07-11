@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
 const DataSchema = mongoose.Schema(
   {
@@ -7,9 +7,9 @@ const DataSchema = mongoose.Schema(
   {
     timestamps: true,
     versionKey: false,
-  },
+  }
 );
 
-const CarouselModel = mongoose.model("Carousel", DataSchema);
+const CarouselModel = mongoose.model('Carousel', DataSchema);
 
 module.exports = CarouselModel;

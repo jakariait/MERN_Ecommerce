@@ -1,4 +1,4 @@
-const couponService = require("../services/CouponService");
+const couponService = require('../services/CouponService');
 
 const createCoupon = async (req, res) => {
   try {
@@ -32,7 +32,7 @@ const updateCoupon = async (req, res) => {
   try {
     const { message, data } = await couponService.updateCoupon(req.params.id, req.body);
     if (!data) {
-      return res.status(404).json({ success: false, message: "Coupon not found." });
+      return res.status(404).json({ success: false, message: 'Coupon not found.' });
     }
     res.status(200).json({ success: true, message, data });
   } catch (err) {
@@ -44,7 +44,7 @@ const deleteCoupon = async (req, res) => {
   try {
     const { message, data } = await couponService.deleteCoupon(req.params.id);
     if (!data) {
-      return res.status(404).json({ success: false, message: "Coupon not found." });
+      return res.status(404).json({ success: false, message: 'Coupon not found.' });
     }
     res.status(200).json({ success: true, message });
   } catch (err) {

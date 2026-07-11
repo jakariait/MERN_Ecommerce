@@ -1,12 +1,12 @@
-const mongoose = require("mongoose");
-const Order = require("../models/OrderModel");
-const Product = require("../models/ProductModel");
-const OrderCounter = require("../models/OrderCounterModel");
-const VatPercentage = require("../models/VatPercentage"); // adjust path as needed
-const Shipping = require("../models/ShippingModel");
-const FreeDeliveryAmount = require("../models/FreeDeliveryAmount");
-const User = require("../models/UserModel");
-const Coupon = require("../models/CouponModel");
+const mongoose = require('mongoose');
+const Order = require('../models/OrderModel');
+const Product = require('../models/ProductModel');
+const OrderCounter = require('../models/OrderCounterModel');
+const VatPercentage = require('../models/VatPercentage'); // adjust path as needed
+const Shipping = require('../models/ShippingModel');
+const FreeDeliveryAmount = require('../models/FreeDeliveryAmount');
+const User = require('../models/UserModel');
+const Coupon = require('../models/CouponModel');
 
 const createOrder = async (orderData, userId) => {
   try {
@@ -14,16 +14,16 @@ const createOrder = async (orderData, userId) => {
     let user = null;
     if (userId) {
       user = await User.findById(userId);
-      if (!user) throw new Error("User not found");
+      if (!user) throw new Error('User not found');
     }
 
     // Generate order number
     const counter = await OrderCounter.findOneAndUpdate(
-      { id: "order" },
+      { id: 'order' },
       { $inc: { seq: 1 } },
-      { new: true, upsert: true },
+      { new: true, upsert: true }
     );
-    const orderNo = String(counter.seq).padStart(6, "0");
+    const orderNo = String(counter.seq).padStart(6, '0');
 
     // Get VAT
     const vatEntry = await VatPercentage.findOne().sort({ createdAt: -1 });
@@ -38,7 +38,7 @@ const createOrder = async (orderData, userId) => {
       const { productId, variantId, quantity } = item;
 
       const product = await Product.findById(productId);
-      if (!product) throw new Error("Product not found");
+      if (!product) throw new Error('Product not found');
 
       if (product.freeShipping) {
         hasFreeShippingProduct = true;
@@ -47,25 +47,18 @@ const createOrder = async (orderData, userId) => {
       let price, stock;
 
       if (product.variants.length === 0) {
-        price =
-          product.finalDiscount > 0
-            ? product.finalDiscount
-            : product.finalPrice;
+        price = product.finalDiscount > 0 ? product.finalDiscount : product.finalPrice;
         stock = product.finalStock;
 
-        if (stock < quantity)
-          throw new Error(`Not enough stock for product ${productId}`);
+        if (stock < quantity) throw new Error(`Not enough stock for product ${productId}`);
 
         product.finalStock -= quantity;
         await product.save();
       } else {
-        const variant = product.variants.find(
-          (v) => v._id.toString() === variantId,
-        );
-        if (!variant) throw new Error("Variant not found");
+        const variant = product.variants.find((v) => v._id.toString() === variantId);
+        if (!variant) throw new Error('Variant not found');
 
-        if (variant.stock < quantity)
-          throw new Error(`Not enough stock for variant ${variantId}`);
+        if (variant.stock < quantity) throw new Error(`Not enough stock for variant ${variantId}`);
 
         price = variant.discount || variant.price;
 
@@ -79,7 +72,7 @@ const createOrder = async (orderData, userId) => {
 
     // Handle shipping
     const shippingMethod = await Shipping.findById(orderData.shippingId);
-    if (!shippingMethod) throw new Error("Invalid shipping method");
+    if (!shippingMethod) throw new Error('Invalid shipping method');
 
     const freeDelivery = await FreeDeliveryAmount.findOne().sort({
       createdAt: -1,
@@ -87,8 +80,7 @@ const createOrder = async (orderData, userId) => {
     const freeDeliveryThreshold = freeDelivery ? freeDelivery.value : 0;
 
     const deliveryCharge =
-      hasFreeShippingProduct ||
-      (freeDeliveryThreshold > 0 && subtotal >= freeDeliveryThreshold)
+      hasFreeShippingProduct || (freeDeliveryThreshold > 0 && subtotal >= freeDeliveryThreshold)
         ? 0
         : shippingMethod.value;
 
@@ -99,21 +91,19 @@ const createOrder = async (orderData, userId) => {
     if (appliedCouponCode) {
       const coupon = await Coupon.findOne({
         code: appliedCouponCode.toUpperCase(),
-        status: "active",
+        status: 'active',
         startDate: { $lte: new Date() },
         endDate: { $gte: new Date() },
       });
 
-      if (!coupon) throw new Error("Invalid or expired promo code");
+      if (!coupon) throw new Error('Invalid or expired promo code');
 
       if (subtotal < coupon.minimumOrder)
-        throw new Error(
-          `Minimum order amount for this coupon is ৳${coupon.minimumOrder}`,
-        );
+        throw new Error(`Minimum order amount for this coupon is ৳${coupon.minimumOrder}`);
 
-      if (coupon.type === "percentage") {
+      if (coupon.type === 'percentage') {
         promoDiscount = Math.floor((coupon.value / 100) * subtotal);
-      } else if (coupon.type === "amount") {
+      } else if (coupon.type === 'amount') {
         promoDiscount = coupon.value;
       }
 
@@ -143,7 +133,7 @@ const createOrder = async (orderData, userId) => {
       rewardPointsUsed,
       specialDiscount: orderData.specialDiscount || 0,
       rewardPointsEarned: 0,
-      adminNote: orderData.adminNote || "",
+      adminNote: orderData.adminNote || '',
     });
 
     const savedOrder = await newOrder.save();
@@ -154,14 +144,7 @@ const createOrder = async (orderData, userId) => {
   }
 };
 
-const getAllOrders = async (
-  filter = {},
-  page,
-  limit,
-  search = "",
-  startDate,
-  endDate,
-) => {
+const getAllOrders = async (filter = {}, page, limit, search = '', startDate, endDate) => {
   try {
     let queryFilter = { ...filter };
 
@@ -180,13 +163,13 @@ const getAllOrders = async (
     }
 
     if (search && search.trim()) {
-      const searchRegex = new RegExp(search.trim(), "i");
+      const searchRegex = new RegExp(search.trim(), 'i');
       queryFilter.$or = [
         { orderNo: searchRegex },
-        { "shippingInfo.fullName": searchRegex },
-        { "shippingInfo.mobileNo": searchRegex },
-        { "shippingInfo.email": searchRegex },
-        { "shippingInfo.address": searchRegex },
+        { 'shippingInfo.fullName': searchRegex },
+        { 'shippingInfo.mobileNo': searchRegex },
+        { 'shippingInfo.email': searchRegex },
+        { 'shippingInfo.address': searchRegex },
       ];
     }
 
@@ -224,8 +207,8 @@ const getAllOrders = async (
       currentPage,
     };
   } catch (error) {
-    console.error("Error in getAllOrders:", error);
-    throw new Error("Error fetching orders: " + error.message);
+    console.error('Error in getAllOrders:', error);
+    throw new Error('Error fetching orders: ' + error.message);
   }
 };
 
@@ -233,30 +216,30 @@ const getAllOrders = async (
 const getOrderById = async (orderId) => {
   try {
     const order = await Order.findById(orderId)
-      .populate("userId")
+      .populate('userId')
       .populate({
-        path: "items.productId",
+        path: 'items.productId',
         select:
-          "-sizeChart -longDesc -shortDesc -shippingReturn -videoUrl -flags -metaTitle -metaDescription -metaKeywords -searchTags",
+          '-sizeChart -longDesc -shortDesc -shippingReturn -videoUrl -flags -metaTitle -metaDescription -metaKeywords -searchTags',
         populate: [
           {
-            path: "category",
-            select: "name", // Only bring category name
+            path: 'category',
+            select: 'name', // Only bring category name
           },
           {
-            path: "variants.attributes.option",
-            select: "name",
-          }
+            path: 'variants.attributes.option',
+            select: 'name',
+          },
         ],
       })
       .populate({
-        path: "items.variantId",
+        path: 'items.variantId',
       })
       .sort({ createdAt: -1 })
       .lean();
 
     if (!order) {
-      throw new Error("Order not found");
+      throw new Error('Order not found');
     }
 
     // Filter and structure variants for each item
@@ -266,7 +249,7 @@ const getOrderById = async (orderId) => {
       }
 
       const matchedVariant = item.productId.variants.find(
-        (variant) => variant._id.toString() === item.variantId.toString(),
+        (variant) => variant._id.toString() === item.variantId.toString()
       );
 
       return {
@@ -282,7 +265,7 @@ const getOrderById = async (orderId) => {
 
     return order;
   } catch (error) {
-    throw new Error("Error fetching order by ID: " + error.message);
+    throw new Error('Error fetching order by ID: ' + error.message);
   }
 };
 
@@ -290,7 +273,7 @@ const updateOrder = async (orderId, updateData) => {
   try {
     const existingOrder = await Order.findById(orderId);
     if (!existingOrder) {
-      throw new Error("Order not found");
+      throw new Error('Order not found');
     }
 
     const finalUpdate = { ...updateData };
@@ -302,28 +285,18 @@ const updateOrder = async (orderId, updateData) => {
 
       // Create maps for old and new items for efficient lookup
       const newItemsMap = new Map(
-        finalUpdate.items.map((item) => [
-          (item.variantId || item.productId).toString(),
-          item,
-        ]),
+        finalUpdate.items.map((item) => [(item.variantId || item.productId).toString(), item])
       );
       const oldItemsMap = new Map(
-        existingOrder.items.map((item) => [
-          (item.variantId || item.productId).toString(),
-          item,
-        ]),
+        existingOrder.items.map((item) => [(item.variantId || item.productId).toString(), item])
       );
-      const allItemKeys = new Set([
-        ...newItemsMap.keys(),
-        ...oldItemsMap.keys(),
-      ]);
+      const allItemKeys = new Set([...newItemsMap.keys(), ...oldItemsMap.keys()]);
 
       // First pass: Fetch all products and run checks against in-memory state
       for (const itemKey of allItemKeys) {
         const oldItem = oldItemsMap.get(itemKey);
         const newItem = newItemsMap.get(itemKey);
-        const quantityChange =
-          (oldItem ? oldItem.quantity : 0) - (newItem ? newItem.quantity : 0);
+        const quantityChange = (oldItem ? oldItem.quantity : 0) - (newItem ? newItem.quantity : 0);
 
         if (quantityChange === 0) {
           if (newItem) subtotal += newItem.price * newItem.quantity;
@@ -336,7 +309,7 @@ const updateOrder = async (orderId, updateData) => {
         let product = productsToUpdate.get(productIdStr);
         if (!product) {
           product = await Product.findById(itemForStock.productId);
-          if (!product) throw new Error("Product not found");
+          if (!product) throw new Error('Product not found');
           productsToUpdate.set(productIdStr, product);
         }
 
@@ -344,17 +317,12 @@ const updateOrder = async (orderId, updateData) => {
 
         if (hasVariants) {
           if (!itemForStock.variantId) {
-            throw new Error(
-              `Product ${product.name} has variants, but variantId is missing.`,
-            );
+            throw new Error(`Product ${product.name} has variants, but variantId is missing.`);
           }
           const variant = product.variants.find(
-            (v) => v._id.toString() === itemForStock.variantId.toString(),
+            (v) => v._id.toString() === itemForStock.variantId.toString()
           );
-          if (!variant)
-            throw new Error(
-              `Variant not found for id ${itemForStock.variantId}`,
-            );
+          if (!variant) throw new Error(`Variant not found for id ${itemForStock.variantId}`);
 
           if (quantityChange < 0 && variant.stock < -quantityChange) {
             throw new Error(`Not enough stock for variant ${variant.name}`);
@@ -363,9 +331,7 @@ const updateOrder = async (orderId, updateData) => {
           variant.stock += quantityChange;
         } else {
           if (itemForStock.variantId) {
-            throw new Error(
-              `Product ${product.name} has no variants, but variantId was provided.`,
-            );
+            throw new Error(`Product ${product.name} has no variants, but variantId was provided.`);
           }
           if (quantityChange < 0 && product.finalStock < -quantityChange) {
             throw new Error(`Not enough stock for product ${product.name}`);
@@ -394,17 +360,15 @@ const updateOrder = async (orderId, updateData) => {
       new: true,
     });
     if (!updatedOrder) {
-      throw new Error("Order not found after update");
+      throw new Error('Order not found after update');
     }
 
     // Stock adjustment for status changes (only if items were not updated in this call)
     if (!finalUpdate.items && finalUpdate.orderStatus) {
       const isNowReturnedOrCancelled =
-        updatedOrder.orderStatus === "returned" ||
-        updatedOrder.orderStatus === "cancelled";
+        updatedOrder.orderStatus === 'returned' || updatedOrder.orderStatus === 'cancelled';
       const wasNotReturnedOrCancelled =
-        existingOrder.orderStatus !== "returned" &&
-        existingOrder.orderStatus !== "cancelled";
+        existingOrder.orderStatus !== 'returned' && existingOrder.orderStatus !== 'cancelled';
 
       if (isNowReturnedOrCancelled && wasNotReturnedOrCancelled) {
         for (const item of updatedOrder.items) {
@@ -413,9 +377,7 @@ const updateOrder = async (orderId, updateData) => {
           if (!product) continue; // Or throw an error
 
           if (variantId) {
-            const variant = product.variants.find(
-              (v) => v._id.toString() === variantId.toString(),
-            );
+            const variant = product.variants.find((v) => v._id.toString() === variantId.toString());
             if (variant) {
               variant.stock += quantity;
             }
@@ -427,11 +389,8 @@ const updateOrder = async (orderId, updateData) => {
       }
 
       const isRevertingToActiveStatus =
-        (existingOrder.orderStatus === "returned" ||
-          existingOrder.orderStatus === "cancelled") &&
-        ["pending", "approved", "intransit", "delivered"].includes(
-          updatedOrder.orderStatus,
-        );
+        (existingOrder.orderStatus === 'returned' || existingOrder.orderStatus === 'cancelled') &&
+        ['pending', 'approved', 'intransit', 'delivered'].includes(updatedOrder.orderStatus);
 
       if (isRevertingToActiveStatus) {
         for (const item of updatedOrder.items) {
@@ -440,9 +399,7 @@ const updateOrder = async (orderId, updateData) => {
           if (!product) continue; // Or throw an error
 
           if (variantId) {
-            const variant = product.variants.find(
-              (v) => v._id.toString() === variantId.toString(),
-            );
+            const variant = product.variants.find((v) => v._id.toString() === variantId.toString());
             if (variant) {
               variant.stock -= quantity;
             }
@@ -454,11 +411,8 @@ const updateOrder = async (orderId, updateData) => {
       }
     }
 
-    if (
-      updatedOrder.orderStatus === "delivered" &&
-      existingOrder.orderStatus !== "delivered"
-    ) {
-      updatedOrder.paymentStatus = "paid";
+    if (updatedOrder.orderStatus === 'delivered' && existingOrder.orderStatus !== 'delivered') {
+      updatedOrder.paymentStatus = 'paid';
       await updatedOrder.save();
     }
 
@@ -470,7 +424,7 @@ const updateOrder = async (orderId, updateData) => {
       updatedOrder: result,
     };
   } catch (error) {
-    throw new Error("Error updating order: " + error.message);
+    throw new Error('Error updating order: ' + error.message);
   }
 };
 
@@ -479,10 +433,10 @@ const deleteOrder = async (orderId) => {
   try {
     // Find the order by ID
     const order = await Order.findById(orderId)
-      .populate("items.productId")
-      .populate("items.variantId");
+      .populate('items.productId')
+      .populate('items.variantId');
 
-    if (!order) throw new Error("Order not found");
+    if (!order) throw new Error('Order not found');
 
     // Restore stock for each item in the order
     for (const item of order.items) {
@@ -497,11 +451,8 @@ const deleteOrder = async (orderId) => {
         await product.save();
       } else {
         // If the product has variants, find the specific variant and restore the stock
-        const variant = product.variants.find(
-          (v) => v._id.toString() === variantId.toString(),
-        );
-        if (!variant)
-          throw new Error(`Variant not found for product ${productId}`);
+        const variant = product.variants.find((v) => v._id.toString() === variantId.toString());
+        if (!variant) throw new Error(`Variant not found for product ${productId}`);
 
         variant.stock += quantity;
         await product.save();
@@ -511,42 +462,40 @@ const deleteOrder = async (orderId) => {
     // Delete the order after updating stock
     await Order.findByIdAndDelete(orderId);
 
-    return { message: "Order deleted successfully, stock updated" };
+    return { message: 'Order deleted successfully, stock updated' };
   } catch (error) {
     // Abort the transaction if there's an error
-    throw new Error(
-      "Error deleting order and updating stock: " + error.message,
-    );
+    throw new Error('Error deleting order and updating stock: ' + error.message);
   }
 };
 
 const getOrderByOrderNo = async (orderNo) => {
   try {
     const order = await Order.findOne({ orderNo })
-      .populate("userId")
+      .populate('userId')
       .populate({
-        path: "items.productId",
+        path: 'items.productId',
         select:
-          "-sizeChart -longDesc -shortDesc -shippingReturn -videoUrl -flags -metaTitle -metaDescription -metaKeywords -searchTags",
+          '-sizeChart -longDesc -shortDesc -shippingReturn -videoUrl -flags -metaTitle -metaDescription -metaKeywords -searchTags',
         populate: [
           {
-            path: "category",
-            select: "name",
+            path: 'category',
+            select: 'name',
           },
           {
-            path: "variants.attributes.option",
-            select: "name",
+            path: 'variants.attributes.option',
+            select: 'name',
           },
         ],
       })
       .populate({
-        path: "items.variantId",
+        path: 'items.variantId',
       })
       .sort({ createdAt: -1 })
       .lean();
 
     if (!order) {
-      throw new Error("Order not found");
+      throw new Error('Order not found');
     }
 
     // Filter and structure variants for each item
@@ -555,7 +504,7 @@ const getOrderByOrderNo = async (orderNo) => {
         return item;
       }
       const matchedVariant = item.productId.variants.find(
-        (variant) => variant._id.toString() === item.variantId.toString(),
+        (variant) => variant._id.toString() === item.variantId.toString()
       );
 
       return {
@@ -570,7 +519,7 @@ const getOrderByOrderNo = async (orderNo) => {
 
     return order;
   } catch (error) {
-    throw new Error("Error fetching order by orderNo: " + error.message);
+    throw new Error('Error fetching order by orderNo: ' + error.message);
   }
 };
 
@@ -578,22 +527,22 @@ const getOrdersByUserId = async (userId) => {
   try {
     const orders = await Order.find({ userId })
       .populate({
-        path: "items.productId",
+        path: 'items.productId',
         select:
-          "-sizeChart -longDesc -shortDesc -shippingReturn -videoUrl -flags -metaTitle -metaDescription -metaKeywords -searchTags",
+          '-sizeChart -longDesc -shortDesc -shippingReturn -videoUrl -flags -metaTitle -metaDescription -metaKeywords -searchTags',
         populate: [
           {
-            path: "category",
-            select: "name",
+            path: 'category',
+            select: 'name',
           },
           {
-            path: "variants.attributes.option",
-            select: "name",
+            path: 'variants.attributes.option',
+            select: 'name',
           },
         ],
       })
       .populate({
-        path: "items.variantId",
+        path: 'items.variantId',
       })
       .sort({ createdAt: -1 })
       .lean();
@@ -601,7 +550,7 @@ const getOrdersByUserId = async (userId) => {
     const totalOrders = orders.length;
 
     if (totalOrders === 0) {
-      throw new Error("No orders found for this user");
+      throw new Error('No orders found for this user');
     }
 
     // Clean up and structure variants for all orders
@@ -611,7 +560,7 @@ const getOrdersByUserId = async (userId) => {
           return item;
         }
         const matchedVariant = item.productId.variants.find(
-          (variant) => variant._id.toString() === item.variantId.toString(),
+          (variant) => variant._id.toString() === item.variantId.toString()
         );
 
         return {
@@ -631,51 +580,49 @@ const getOrdersByUserId = async (userId) => {
       orders: updatedOrders,
     };
   } catch (error) {
-    throw new Error("Error fetching orders by userId: " + error.message);
+    throw new Error('Error fetching orders by userId: ' + error.message);
   }
 };
 
 const trackOrderByOrderNoAndPhone = async (orderNo, phone) => {
   const order = await Order.findOne({ orderNo })
-    .populate("userId", "phone")
+    .populate('userId', 'phone')
     .populate({
-      path: "items.productId",
+      path: 'items.productId',
       select:
-        "-sizeChart -longDesc -shortDesc -shippingReturn -videoUrl -flags -metaTitle -metaDescription -metaKeywords -searchTags",
+        '-sizeChart -longDesc -shortDesc -shippingReturn -videoUrl -flags -metaTitle -metaDescription -metaKeywords -searchTags',
       populate: [
         {
-          path: "category",
-          select: "name",
+          path: 'category',
+          select: 'name',
         },
         {
-          path: "variants.attributes.option",
-          select: "name",
+          path: 'variants.attributes.option',
+          select: 'name',
         },
       ],
     })
-    .populate("items.variantId")
+    .populate('items.variantId')
     .lean();
 
   if (!order) {
-    throw new Error("Order not found");
+    throw new Error('Order not found');
   }
 
   // Get phone from userId or shippingInfo or fallback to order.phone
-  const storedPhone =
-    order.userId?.phone || order.shippingInfo?.mobileNo || order.phone;
+  const storedPhone = order.userId?.phone || order.shippingInfo?.mobileNo || order.phone;
 
-  const normalize = (num) =>
-    (num || "").replace(/[^0-9]/g, "").replace(/^88/, "");
+  const normalize = (num) => (num || '').replace(/[^0-9]/g, '').replace(/^88/, '');
 
   if (normalize(storedPhone) !== normalize(phone)) {
-    throw new Error("Phone number does not match order");
+    throw new Error('Phone number does not match order');
   }
 
   // Structure variants for each item
   order.items = order.items.map((item) => {
     if (item.productId?.variants && item.variantId) {
       const matchedVariant = item.productId.variants.find(
-        (variant) => variant._id.toString() === item.variantId.toString(),
+        (variant) => variant._id.toString() === item.variantId.toString()
       );
 
       return {
@@ -737,34 +684,34 @@ const getCustomersFromOrders = async (search, page, limit) => {
     const pipeline = [
       {
         $group: {
-          _id: "$shippingInfo.mobileNo",
-          fullName: { $last: "$shippingInfo.fullName" },
-          email: { $last: "$shippingInfo.email" },
-          address: { $last: "$shippingInfo.address" },
-          phone: { $last: "$shippingInfo.mobileNo" },
-          lastOrderDate: { $last: "$createdAt" },
+          _id: '$shippingInfo.mobileNo',
+          fullName: { $last: '$shippingInfo.fullName' },
+          email: { $last: '$shippingInfo.email' },
+          address: { $last: '$shippingInfo.address' },
+          phone: { $last: '$shippingInfo.mobileNo' },
+          lastOrderDate: { $last: '$createdAt' },
           orderCount: { $sum: 1 },
-          totalSpent: { $sum: "$totalAmount" },
+          totalSpent: { $sum: '$totalAmount' },
         },
       },
       { $sort: { lastOrderDate: -1 } },
     ];
 
     if (search && search.trim()) {
-      const searchRegex = new RegExp(search.trim(), "i");
+      const searchRegex = new RegExp(search.trim(), 'i');
       pipeline.unshift({
         $match: {
           $or: [
-            { "shippingInfo.fullName": searchRegex },
-            { "shippingInfo.mobileNo": searchRegex },
-            { "shippingInfo.email": searchRegex },
-            { "shippingInfo.address": searchRegex },
+            { 'shippingInfo.fullName': searchRegex },
+            { 'shippingInfo.mobileNo': searchRegex },
+            { 'shippingInfo.email': searchRegex },
+            { 'shippingInfo.address': searchRegex },
           ],
         },
       });
     }
 
-    const countPipeline = [...pipeline, { $count: "total" }];
+    const countPipeline = [...pipeline, { $count: 'total' }];
     const countResult = await Order.aggregate(countPipeline);
     const totalCustomers = countResult[0]?.total || 0;
 
@@ -778,32 +725,30 @@ const getCustomersFromOrders = async (search, page, limit) => {
 
     const customers = await Order.aggregate(pipeline);
 
-    const totalPages = usePagination
-      ? Math.ceil(totalCustomers / parseInt(limit))
-      : null;
+    const totalPages = usePagination ? Math.ceil(totalCustomers / parseInt(limit)) : null;
     const currentPage = usePagination ? parseInt(page) : null;
 
     return { customers, totalCustomers, totalPages, currentPage };
   } catch (error) {
-    throw new Error("Error fetching customers from orders: " + error.message);
+    throw new Error('Error fetching customers from orders: ' + error.message);
   }
 };
 
 const getOrdersByPhone = async (phone) => {
   try {
-    const orders = await Order.find({ "shippingInfo.mobileNo": phone })
+    const orders = await Order.find({ 'shippingInfo.mobileNo': phone })
       .populate({
-        path: "items.productId",
-        select: "name finalPrice finalDiscount finalStock variants images",
+        path: 'items.productId',
+        select: 'name finalPrice finalDiscount finalStock variants images',
       })
       .populate({
-        path: "items.variantId",
+        path: 'items.variantId',
       })
       .sort({ createdAt: -1 })
       .lean();
     return orders;
   } catch (error) {
-    throw new Error("Error fetching orders by phone: " + error.message);
+    throw new Error('Error fetching orders by phone: ' + error.message);
   }
 };
 

@@ -1,4 +1,4 @@
-const featureImageService = require("../services/featureImageService");
+const featureImageService = require('../services/featureImageService');
 
 // Controller for creating a feature image
 const createFeatureImage = async (req, res) => {
@@ -7,7 +7,7 @@ const createFeatureImage = async (req, res) => {
 
     // Check if a file was uploaded
     if (!req.files || !req.files.imgSrc) {
-      throw new Error("Image file is required");
+      throw new Error('Image file is required');
     }
 
     // Get the filename of the uploaded file
@@ -19,7 +19,7 @@ const createFeatureImage = async (req, res) => {
     // Send success response
     res.status(201).json({
       success: true,
-      message: "Feature image created successfully",
+      message: 'Feature image created successfully',
       data: newFeatureImage,
     });
   } catch (error) {
@@ -37,7 +37,7 @@ const getAllFeatureImages = async (req, res) => {
     // Send success response
     res.status(200).json({
       success: true,
-      message: "Feature images retrieved successfully",
+      message: 'Feature images retrieved successfully',
       data: featureImages,
     });
   } catch (error) {
@@ -57,12 +57,12 @@ const getFeatureImageById = async (req, res) => {
     // Send success response
     res.status(200).json({
       success: true,
-      message: "Feature image retrieved successfully",
+      message: 'Feature image retrieved successfully',
       data: featureImage,
     });
   } catch (error) {
     // Handle errors
-    if (error.message === "Feature image not found") {
+    if (error.message === 'Feature image not found') {
       res.status(404).json({ success: false, message: error.message });
     } else {
       res.status(400).json({ success: false, message: error.message });
@@ -87,12 +87,15 @@ const updateFeatureImage = async (req, res) => {
     // Send success response
     res.status(200).json({
       success: true,
-      message: "Feature image updated successfully",
+      message: 'Feature image updated successfully',
       data: updatedFeatureImage,
     });
   } catch (error) {
     // Handle errors
-    if (error.message === "Feature image not found" || error.message === "No data provided for update") {
+    if (
+      error.message === 'Feature image not found' ||
+      error.message === 'No data provided for update'
+    ) {
       res.status(400).json({ success: false, message: error.message });
     } else {
       res.status(500).json({ success: false, message: error.message });
@@ -111,12 +114,12 @@ const deleteFeatureImage = async (req, res) => {
     // Send success response
     res.status(200).json({
       success: true,
-      message: "Feature image deleted successfully",
+      message: 'Feature image deleted successfully',
       data: result,
     });
   } catch (error) {
     // Handle errors
-    if (error.message === "Feature image not found") {
+    if (error.message === 'Feature image not found') {
       res.status(404).json({ success: false, message: error.message });
     } else {
       res.status(500).json({ success: false, message: error.message });

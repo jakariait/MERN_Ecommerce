@@ -1,10 +1,10 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
 const googleTagManagerSchema = new mongoose.Schema(
   {
     googleTagManagerId: {
       type: String,
-      default: "",
+      default: '',
     },
     isActive: {
       type: Boolean,
@@ -17,6 +17,6 @@ const googleTagManagerSchema = new mongoose.Schema(
   }
 );
 
-const GoogleTagManager = mongoose.model("GoogleTagManager", googleTagManagerSchema);
+const GoogleTagManager = mongoose.model('GoogleTagManager', googleTagManagerSchema);
 
 module.exports = GoogleTagManager;

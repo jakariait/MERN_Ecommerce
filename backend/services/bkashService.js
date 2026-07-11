@@ -177,9 +177,9 @@
 //   queryPayment,
 // };
 
-const axios = require("axios");
-const { v4: uuidv4 } = require("uuid");
-const BkashConfig = require("../models/BkashConfigModel"); // your Mongoose model
+const axios = require('axios');
+const { v4: uuidv4 } = require('uuid');
+const BkashConfig = require('../models/BkashConfigModel'); // your Mongoose model
 
 let tokenCache = {
   token: null,
@@ -230,7 +230,7 @@ const getBkashConfig = async () => {
     const config = await BkashConfig.findOne({ isActive: true });
 
     if (!config) {
-      throw new Error("No active bKash config found in DB");
+      throw new Error('No active bKash config found in DB');
     }
 
     // Cache config for 10 minutes
@@ -239,7 +239,7 @@ const getBkashConfig = async () => {
 
     return config;
   } catch (error) {
-    console.error("Failed to fetch bKash config from DB:", error.message);
+    console.error('Failed to fetch bKash config from DB:', error.message);
     throw error;
   }
 };
@@ -252,8 +252,8 @@ const tokenParameters = (config) => ({
 
 // Token request headers builder
 const tokenHeaders = (config) => ({
-  "Content-Type": "application/json",
-  Accept: "application/json",
+  'Content-Type': 'application/json',
+  Accept: 'application/json',
   username: config.username,
   password: config.password,
 });
@@ -262,10 +262,10 @@ const tokenHeaders = (config) => ({
 const authHeaders = async () => {
   const config = await getBkashConfig();
   return {
-    "Content-Type": "application/json",
-    Accept: "application/json",
+    'Content-Type': 'application/json',
+    Accept: 'application/json',
     Authorization: `Bearer ${await getToken()}`,
-    "X-App-Key": config.appKey,
+    'X-App-Key': config.appKey,
   };
 };
 
@@ -289,7 +289,7 @@ const getToken = async () => {
     const { id_token, expires_in } = response.data;
 
     if (!id_token) {
-      console.error("No id_token received from bKash API");
+      console.error('No id_token received from bKash API');
       return null;
     }
 
@@ -298,64 +298,55 @@ const getToken = async () => {
 
     return id_token;
   } catch (error) {
-    console.error(
-      "Error fetching token:",
-      error?.response?.data || error.message,
-    );
-    throw new Error("Failed to fetch token");
+    console.error('Error fetching token:', error?.response?.data || error.message);
+    throw new Error('Failed to fetch token');
   }
 };
 
 // Create payment request
-const createPayment = async (
-  amount,
-  payerReference = "guestUser",
-  callbackURL,
-) => {
+const createPayment = async (amount, payerReference = 'guestUser', callbackURL) => {
   try {
     if (!amount || amount < 1) {
       return {
         statusCode: 400,
-        message: "Amount is required and must be at least 1 BDT",
+        message: 'Amount is required and must be at least 1 BDT',
       };
     }
 
     const config = await getBkashConfig();
 
     const payload = {
-      mode: "0011",
+      mode: '0011',
       payerReference,
       callbackURL,
       amount,
-      currency: "BDT",
-      intent: "sale",
-      merchantInvoiceNumber: "Inv" + uuidv4().substring(0, 6),
+      currency: 'BDT',
+      intent: 'sale',
+      merchantInvoiceNumber: 'Inv' + uuidv4().substring(0, 6),
     };
 
-    const response = await axios.post(
-      `${config.baseUrl}/tokenized/checkout/create`,
-      payload,
-      { headers: await authHeaders() },
-    );
+    const response = await axios.post(`${config.baseUrl}/tokenized/checkout/create`, payload, {
+      headers: await authHeaders(),
+    });
 
     return response.data;
   } catch (error) {
     if (error.response) {
-      console.error("Create Payment Error - response:", error.response.data);
+      console.error('Create Payment Error - response:', error.response.data);
     } else if (error.request) {
-      console.error("Create Payment Error - no response:", error.request);
+      console.error('Create Payment Error - no response:', error.request);
     } else {
-      console.error("Create Payment Error - general:", error.message);
+      console.error('Create Payment Error - general:', error.message);
     }
 
-    throw new Error("Failed to create payment");
+    throw new Error('Failed to create payment');
   }
 };
 
 // Execute payment request
 const executePayment = async (paymentID) => {
   if (!paymentID) {
-    return { error: "PaymentID is required to execute the payment" };
+    return { error: 'PaymentID is required to execute the payment' };
   }
 
   try {
@@ -363,26 +354,21 @@ const executePayment = async (paymentID) => {
 
     const payload = { paymentID };
 
-    const response = await axios.post(
-      `${config.baseUrl}/tokenized/checkout/execute`,
-      payload,
-      { headers: await authHeaders() },
-    );
+    const response = await axios.post(`${config.baseUrl}/tokenized/checkout/execute`, payload, {
+      headers: await authHeaders(),
+    });
 
     return response.data;
   } catch (error) {
-    console.error(
-      "Execute Payment Error:",
-      error?.response?.data || error.message,
-    );
-    return { error: "Failed to execute payment" };
+    console.error('Execute Payment Error:', error?.response?.data || error.message);
+    return { error: 'Failed to execute payment' };
   }
 };
 
 // Query Payment Request
 const queryPayment = async (paymentID) => {
   if (!paymentID) {
-    return { error: "PaymentID is required to query the payment status" };
+    return { error: 'PaymentID is required to query the payment status' };
   }
 
   try {
@@ -393,20 +379,17 @@ const queryPayment = async (paymentID) => {
 
     const response = await axios.post(url, payload, {
       headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
         Authorization: `Bearer ${await getToken()}`,
-        "X-App-Key": config.appKey,
+        'X-App-Key': config.appKey,
       },
     });
 
     return response.data;
   } catch (error) {
-    console.error(
-      "Error querying payment status:",
-      error?.response?.data || error.message,
-    );
-    return { error: "Failed to query payment status" };
+    console.error('Error querying payment status:', error?.response?.data || error.message);
+    return { error: 'Failed to query payment status' };
   }
 };
 

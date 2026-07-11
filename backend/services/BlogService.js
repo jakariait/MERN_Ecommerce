@@ -1,8 +1,8 @@
-const fs = require("fs");
-const path = require("path");
-const BlogModel = require("../models/BlogModel");
+const fs = require('fs');
+const path = require('path');
+const BlogModel = require('../models/BlogModel');
 
-const uploadsDir = path.join(__dirname, "../uploads");
+const uploadsDir = path.join(__dirname, '../uploads');
 
 const deleteOldFile = (filename) => {
   if (filename) {
@@ -21,13 +21,13 @@ const createBlog = (data) => {
 
 // Get all blogs with optional filters (no pagination)
 const getAllBlogs = (filters = {}) => {
-  return BlogModel.find(filters).select("-longDesc").sort({ createdAt: -1 });
+  return BlogModel.find(filters).select('-longDesc').sort({ createdAt: -1 });
 };
 
 // Get paginated blogs with filters
 const getPaginatedBlogs = (filters = {}, skip = 0, limit = 10) => {
   return BlogModel.find(filters)
-    .select("-longDesc")
+    .select('-longDesc')
     .sort({ createdAt: -1 })
     .skip(skip)
     .limit(limit);
@@ -41,7 +41,7 @@ const getTotalBlogCount = (filters = {}) => {
 // Get only active blogs with pagination
 const getActiveBlogs = (skip = 0, limit = 10) => {
   return BlogModel.find({ isActive: true })
-    .select("-longDesc")
+    .select('-longDesc')
     .sort({ createdAt: -1 })
     .skip(skip)
     .limit(limit);

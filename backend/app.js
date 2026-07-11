@@ -1,18 +1,18 @@
-require("dotenv").config(); // Load environment variables
+require('dotenv').config(); // Load environment variables
 
-const express = require("express");
-const rateLimit = require("express-rate-limit");
-const helmet = require("helmet");
-const hpp = require("hpp");
-const cors = require("cors");
-const cookieParser = require("cookie-parser");
-const mongoose = require("mongoose");
-const path = require("path");
-const compression = require("compression");
-const mongoSanitize = require("./middlewares/mongoSanitize");
-const xssMiddleware = require("./middlewares/xssMiddleware");
+const express = require('express');
+const rateLimit = require('express-rate-limit');
+const helmet = require('helmet');
+const hpp = require('hpp');
+const cors = require('cors');
+const cookieParser = require('cookie-parser');
+const mongoose = require('mongoose');
+const path = require('path');
+const compression = require('compression');
+const mongoSanitize = require('./middlewares/mongoSanitize');
+const xssMiddleware = require('./middlewares/xssMiddleware');
 
-const router = require("./routes/api");
+const router = require('./routes/api');
 
 const app = express();
 
@@ -21,7 +21,7 @@ const app = express();
 // ---------------------------
 const URL = process.env.MONGO_URI;
 if (!URL || !process.env.CLIENT_URL) {
-  console.error("❌ Missing required environment variables");
+  console.error('❌ Missing required environment variables');
   process.exit(1);
 }
 
@@ -32,22 +32,22 @@ mongoose
     serverSelectionTimeoutMS: 5000,
     socketTimeoutMS: 45000,
   })
-  .then(() => console.log("Database Connected"))
-  .catch((err) => console.log("DB Connection Error:", err));
+  .then(() => console.log('Database Connected'))
+  .catch((err) => console.log('DB Connection Error:', err));
 
 // ---------------------------
 // CORS Configuration
 // ---------------------------
 const clientUrl = process.env.CLIENT_URL
-  ? process.env.CLIENT_URL.split(",").map((url) => url.replace(/\/$/, ""))
+  ? process.env.CLIENT_URL.split(',').map((url) => url.replace(/\/$/, ''))
   : [];
 
 const corsOptions = {
   origin: clientUrl,
-  methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   credentials: true,
-  allowedHeaders: ["Content-Type", "Authorization"],
-  exposedHeaders: ["Content-Length", "X-Favicon"],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  exposedHeaders: ['Content-Length', 'X-Favicon'],
 };
 
 // ---------------------------
@@ -55,10 +55,10 @@ const corsOptions = {
 // ---------------------------
 
 // Trust proxy (needed for rate limiting behind proxies)
-app.set("trust proxy", 1);
+app.set('trust proxy', 1);
 
 // Static file serving
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Compression
 app.use(compression());
@@ -84,8 +84,8 @@ app.use(xssMiddleware);
 // ---------------------------
 // Body Parsers
 // ---------------------------
-app.use(express.json({ limit: "50mb" }));
-app.use(express.urlencoded({ extended: true, limit: "50mb" }));
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
 // ---------------------------
 // Rate Limiting
@@ -99,13 +99,13 @@ app.use(limiter);
 // ---------------------------
 // Routes
 // ---------------------------
-app.use("/api/", router);
+app.use('/api/', router);
 
 // ---------------------------
 // Multer Error Handler
 // ---------------------------
 app.use((err, req, res, next) => {
-  if (err.name === "MulterError" || err.message?.includes("Invalid file type")) {
+  if (err.name === 'MulterError' || err.message?.includes('Invalid file type')) {
     return res.status(400).json({ message: err.message });
   }
   next(err);

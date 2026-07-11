@@ -1,4 +1,4 @@
-const MarqueeMessage = require("../models/MarqueeMessageModel");
+const MarqueeMessage = require('../models/MarqueeMessageModel');
 
 const getActiveMessages = async () => {
   // Get the first document from the collection

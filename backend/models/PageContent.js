@@ -1,16 +1,10 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
 const pageContentSchema = new mongoose.Schema(
   {
     page: {
       type: String,
-      enum: [
-        "about",
-        "terms",
-        "privacy",
-        "refund",
-        "shipping"
-      ],
+      enum: ['about', 'terms', 'privacy', 'refund', 'shipping'],
       required: true,
       unique: true,
     },
@@ -25,5 +19,5 @@ const pageContentSchema = new mongoose.Schema(
   }
 );
 
-const PageContent = mongoose.model("PageContent", pageContentSchema);
+const PageContent = mongoose.model('PageContent', pageContentSchema);
 module.exports = PageContent;

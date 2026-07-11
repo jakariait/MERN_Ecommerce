@@ -1,10 +1,10 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
 const DataSchema = mongoose.Schema(
   {
-    PrimaryLogo: { type: String},
-    SecondaryLogo: { type: String},
-    Favicon: { type: String},
+    PrimaryLogo: { type: String },
+    SecondaryLogo: { type: String },
+    Favicon: { type: String },
     CompanyName: { type: String },
     PhoneNumber: { type: [String] },
     CompanyEmail: { type: [String] },
@@ -21,10 +21,9 @@ const DataSchema = mongoose.Schema(
   {
     timestamps: true,
     versionKey: false,
-  },
+  }
 );
 
-const GeneralInfoModel = mongoose.model("GeneralInfo", DataSchema);
+const GeneralInfoModel = mongoose.model('GeneralInfo', DataSchema);
 
 module.exports = GeneralInfoModel;
-

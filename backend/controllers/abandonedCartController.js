@@ -1,9 +1,8 @@
-const abandonedCartService = require("../services/abandonedCartService");
+const abandonedCartService = require('../services/abandonedCartService');
 
 const createAbandonedCart = async (req, res) => {
   try {
-    const { number, cartItems, userId, fullName, email, address, totalAmount } =
-      req.body;
+    const { number, cartItems, userId, fullName, email, address, totalAmount } = req.body;
 
     if (!number || !cartItems || cartItems.length === 0) {
       return res.status(400).json({
@@ -25,40 +24,47 @@ const createAbandonedCart = async (req, res) => {
 
     return res.status(201).json({
       success: true,
-      message: "Abandoned cart created successfully.",
+      message: 'Abandoned cart created successfully.',
       data: savedCart,
     });
   } catch (error) {
     return res.status(500).json({
       success: false,
-      message: "Failed to create abandoned cart.",
+      message: 'Failed to create abandoned cart.',
       error: error.message,
     });
   }
 };
 
-
 const getAllAbandonedCarts = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
-    const sort = req.query.sort || "desc";
-    const status = req.query.status || "all";
-    const search = req.query.search || "";
+    const sort = req.query.sort || 'desc';
+    const status = req.query.status || 'all';
+    const search = req.query.search || '';
     const startDate = req.query.startDate || null;
     const endDate = req.query.endDate || null;
 
-    const carts = await abandonedCartService.getAllAbandonedCarts(page, limit, sort, status, search, startDate, endDate);
+    const carts = await abandonedCartService.getAllAbandonedCarts(
+      page,
+      limit,
+      sort,
+      status,
+      search,
+      startDate,
+      endDate
+    );
 
     return res.status(200).json({
       success: true,
-      message: "Abandoned carts retrieved successfully.",
+      message: 'Abandoned carts retrieved successfully.',
       data: carts,
     });
   } catch (error) {
     return res.status(500).json({
       success: false,
-      message: "Failed to retrieve abandoned carts.",
+      message: 'Failed to retrieve abandoned carts.',
       error: error.message,
     });
   }
@@ -70,39 +76,36 @@ const getAbandonedCartStats = async (req, res) => {
 
     return res.status(200).json({
       success: true,
-      message: "Stats retrieved successfully.",
+      message: 'Stats retrieved successfully.',
       data: stats,
     });
   } catch (error) {
     return res.status(500).json({
       success: false,
-      message: "Failed to retrieve stats.",
+      message: 'Failed to retrieve stats.',
       error: error.message,
     });
   }
 };
 
-
 const deleteAbandonedCart = async (req, res) => {
   try {
-    const deletedCart = await abandonedCartService.deleteAbandonedCartById(
-      req.params.id,
-    );
+    const deletedCart = await abandonedCartService.deleteAbandonedCartById(req.params.id);
     if (!deletedCart) {
       return res.status(404).json({
         success: false,
-        message: "Abandoned cart not found.",
+        message: 'Abandoned cart not found.',
       });
     }
     return res.status(200).json({
       success: true,
-      message: "Abandoned cart deleted successfully.",
+      message: 'Abandoned cart deleted successfully.',
       data: deletedCart,
     });
   } catch (error) {
     return res.status(500).json({
       success: false,
-      message: "Failed to delete abandoned cart.",
+      message: 'Failed to delete abandoned cart.',
       error: error.message,
     });
   }
@@ -113,27 +116,24 @@ const updateAbandonedCart = async (req, res) => {
     const { id } = req.params;
     const updateData = req.body;
 
-    const updatedCart = await abandonedCartService.updateAbandonedCart(
-      id,
-      updateData,
-    );
+    const updatedCart = await abandonedCartService.updateAbandonedCart(id, updateData);
 
     if (!updatedCart) {
       return res.status(404).json({
         success: false,
-        message: "Abandoned cart not found.",
+        message: 'Abandoned cart not found.',
       });
     }
 
     return res.status(200).json({
       success: true,
-      message: "Abandoned cart updated successfully.",
+      message: 'Abandoned cart updated successfully.',
       data: updatedCart,
     });
   } catch (error) {
     return res.status(500).json({
       success: false,
-      message: "Failed to update abandoned cart.",
+      message: 'Failed to update abandoned cart.',
       error: error.message,
     });
   }
@@ -146,7 +146,7 @@ const bulkDeleteAbandonedCarts = async (req, res) => {
     if (!ids || !Array.isArray(ids) || ids.length === 0) {
       return res.status(400).json({
         success: false,
-        message: "Please provide an array of cart IDs to delete.",
+        message: 'Please provide an array of cart IDs to delete.',
       });
     }
 
@@ -160,7 +160,7 @@ const bulkDeleteAbandonedCarts = async (req, res) => {
   } catch (error) {
     return res.status(500).json({
       success: false,
-      message: "Failed to bulk delete abandoned carts.",
+      message: 'Failed to bulk delete abandoned carts.',
       error: error.message,
     });
   }
@@ -174,7 +174,7 @@ const convertToOrder = async (req, res) => {
     if (!orderData.shippingId) {
       return res.status(400).json({
         success: false,
-        message: "shippingId is required.",
+        message: 'shippingId is required.',
       });
     }
 
@@ -182,13 +182,13 @@ const convertToOrder = async (req, res) => {
 
     return res.status(201).json({
       success: true,
-      message: "Order created successfully from abandoned cart.",
+      message: 'Order created successfully from abandoned cart.',
       data: order,
     });
   } catch (error) {
     return res.status(500).json({
       success: false,
-      message: "Failed to convert abandoned cart to order.",
+      message: 'Failed to convert abandoned cart to order.',
       error: error.message,
     });
   }

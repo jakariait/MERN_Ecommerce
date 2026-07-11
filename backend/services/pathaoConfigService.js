@@ -1,7 +1,9 @@
-const PathaoConfig = require("../models/PathaoConfigModel");
+const PathaoConfig = require('../models/PathaoConfigModel');
 
 exports.getPathaoConfig = async () => {
-  let config = await PathaoConfig.findOne().select("-clientSecret -password -accessToken -refreshToken");
+  let config = await PathaoConfig.findOne().select(
+    '-clientSecret -password -accessToken -refreshToken'
+  );
 
   if (!config) {
     config = await PathaoConfig.create({});

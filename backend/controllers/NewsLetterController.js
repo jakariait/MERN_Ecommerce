@@ -1,4 +1,4 @@
-const newsletterService = require("../services/NewsletterService");
+const newsletterService = require('../services/NewsletterService');
 
 // Controller for subscribing an email
 
@@ -29,7 +29,7 @@ const deleteSubscriber = async (req, res) => {
 
     if (!Email) {
       // If Email is not provided, return a 400 error
-      return res.status(400).json({ success: false, message: "Email is required" });
+      return res.status(400).json({ success: false, message: 'Email is required' });
     }
 
     // Call the service to delete the subscriber

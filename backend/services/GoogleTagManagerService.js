@@ -1,4 +1,4 @@
-const GoogleTagManager = require("../models/GoogleTagManagerModel");
+const GoogleTagManager = require('../models/GoogleTagManagerModel');
 
 const getGoogleTagManager = async () => {
   let data = await GoogleTagManager.findOne();
@@ -16,7 +16,7 @@ const updateGoogleTagManager = async (payload) => {
     data = await GoogleTagManager.create({ googleTagManagerId, isActive });
   } else {
     data.googleTagManagerId = googleTagManagerId ?? data.googleTagManagerId;
-    data.isActive = typeof isActive === "boolean" ? isActive : data.isActive;
+    data.isActive = typeof isActive === 'boolean' ? isActive : data.isActive;
     await data.save();
   }
 

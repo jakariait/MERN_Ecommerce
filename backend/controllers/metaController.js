@@ -12,7 +12,12 @@ const getMeta = async (req, res) => {
       data: metaInfo,
     });
   } catch (error) {
-    res.status(500).json({ message: 'An error occurred while fetching meta information.', error: error.message });
+    res
+      .status(500)
+      .json({
+        message: 'An error occurred while fetching meta information.',
+        error: error.message,
+      });
   }
 };
 
@@ -36,7 +41,12 @@ const updateMeta = async (req, res) => {
       data: updatedMeta,
     });
   } catch (error) {
-    res.status(500).json({ message: 'An error occurred while updating meta information.', error: error.message });
+    res
+      .status(500)
+      .json({
+        message: 'An error occurred while updating meta information.',
+        error: error.message,
+      });
   }
 };
 

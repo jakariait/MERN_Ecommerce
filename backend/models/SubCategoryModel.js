@@ -1,6 +1,6 @@
-const mongoose = require("mongoose");
-const slugify = require("slugify");
-const CounterModel = require("./CategoryCounterModel");
+const mongoose = require('mongoose');
+const slugify = require('slugify');
+const CounterModel = require('./CategoryCounterModel');
 
 const subCategorySchema = new mongoose.Schema(
   {
@@ -8,7 +8,7 @@ const subCategorySchema = new mongoose.Schema(
     isActive: { type: Boolean, default: true, required: true },
     category: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Category",
+      ref: 'Category',
       required: true,
     },
     categoryId: { type: Number, required: true },
@@ -21,11 +21,11 @@ const subCategorySchema = new mongoose.Schema(
 );
 
 // Pre-save middleware for categoryId auto-increment & slug generation
-subCategorySchema.pre("save", async function (next) {
+subCategorySchema.pre('save', async function (next) {
   if (this.isNew) {
     try {
       const counter = await CounterModel.findOneAndUpdate(
-        { name: "SubCategory" },
+        { name: 'SubCategory' },
         { $inc: { value: 1 } },
         { new: true, upsert: true }
       );
@@ -43,5 +43,6 @@ subCategorySchema.pre("save", async function (next) {
 });
 
 // Ensure model is not recompiled
-const SubCategoryModel = mongoose.models.SubCategory || mongoose.model("SubCategory", subCategorySchema);
+const SubCategoryModel =
+  mongoose.models.SubCategory || mongoose.model('SubCategory', subCategorySchema);
 module.exports = SubCategoryModel;

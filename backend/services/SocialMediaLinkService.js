@@ -11,7 +11,9 @@ const getSocialMediaLink = async () => {
 
 // Update the social media link entry
 const updateSocialMediaLink = async (socialMedia) => {
-  const updatedSocialMedia = await SocialMediaLinkModel.findOneAndUpdate({}, socialMedia, { new: true }).select('-updatedAt');
+  const updatedSocialMedia = await SocialMediaLinkModel.findOneAndUpdate({}, socialMedia, {
+    new: true,
+  }).select('-updatedAt');
   if (!updatedSocialMedia) {
     throw new Error('No social media link found to update');
   }

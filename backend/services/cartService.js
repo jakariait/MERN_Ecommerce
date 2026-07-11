@@ -1,4 +1,4 @@
-const CartModel = require("../models/CartModel");
+const CartModel = require('../models/CartModel');
 
 const getCart = async (userId) => {
   const cart = await CartModel.findOne({ user: userId });
@@ -7,7 +7,7 @@ const getCart = async (userId) => {
 
 const addToCart = async (userId, item) => {
   if (!item.productId || !item.quantity) {
-    throw new Error("Missing productId or quantity");
+    throw new Error('Missing productId or quantity');
   }
 
   let cart = await CartModel.findOne({ user: userId });
@@ -39,7 +39,7 @@ const addToCart = async (userId, item) => {
 
 const updateCartItem = async (userId, productId, variant, quantity) => {
   const cart = await CartModel.findOne({ user: userId });
-  if (!cart) throw new Error("Cart not found");
+  if (!cart) throw new Error('Cart not found');
 
   // Match by variantId or variant field for backward compatibility
   const index = cart.items.findIndex(
@@ -53,19 +53,21 @@ const updateCartItem = async (userId, productId, variant, quantity) => {
     await cart.save();
     return cart;
   } else {
-    throw new Error("Item not found in cart");
+    throw new Error('Item not found in cart');
   }
 };
 
 const removeCartItem = async (userId, productId, variant) => {
   const cart = await CartModel.findOne({ user: userId });
-  if (!cart) throw new Error("Cart not found");
+  if (!cart) throw new Error('Cart not found');
 
   // Match by variantId or variant field for backward compatibility
   cart.items = cart.items.filter(
     (item) =>
-      !(item.productId.toString() === productId &&
-        (item.variantId === variant || item.variant === variant))
+      !(
+        item.productId.toString() === productId &&
+        (item.variantId === variant || item.variant === variant)
+      )
   );
   await cart.save();
   return cart;
@@ -77,7 +79,7 @@ const clearCart = async (userId) => {
     cart.items = [];
     await cart.save();
   }
-  return { message: "Cart cleared successfully" };
+  return { message: 'Cart cleared successfully' };
 };
 
 module.exports = {

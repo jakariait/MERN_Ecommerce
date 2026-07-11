@@ -1,4 +1,4 @@
-const FlagModel = require("../models/FlagModel");
+const FlagModel = require('../models/FlagModel');
 
 // Create a new flag
 const createFlag = async (data) => {
@@ -6,7 +6,6 @@ const createFlag = async (data) => {
   data.position = count;
   return await FlagModel.create(data);
 };
-
 
 // Get all flags
 const getAllFlags = async () => {
@@ -29,7 +28,7 @@ const deleteFlag = async (id) => {
   if (deletedFlag) {
     await FlagModel.updateMany(
       { position: { $gt: deletedFlag.position } },
-      { $inc: { position: -1 } },
+      { $inc: { position: -1 } }
     );
   }
   return deletedFlag;

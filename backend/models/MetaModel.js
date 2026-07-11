@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
 const metaSchema = new mongoose.Schema(
   {
@@ -15,9 +15,9 @@ const metaSchema = new mongoose.Schema(
       required: true,
     },
   },
-  { timestamps: true },
+  { timestamps: true }
 );
 
-const Meta = mongoose.model("Meta", metaSchema);
+const Meta = mongoose.model('Meta', metaSchema);
 
 module.exports = Meta;

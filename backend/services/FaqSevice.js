@@ -1,4 +1,4 @@
-const FAQ = require("../models/FaqModel");
+const FAQ = require('../models/FaqModel');
 
 const createFAQ = (faqData) => {
   return FAQ.create(faqData);

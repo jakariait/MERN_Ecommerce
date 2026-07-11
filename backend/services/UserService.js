@@ -1,8 +1,8 @@
-const fs = require("fs");
-const path = require("path");
-const UserModel = require("../models/UserModel");
+const fs = require('fs');
+const path = require('path');
+const UserModel = require('../models/UserModel');
 
-const uploadsDir = path.join(__dirname, "../uploads");
+const uploadsDir = path.join(__dirname, '../uploads');
 
 const deleteOldFile = (filename) => {
   if (filename) {
@@ -19,7 +19,7 @@ const userService = {
   getUserById: async (id) => await UserModel.findById(id),
 
   createUser: async (userData) => {
-    const allowedFields = ["fullName", "email", "phone", "password", "address", "userImage"];
+    const allowedFields = ['fullName', 'email', 'phone', 'password', 'address', 'userImage'];
     const sanitized = {};
     for (const field of allowedFields) {
       if (userData[field] !== undefined) sanitized[field] = userData[field];
@@ -28,7 +28,7 @@ const userService = {
   },
 
   updateUser: async (id, userData) => {
-    const allowedFields = ["fullName", "email", "phone", "address", "userImage"];
+    const allowedFields = ['fullName', 'email', 'phone', 'address', 'userImage'];
     const sanitized = {};
     for (const field of allowedFields) {
       if (userData[field] !== undefined) sanitized[field] = userData[field];
@@ -54,20 +54,18 @@ const userService = {
     return UserModel.findByIdAndDelete(id);
   },
 
-
   changePassword: async (userId, currentPassword, newPassword) => {
-    const user = await UserModel.findById(userId).select("+password");
-    if (!user) throw new Error("User not found");
+    const user = await UserModel.findById(userId).select('+password');
+    if (!user) throw new Error('User not found');
 
     const isMatch = await user.comparePassword(currentPassword);
-    if (!isMatch) throw new Error("Current password is incorrect");
+    if (!isMatch) throw new Error('Current password is incorrect');
 
     user.password = newPassword;
     await user.save();
 
-    return { message: "Password updated successfully" };
+    return { message: 'Password updated successfully' };
   },
-
 };
 
 module.exports = userService;

@@ -1,15 +1,15 @@
-const AdminModel = require("../models/AdminModel");
-const bcrypt = require("bcryptjs");
+const AdminModel = require('../models/AdminModel');
+const bcrypt = require('bcryptjs');
 
 const adminService = {
   getAllAdmins: async () => {
-    return await AdminModel.find().select("-password");
+    return await AdminModel.find().select('-password');
   },
 
-  getAdminById: async (id) => await AdminModel.findById(id).select("-password"),
+  getAdminById: async (id) => await AdminModel.findById(id).select('-password'),
 
   createAdmin: async (adminData) => {
-    const allowedFields = ["name", "email", "mobileNo", "password", "permissions"];
+    const allowedFields = ['name', 'email', 'mobileNo', 'password', 'permissions'];
     const sanitized = {};
     for (const field of allowedFields) {
       if (adminData[field] !== undefined) sanitized[field] = adminData[field];
@@ -18,7 +18,7 @@ const adminService = {
   },
 
   updateAdmin: async (id, adminData) => {
-    const allowedFields = ["name", "email", "mobileNo", "password", "permissions"];
+    const allowedFields = ['name', 'email', 'mobileNo', 'password', 'permissions'];
     const updateData = {};
     for (const field of allowedFields) {
       if (adminData[field] !== undefined) updateData[field] = adminData[field];

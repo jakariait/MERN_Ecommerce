@@ -1,6 +1,6 @@
-const mongoose = require("mongoose");
-const CounterModel = require("./ChildCategoryCounter"); // Assuming it's the same for auto-increment
-const slugify = require("slugify");
+const mongoose = require('mongoose');
+const CounterModel = require('./ChildCategoryCounter'); // Assuming it's the same for auto-increment
+const slugify = require('slugify');
 
 const childCategorySchema = new mongoose.Schema(
   {
@@ -8,15 +8,15 @@ const childCategorySchema = new mongoose.Schema(
     isActive: { type: Boolean, default: true },
     category: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Category", // Reference to the Category model
+      ref: 'Category', // Reference to the Category model
       required: true,
     },
     subCategory: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "SubCategory", // Reference to the SubCategory model
+      ref: 'SubCategory', // Reference to the SubCategory model
       required: true,
     },
-    categoryId: { type: Number}, // Auto-increment field
+    categoryId: { type: Number }, // Auto-increment field
     slug: { type: String, trim: true, unique: true },
   },
   {
@@ -26,11 +26,11 @@ const childCategorySchema = new mongoose.Schema(
 );
 
 // Pre-save hook for categoryId auto-increment and slug generation
-childCategorySchema.pre("save", async function (next) {
+childCategorySchema.pre('save', async function (next) {
   if (this.isNew) {
     try {
       const counter = await CounterModel.findOneAndUpdate(
-        { name: "SubCategory" },
+        { name: 'SubCategory' },
         { $inc: { value: 1 } },
         { new: true, upsert: true }
       );
@@ -47,6 +47,7 @@ childCategorySchema.pre("save", async function (next) {
   }
 });
 
-const ChildCategory = mongoose.models.ChildCategory || mongoose.model("ChildCategory", childCategorySchema);
+const ChildCategory =
+  mongoose.models.ChildCategory || mongoose.model('ChildCategory', childCategorySchema);
 
 module.exports = ChildCategory;

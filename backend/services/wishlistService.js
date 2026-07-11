@@ -1,11 +1,10 @@
-const WishlistModel = require("../models/WishlistModel");
-const ProductModel = require("../models/ProductModel");
+const WishlistModel = require('../models/WishlistModel');
+const ProductModel = require('../models/ProductModel');
 
 const getWishlist = async (userId) => {
   const wishlist = await WishlistModel.findOne({ user: userId }).populate({
-    path: "items.product",
-    select:
-      "name slug thumbnailImage finalPrice finalDiscount finalStock productCode variants",
+    path: 'items.product',
+    select: 'name slug thumbnailImage finalPrice finalDiscount finalStock productCode variants',
   });
 
   if (!wishlist) {
@@ -22,26 +21,23 @@ const addToWishlist = async (userId, productId) => {
     wishlist = new WishlistModel({ user: userId, items: [] });
   }
 
-  const existingItem = wishlist.items.find(
-    (item) => item.product.toString() === productId
-  );
+  const existingItem = wishlist.items.find((item) => item.product.toString() === productId);
 
   if (existingItem) {
-    throw new Error("Product already in wishlist");
+    throw new Error('Product already in wishlist');
   }
 
   const product = await ProductModel.findById(productId);
   if (!product) {
-    throw new Error("Product not found");
+    throw new Error('Product not found');
   }
 
   wishlist.items.push({ product: productId });
   await wishlist.save();
 
   return await WishlistModel.findOne({ user: userId }).populate({
-    path: "items.product",
-    select:
-      "name slug thumbnailImage finalPrice finalDiscount finalStock productCode variants",
+    path: 'items.product',
+    select: 'name slug thumbnailImage finalPrice finalDiscount finalStock productCode variants',
   });
 };
 
@@ -49,24 +45,21 @@ const removeFromWishlist = async (userId, productId) => {
   const wishlist = await WishlistModel.findOne({ user: userId });
 
   if (!wishlist) {
-    throw new Error("Wishlist not found");
+    throw new Error('Wishlist not found');
   }
 
-  const itemIndex = wishlist.items.findIndex(
-    (item) => item.product.toString() === productId
-  );
+  const itemIndex = wishlist.items.findIndex((item) => item.product.toString() === productId);
 
   if (itemIndex === -1) {
-    throw new Error("Product not in wishlist");
+    throw new Error('Product not in wishlist');
   }
 
   wishlist.items.splice(itemIndex, 1);
   await wishlist.save();
 
   return await WishlistModel.findOne({ user: userId }).populate({
-    path: "items.product",
-    select:
-      "name slug thumbnailImage finalPrice finalDiscount finalStock productCode variants",
+    path: 'items.product',
+    select: 'name slug thumbnailImage finalPrice finalDiscount finalStock productCode variants',
   });
 };
 
@@ -74,7 +67,7 @@ const clearWishlist = async (userId) => {
   const wishlist = await WishlistModel.findOne({ user: userId });
 
   if (!wishlist) {
-    throw new Error("Wishlist not found");
+    throw new Error('Wishlist not found');
   }
 
   wishlist.items = [];
@@ -90,9 +83,7 @@ const checkProductInWishlist = async (userId, productId) => {
     return false;
   }
 
-  const exists = wishlist.items.some(
-    (item) => item.product.toString() === productId
-  );
+  const exists = wishlist.items.some((item) => item.product.toString() === productId);
 
   return exists;
 };

@@ -1,7 +1,7 @@
-const productService = require("../services/productService");
-const mongoose = require("mongoose");
+const productService = require('../services/productService');
+const mongoose = require('mongoose');
 const redisClient = require('../config/redisClient');
-const ProductModel = require("../models/ProductModel");
+const ProductModel = require('../models/ProductModel');
 
 // Create a product
 const createProduct = async (req, res) => {
@@ -27,13 +27,13 @@ const createProduct = async (req, res) => {
 
     res.status(201).json({
       success: true,
-      message: "Product created successfully!",
+      message: 'Product created successfully!',
       data: product,
     });
   } catch (error) {
     res.status(400).json({
       success: false,
-      message: "Failed to create product. Please try again!",
+      message: 'Failed to create product. Please try again!',
       error: error.message,
     });
   }
@@ -49,19 +49,19 @@ const getProducts = async (req, res) => {
     if (products.length === 0) {
       return res.status(404).json({
         success: false,
-        message: "No products found.",
+        message: 'No products found.',
       });
     }
 
     res.status(200).json({
       success: true,
-      message: "Products retrieved successfully!",
+      message: 'Products retrieved successfully!',
       data: products,
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: "Failed to retrieve products. Please try again!",
+      message: 'Failed to retrieve products. Please try again!',
       error: error.message,
     });
   }
@@ -77,19 +77,19 @@ const getProductById = async (req, res) => {
     if (!product) {
       return res.status(404).json({
         success: false,
-        message: "Product not found!",
+        message: 'Product not found!',
       });
     }
 
     res.status(200).json({
       success: true,
-      message: "✅ Product retrieved successfully!",
+      message: '✅ Product retrieved successfully!',
       data: product,
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: "Failed to retrieve product. Please try again!",
+      message: 'Failed to retrieve product. Please try again!',
       error: error.message,
     });
   }
@@ -105,19 +105,19 @@ const getProductBySlug = async (req, res) => {
     if (!product) {
       return res.status(404).json({
         success: false,
-        message: "Product not found",
+        message: 'Product not found',
       });
     }
 
     res.status(200).json({
       success: true,
-      message: "✅ Product retrieved successfully!",
+      message: '✅ Product retrieved successfully!',
       data: product,
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: "Failed to retrieve product. Please try again!",
+      message: 'Failed to retrieve product. Please try again!',
       error: error.message,
     });
   }
@@ -133,7 +133,7 @@ const deleteProduct = async (req, res) => {
     if (!deletedProduct) {
       return res.status(404).json({
         success: false,
-        message: "Product not found for deletion!",
+        message: 'Product not found for deletion!',
       });
     }
 
@@ -142,12 +142,12 @@ const deleteProduct = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      message: "✅ Product deleted successfully!",
+      message: '✅ Product deleted successfully!',
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: "Failed to delete product. Please try again!",
+      message: 'Failed to delete product. Please try again!',
       error: error.message,
     });
   }
@@ -183,13 +183,13 @@ const getAllProducts = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      message: "Products fetched successfully",
+      message: 'Products fetched successfully',
       ...productsData, // Contains products, totalPages, totalProducts, currentPage
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: "Failed to fetch products",
+      message: 'Failed to fetch products',
       error: error.message,
     });
   }
@@ -203,18 +203,14 @@ const updateProduct = async (req, res) => {
     const files = req.files; // Get uploaded files
 
     // Call the service with `files`
-    const updatedProduct = await productService.updateProduct(
-      productId,
-      updatedData,
-      files,
-    );
+    const updatedProduct = await productService.updateProduct(productId, updatedData, files);
 
     // Invalidate the cache
     redisClient.del('/api/products');
 
     return res.status(200).json({
       success: true,
-      message: "✅ Product updated successfully!",
+      message: '✅ Product updated successfully!',
       data: updatedProduct,
     });
   } catch (err) {
@@ -230,30 +226,24 @@ const getSimilarProductsController = async (req, res) => {
 
   try {
     // Quick check for valid ObjectId format
-    if (
-      !mongoose.Types.ObjectId.isValid(category) ||
-      !mongoose.Types.ObjectId.isValid(productId)
-    ) {
+    if (!mongoose.Types.ObjectId.isValid(category) || !mongoose.Types.ObjectId.isValid(productId)) {
       return res.status(400).json({
         success: false,
-        message: "Invalid category or product ID.",
+        message: 'Invalid category or product ID.',
       });
     }
 
-    const products = await productService.getSimilarProducts(
-      category,
-      productId,
-    );
+    const products = await productService.getSimilarProducts(category, productId);
 
     res.status(200).json({
       success: true,
-      message: "Similar products fetched successfully",
+      message: 'Similar products fetched successfully',
       data: products,
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: "Failed to fetch similar products",
+      message: 'Failed to fetch similar products',
       error: error.message,
     });
   }
@@ -295,7 +285,7 @@ const getAllProductsAdmin = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      message: "All products fetched successfully for Admin Panel",
+      message: 'All products fetched successfully for Admin Panel',
       ...productsData, // Contains products, totalPages, totalProducts, currentPage
       activeCount,
       inactiveCount,
@@ -303,7 +293,7 @@ const getAllProductsAdmin = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: "Failed to fetch products for Admin Panel",
+      message: 'Failed to fetch products for Admin Panel',
       error: error.message,
     });
   }
@@ -323,31 +313,29 @@ const getProductDetails = async (req, res) => {
       data: result.data,
     });
   } catch (error) {
-    console.error("❌ Error in getProductDetails:", error.message);
+    console.error('❌ Error in getProductDetails:', error.message);
     return res.status(error.status || 500).json({
       success: false,
-      message: error.message || "🚨 Server error!",
+      message: error.message || '🚨 Server error!',
     });
   }
 };
-
 
 const homePageProducts = async (req, res) => {
   try {
     const data = await productService.getHomePageProducts();
     res.status(200).json({
-      status: "success",
-      message: "Home page products fetched successfully",
+      status: 'success',
+      message: 'Home page products fetched successfully',
       data,
     });
   } catch (error) {
     res.status(500).json({
-      status: "error",
+      status: 'error',
       message: error.message,
     });
   }
 };
-
 
 const duplicateProduct = async (req, res) => {
   try {
@@ -357,7 +345,7 @@ const duplicateProduct = async (req, res) => {
 
     res.status(201).json({
       success: true,
-      message: "Product duplicated successfully!",
+      message: 'Product duplicated successfully!',
       data: product,
     });
   } catch (error) {

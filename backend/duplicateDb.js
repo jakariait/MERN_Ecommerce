@@ -1,12 +1,12 @@
-const { MongoClient } = require("mongodb");
+const { MongoClient } = require('mongodb');
 
 // Source and Target connection URIs
-const sourceURI = "";
-const targetURI = "";
+const sourceURI = '';
+const targetURI = '';
 
 // Names of source and target databases
-const sourceDBName = "ClothingEcommerce";
-const targetDBName = "Zarif";
+const sourceDBName = 'ClothingEcommerce';
+const targetDBName = 'Zarif';
 
 async function duplicateDatabase() {
   const sourceClient = new MongoClient(sourceURI);
@@ -40,9 +40,9 @@ async function duplicateDatabase() {
       }
     }
 
-    console.log("✅ Database duplication completed.");
+    console.log('✅ Database duplication completed.');
   } catch (err) {
-    console.error("❌ Error:", err);
+    console.error('❌ Error:', err);
   } finally {
     await sourceClient.close();
     await targetClient.close();

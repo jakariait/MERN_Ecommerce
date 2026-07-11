@@ -43,8 +43,6 @@ const deleteContact = async (id) => {
   }
 };
 
-
-
 module.exports = {
   createContact,
   getAllContacts,

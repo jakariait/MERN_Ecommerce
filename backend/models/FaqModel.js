@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
 const faqSchema = new mongoose.Schema(
   {
@@ -13,16 +13,16 @@ const faqSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ["published", "draft"],
-      default: "published",
+      enum: ['published', 'draft'],
+      default: 'published',
     },
   },
   {
     timestamps: true,
     versionKey: false,
-  },
+  }
 );
 
-const FAQ = mongoose.model("FAQ", faqSchema);
+const FAQ = mongoose.model('FAQ', faqSchema);
 
 module.exports = FAQ;
