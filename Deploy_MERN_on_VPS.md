@@ -12,7 +12,7 @@
 - Setting Up SSL Certificates
 ### 1. Preparing the VPS Environment
 
-#### Get you VPS Hosting here : [Hostinger VPS](https://greatstack.dev/go/hostinger-vps)
+#### Get you VPS Hosting here : [Hostinger VPS](https://www.hostinger.com?REFERRALCODE=jakariait)
 
 Log in to Your VPS in Terminal 
 
@@ -171,23 +171,6 @@ Configure Nginx for React Frontends
 ```
 Save and exit (Ctrl + X, then Y and Enter).
 
-Create a similar file for the second or multiple React app.
-
-```bash
- nano /etc/nginx/sites-available/yourdomain2.com.conf
-```
-
-```bash
-server {
-    listen 80;
-    server_name yourdomain2.com www.yourdomain2.com;
-
-    location / {
-        root /var/www/react-app-2/dist;
-        try_files $uri /index.html;
-    }
-}
-```
 
 Create symbolic links to enable the sites.
 
@@ -195,9 +178,6 @@ Create symbolic links to enable the sites.
 ln -s /etc/nginx/sites-available/yourdomain1.com.conf /etc/nginx/sites-enabled/
 ```
 
-```bash
-ln -s /etc/nginx/sites-available/yourdomain2.com.conf /etc/nginx/sites-enabled/
-```
 
 Test the Nginx configuration for syntax errors.
 
@@ -214,12 +194,12 @@ systemctl restart nginx
 Update Backend Nginx Configuration
 
 ```bash
-nano /etc/nginx/sites-available/api.yourdomain.com.conf
+nano /etc/nginx/sites-available/server.yourdomain.com.conf
 ```
 ```bash
 server {
     listen 80;
-    server_name api.yourdomain.com;
+    server_name server.yourdomain.com;
 
     location / {
         proxy_pass http://localhost:4000;
@@ -234,7 +214,7 @@ server {
 Create symbolic links to enable the sites.
 
 ```bash
-ln -s /etc/nginx/sites-available/api.yourdomain.com.conf /etc/nginx/sites-enabled/
+ln -s /etc/nginx/sites-available/server.yourdomain.com.conf /etc/nginx/sites-enabled/
 ```
 
 Restart nginx
@@ -260,7 +240,7 @@ sudo apt install -y certbot python3-certbot-nginx
 Obtain SSL Certificates
 
 ```bash
-certbot --nginx -d yourdomain1.com -d www.yourdomain1.com -d yourdomain2.com -d api.yourdomain.com
+certbot --nginx -d yourdomain1.com -d www.yourdomain1.com  -d server.yourdomain.com
 ```
 
 Verify Auto-Renewal
@@ -268,7 +248,3 @@ Verify Auto-Renewal
 ```bash
 certbot renew --dry-run
 ```
-
-If you still need help in deployment:
-
-Contact us on email : greatstackdev@gmail.com
