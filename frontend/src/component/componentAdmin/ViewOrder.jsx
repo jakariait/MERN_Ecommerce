@@ -313,11 +313,11 @@ const ViewOrder = () => {
       <Card className="shadow-md border-0">
         <CardContent className="p-6" id="print-area" ref={printRef}>
           <div id="firstRow" className="flex items-center justify-between mb-6">
-            <h1 className="text-2xl font-bold">
-              {GeneralInfoList.CompanyName}
+              <h1 className="text-2xl font-bold">
+              {GeneralInfoList?.CompanyName ?? ''}
             </h1>
             <ImageComponent
-              imageName={GeneralInfoList.PrimaryLogo}
+              imageName={GeneralInfoList?.PrimaryLogo}
               className="w-30"
             />
             <div className="text-2xl font-bold">Invoice</div>
@@ -328,32 +328,32 @@ const ViewOrder = () => {
               <h2 className="font-bold text-lg mb-2">Shipping Info:</h2>
               {isEditMode ? (
                 <div className="space-y-2">
-                  <Input
-                    placeholder="Full Name"
-                    name="fullName"
-                    value={editableOrder.shippingInfo.fullName}
-                    onChange={handleShippingInfoChange}
-                  />
-                  <Input
-                    placeholder="Mobile No"
-                    name="mobileNo"
-                    value={editableOrder.shippingInfo.mobileNo}
-                    onChange={handleShippingInfoChange}
-                  />
-                  <Input
-                    placeholder="Email"
-                    name="email"
-                    value={editableOrder.shippingInfo.email}
-                    onChange={handleShippingInfoChange}
-                  />
-                  <textarea
-                    placeholder="Address"
-                    name="address"
-                    value={editableOrder.shippingInfo.address}
-                    onChange={handleShippingInfoChange}
-                    rows={2}
-                    className="flex w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 resize-y"
-                  />
+                    <Input
+                      placeholder="Full Name"
+                      name="fullName"
+                      value={editableOrder?.shippingInfo?.fullName ?? ''}
+                      onChange={handleShippingInfoChange}
+                    />
+                    <Input
+                      placeholder="Mobile No"
+                      name="mobileNo"
+                      value={editableOrder?.shippingInfo?.mobileNo ?? ''}
+                      onChange={handleShippingInfoChange}
+                    />
+                    <Input
+                      placeholder="Email"
+                      name="email"
+                      value={editableOrder?.shippingInfo?.email ?? ''}
+                      onChange={handleShippingInfoChange}
+                    />
+                    <textarea
+                      placeholder="Address"
+                      name="address"
+                      value={editableOrder?.shippingInfo?.address ?? ''}
+                      onChange={handleShippingInfoChange}
+                      rows={2}
+                      className="flex w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 resize-y"
+                    />
                 </div>
               ) : (
                 <div className="space-y-0.5">
@@ -376,7 +376,7 @@ const ViewOrder = () => {
               </p>
               <p>
                 <strong>Order Date:</strong>{' '}
-                {new Date(currentOrderData.orderDate).toLocaleDateString()}
+                {currentOrderData?.orderDate ? new Date(currentOrderData.orderDate).toLocaleDateString() : ''}
               </p>
               <p>
                 <strong>Status:</strong>{' '}
@@ -429,9 +429,9 @@ const ViewOrder = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {currentOrderData.items.map((item, index) => {
+                {currentOrderData?.items?.map((item, index) => {
                   const product = item.product || item.productId;
-                  const variant = product.variants?.[0];
+                  const variant = product?.variants?.[0];
                   const totalPrice = item.price * item.quantity;
 
                   return (
@@ -475,8 +475,8 @@ const ViewOrder = () => {
                           item.quantity
                         )}
                       </TableCell>
-                      <TableCell>{item.price.toFixed(2)}</TableCell>
-                      <TableCell>{totalPrice.toFixed(2)}</TableCell>
+                      <TableCell>{(item?.price ?? 0).toFixed(2)}</TableCell>
+                      <TableCell>{(totalPrice ?? 0).toFixed(2)}</TableCell>
                       {isEditMode && (
                         <TableCell className="no-print">
                           <Button
@@ -538,37 +538,37 @@ const ViewOrder = () => {
               )}
             </div>
             <div id="thirdRowRight" className="text-right space-y-1">
-              <p>Sub-total: Tk.{currentOrderData.subtotalAmount.toFixed(2)}</p>
-              {currentOrderData.promoDiscount > 0 && (
+                <p>Sub-total: Tk.{(currentOrderData?.subtotalAmount ?? 0).toFixed(2)}</p>
+              {(currentOrderData?.promoDiscount ?? 0) > 0 && (
                 <p>
-                  Promo Discount: Tk.{currentOrderData.promoDiscount.toFixed(2)}
+                  Promo Discount: Tk.{(currentOrderData?.promoDiscount ?? 0).toFixed(2)}
                 </p>
               )}
-              {currentOrderData.rewardPointsUsed > 0 && (
-                <p>Reward Points Used: {currentOrderData.rewardPointsUsed}</p>
+              {(currentOrderData?.rewardPointsUsed ?? 0) > 0 && (
+                <p>Reward Points Used: {currentOrderData?.rewardPointsUsed ?? 0}</p>
               )}
-              {currentOrderData.vat > 0 && (
-                <p>VAT/TAX: {currentOrderData.vat.toFixed(2)}</p>
+              {(currentOrderData?.vat ?? 0) > 0 && (
+                <p>VAT/TAX: {(currentOrderData?.vat ?? 0).toFixed(2)}</p>
               )}
               <p>
-                Delivery Charge: {currentOrderData.deliveryCharge.toFixed(2)}
+                Delivery Charge: {(currentOrderData?.deliveryCharge ?? 0).toFixed(2)}
               </p>
-              {currentOrderData.specialDiscount > 0 && (
+              {(currentOrderData?.specialDiscount ?? 0) > 0 && (
                 <p>
                   Special Discount Amount:{' '}
-                  {currentOrderData.specialDiscount.toFixed(2)}
+                  {(currentOrderData?.specialDiscount ?? 0).toFixed(2)}
                 </p>
               )}
               <p className="text-xl font-bold">
-                Total Order Amount: {currentOrderData.totalAmount.toFixed(2)}
+                Total Order Amount: {(currentOrderData?.totalAmount ?? 0).toFixed(2)}
               </p>
-              {currentOrderData.advanceAmount > 0 && (
+              {(currentOrderData?.advanceAmount ?? 0) > 0 && (
                 <p className="text-destructive">
-                  Advance: {currentOrderData.advanceAmount.toFixed(2)}
+                  Advance: {(currentOrderData?.advanceAmount ?? 0).toFixed(2)}
                 </p>
               )}
               <p className="text-xl font-bold">
-                Total Due Amount: {currentOrderData.dueAmount.toFixed(2)}
+                Total Due Amount: {(currentOrderData?.dueAmount ?? 0).toFixed(2)}
               </p>
             </div>
           </div>
@@ -591,7 +591,7 @@ const ViewOrder = () => {
         <OrderStatusUpdate orderId={order._id} onUpdate={fetchOrder} />
       </RequirePermission>
 
-      <CourierStats phone={order.shippingInfo.mobileNo} />
+      <CourierStats phone={order?.shippingInfo?.mobileNo ?? ''} />
 
       <Dialog
         open={isAddProductModalOpen}

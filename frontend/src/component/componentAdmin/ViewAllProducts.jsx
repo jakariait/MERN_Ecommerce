@@ -295,7 +295,7 @@ const ViewAllProducts = () => {
                       {product.variants?.length ? (
                         <div>
                           <p className="font-semibold">
-                            ৳{Math.min(...product.variants.map((v) => v.price))}
+                            ৳{product.variants.length > 0 ? Math.min(...product.variants.map((v) => v.price)) : 0}
                           </p>
                           <p className="text-xs text-muted-foreground">
                             {product.variants.length} var.
@@ -337,7 +337,7 @@ const ViewAllProducts = () => {
                               variant="secondary"
                               className="text-xs"
                             >
-                              {flag.name}
+                              {flag?.name ?? ''}
                             </Badge>
                           ))
                         ) : (

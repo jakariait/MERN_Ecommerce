@@ -174,7 +174,7 @@ const Headers = () => {
           </div>
           <div className="items-center gap-2 hidden md:flex">
             <MdEmail className="text-2xl" aria-hidden="true" />
-            {GeneralInfoList?.CompanyEmail.map((email, index) => (
+            {GeneralInfoList?.CompanyEmail?.map((email, index) => (
               <a
                 key={index}
                 href={`mailto:${email}`}

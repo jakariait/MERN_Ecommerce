@@ -27,8 +27,10 @@ const ProductAddToCart = ({ product }) => {
     if (product?.variants?.length === 1) {
       const singleVariant = product.variants[0];
       const initialSelected = {};
-      singleVariant.attributes.forEach((attr) => {
-        initialSelected[attr.option.name] = attr.value;
+      singleVariant?.attributes?.forEach((attr) => {
+        if (attr?.option?.name) {
+          initialSelected[attr?.option?.name] = attr.value;
+        }
       });
       setSelectedOptions(initialSelected);
       setSelectedVariant(singleVariant);
@@ -52,11 +54,11 @@ const ProductAddToCart = ({ product }) => {
     ) {
       const singleVariant = product.variants[0];
       const allOptionsMap = new Map();
-      singleVariant.attributes.forEach((attr) => {
-        if (!allOptionsMap.has(attr.option.name)) {
-          allOptionsMap.set(attr.option.name, new Set());
+      singleVariant?.attributes?.forEach((attr) => {
+        if (!allOptionsMap.has(attr?.option?.name)) {
+          allOptionsMap.set(attr?.option?.name, new Set());
         }
-        allOptionsMap.get(attr.option.name).add(attr.value);
+        allOptionsMap.get(attr?.option?.name).add(attr.value);
       });
       const allOptions = Array.from(allOptionsMap.keys()).map((name) => ({
         name,
@@ -72,11 +74,11 @@ const ProductAddToCart = ({ product }) => {
 
     const allOptionsMap = new Map();
     product.variants.forEach((variant) => {
-      variant.attributes.forEach((attr) => {
-        if (!allOptionsMap.has(attr.option.name)) {
-          allOptionsMap.set(attr.option.name, new Set());
+      variant?.attributes?.forEach((attr) => {
+        if (!allOptionsMap.has(attr?.option?.name)) {
+          allOptionsMap.set(attr?.option?.name, new Set());
         }
-        allOptionsMap.get(attr.option.name).add(attr.value);
+        allOptionsMap.get(attr?.option?.name).add(attr.value);
       });
     });
 
@@ -103,15 +105,15 @@ const ProductAddToCart = ({ product }) => {
       product.variants.forEach((variant) => {
         const matchesPrevious = previousOptionNames.every((prevOptionName) => {
           const selectedValue = selectedOptions[prevOptionName];
-          return variant.attributes.some(
+          return variant?.attributes?.some(
             (attr) =>
-              attr.option.name === prevOptionName &&
+              attr?.option?.name === prevOptionName &&
               attr.value === selectedValue,
           );
         });
 
         if (matchesPrevious) {
-          const attr = variant.attributes.find(
+          const attr = variant?.attributes?.find(
             (a) => a.option.name === option.name,
           );
           if (attr) {
@@ -133,8 +135,8 @@ const ProductAddToCart = ({ product }) => {
     if (Object.keys(selectedOptions).length === allOptions.length) {
       const newVariant = product.variants.find((variant) =>
         Object.entries(selectedOptions).every(([key, value]) =>
-          variant.attributes.some(
-            (attr) => attr.option.name === key && attr.value === value,
+          variant?.attributes?.some(
+            (attr) => attr?.option?.name === key && attr.value === value,
           ),
         ),
       );
@@ -200,7 +202,7 @@ const ProductAddToCart = ({ product }) => {
                 ? selectedVariant.price - selectedVariant.discount
                 : product.finalPrice - product.finalDiscount,
             item_variant: selectedVariant
-              ? selectedVariant.attributes.map((a) => a.value).join('/')
+              ? (selectedVariant?.attributes?.map((a) => a.value).join('/') ?? 'Default')
               : 'Default',
             price:
               selectedVariant?.discount > 0

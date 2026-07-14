@@ -41,7 +41,7 @@ const OrderStatusSelector = ({ orderId, refetchOrders }) => {
         const data = await res.json();
 
         if (res.ok && data.success) {
-          setOrderStatus(data.order.orderStatus || 'pending');
+          setOrderStatus(data?.order?.orderStatus || 'pending');
         } else {
           toast.error(data.message || 'Failed to load order status');
         }

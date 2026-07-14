@@ -24,7 +24,7 @@ const useWishlistStore = create((set, get) => ({
       });
 
       set({
-        wishlist: res.data.wishlist.items || [],
+        wishlist: res.data?.wishlist?.items || [],
         loading: false,
         initialized: true,
       });
@@ -58,11 +58,11 @@ const useWishlistStore = create((set, get) => ({
       );
 
       set({
-        wishlist: res.data.wishlist.items || [],
+        wishlist: res.data?.wishlist?.items || [],
         removing: false,
       });
 
-      return { success: true, message: res.data.message };
+      return { success: true, message: res.data?.message };
     } catch (error) {
       set({ wishlist: previousWishlist, removing: false });
       return {
@@ -88,11 +88,11 @@ const useWishlistStore = create((set, get) => ({
       });
 
       set({
-        wishlist: res.data.wishlist.items || [],
+        wishlist: res.data?.wishlist?.items || [],
         removing: false,
       });
 
-      return { success: true, message: res.data.message };
+      return { success: true, message: res.data?.message };
     } catch (error) {
       set({ wishlist: previousWishlist, removing: false });
       return {
@@ -121,7 +121,7 @@ const useWishlistStore = create((set, get) => ({
         removing: false,
       });
 
-      return { success: true, message: res.data.message };
+      return { success: true, message: res.data?.message };
     } catch (error) {
       set({ removing: false });
       return {

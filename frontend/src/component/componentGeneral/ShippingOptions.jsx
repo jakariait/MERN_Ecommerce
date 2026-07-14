@@ -40,12 +40,12 @@ const ShippingOptions = ({ onShippingChange }) => {
   useEffect(() => {
     if (shipping.length > 0) {
       const defaultOption = shipping[0];
-      const shippingValue = hasFreeShippingProduct ? 0 : defaultOption.value;
+      const shippingValue = hasFreeShippingProduct ? 0 : (defaultOption?.value ?? 0);
       setSelectedShipping(shippingValue);
       onShippingChange({
-        name: hasFreeShippingProduct ? 'Free Shipping' : defaultOption.name,
+        name: hasFreeShippingProduct ? 'Free Shipping' : (defaultOption?.name ?? ''),
         value: shippingValue,
-        id: defaultOption._id,
+        id: defaultOption?._id,
       });
     }
   }, [shipping, hasFreeShippingProduct]);

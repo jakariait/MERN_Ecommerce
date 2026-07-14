@@ -183,14 +183,14 @@ const ProductForm = ({ isEdit: isEditMode }) => {
     if (isEditMode && product && product.category) {
       setSelectedCategory(product.category._id);
       const filteredSubs = subCategories.filter(
-        (sub) => sub.category._id === product.category._id,
+        (sub) => sub?.category?._id === product.category._id,
       );
       setFilteredSubCategories(filteredSubs);
 
       if (product.subCategory) {
         setSelectedSubCategory(product.subCategory._id);
         const filteredChilds = childCategories.filter(
-          (child) => child.subCategory._id === product.subCategory._id,
+          (child) => child?.subCategory?._id === product.subCategory._id,
         );
         setFilteredChildCategories(filteredChilds);
 
@@ -539,6 +539,7 @@ const ProductForm = ({ isEdit: isEditMode }) => {
 
     try {
       if (isEditMode) {
+        if (!product?._id) return;
         await axios.put(`${apiUrl}/products/${product._id}`, formData, {
           headers: {
             Authorization: `Bearer ${token}`,

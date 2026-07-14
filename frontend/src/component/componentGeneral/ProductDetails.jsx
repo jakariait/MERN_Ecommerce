@@ -74,11 +74,11 @@ const ProductDetails = () => {
     if (!product || hasPushedRef.current) return;
 
     const price =
-      product.finalDiscount > 0 ? product.finalDiscount : product.finalPrice;
+      (product?.finalDiscount ?? 0) > 0 ? (product?.finalDiscount ?? 0) : (product?.finalPrice ?? 0);
 
     const discount =
-      product.finalDiscount > 0
-        ? product.finalPrice - product.finalDiscount
+      (product?.finalDiscount ?? 0) > 0
+        ? (product?.finalPrice ?? 0) - (product?.finalDiscount ?? 0)
         : 0;
 
     window.dataLayer = window.dataLayer || [];
@@ -155,7 +155,7 @@ const ProductDetails = () => {
           {/*Seo Meta Data*/}
           <title>{`${product?.name || product?.metaTitle} | ${GeneralInfoList?.CompanyName}`}</title>
           <meta name="description" content={product?.metaDescription} />
-          <meta name="keywords" content={product.metaKeywords.join(', ')} />
+          <meta name="keywords" content={product?.metaKeywords?.join(', ') ?? ''} />
           <meta
             property="og:title"
             content={`${product?.name || product?.metaTitle} | ${GeneralInfoList?.CompanyName}`}

@@ -272,20 +272,20 @@ const AllOrders = ({ title, status = '' }) => {
           bVal = b.orderNo;
           break;
         case 'orderDate':
-          aVal = new Date(a.orderDate);
-          bVal = new Date(b.orderDate);
+          aVal = a.orderDate ? new Date(a.orderDate) : new Date(0);
+          bVal = b.orderDate ? new Date(b.orderDate) : new Date(0);
           break;
         case 'totalAmount':
           aVal = a.totalAmount;
           bVal = b.totalAmount;
           break;
         case 'shippingInfo.fullName':
-          aVal = a.shippingInfo.fullName;
-          bVal = b.shippingInfo.fullName;
+          aVal = a.shippingInfo?.fullName ?? '';
+          bVal = b.shippingInfo?.fullName ?? '';
           break;
         case 'shippingInfo.mobileNo':
-          aVal = a.shippingInfo.mobileNo;
-          bVal = b.shippingInfo.mobileNo;
+          aVal = a.shippingInfo?.mobileNo ?? '';
+          bVal = b.shippingInfo?.mobileNo ?? '';
           break;
         case 'orderStatus':
           aVal = a.orderStatus;
@@ -913,10 +913,10 @@ const AllOrders = ({ title, status = '' }) => {
                             {order.orderNo}
                           </TableCell>
                           <TableCell>
-                            {new Date(order.createdAt).toLocaleString()}
+                            {order.createdAt ? new Date(order.createdAt).toLocaleString() : ''}
                           </TableCell>
-                          <TableCell>{order.shippingInfo.fullName}</TableCell>
-                          <TableCell>{order.shippingInfo.mobileNo}</TableCell>
+                          <TableCell>{order.shippingInfo?.fullName ?? ''}</TableCell>
+                          <TableCell>{order.shippingInfo?.mobileNo ?? ''}</TableCell>
                           <TableCell>
                             <SendToCourierButton
                               orderData={{
@@ -924,11 +924,11 @@ const AllOrders = ({ title, status = '' }) => {
                                 recipient_name: order.shippingInfo?.fullName,
                                 recipient_phone: order.shippingInfo?.mobileNo,
                                 recipient_address: order.shippingInfo?.address,
-                                cod_amount: order.dueAmount,
+                                cod_amount: order.dueAmount ?? 0,
                                 note: order.note || '',
                                 order_id: order._id,
                                 courier_status: order.sentToCourier,
-                                items: order.items.length,
+                                items: order.items?.length ?? 0,
                                 courierProvider: order.courierProvider,
                               }}
                               onSuccess={handleSuccess}

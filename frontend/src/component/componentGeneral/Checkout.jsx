@@ -81,7 +81,7 @@ const Checkout = () => {
       try {
         const res = await axios.get(`${apiUrl}/getFreeDeliveryAmount`);
         if (res.data?.success) {
-          setFreeDelivery(res.data.data.value);
+          setFreeDelivery(res.data?.data?.value);
         }
       } catch (err) {
         console.error('Failed to fetch free delivery amount', err);
@@ -122,7 +122,7 @@ const Checkout = () => {
       try {
         const res = await axios.get(`${apiUrl}/getVatPercentage`);
         if (res.data?.success) {
-          setVatPercentage(res.data.data.value);
+          setVatPercentage(res.data?.data?.value);
         }
       } catch (err) {
         console.error('Failed to fetch VAT Percentage', err);
@@ -136,6 +136,7 @@ const Checkout = () => {
 
   useEffect(() => {
     if (cart.length > 0) {
+      window.dataLayer = window.dataLayer || [];
       window.dataLayer.push({
         event: 'begin_checkout',
         ecommerce: {
@@ -252,7 +253,7 @@ const Checkout = () => {
         showSnackbar('Order placed successfully!', 'success');
 
         setTimeout(() => {
-          navigate(`/thank-you/${res.data.order.orderNo}`);
+          navigate(`/thank-you/${res.data?.order?.orderNo}`);
         }, 300); // delay by 300ms
       } else {
         showSnackbar(res.data.message || 'Failed to place order.', 'error');
