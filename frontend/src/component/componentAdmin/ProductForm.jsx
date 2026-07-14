@@ -591,7 +591,7 @@ const ProductForm = ({ isEdit: isEditMode }) => {
       }
 
       setTimeout(() => {
-        navigate('/admin/viewallproducts');
+        navigate('/admin/manage-products');
       }, 3000);
     } catch (error) {
       toast.error(
