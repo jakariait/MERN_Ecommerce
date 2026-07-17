@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useAuthAdminStore from '../../store/AuthAdminStore.js';
 import GeneralInfoStore from '../../store/GeneralInfoStore.js';
-import { preloadAdminRoutes } from '../../utils/routePreloader.js';
 
 const AdminLogin = () => {
   const { GeneralInfoList } = GeneralInfoStore();
@@ -16,10 +15,7 @@ const AdminLogin = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const success = await login(email, password);
-    if (success) {
-      preloadAdminRoutes();
-    }
+    await login(email, password);
   };
 
   const isTokenExpired = (token) => {
@@ -33,7 +29,6 @@ const AdminLogin = () => {
 
   useEffect(() => {
     if (token && !isTokenExpired(token)) {
-      preloadAdminRoutes();
       navigate('/admin/dashboard');
     } else {
       setCheckingAuth(false);

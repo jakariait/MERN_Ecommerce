@@ -4,6 +4,8 @@ import { useLocation } from 'react-router-dom';
 import axios from 'axios';
 import ReactGA from 'react-ga4';
 
+const CANONICAL_DOMAIN = 'https://ecommerce.digiwebdigital.com';
+
 const MetaProvider = () => {
   const [meta, setMeta] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -34,6 +36,16 @@ const MetaProvider = () => {
       page: location.pathname + location.search,
     });
   }, [location]);
+
+  useEffect(() => {
+    let link = document.querySelector("link[rel='canonical']");
+    if (!link) {
+      link = document.createElement('link');
+      link.rel = 'canonical';
+      document.head.appendChild(link);
+    }
+    link.href = `${CANONICAL_DOMAIN}${location.pathname}${location.search}`;
+  }, [location.pathname, location.search]);
 
   if (loading || !meta) return null;
 

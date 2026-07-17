@@ -69,9 +69,6 @@ export default defineConfig(({ mode }) => {
               if (id.includes('react-router')) {
                 return 'vendor-router';
               }
-              if (id.includes('@mui/') || id.includes('@emotion/')) {
-                return 'vendor-mui';
-              }
               if (id.includes('@nivo/')) {
                 return 'vendor-charts';
               }
@@ -116,7 +113,9 @@ export default defineConfig(({ mode }) => {
           },
         },
       },
-      chunkSizeWarningLimit: 500,
+      target: 'es2020',
+      chunkSizeWarningLimit: 250,
+      cssCodeSplit: true,
     },
   };
 });

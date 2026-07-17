@@ -206,7 +206,11 @@ function App() {
     initGTM();
   }, []);
 
-  setFaviconFromApi(GeneralInfoList?.Favicon);
+  useEffect(() => {
+    if (GeneralInfoList?.Favicon) {
+      setFaviconFromApi(GeneralInfoList.Favicon);
+    }
+  }, [GeneralInfoList?.Favicon]);
 
   return (
     <Router>

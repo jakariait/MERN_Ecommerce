@@ -60,18 +60,19 @@ const ProductCarousel = () => {
         </>
       ) : (
         <>
-          <Slider ref={sliderRef} {...settings}>
-            {products.map((product, index) => (
-              <div key={index} className="relative">
-                <ImageComponent
-                  imageName={product.imgSrc}
-                  className="w-full h-full object-contain"
-                  skeletonHeight={400}
-                  altName={`Banner ${index + 1}`}
-                />
-              </div>
-            ))}
-          </Slider>
+              <Slider ref={sliderRef} {...settings}>
+                {products.map((product, index) => (
+                  <div key={index} className="relative">
+                    <ImageComponent
+                      imageName={product.imgSrc}
+                      className="w-full h-full object-contain"
+                      skeletonHeight={400}
+                      altName={`Banner ${index + 1}`}
+                      fetchpriority={index === 0 ? 'high' : undefined}
+                    />
+                  </div>
+                ))}
+              </Slider>
         </>
       )}
     </div>

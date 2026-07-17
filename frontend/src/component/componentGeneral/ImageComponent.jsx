@@ -6,6 +6,9 @@ const ImageComponent = ({
   className = '',
   altName,
   skeletonHeight,
+  width,
+  height,
+  fetchpriority,
 }) => {
   const [imageSrc, setImageSrc] = useState('');
   const [isLoading, setIsLoading] = useState(true);
@@ -32,10 +35,9 @@ const ImageComponent = ({
   return (
     <div
       className="relative"
-      style={isLoading && skeletonHeight ? { minHeight: skeletonHeight } : {}}
+      style={{ minHeight: skeletonHeight || (isLoading ? 100 : undefined) }}
     >
-      {isLoading && skeletonHeight && <Skeleton height="100%" width={'100%'} />}
-      {isLoading && !skeletonHeight && <Skeleton height={100} width={'100%'} />}
+      {isLoading && <Skeleton height="100%" width="100%" />}
       {hasError && !isLoading && (
         <div
           className={`flex items-center justify-center bg-gray-100 text-gray-400 text-sm ${className}`}
@@ -49,13 +51,13 @@ const ImageComponent = ({
           src={imageSrc}
           alt={altName}
           className={className}
+          width={width}
+          height={height}
+          loading={fetchpriority === 'high' ? 'eager' : 'lazy'}
+          fetchpriority={fetchpriority}
           style={{
-            display: isLoading ? 'none' : 'block',
-            position: isLoading ? 'absolute' : 'relative',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
+            opacity: isLoading ? 0 : 1,
+            position: 'relative',
           }}
           onLoad={() => setIsLoading(false)}
           onError={() => {

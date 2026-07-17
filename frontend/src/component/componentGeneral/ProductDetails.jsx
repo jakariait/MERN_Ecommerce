@@ -163,6 +163,7 @@ const ProductDetails = () => {
           <meta property="og:description" content={product?.metaDescription} />
           <meta property="og:image" content={product?.thumbnailImage} />
           <meta property="og:url" content={window.location.href} />
+          <link rel="canonical" href={`https://ecommerce.digiwebdigital.com/product/${slug}`} />
 
           {/*BreadCrumbs*/}
           <ProductBreadcrumbs product={product} />
