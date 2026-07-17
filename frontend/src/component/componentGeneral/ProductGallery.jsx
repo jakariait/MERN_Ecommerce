@@ -50,7 +50,7 @@ const ProductGallery = ({ images, discount, zoom = true, productName }) => {
   if (imageUrls.length === 0) return <p>Loading images...</p>;
 
   return (
-              <div className="flex flex-col items-center">
+    <div className="flex flex-col items-center">
       <div className="relative w-full p-1 md:p-3">
         {discount > 0 && (
           <span className="absolute md:top-3 md:left-3 bg-red-400 px-3 py-1 text-white">

@@ -4,7 +4,6 @@ import useProductStore from '../../store/useProductStore.js';
 import GeneralInfoStore from '../../store/GeneralInfoStore.js';
 import Skeleton from 'react-loading-skeleton';
 import LazySocialShareButtons from './LazySocialShareButtons.jsx';
-import { Typography } from '@/components/ui/typography';
 import {
   Accordion,
   AccordionSummary,
@@ -74,7 +73,9 @@ const ProductDetails = () => {
     if (!product || hasPushedRef.current) return;
 
     const price =
-      (product?.finalDiscount ?? 0) > 0 ? (product?.finalDiscount ?? 0) : (product?.finalPrice ?? 0);
+      (product?.finalDiscount ?? 0) > 0
+        ? (product?.finalDiscount ?? 0)
+        : (product?.finalPrice ?? 0);
 
     const discount =
       (product?.finalDiscount ?? 0) > 0
@@ -155,7 +156,10 @@ const ProductDetails = () => {
           {/*Seo Meta Data*/}
           <title>{`${product?.name || product?.metaTitle} | ${GeneralInfoList?.CompanyName}`}</title>
           <meta name="description" content={product?.metaDescription} />
-          <meta name="keywords" content={product?.metaKeywords?.join(', ') ?? ''} />
+          <meta
+            name="keywords"
+            content={product?.metaKeywords?.join(', ') ?? ''}
+          />
           <meta
             property="og:title"
             content={`${product?.name || product?.metaTitle} | ${GeneralInfoList?.CompanyName}`}
@@ -163,7 +167,10 @@ const ProductDetails = () => {
           <meta property="og:description" content={product?.metaDescription} />
           <meta property="og:image" content={product?.thumbnailImage} />
           <meta property="og:url" content={window.location.href} />
-          <link rel="canonical" href={`https://ecommerce.digiwebdigital.com/product/${slug}`} />
+          <link
+            rel="canonical"
+            href={`https://ecommerce.digiwebdigital.com/product/${slug}`}
+          />
 
           {/*BreadCrumbs*/}
           <ProductBreadcrumbs product={product} />

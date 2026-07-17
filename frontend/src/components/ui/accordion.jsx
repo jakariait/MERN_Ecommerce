@@ -72,9 +72,7 @@ function Accordion({
           <span
             className={cn(
               'flex size-9 shrink-0 items-center justify-center rounded-lg transition-colors duration-200',
-              open
-                ? 'bg-current/10'
-                : 'bg-current/5',
+              open ? 'bg-current/10' : 'bg-current/5',
             )}
           >
             {icon}
@@ -100,9 +98,7 @@ function Accordion({
         <span
           className={cn(
             'flex size-7 shrink-0 items-center justify-center rounded-full transition-all duration-200',
-            open
-              ? 'bg-current/10'
-              : 'bg-current/5 group-hover:bg-current/10',
+            open ? 'bg-current/10' : 'bg-current/5 group-hover:bg-current/10',
           )}
         >
           {summary?.props?.expandIcon || (

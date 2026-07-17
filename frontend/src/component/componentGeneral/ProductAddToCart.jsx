@@ -202,7 +202,8 @@ const ProductAddToCart = ({ product }) => {
                 ? selectedVariant.price - selectedVariant.discount
                 : product.finalPrice - product.finalDiscount,
             item_variant: selectedVariant
-              ? (selectedVariant?.attributes?.map((a) => a.value).join('/') ?? 'Default')
+              ? (selectedVariant?.attributes?.map((a) => a.value).join('/') ??
+                'Default')
               : 'Default',
             price:
               selectedVariant?.discount > 0

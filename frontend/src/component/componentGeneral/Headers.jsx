@@ -122,7 +122,10 @@ const Headers = () => {
       (total, item) => total + item.quantity,
       0,
     );
-    if (currentCartCount > prevCartCount.current && !window.location.pathname.includes('/checkout')) {
+    if (
+      currentCartCount > prevCartCount.current &&
+      !window.location.pathname.includes('/checkout')
+    ) {
       setIsCartMenuOpen(true);
     }
     prevCartCount.current = currentCartCount;

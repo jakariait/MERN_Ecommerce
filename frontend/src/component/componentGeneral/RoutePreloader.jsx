@@ -1,8 +1,6 @@
 import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import {
-  preloadUserRoutes,
-} from '../../utils/routePreloader';
+import { preloadUserRoutes } from '../../utils/routePreloader';
 
 let userPreloaded = false;
 

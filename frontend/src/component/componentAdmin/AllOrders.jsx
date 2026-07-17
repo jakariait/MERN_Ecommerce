@@ -102,7 +102,9 @@ const AllOrders = ({ title, status = '' }) => {
   const handleTabChange = useCallback(
     (newStatus) => {
       setActiveStatus(newStatus);
-      setSearchParams(newStatus ? { status: newStatus } : {}, { replace: true });
+      setSearchParams(newStatus ? { status: newStatus } : {}, {
+        replace: true,
+      });
     },
     [setSearchParams],
   );
@@ -118,9 +120,7 @@ const AllOrders = ({ title, status = '' }) => {
 
   const allOrders = useMemo(
     () =>
-      activeStatus
-        ? orderListByStatus[activeStatus]
-        : allOrdersFromStore || [],
+      activeStatus ? orderListByStatus[activeStatus] : allOrdersFromStore || [],
     [activeStatus, orderListByStatus, allOrdersFromStore],
   );
 
@@ -164,7 +164,13 @@ const AllOrders = ({ title, status = '' }) => {
   const fetchOrders = useCallback(() => {
     fetchAllOrders(activeStatus, currentPage, itemsPerPage);
     fetchAllStatusCounts();
-  }, [activeStatus, currentPage, itemsPerPage, fetchAllOrders, fetchAllStatusCounts]);
+  }, [
+    activeStatus,
+    currentPage,
+    itemsPerPage,
+    fetchAllOrders,
+    fetchAllStatusCounts,
+  ]);
 
   useEffect(() => {
     fetchOrders();
@@ -176,8 +182,6 @@ const AllOrders = ({ title, status = '' }) => {
     startDateFromStore,
     endDateFromStore,
   ]);
-
-
 
   const handleSearchInputChange = useCallback((e) => {
     setSearchInput(e.target.value);
@@ -665,7 +669,7 @@ const AllOrders = ({ title, status = '' }) => {
                   : 'bg-muted-foreground/10 text-muted-foreground'
               }`}
             >
-              {tab.value ? totalByStatus[tab.value] ?? 0 : allOrdersTotal}
+              {tab.value ? (totalByStatus[tab.value] ?? 0) : allOrdersTotal}
             </span>
           </button>
         ))}
@@ -913,10 +917,16 @@ const AllOrders = ({ title, status = '' }) => {
                             {order.orderNo}
                           </TableCell>
                           <TableCell>
-                            {order.createdAt ? new Date(order.createdAt).toLocaleString() : ''}
+                            {order.createdAt
+                              ? new Date(order.createdAt).toLocaleString()
+                              : ''}
                           </TableCell>
-                          <TableCell>{order.shippingInfo?.fullName ?? ''}</TableCell>
-                          <TableCell>{order.shippingInfo?.mobileNo ?? ''}</TableCell>
+                          <TableCell>
+                            {order.shippingInfo?.fullName ?? ''}
+                          </TableCell>
+                          <TableCell>
+                            {order.shippingInfo?.mobileNo ?? ''}
+                          </TableCell>
                           <TableCell>
                             <SendToCourierButton
                               orderData={{

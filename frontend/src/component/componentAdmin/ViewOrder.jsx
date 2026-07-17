@@ -313,7 +313,7 @@ const ViewOrder = () => {
       <Card className="shadow-md border-0">
         <CardContent className="p-6" id="print-area" ref={printRef}>
           <div id="firstRow" className="flex items-center justify-between mb-6">
-              <h1 className="text-2xl font-bold">
+            <h1 className="text-2xl font-bold">
               {GeneralInfoList?.CompanyName ?? ''}
             </h1>
             <ImageComponent
@@ -328,32 +328,32 @@ const ViewOrder = () => {
               <h2 className="font-bold text-lg mb-2">Shipping Info:</h2>
               {isEditMode ? (
                 <div className="space-y-2">
-                    <Input
-                      placeholder="Full Name"
-                      name="fullName"
-                      value={editableOrder?.shippingInfo?.fullName ?? ''}
-                      onChange={handleShippingInfoChange}
-                    />
-                    <Input
-                      placeholder="Mobile No"
-                      name="mobileNo"
-                      value={editableOrder?.shippingInfo?.mobileNo ?? ''}
-                      onChange={handleShippingInfoChange}
-                    />
-                    <Input
-                      placeholder="Email"
-                      name="email"
-                      value={editableOrder?.shippingInfo?.email ?? ''}
-                      onChange={handleShippingInfoChange}
-                    />
-                    <textarea
-                      placeholder="Address"
-                      name="address"
-                      value={editableOrder?.shippingInfo?.address ?? ''}
-                      onChange={handleShippingInfoChange}
-                      rows={2}
-                      className="flex w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 resize-y"
-                    />
+                  <Input
+                    placeholder="Full Name"
+                    name="fullName"
+                    value={editableOrder?.shippingInfo?.fullName ?? ''}
+                    onChange={handleShippingInfoChange}
+                  />
+                  <Input
+                    placeholder="Mobile No"
+                    name="mobileNo"
+                    value={editableOrder?.shippingInfo?.mobileNo ?? ''}
+                    onChange={handleShippingInfoChange}
+                  />
+                  <Input
+                    placeholder="Email"
+                    name="email"
+                    value={editableOrder?.shippingInfo?.email ?? ''}
+                    onChange={handleShippingInfoChange}
+                  />
+                  <textarea
+                    placeholder="Address"
+                    name="address"
+                    value={editableOrder?.shippingInfo?.address ?? ''}
+                    onChange={handleShippingInfoChange}
+                    rows={2}
+                    className="flex w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 resize-y"
+                  />
                 </div>
               ) : (
                 <div className="space-y-0.5">
@@ -376,7 +376,9 @@ const ViewOrder = () => {
               </p>
               <p>
                 <strong>Order Date:</strong>{' '}
-                {currentOrderData?.orderDate ? new Date(currentOrderData.orderDate).toLocaleDateString() : ''}
+                {currentOrderData?.orderDate
+                  ? new Date(currentOrderData.orderDate).toLocaleDateString()
+                  : ''}
               </p>
               <p>
                 <strong>Status:</strong>{' '}
@@ -538,20 +540,27 @@ const ViewOrder = () => {
               )}
             </div>
             <div id="thirdRowRight" className="text-right space-y-1">
-                <p>Sub-total: Tk.{(currentOrderData?.subtotalAmount ?? 0).toFixed(2)}</p>
+              <p>
+                Sub-total: Tk.
+                {(currentOrderData?.subtotalAmount ?? 0).toFixed(2)}
+              </p>
               {(currentOrderData?.promoDiscount ?? 0) > 0 && (
                 <p>
-                  Promo Discount: Tk.{(currentOrderData?.promoDiscount ?? 0).toFixed(2)}
+                  Promo Discount: Tk.
+                  {(currentOrderData?.promoDiscount ?? 0).toFixed(2)}
                 </p>
               )}
               {(currentOrderData?.rewardPointsUsed ?? 0) > 0 && (
-                <p>Reward Points Used: {currentOrderData?.rewardPointsUsed ?? 0}</p>
+                <p>
+                  Reward Points Used: {currentOrderData?.rewardPointsUsed ?? 0}
+                </p>
               )}
               {(currentOrderData?.vat ?? 0) > 0 && (
                 <p>VAT/TAX: {(currentOrderData?.vat ?? 0).toFixed(2)}</p>
               )}
               <p>
-                Delivery Charge: {(currentOrderData?.deliveryCharge ?? 0).toFixed(2)}
+                Delivery Charge:{' '}
+                {(currentOrderData?.deliveryCharge ?? 0).toFixed(2)}
               </p>
               {(currentOrderData?.specialDiscount ?? 0) > 0 && (
                 <p>
@@ -560,7 +569,8 @@ const ViewOrder = () => {
                 </p>
               )}
               <p className="text-xl font-bold">
-                Total Order Amount: {(currentOrderData?.totalAmount ?? 0).toFixed(2)}
+                Total Order Amount:{' '}
+                {(currentOrderData?.totalAmount ?? 0).toFixed(2)}
               </p>
               {(currentOrderData?.advanceAmount ?? 0) > 0 && (
                 <p className="text-destructive">
@@ -568,7 +578,8 @@ const ViewOrder = () => {
                 </p>
               )}
               <p className="text-xl font-bold">
-                Total Due Amount: {(currentOrderData?.dueAmount ?? 0).toFixed(2)}
+                Total Due Amount:{' '}
+                {(currentOrderData?.dueAmount ?? 0).toFixed(2)}
               </p>
             </div>
           </div>
