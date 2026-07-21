@@ -18,7 +18,7 @@ function Select({
   const renderChildren = () => {
     return React.Children.map(children, (child) => {
       if (!child) return null;
-      const childName = child.type?.name || child.type?.displayName;
+      const childName = child.type?.displayName || child.type?.name;
       if (childName === 'MenuItem') {
         return (
           <option value={child.props.value} disabled={child.props.disabled}>
