@@ -29,4 +29,6 @@ function MenuItem({
   );
 }
 
+MenuItem.displayName = 'MenuItem';
+
 export { MenuItem };
