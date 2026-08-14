@@ -240,9 +240,9 @@ const ProductAddToCart = ({ product }) => {
     <div>
       <div>
         <div className="flex flex-col gap-1.5 md:gap-3 pt-1 md:pt-0">
-          <h2 className="text-base md:text-2xl leading-tight">
+          <h1 className="text-base md:text-2xl leading-tight">
             {product.name}
-          </h2>
+          </h1>
           <div className="flex text-center flex-col gap-1 md:gap-2">
             {/* Without Variant Price Display */}
             {!product.variants?.length && (

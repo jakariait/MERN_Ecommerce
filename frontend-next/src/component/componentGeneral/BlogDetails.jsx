@@ -70,7 +70,7 @@ const BlogDetails = ({ initialData = null }) => {
           dangerouslySetInnerHTML={{ __html: sanitizeHtml(blog.longDesc) }}
         />
         <div className="flex flex-col gap-2 mt-4 col-span-2">
-          <h1 className="text-lg font-semibold">Tags:</h1>
+          <h2 className="text-lg font-semibold">Tags:</h2>
           {blog.searchTags?.map((tag, index) => (
             <span
               key={index}

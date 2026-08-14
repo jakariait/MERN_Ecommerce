@@ -1,8 +1,6 @@
 import { fetchPageContent } from '@/lib/server-data';
 import ShippingPolicyPage from '@/pagesUser/ShippingPolicyPage';
 
-export const revalidate = 60;
-
 export const metadata = {
   title: 'Shipping Policy',
   description: 'Read the shipping policy for orders placed on Yarnfit.',

@@ -47,9 +47,9 @@ const ProductCarousel = () => {
   if (CarouselStoreListError) {
     return (
       <div className="primaryTextColor  container md:mx-auto text-center p-3">
-        <h1 className={'p-44'}>
+        <p className={'p-44'}>
           Something went wrong! Please try again later.
-        </h1>
+        </p>
       </div>
     ); // Display error message
   }

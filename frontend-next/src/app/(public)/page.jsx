@@ -3,7 +3,7 @@ import { seedHomeStore } from '@/lib/server-hydration';
 import { HydrateHome } from '@/lib/store-hydration';
 import HomePage from '@/pagesUser/HomePage';
 
-export const revalidate = 60;
+export const revalidate = 3600;
 
 export async function generateMetadata() {
   const meta = await fetchMeta();

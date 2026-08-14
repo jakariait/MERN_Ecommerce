@@ -2,7 +2,7 @@ import { Suspense } from 'react';
 import { fetchActiveBlogs } from '@/lib/server-data';
 import BlogsPage from '@/pagesUser/BlogsPage';
 
-export const revalidate = 60;
+export const revalidate = 3600;
 
 export const metadata = {
   title: 'Blog',

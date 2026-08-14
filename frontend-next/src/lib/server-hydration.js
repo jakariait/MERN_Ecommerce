@@ -18,12 +18,16 @@ export function seedProductStore(data) {
   useProductStore.setState({ product: data, loading: false, error: null });
 }
 
-export function seedShopStore({ products, totalProducts, totalPages, currentPage }) {
+export function seedShopStore(
+  { products, totalProducts, totalPages, currentPage },
+  queryKey = '',
+) {
   useProductStore.setState({
     products: products || [],
     totalProducts: totalProducts || 0,
     totalPages: totalPages || 0,
     currentPage: currentPage || 1,
+    queryKey,
     loading: false,
     error: null,
   });

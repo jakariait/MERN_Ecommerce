@@ -68,9 +68,9 @@ const ContactForm = () => {
   if (GeneralInfoListError) {
     return (
       <div className="container mx-auto text-center py-20 px-4">
-        <h1 className="text-xl text-gray-600">
+        <p className="text-xl text-gray-600">
           Something went wrong! Please try again later.
-        </h1>
+        </p>
       </div>
     );
   }

@@ -1,5 +1,5 @@
 'use client';
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, Suspense } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { MdEmail, MdClose } from 'react-icons/md';
 import { TfiTruck } from 'react-icons/tfi';
@@ -142,7 +142,7 @@ const Headers = () => {
   if (GeneralInfoListError) {
     return (
       <div className="primaryTextColor container md:mx-auto text-center p-3">
-        <h1>Something went wrong! Please try again later.</h1>
+        <p>Something went wrong! Please try again later.</p>
       </div>
     );
   }
@@ -163,9 +163,9 @@ const Headers = () => {
       <div className={'primaryBgColor text-white '}>
         {' '}
         <div className="flex gap-6 xl:container xl:mx-auto p-3 justify-center md:justify-start">
-          <h1 className="md:border-r-1 px-4">
+          <p className="md:border-r-1 px-4">
             Welcome to {GeneralInfoList?.CompanyName}
-          </h1>
+          </p>
           <div className="items-center gap-2 border-r-1 px-4 hidden md:flex">
             <Link
               to="/track-order"
@@ -220,7 +220,9 @@ const Headers = () => {
             />
           </Link>
 
-          <HeaderSearch />
+          <Suspense fallback={null}>
+            <HeaderSearch />
+          </Suspense>
 
           {/* Right Icons */}
           <div className="flex items-center justify-center gap-2 relative">
@@ -418,10 +420,10 @@ const Headers = () => {
         >
           <div className="p-4 h-full flex flex-col">
             <div className="flex items-center justify-between text-lg mb-4">
-              <h1>Your Cart</h1>
-              <h1>
+              <h2 className="font-semibold">Your Cart</h2>
+              <span>
                 {totalQuantity} {totalQuantity <= 1 ? 'item' : 'items'}
-              </h1>
+              </span>
               <button
                 onClick={() => setIsCartMenuOpen(false)}
                 className={'cursor-pointer'}

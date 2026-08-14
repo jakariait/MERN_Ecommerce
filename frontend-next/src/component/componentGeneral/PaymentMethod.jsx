@@ -56,7 +56,7 @@ const PaymentMethod = ({ selectedMethod, setSelectedMethod }) => {
                 onChange={(e) => setSelectedMethod(e.target.value)}
                 className="primaryAccentColor w-5 h-5"
               />
-              <img src={bkash} alt="bkash" className="w-[136px] h-10" />
+              <img src={bkash.src} alt="bkash" className="w-[136px] h-10" />
             </div>
           </label>
         )}

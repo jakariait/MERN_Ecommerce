@@ -1,8 +1,6 @@
 import { fetchPageContent } from '@/lib/server-data';
 import AboutUsPageUser from '@/pagesUser/AboutUsPageUser';
 
-export const revalidate = 60;
-
 export const metadata = {
   title: 'About Us',
   description: 'Learn more about Yarnfit.',

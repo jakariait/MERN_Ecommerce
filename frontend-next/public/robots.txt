@@ -1,4 +1,0 @@
-User-agent: *
-Allow: /
-Disallow: /admin/
-Sitemap: https://ecommerce.digiwebdigital.com/sitemap.xml

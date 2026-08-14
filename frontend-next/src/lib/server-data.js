@@ -1,25 +1,64 @@
-const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5050/api';
+import { API_URL as API } from './config';
 
-async function cachedJson(path, revalidate = 60) {
+// Cache tags for targeted revalidation (see src/app/api/revalidate/route.js).
+// The backend calls /api/revalidate?tag=... after content changes so ISR pages
+// regenerate immediately instead of waiting for the revalidate window.
+export const CACHE_TAGS = {
+  global: 'global',
+  home: 'home',
+  products: 'products',
+  shop: 'shop',
+  category: 'category',
+  blog: 'blog',
+  meta: 'meta',
+};
+
+async function cachedJson(path, revalidate = 3600, tags = []) {
   const res = await fetch(`${API}${path}`, {
-    next: { revalidate },
+    next: { revalidate, tags },
   });
   if (!res.ok) throw new Error(`API request failed: ${res.status}`);
   return res.json();
 }
 
 export async function fetchProductBySlug(slug) {
-  const data = await cachedJson(`/products/slug/${slug}`);
+  const data = await cachedJson(`/products/slug/${slug}`, 3600, [
+    CACHE_TAGS.products,
+    `product:${slug}`,
+  ]);
   return data?.data || null;
 }
 
+// Slugs for prerendering + ISR warmup. Returns a bounded, recent slice of the
+// catalog so build time stays fast; the rest render on-demand via dynamicParams.
+export async function fetchProductSlugs(limit = 200) {
+  try {
+    const data = await cachedJson(
+      `/getAllProducts?page=1&limit=${limit}&sort=latest`,
+      3600,
+      [CACHE_TAGS.products, CACHE_TAGS.shop],
+    );
+    const products = data.products || [];
+    return products.map((p) => ({ slug: p.slug })).filter((p) => p.slug);
+  } catch {
+    return [];
+  }
+}
+
 export async function fetchBlogBySlug(slug) {
-  const data = await cachedJson(`/blog/slug/${slug}`);
+  const data = await cachedJson(`/blog/slug/${slug}`, 3600, [
+    CACHE_TAGS.blog,
+    `blog:${slug}`,
+  ]);
   return data?.data || null;
 }
 
 export async function fetchActiveBlogs(page = 1, limit = 20) {
-  const data = await cachedJson(`/activeblog?page=${page}&limit=${limit}`);
+  const data = await cachedJson(
+    `/activeblog?page=${page}&limit=${limit}`,
+    3600,
+    [CACHE_TAGS.blog],
+  );
   return {
     blogs: data.data || [],
     totalPages: data.totalPages || 1,
@@ -29,7 +68,9 @@ export async function fetchActiveBlogs(page = 1, limit = 20) {
 
 export async function fetchPageContent(endpoint) {
   try {
-    const data = await cachedJson(`/pagecontent/${endpoint}`);
+    const data = await cachedJson(`/pagecontent/${endpoint}`, 3600, [
+      CACHE_TAGS.global,
+    ]);
     return data?.content || '';
   } catch {
     return '';
@@ -38,10 +79,10 @@ export async function fetchPageContent(endpoint) {
 
 export async function fetchHomeData() {
   const [carousel, features, home, flags] = await Promise.allSettled([
-    cachedJson('/getallcarousel'),
-    cachedJson('/feature-images'),
-    cachedJson('/homepageproducts'),
-    cachedJson('/flags'),
+    cachedJson('/getallcarousel', 3600, [CACHE_TAGS.home]),
+    cachedJson('/feature-images', 3600, [CACHE_TAGS.home]),
+    cachedJson('/homepageproducts', 3600, [CACHE_TAGS.home, CACHE_TAGS.products]),
+    cachedJson('/flags', 3600, [CACHE_TAGS.home]),
   ]);
 
   return {
@@ -74,7 +115,10 @@ export async function fetchShopProducts(searchParams = {}) {
     flags: searchParams.flags || '',
     search: searchParams.search || '',
   });
-  const data = await cachedJson(`/getAllProducts?${params.toString()}`);
+  const data = await cachedJson(`/getAllProducts?${params.toString()}`, 60, [
+    CACHE_TAGS.shop,
+    CACHE_TAGS.products,
+  ]);
   return {
     products: data.products || [],
     totalProducts: data.totalProducts || 0,
@@ -85,7 +129,7 @@ export async function fetchShopProducts(searchParams = {}) {
 
 export async function fetchMeta() {
   try {
-    const data = await cachedJson('/meta');
+    const data = await cachedJson('/meta', 3600, [CACHE_TAGS.meta]);
     return data?.data || null;
   } catch {
     return null;
@@ -95,12 +139,12 @@ export async function fetchMeta() {
 export async function fetchGlobalData() {
   const [generalInfo, colors, socialMedia, categories, subCategories, childCategories] =
     await Promise.allSettled([
-      cachedJson('/getGeneralInfo'),
-      cachedJson('/colors'),
-      cachedJson('/socialmedia'),
-      cachedJson('/category'),
-      cachedJson('/sub-category'),
-      cachedJson('/child-category'),
+      cachedJson('/getGeneralInfo', 3600, [CACHE_TAGS.global]),
+      cachedJson('/colors', 3600, [CACHE_TAGS.global]),
+      cachedJson('/socialmedia', 3600, [CACHE_TAGS.global]),
+      cachedJson('/category', 3600, [CACHE_TAGS.global, CACHE_TAGS.category]),
+      cachedJson('/sub-category', 3600, [CACHE_TAGS.global, CACHE_TAGS.category]),
+      cachedJson('/child-category', 3600, [CACHE_TAGS.global, CACHE_TAGS.category]),
     ]);
 
   return {

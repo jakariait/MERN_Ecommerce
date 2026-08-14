@@ -31,13 +31,15 @@ const ProductDetails = () => {
   const { GeneralInfoList } = GeneralInfoStore();
   const { slug } = useParams();
 
-  const [currentProductSlug, setCurrentProductSlug] = useState(null);
+  const [currentProductSlug, setCurrentProductSlug] = useState(() => slug);
   const [recentlyViewed, setRecentlyViewed] = useState([]);
 
   useEffect(() => {
     if (slug !== currentProductSlug) {
-      // Reset product state and show loading
-      resetProduct(); // Clear previous product data
+      // Only re-fetch when navigating between different products. The server
+      // has already seeded the store for the initial page load, so we must not
+      // wipe the SSR content on first mount.
+      resetProduct();
       setCurrentProductSlug(slug);
       fetchProductBySlug(slug);
     }
@@ -173,7 +175,7 @@ const ProductDetails = () => {
 
               {/*Social Share Buttons*/}
               <div className="flex items-center gap-2">
-                <h1>Social Share:</h1>
+                <span className="font-semibold">Social Share:</span>
                 <LazySocialShareButtons url={url} title={title} />
               </div>
               {/*Product Code*/}

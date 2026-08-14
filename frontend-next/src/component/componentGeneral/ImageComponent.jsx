@@ -1,5 +1,6 @@
 'use client';
 import React, { useState, useEffect } from 'react';
+import Image from 'next/image';
 import Skeleton from 'react-loading-skeleton';
 
 const buildImageUrl = (imageName) => {
@@ -10,6 +11,10 @@ const buildImageUrl = (imageName) => {
   return `${apiUrl.replace('/api', '')}/uploads/${imageName}`;
 };
 
+// Lightweight wrapper around next/image that preserves the legacy call-site
+// API (imageName/className/altName/skeletonHeight/fetchpriority). Using
+// next/image gives automatic WebP/AVIF optimization, responsive srcset,
+// priority hinting and layout-stable images.
 const ImageComponent = ({
   imageName,
   className = '',
@@ -18,6 +23,8 @@ const ImageComponent = ({
   width,
   height,
   fetchpriority,
+  sizes,
+  quality,
 }) => {
   const [imageSrc, setImageSrc] = useState(() =>
     imageName ? buildImageUrl(imageName) : '',
@@ -37,6 +44,8 @@ const ImageComponent = ({
     }
   }, [imageName]);
 
+  const priority = fetchpriority === 'high';
+
   return (
     <div
       className="relative"
@@ -52,18 +61,16 @@ const ImageComponent = ({
         </div>
       )}
       {imageSrc && (
-        <img
+        <Image
           src={imageSrc}
-          alt={altName}
+          alt={altName || ''}
           className={className}
-          width={width}
-          height={height}
-          loading={fetchpriority === 'high' ? 'eager' : 'lazy'}
-          fetchPriority={fetchpriority}
-          style={{
-            opacity: isLoading ? 0 : 1,
-            position: 'relative',
-          }}
+          width={width || 1200}
+          height={height || 1200}
+          sizes={sizes || '100vw'}
+          quality={quality || 75}
+          priority={priority}
+          style={{ opacity: isLoading ? 0 : 1 }}
           onLoad={() => setIsLoading(false)}
           onError={() => {
             setIsLoading(false);

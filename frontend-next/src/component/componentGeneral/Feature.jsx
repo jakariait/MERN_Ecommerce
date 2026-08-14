@@ -89,7 +89,7 @@ const Feature = () => {
   if (FeatureStoreListError) {
     return (
       <div className="primaryTextColor  container md:mx-auto text-center p-3">
-        <h1 className={'p-10'}>{FeatureStoreListError}</h1>
+        <p className={'p-10'}>{FeatureStoreListError}</p>
       </div>
     ); // Display error message
   }

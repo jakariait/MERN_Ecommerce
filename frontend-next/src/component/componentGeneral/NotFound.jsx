@@ -3,12 +3,14 @@ import React from 'react';
 
 const NotFound = () => {
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
+    <div className="flex items-center justify-center min-h-[60vh] bg-gray-100">
       <div className="text-center p-20 shadow-lg rounded-lg">
-        <h1 className="text-4xl font-semibold text-red-600">403</h1>
-        <h2 className="mt-4 text-xl font-semibold text-gray-700">Forbidden</h2>
+        <h1 className="text-4xl font-semibold text-red-600">404</h1>
+        <h2 className="mt-4 text-xl font-semibold text-gray-700">
+          Page Not Found
+        </h2>
         <p className="mt-2 text-gray-500">
-          You do not have permission to access this page.
+          The page you are looking for does not exist or has been moved.
         </p>
         <div className="mt-4">
           <a

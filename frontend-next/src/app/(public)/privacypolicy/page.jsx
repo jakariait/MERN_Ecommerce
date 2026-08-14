@@ -1,8 +1,6 @@
 import { fetchPageContent } from '@/lib/server-data';
 import PrivacyPolicyPage from '@/pagesUser/PrivacyPolicyPage';
 
-export const revalidate = 60;
-
 export const metadata = {
   title: 'Privacy Policy',
   description: 'Read the privacy policy for using Yarnfit.',

@@ -56,13 +56,20 @@ export function HydrateHome({ carousel, features, homeProducts, flags }) {
   });
 }
 
-export function HydrateShop({ products, totalProducts, totalPages, currentPage }) {
+export function HydrateShop({
+  products,
+  totalProducts,
+  totalPages,
+  currentPage,
+  queryKey,
+}) {
   return useApplyOnce(() => {
     useProductStore.setState({
       products: products || [],
       totalProducts: totalProducts || 0,
       totalPages: totalPages || 0,
       currentPage: currentPage || 1,
+      queryKey: queryKey || '',
       loading: false,
       error: null,
     });

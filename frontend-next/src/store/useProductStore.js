@@ -14,6 +14,7 @@ const useProductStore = create((set) => ({
   currentPage: 1,
   product: null,
   homeProducts: {},
+  queryKey: '',
   loading: false,
   error: null,
 
@@ -32,6 +33,7 @@ const useProductStore = create((set) => ({
         totalProducts: response.data.totalProducts || 0,
         totalPages: response.data.totalPages || 0,
         currentPage: response.data.currentPage || 1,
+        queryKey: queryString,
         loading: false,
       });
     } catch (error) {

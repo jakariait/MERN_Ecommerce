@@ -1,16 +1,23 @@
 import { notFound } from 'next/navigation';
-import { fetchBlogBySlug } from '@/lib/server-data';
+import {
+  fetchBlogBySlug,
+  fetchActiveBlogs,
+} from '@/lib/server-data';
+import { absoluteImage, SITE_NAME, SITE_URL } from '@/lib/config';
 import BlogDetailsPage from '@/pagesUser/BlogDetailsPage';
 
-export const revalidate = 60;
+export const revalidate = 3600;
+export const dynamicParams = true;
 
-const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5050/api';
-const API_ORIGIN = API.replace('/api', '');
-
-function absoluteImage(imageName) {
-  if (!imageName) return undefined;
-  if (/^(https?:|data:|blob:)/.test(imageName)) return imageName;
-  return `${API_ORIGIN}/uploads/${imageName}`;
+export async function generateStaticParams() {
+  try {
+    const { blogs } = await fetchActiveBlogs(1, 100);
+    return blogs
+      .map((blog) => ({ slug: blog.slug }))
+      .filter((entry) => entry.slug);
+  } catch {
+    return [];
+  }
 }
 
 export async function generateMetadata({ params }) {
@@ -31,14 +38,24 @@ export async function generateMetadata({ params }) {
     title: blog.name,
     description,
     keywords: blog.searchTags || [],
-    alternates: { canonical: `/blogs/${slug}` },
+    alternates: { canonical: `${SITE_URL}/blogs/${slug}` },
     openGraph: {
       title: blog.name,
       description,
+      url: `${SITE_URL}/blogs/${slug}`,
+      siteName: SITE_NAME,
+      type: 'article',
       images: absoluteImage(blog.thumbnailImage)
         ? [{ url: absoluteImage(blog.thumbnailImage) }]
         : [],
-      type: 'article',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: blog.name,
+      description,
+      images: absoluteImage(blog.thumbnailImage)
+        ? [absoluteImage(blog.thumbnailImage)]
+        : [],
     },
   };
 }

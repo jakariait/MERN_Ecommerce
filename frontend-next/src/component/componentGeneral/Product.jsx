@@ -46,6 +46,7 @@ const Product = () => {
     error,
     fetchProducts,
     totalProducts,
+    queryKey,
   } = useProductStore();
 
   const { categories } = useCategoryStore();
@@ -202,10 +203,31 @@ const Product = () => {
     }
   }, [fetchFlags, flags]);
 
-  // Effect to fetch products whenever filters change
+  // Effect to fetch products whenever filters change. The server component
+  // already seeds matching data (queryKey) on first load and navigation, so we
+  // skip the client fetch when the store is already in sync to avoid double
+  // API calls and blank-content flashes.
+  const currentQueryKey = useMemo(
+    () =>
+      new URLSearchParams({
+        page: currentFilters.page,
+        limit: currentFilters.limit,
+        sort: currentFilters.sort,
+        category: currentFilters.category,
+        subcategory: currentFilters.subcategory,
+        childCategory: currentFilters.childCategory,
+        stock: currentFilters.stock,
+        flags: currentFilters.flags,
+        search: currentFilters.search,
+      }).toString(),
+    [currentFilters],
+  );
+
   useEffect(() => {
-    fetchProducts(currentFilters);
-  }, [currentFilters, fetchProducts]);
+    if (queryKey !== currentQueryKey) {
+      fetchProducts(currentFilters);
+    }
+  }, [queryKey, currentQueryKey, currentFilters, fetchProducts]);
 
   // Cleanup search timeout on unmount
   useEffect(() => {

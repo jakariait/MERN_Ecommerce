@@ -30,7 +30,7 @@ const Cart = ({ onCloseCartMenu }) => {
       {cart.length === 0 ? (
         <div className="flex items-center justify-center h-[800px] p-4">
           <div className="flex flex-col items-center text-center">
-            <img src={emptyCart} alt="Empty Cart" className="w-48 h-auto" />
+            <img src={emptyCart.src} alt="Empty Cart" className="w-48 h-auto" />
             <p>There are no more items in your cart!</p>
 
             <Link to={`/shop`}>
@@ -141,7 +141,7 @@ const Cart = ({ onCloseCartMenu }) => {
             </div>
           ))}
           <div className="flex justify-between py-4 items-center gap-2 border-b border-t border-dashed">
-            <h1 className="text-center">Totals</h1>
+            <p className="text-center">Totals</p>
             <span className="text-center">
               Tk {formattedTotalAmount(totalAmount)}
             </span>

@@ -20,9 +20,9 @@ const Footer = () => {
   if (GeneralInfoListError) {
     return (
       <div className="primaryTextColor  container md:mx-auto text-center p-3">
-        <h1 className={'p-20'}>
+        <p className={'p-20'}>
           Something went wrong! Please try again later.
-        </h1>
+        </p>
       </div>
     ); // Display error message
   }
