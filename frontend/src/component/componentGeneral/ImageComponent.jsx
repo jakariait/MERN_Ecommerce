@@ -35,7 +35,7 @@ const ImageComponent = ({
   return (
     <div
       className="relative"
-      style={{ minHeight: skeletonHeight || (isLoading ? 100 : undefined) }}
+      style={{ minHeight: isLoading ? skeletonHeight || 100 : undefined }}
     >
       {isLoading && <Skeleton height="100%" width="100%" />}
       {hasError && !isLoading && (
