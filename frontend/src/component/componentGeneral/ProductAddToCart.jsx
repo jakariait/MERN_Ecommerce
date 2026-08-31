@@ -306,12 +306,12 @@ const ProductAddToCart = ({ product }) => {
             )}
 
             {product.productCode && (
-              <div className={'bg-gray-100 px-2 py-0.5 rounded text-xs'}>
+              <div className={'bg-gray-100 px-3 py-1.5 rounded text-sm md:text-base'}>
                 <strong>Product Code:</strong> {product.productCode}
               </div>
             )}
             {product.rewardPoints && (
-              <div className={'bg-gray-100 px-2 py-0.5 rounded text-xs'}>
+              <div className={'bg-gray-100 px-3 py-1.5 rounded text-sm md:text-base'}>
                 Purchase & Earn: {product.rewardPoints} points.
               </div>
             )}

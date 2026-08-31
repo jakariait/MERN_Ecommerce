@@ -721,6 +721,28 @@ const duplicateProduct = async (productId) => {
     delete doc.updatedAt;
     delete doc.__v;
 
+    // Copy image files with new names to avoid unlinking issues
+    const copyImage = (filename) => {
+      if (!filename) return filename;
+      const ext = path.extname(filename);
+      const baseName = path.basename(filename, ext);
+      const newFilename = `${baseName}_copy_${Date.now()}${ext}`;
+      const oldPath = path.join(uploadsDir, filename);
+      const newPath = path.join(uploadsDir, newFilename);
+      if (fs.existsSync(oldPath)) {
+        fs.copyFileSync(oldPath, newPath);
+      }
+      return newFilename;
+    };
+
+    if (doc.thumbnailImage) {
+      doc.thumbnailImage = copyImage(doc.thumbnailImage);
+    }
+
+    if (doc.images && doc.images.length > 0) {
+      doc.images = doc.images.map((img) => copyImage(img));
+    }
+
     const variantsData = doc.variants;
     delete doc.variants;
 

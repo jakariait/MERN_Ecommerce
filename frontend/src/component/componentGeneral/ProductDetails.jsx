@@ -139,8 +139,23 @@ const ProductDetails = () => {
     setRecentlyViewed(viewed);
   }, [product]);
 
-  if (loading || product?.slug !== slug) {
-    return <ProductDetailsSkeleton />; // Loading message while new product data is being fetched
+  if (loading) {
+    return <ProductDetailsSkeleton />;
+  }
+
+  if (!product) {
+    return (
+      <div className="xl:container xl:mx-auto p-3">
+        <div className="flex flex-col items-center justify-center pt-40 text-gray-500">
+          <h1 className="text-2xl font-semibold mb-2">Product Not Found</h1>
+          <p>The product you are looking for does not exist or has been removed.</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (product.slug !== slug) {
+    return <ProductDetailsSkeleton />;
   }
 
   return (
@@ -191,12 +206,6 @@ const ProductDetails = () => {
                 <h1>Social Share:</h1>
                 <LazySocialShareButtons url={url} title={title} />
               </div>
-              {/*Product Code*/}
-              {product.productCode && (
-                <div>
-                  <strong>Product Code:</strong> {product.productCode}
-                </div>
-              )}
 
               {/*Short Description*/}
               {product.shortDesc && (
