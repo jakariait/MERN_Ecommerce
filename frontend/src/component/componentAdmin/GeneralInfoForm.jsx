@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { toast } from 'sonner';
+import { Switch } from '@/components/ui/switch';
 import { Plus, Trash2, ImagePlus } from 'lucide-react';
 import { SectionHeader } from '@/component/componentAdmin/SectionHeader.jsx';
 
@@ -21,12 +22,8 @@ export default function GeneralInfoForm() {
     ShortDescription: '',
     CompanyAddress: '',
     GoogleMapLink: '',
-    PlayStoreLink: '',
-    AppStoreLink: '',
-    TradeLicense: '',
-    TINNumber: '',
-    BINNumber: '',
-    FooterCopyright: '',
+    WhatsAppNumber: '',
+    WhatsAppNumberIsActive: false,
   });
 
   const [files, setFiles] = useState({
@@ -42,9 +39,14 @@ export default function GeneralInfoForm() {
     if (GeneralInfoList) {
       setFormData((prev) => ({
         ...prev,
-        ...GeneralInfoList,
+        CompanyName: GeneralInfoList.CompanyName || '',
         PhoneNumber: GeneralInfoList.PhoneNumber || [''],
         CompanyEmail: GeneralInfoList.CompanyEmail || [''],
+        ShortDescription: GeneralInfoList.ShortDescription || '',
+        CompanyAddress: GeneralInfoList.CompanyAddress || '',
+        GoogleMapLink: GeneralInfoList.GoogleMapLink || '',
+        WhatsAppNumber: GeneralInfoList.WhatsAppNumber || '',
+        WhatsAppNumberIsActive: GeneralInfoList.WhatsAppNumberIsActive || false,
       }));
 
       setFiles({
@@ -114,6 +116,8 @@ export default function GeneralInfoForm() {
     Object.keys(formData).forEach((key) => {
       if (Array.isArray(formData[key])) {
         form.append(key, formData[key].join(','));
+      } else if (typeof formData[key] === 'boolean') {
+        form.append(key, formData[key]);
       } else if (formData[key]) {
         form.append(key, formData[key]);
       }
@@ -299,49 +303,39 @@ export default function GeneralInfoForm() {
               name="CompanyAddress"
               placeholder="Full company address"
             />
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <TextField
-                label="Google Map Link"
-                name="GoogleMapLink"
-                placeholder="Google Maps embed URL"
-              />
-              <TextField
-                label="Play Store Link"
-                name="PlayStoreLink"
-                placeholder="Google Play Store URL"
-              />
-              <TextField
-                label="App Store Link"
-                name="AppStoreLink"
-                placeholder="Apple App Store URL"
-              />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Legal & Compliance</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <TextField label="Trade License" name="TradeLicense" />
-              <TextField label="TIN Number" name="TINNumber" />
-              <TextField label="BIN Number" name="BINNumber" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Footer</CardTitle>
-          </CardHeader>
-          <CardContent>
             <TextField
-              label="Footer Copyright"
-              name="FooterCopyright"
-              placeholder="© 2024 Your Company. All rights reserved."
+              label="Google Map Link"
+              name="GoogleMapLink"
+              placeholder="Google Maps embed URL"
             />
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>WhatsApp</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="WhatsAppNumber">WhatsApp Number</Label>
+              <Input
+                id="WhatsAppNumber"
+                name="WhatsAppNumber"
+                value={formData.WhatsAppNumber}
+                onChange={handleChange}
+                placeholder="+880 1234567890"
+              />
+            </div>
+            <div className="flex items-center gap-3">
+              <Switch
+                id="WhatsAppNumberIsActive"
+                checked={formData.WhatsAppNumberIsActive}
+                onCheckedChange={(checked) =>
+                  setFormData((prev) => ({ ...prev, WhatsAppNumberIsActive: checked }))
+                }
+              />
+              <Label htmlFor="WhatsAppNumberIsActive">WhatsApp Number Active</Label>
+            </div>
           </CardContent>
         </Card>
 

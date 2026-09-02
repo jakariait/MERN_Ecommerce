@@ -68,12 +68,8 @@ const updateGeneralInfo = async (data, files) => {
       generalInfo.ShortDescription = data.ShortDescription;
       generalInfo.CompanyAddress = data.CompanyAddress;
       generalInfo.GoogleMapLink = data.GoogleMapLink;
-      generalInfo.PlayStoreLink = data.PlayStoreLink;
-      generalInfo.AppStoreLink = data.AppStoreLink;
-      generalInfo.TradeLicense = data.TradeLicense;
-      generalInfo.TINNumber = data.TINNumber;
-      generalInfo.BINNumber = data.BINNumber;
-      generalInfo.FooterCopyright = data.FooterCopyright;
+      generalInfo.WhatsAppNumber = data.WhatsAppNumber;
+      generalInfo.WhatsAppNumberIsActive = data.WhatsAppNumberIsActive === 'true' || data.WhatsAppNumberIsActive === true;
     }
 
     await generalInfo.save();
