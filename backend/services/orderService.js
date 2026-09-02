@@ -443,7 +443,10 @@ const deleteOrder = async (orderId) => {
       const { productId, variantId, quantity } = item;
 
       const product = await Product.findById(productId);
-      if (!product) throw new Error(`Product not found for item ${productId}`);
+      if (!product) {
+        // Skip stock update if product not found, proceed with order deletion
+        continue;
+      }
 
       if (product.variants.length === 0) {
         // If the product doesn't have variants, restore the stock to the product
@@ -452,7 +455,10 @@ const deleteOrder = async (orderId) => {
       } else {
         // If the product has variants, find the specific variant and restore the stock
         const variant = product.variants.find((v) => v._id.toString() === variantId.toString());
-        if (!variant) throw new Error(`Variant not found for product ${productId}`);
+        if (!variant) {
+          // Skip stock update if variant not found
+          continue;
+        }
 
         variant.stock += quantity;
         await product.save();
