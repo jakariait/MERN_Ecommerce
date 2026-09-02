@@ -47,6 +47,8 @@ const {
   bulkCreateSteadfastOrder,
 } = require('../controllers/steadfastController');
 
+const { getMetaCatalog } = require('../controllers/metaCatalogController');
+
 // Admin
 const { adminProtect } = require('../middlewares/authAdminMiddleware');
 const checkPermission = require('../middlewares/checkPermissionMiddleware');
@@ -805,5 +807,8 @@ router.delete(
   checkPermission('product_size'),
   productOptionController.deleteProductOption
 );
+
+// Routes for meta catalog
+router.get('/catalog', getMetaCatalog);
 
 module.exports = router;
