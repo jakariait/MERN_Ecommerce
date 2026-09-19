@@ -155,7 +155,7 @@ const ProductForm = ({ isEdit: isEditMode }) => {
           product.variants.map((v) => ({
             attributes: v.attributes
               ? v.attributes.map((attr) => ({
-                  option: attr.option ? attr.option._id : '',
+                  option: attr.option?._id || attr.option || '',
                   value: attr.value || '',
                 }))
               : [],

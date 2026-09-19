@@ -48,7 +48,6 @@ const getProducts = async () => {
         { path: 'subCategory', select: '-createdAt -updatedAt' },
         { path: 'childCategory', select: '-createdAt -updatedAt' },
         { path: 'flags', select: '-createdAt -updatedAt' },
-        { path: 'variants', select: '-createdAt -updatedAt' },
         { path: 'variants.attributes.option', select: '-createdAt -updatedAt' },
       ]);
 
@@ -68,7 +67,6 @@ const getProductById = async (productId) => {
       { path: 'subCategory', select: '-createdAt -updatedAt' },
       { path: 'childCategory', select: '-createdAt -updatedAt' },
       { path: 'flags', select: '-createdAt -updatedAt' },
-      { path: 'variants', select: '-createdAt -updatedAt' },
       { path: 'variants.attributes.option', select: '-createdAt -updatedAt' },
     ]);
     if (!product) throw new Error('Product not found');
@@ -87,7 +85,6 @@ const getProductBySlug = async (slug) => {
       { path: 'subCategory', select: '-createdAt -updatedAt' },
       { path: 'childCategory', select: '-createdAt -updatedAt' },
       { path: 'flags', select: '-createdAt -updatedAt' },
-      { path: 'variants', select: '-createdAt -updatedAt' },
       { path: 'variants.attributes.option', select: '-createdAt -updatedAt' },
     ]);
 
