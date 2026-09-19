@@ -477,6 +477,7 @@ const ProductForm = ({ isEdit: isEditMode }) => {
     formData.append('purchasePrice', purchasePrice);
     formData.append('isActive', isActive);
     formData.append('freeShipping', freeShipping);
+    formData.append('hasVariant', hasVariant);
 
     if (selectedCategory) formData.append('category', selectedCategory);
     if (selectedSubCategory)
