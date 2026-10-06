@@ -5,8 +5,7 @@
 //   NEXT_REVALIDATE_URL  e.g. http://localhost:3000/api/revalidate
 //   NEXT_REVALIDATE_SECRET  must match REVALIDATE_SECRET in the frontend .env
 
-const REVALIDATE_URL =
-  process.env.NEXT_REVALIDATE_URL || 'http://localhost:3000/api/revalidate';
+const REVALIDATE_URL = process.env.NEXT_REVALIDATE_URL || 'http://localhost:3000/api/revalidate';
 const REVALIDATE_SECRET = process.env.NEXT_REVALIDATE_SECRET || '';
 
 function revalidateNext({ tag, path } = {}) {

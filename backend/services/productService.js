@@ -469,7 +469,11 @@ const updateProduct = async (productId, updatedData, files) => {
     if (updatedData.hasVariant === 'false' || updatedData.hasVariant === false) {
       // User switched to no-variant mode — clear all variants
       updatedData.variants = [];
-    } else if (updatedData.variants && Array.isArray(updatedData.variants) && updatedData.variants.length > 0) {
+    } else if (
+      updatedData.variants &&
+      Array.isArray(updatedData.variants) &&
+      updatedData.variants.length > 0
+    ) {
       updatedData.variants = updatedData.variants.map((variantData, index) => {
         // Validate attributes
         if (

@@ -14,12 +14,10 @@ const createProductOption = async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    return res
-      .status(500)
-      .json({
-        message: 'An error occurred while creating the product option',
-        error: error.message,
-      });
+    return res.status(500).json({
+      message: 'An error occurred while creating the product option',
+      error: error.message,
+    });
   }
 };
 
@@ -41,12 +39,10 @@ const updateProductOption = async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    return res
-      .status(500)
-      .json({
-        message: 'An error occurred while updating the product option',
-        error: error.message,
-      });
+    return res.status(500).json({
+      message: 'An error occurred while updating the product option',
+      error: error.message,
+    });
   }
 };
 
@@ -60,12 +56,10 @@ const getAllProductOptions = async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    return res
-      .status(500)
-      .json({
-        message: 'An error occurred while fetching the product options',
-        error: error.message,
-      });
+    return res.status(500).json({
+      message: 'An error occurred while fetching the product options',
+      error: error.message,
+    });
   }
 };
 
@@ -83,12 +77,10 @@ const getProductOptionById = async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    return res
-      .status(500)
-      .json({
-        message: 'An error occurred while fetching the product option',
-        error: error.message,
-      });
+    return res.status(500).json({
+      message: 'An error occurred while fetching the product option',
+      error: error.message,
+    });
   }
 };
 
@@ -106,12 +98,10 @@ const deleteProductOption = async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    return res
-      .status(500)
-      .json({
-        message: 'An error occurred while deleting the product option',
-        error: error.message,
-      });
+    return res.status(500).json({
+      message: 'An error occurred while deleting the product option',
+      error: error.message,
+    });
   }
 };
 

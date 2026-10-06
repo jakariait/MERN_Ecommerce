@@ -69,7 +69,8 @@ const updateGeneralInfo = async (data, files) => {
       generalInfo.CompanyAddress = data.CompanyAddress;
       generalInfo.GoogleMapLink = data.GoogleMapLink;
       generalInfo.WhatsAppNumber = data.WhatsAppNumber;
-      generalInfo.WhatsAppNumberIsActive = data.WhatsAppNumberIsActive === 'true' || data.WhatsAppNumberIsActive === true;
+      generalInfo.WhatsAppNumberIsActive =
+        data.WhatsAppNumberIsActive === 'true' || data.WhatsAppNumberIsActive === true;
     }
 
     await generalInfo.save();
