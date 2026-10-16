@@ -61,7 +61,7 @@ const AllBlogs = () => {
 
   if (blogs.length === 0) {
     return (
-      <div className="max-w-4xl mx-auto p-4 text-center">
+      <div className="min-h-[60vh] flex items-center justify-center p-4">
         <p className="text-gray-600 text-lg">No blogs found.</p>
       </div>
     );

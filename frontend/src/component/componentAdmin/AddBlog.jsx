@@ -15,6 +15,7 @@ import { toast } from 'sonner';
 import { X, Upload } from 'lucide-react';
 import axios from 'axios';
 import { SectionHeader } from '#component/componentAdmin/SectionHeader.jsx';
+import ImageComponent from '@/component/componentGeneral/ImageComponent.jsx';
 
 const AddBlog = () => {
   const apiUrl = import.meta.env.VITE_API_URL;
