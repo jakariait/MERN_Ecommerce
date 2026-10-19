@@ -8,6 +8,7 @@ const useProductStore = create((set) => ({
   products: [],
   totalProducts: 0,
   totalProductsAdmin: 0,
+  allProductsCount: 0,
   activeCount: 0,
   inactiveCount: 0,
   totalPages: 0,
@@ -27,6 +28,7 @@ const useProductStore = create((set) => ({
       const data = response.data || {};
       set({
         totalProductsAdmin: data.totalProducts || 0,
+        allProductsCount: data.allProductsCount || 0,
         activeCount: data.activeCount || 0,
         inactiveCount: data.inactiveCount || 0,
       });
@@ -34,7 +36,6 @@ const useProductStore = create((set) => ({
       // Count refresh is best-effort; keep last known values
     }
   },
-
   // ✅ Fetch all products with filters (pagination, sorting, categories, flags, stock)
   fetchProducts: async (params) => {
     set({ loading: true, error: null });
@@ -72,6 +73,7 @@ const useProductStore = create((set) => ({
       set({
         products: response.data.products || [],
         totalProductsAdmin: response.data.totalProducts || 0,
+        allProductsCount: response.data.allProductsCount || 0,
         activeCount: response.data.activeCount || 0,
         inactiveCount: response.data.inactiveCount || 0,
         totalPages: response.data.totalPages || 0,

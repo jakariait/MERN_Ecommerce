@@ -171,7 +171,7 @@ const MENU_CONFIG = [
         icon: FaTags,
         path: '/admin/manage-products',
         permission: 'view_products',
-        showCount: 'totalProductsAdmin',
+        showCount: 'allProductsCount',
       },
     ],
   },
@@ -352,7 +352,7 @@ function MenuAccordion({ item, countValue, expanded, onChange }) {
 }
 
 export default function SidebarMenu() {
-  const { totalProductsAdmin, fetchProductsCount } = useProductStore();
+  const { allProductsCount, fetchProductsCount } = useProductStore();
   const { logout } = useAuthAdminStore();
   const { totalByStatus, fetchAllStatusCounts } = useOrderStore();
 
@@ -367,7 +367,7 @@ export default function SidebarMenu() {
   );
 
   const countValues = {
-    totalProductsAdmin,
+    allProductsCount,
     totalOrders,
   };
 

@@ -1,7 +1,12 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState } from 'react';
 import useProductStore from '../../store/useProductStore.js';
 import ImageComponent from '../componentGeneral/ImageComponent.jsx';
-import { Link, useNavigate } from 'react-router-dom';
+import {
+  Link,
+  useNavigate,
+  useSearchParams,
+  useLocation,
+} from 'react-router-dom';
 import RequirePermission from './RequirePermission.jsx';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -39,6 +44,7 @@ import {
 import { toast } from 'sonner';
 import {
   Search,
+  X,
   Eye,
   Pencil,
   Copy,
@@ -48,11 +54,36 @@ import {
 } from 'lucide-react';
 import { SectionHeader } from '@/component/componentAdmin/SectionHeader.jsx';
 
+// Mirrors the backend search fields (name, productCode, slug, productId,
+// variant attribute values, category name) so the client-side filter used
+// during the live-typing lag agrees with what the server returned
+const matchesSearch = (product, term) => {
+  const needle = term.trim().toLowerCase();
+  if (!needle) return true;
+  const variantValues =
+    product?.variants?.flatMap(
+      (variant) => variant.attributes?.map((attr) => attr?.value) || [],
+    ) || [];
+  return [
+    product?.name,
+    product?.productCode,
+    product?.slug,
+    product?.category?.name,
+    product?.productId,
+    ...variantValues,
+  ].some((field) =>
+    String(field ?? '')
+      .toLowerCase()
+      .includes(needle),
+  );
+};
+
 const ViewAllProducts = () => {
   const {
     products,
     totalPages,
     totalProductsAdmin,
+    allProductsCount,
     activeCount,
     inactiveCount,
     currentPage,
@@ -64,52 +95,74 @@ const ViewAllProducts = () => {
   } = useProductStore();
 
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const location = useLocation();
 
-  const [filters, setFilters] = useState({
-    page: 1,
-    limit: 10,
-    search: '',
-  });
+  // Search / pagination state lives entirely in the URL query string, so
+  // views are refresh-safe, shareable and survive back-navigation.
+  const page = Math.max(1, parseInt(searchParams.get('page') || '1', 10) || 1);
+  const rawLimit = parseInt(searchParams.get('limit') || '10', 10) || 10;
+  const limit = [5, 10, 20].includes(rawLimit) ? rawLimit : 10;
+  const search = searchParams.get('search') || '';
 
-  const [debouncedSearch, setDebouncedSearch] = useState('');
+  const [searchInput, setSearchInput] = useState(search);
   const [filteredProducts, setFilteredProducts] = useState([]);
 
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedProductId, setSelectedProductId] = useState(null);
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedSearch(filters.search.trim());
-      setFilters((prev) => ({ ...prev, page: 1 }));
-    }, 300);
-    return () => clearTimeout(timer);
-  }, [filters.search]);
+  // Exclude anything the URL doesn't support — see the whitelist in
+  // updateParams — so stray values can't end up in requests
+  const updateParams = (updates) => {
+    const next = new URLSearchParams(searchParams);
+    Object.entries(updates).forEach(([key, value]) => {
+      if (value === undefined || value === null || value === '') {
+        next.delete(key);
+      } else {
+        next.set(key, String(value));
+      }
+    });
+    setSearchParams(next);
+  };
 
-  useEffect(() => {
-    fetchProductsAdmin({ ...filters, search: debouncedSearch });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filters.page, filters.limit, debouncedSearch, fetchProductsAdmin]);
-
-  useEffect(() => {
-    // Server already searched + sorted newest-first; this handles the live
-    // input lag before the debounced request lands. Guard against products
-    // with no name so a single bad row can never break the whole list.
-    setFilteredProducts(
-      products.filter((product) =>
-        (product?.name || '')
-          .toLowerCase()
-          .includes(filters.search.trim().toLowerCase()),
-      ),
-    );
-  }, [filters.search, products]);
-
-  const handleFilterChange = useCallback((name, value) => {
-    setFilters((prev) => ({ ...prev, [name]: value, page: 1 }));
-  }, []);
+  const handleFilterChange = (name, value) =>
+    updateParams({ [name]: value, page: 1 });
 
   const handlePageChange = (newPage) => {
-    setFilters((prev) => ({ ...prev, page: newPage }));
+    updateParams({ page: newPage });
   };
+
+  // Search only runs when the user commits it — pressing Enter or clicking
+  // the search button writes the term into the URL, which triggers the fetch
+  const commitSearch = () => {
+    updateParams({ search: searchInput.trim(), page: 1 });
+  };
+
+  const clearSearch = () => {
+    setSearchInput('');
+    updateParams({ search: '', page: 1 });
+  };
+
+  // Keep the input in sync when the URL changes (back/forward navigation,
+  // sidebar links, or another page clearing/setting the search param)
+  useEffect(() => {
+    setSearchInput(search);
+  }, [search]);
+
+  useEffect(() => {
+    fetchProductsAdmin({ page, limit, search });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page, limit, search, fetchProductsAdmin]);
+
+  useEffect(() => {
+    // The server already searched + paginated; filter against the committed
+    // search term so the visible rows always agree with the URL. It checks
+    // the same fields the backend searches (name, productCode, slug, ID,
+    // variant attributes, category) for consistency.
+    setFilteredProducts(
+      products.filter((product) => matchesSearch(product, search)),
+    );
+  }, [search, products]);
 
   const handleOpenDialog = (id) => {
     setSelectedProductId(id);
@@ -122,10 +175,10 @@ const ViewAllProducts = () => {
       await deleteProduct(selectedProductId);
       toast.success(`Product ID ${selectedProductId} deleted successfully!`);
       // If the deleted row was the last one on this page, step back a page
-      if (products.length === 1 && filters.page > 1) {
-        handlePageChange(filters.page - 1);
+      if (products.length === 1 && page > 1) {
+        handlePageChange(page - 1);
       } else {
-        fetchProductsAdmin(filters);
+        fetchProductsAdmin({ page, limit, search });
       }
     } catch (err) {
       toast.error(err.response?.data?.message || 'Failed to delete product.');
@@ -140,7 +193,7 @@ const ViewAllProducts = () => {
     try {
       await duplicateProduct(id);
       toast.success('Product duplicated successfully!');
-      fetchProductsAdmin(filters);
+      fetchProductsAdmin({ page, limit, search });
     } catch (err) {
       toast.error(
         err.response?.data?.message || 'Failed to duplicate product.',
@@ -150,13 +203,13 @@ const ViewAllProducts = () => {
 
   const startItem =
     products.length > 0 && totalProductsAdmin > 0
-      ? (currentPage - 1) * filters.limit + 1
+      ? (currentPage - 1) * limit + 1
       : 0;
   const endItem = Math.max(
     startItem,
     Math.min(
-      currentPage * filters.limit,
-      (currentPage - 1) * filters.limit + filteredProducts.length,
+      currentPage * limit,
+      (currentPage - 1) * limit + filteredProducts.length,
     ),
   );
 
@@ -211,7 +264,7 @@ const ViewAllProducts = () => {
         <Card className="shadow-md border-0 border-l-4 border-l-[#00395d]">
           <CardContent className="p-4">
             <p className="text-3xl font-bold text-[#00395d]">
-              {totalProductsAdmin}
+              {allProductsCount}
             </p>
             <p className="text-sm text-muted-foreground">All Products</p>
           </CardContent>
@@ -231,19 +284,43 @@ const ViewAllProducts = () => {
       </div>
 
       <div className="flex items-center justify-between gap-4 bg-muted/30 rounded-lg p-3">
-        <div className="relative flex-1 max-w-sm">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
-          <Input
-            placeholder="Search products..."
-            value={filters.search}
-            onChange={(e) => handleFilterChange('search', e.target.value)}
-            className="pl-9 bg-background"
-          />
+        <div className="flex items-center gap-2 flex-1 max-w-md">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+            <Input
+              placeholder="Search products..."
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') commitSearch();
+              }}
+              className="pl-9 pr-8 bg-background"
+            />
+            {searchInput && (
+              <button
+                type="button"
+                aria-label="Clear search"
+                onClick={clearSearch}
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+              >
+                <X className="size-4" />
+              </button>
+            )}
+          </div>
+          <Button
+            variant="default"
+            size="sm"
+            className="h-9 shrink-0"
+            onClick={commitSearch}
+          >
+            <Search className="size-4" />
+            Search
+          </Button>
         </div>
         <div className="flex items-center gap-2">
           <p className="text-sm text-muted-foreground">Show</p>
           <Select
-            value={String(filters.limit)}
+            value={String(limit)}
             onValueChange={(value) => handleFilterChange('limit', value)}
           >
             <SelectTrigger className="w-16 h-8 bg-background">
@@ -290,9 +367,7 @@ const ViewAllProducts = () => {
                 </TableRow>
               ) : (
                 filteredProducts.map((product, index) => (
-                  <TableRow
-                    key={product._id ?? product.productId ?? index}
-                  >
+                  <TableRow key={product._id ?? product.productId ?? index}>
                     <TableCell className="text-muted-foreground text-sm">
                       {index + 1}
                     </TableCell>
@@ -410,6 +485,9 @@ const ViewAllProducts = () => {
                               <Button variant="ghost" size="icon-xs" asChild>
                                 <Link
                                   to={`/admin/edit-product/${product.slug}`}
+                                  state={{
+                                    from: `${location.pathname}${location.search}`,
+                                  }}
                                 >
                                   <Pencil className="size-3.5" />
                                 </Link>

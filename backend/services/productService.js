@@ -366,9 +366,30 @@ const getAllProducts = async ({
       query.flags = { $in: flagDocs.map((flag) => flag._id) };
     }
 
-    // Add search filter: partial, case-insensitive match on product name
+    // Add search filter: partial, case-insensitive match across the whole
+    // product — name, productCode, slug, productId, variant attribute values
+    // and the category name — applied before pagination, so every page of
+    // results is drawn from the full filtered set
     if (search && search.trim()) {
-      query.name = { $regex: search.trim(), $options: 'i' };
+      const term = search.trim();
+      const regex = { $regex: term, $options: 'i' };
+      const orFilters = [
+        { name: regex },
+        { productCode: regex },
+        { slug: regex },
+        { 'variants.attributes.value': regex },
+      ];
+      const numericTerm = Number(term);
+      if (!Number.isNaN(numericTerm)) {
+        orFilters.push({ productId: numericTerm });
+      }
+      const matchingCategories = await CategoryModel.find({ name: regex }).select('_id');
+      if (matchingCategories.length) {
+        orFilters.push({
+          category: { $in: matchingCategories.map((c) => c._id) },
+        });
+      }
+      query.$or = orFilters;
     }
 
     // Validate sort option

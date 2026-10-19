@@ -316,9 +316,12 @@ const getAllProductsAdmin = async (req, res) => {
       // Don't pass isActive filter here, meaning it will return all products
     });
 
-    const [activeCount, inactiveCount] = await Promise.all([
+    const [activeCount, inactiveCount, allProductsCount] = await Promise.all([
       ProductModel.countDocuments({ isActive: true }),
       ProductModel.countDocuments({ isActive: false }),
+      // Grand total across the whole collection — unaffected by search or
+      // filters, so the admin stat cards always show real totals
+      ProductModel.countDocuments({}),
     ]);
 
     res.status(200).json({
@@ -327,6 +330,7 @@ const getAllProductsAdmin = async (req, res) => {
       ...productsData, // Contains products, totalPages, totalProducts, currentPage
       activeCount,
       inactiveCount,
+      allProductsCount,
     });
   } catch (error) {
     res.status(500).json({
