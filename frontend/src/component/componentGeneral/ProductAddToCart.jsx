@@ -274,13 +274,13 @@ const ProductAddToCart = ({ product }) => {
               <div className="flex gap-1 md:gap-2 flex-wrap">
                 {variantForPrice.discount > 0 ? (
                   <>
-                    <div className="line-through text-xs md:text-sm">
+                    <div className="line-through ">
                       Tk. {formatPrice(Number(variantForPrice.price))}
                     </div>
-                    <div className="text-red-800 text-xs md:text-sm">
+                    <div className="text-red-800 ">
                       Tk. {formatPrice(Number(variantForPrice.discount))}
                     </div>
-                    <div className="hidden sm:block text-xs md:text-sm">
+                    <div className="hidden sm:block">
                       You Save: Tk{' '}
                       {formatPrice(
                         Number(
@@ -306,12 +306,20 @@ const ProductAddToCart = ({ product }) => {
             )}
 
             {product.productCode && (
-              <div className={'bg-gray-100 px-3 py-1.5 rounded text-sm md:text-base'}>
+              <div
+                className={
+                  'bg-gray-100 px-3 py-1.5 rounded text-sm md:text-base'
+                }
+              >
                 <strong>Product Code:</strong> {product.productCode}
               </div>
             )}
             {product.rewardPoints && (
-              <div className={'bg-gray-100 px-3 py-1.5 rounded text-sm md:text-base'}>
+              <div
+                className={
+                  'bg-gray-100 px-3 py-1.5 rounded text-sm md:text-base'
+                }
+              >
                 Purchase & Earn: {product.rewardPoints} points.
               </div>
             )}

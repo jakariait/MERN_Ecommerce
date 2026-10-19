@@ -3,6 +3,7 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { Snackbar } from '@/components/ui/snackbar';
 import { Alert } from '@/components/ui/alert';
+import { Truck } from 'lucide-react';
 
 // Stores
 import useCartStore from '../../store/useCartStore.js';
@@ -103,6 +104,10 @@ const Checkout = () => {
   const formattedTotalAmount = (amount) => Number(amount).toLocaleString();
 
   const hasFreeShippingProduct = cart.some((item) => item.freeShipping);
+
+  const isFreeDeliveryUnlocked =
+    hasFreeShippingProduct ||
+    (freeDelivery > 1 && totalAmount >= freeDelivery);
 
   const actualShippingCost =
     hasFreeShippingProduct || (freeDelivery > 1 && totalAmount >= freeDelivery)
@@ -312,6 +317,50 @@ const Checkout = () => {
                 points={rewardPointsUsed}
                 onPointsChange={handleRewardPointsChange}
               />
+            )}
+
+            {/* Free Delivery Tracker */}
+            {freeDelivery > 1 && (
+              <div className="rounded-lg bg-gray-50 p-4">
+                {isFreeDeliveryUnlocked ? (
+                  <p className="flex items-center gap-1.5 text-sm font-semibold text-green-700">
+                    <Truck
+                      className="size-4 shrink-0 text-green-600"
+                      aria-hidden="true"
+                    />
+                    Free delivery unlocked — shipping is on us
+                  </p>
+                ) : (
+                  <>
+                    <p className="flex items-center gap-1.5 text-sm font-medium text-gray-700">
+                      <Truck
+                        className="size-4 shrink-0 text-gray-400"
+                        aria-hidden="true"
+                      />
+                      Add{' '}
+                      <span className="font-bold text-gray-900">
+                        Tk. {formattedTotalAmount(freeDelivery - totalAmount)}
+                      </span>{' '}
+                      more to get free delivery
+                    </p>
+                    <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-gray-200">
+                      <div
+                        className="primaryBgColor h-full rounded-full transition-all duration-500"
+                        style={{
+                          width: `${Math.min(
+                            100,
+                            Math.round((totalAmount / freeDelivery) * 100),
+                          )}%`,
+                        }}
+                      />
+                    </div>
+                    <p className="mt-1.5 text-xs text-gray-500">
+                      Subtotal: Tk. {formattedTotalAmount(totalAmount)} of Tk.{' '}
+                      {formattedTotalAmount(freeDelivery)}
+                    </p>
+                  </>
+                )}
+              </div>
             )}
 
             {/* Final Order Summary */}
