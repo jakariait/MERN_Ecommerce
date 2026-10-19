@@ -34,8 +34,10 @@ const useFlagStore = create((set) => ({
     set({ loading: true, error: null });
     try {
       const response = await axios.get(`${apiUrl}/flags/${id}`);
-      if (response.data?.flag) {
-        set({ selectedFlag: response.data.flag, loading: false });
+      // Backend returns { success, data }
+      const flag = response.data?.data || response.data?.flag;
+      if (flag) {
+        set({ selectedFlag: flag, loading: false });
       } else {
         throw new Error('Flag not found');
       }
@@ -57,8 +59,10 @@ const useFlagStore = create((set) => ({
       const response = await axios.post(`${apiUrl}/flags`, data, {
         headers: { Authorization: `Bearer ${token}` },
       });
+      // Backend returns { success, message, data }
+      const created = response.data?.data;
       set((state) => ({
-        flags: [...state.flags, response.data],
+        flags: created ? [...state.flags, created] : state.flags,
         loading: false,
       }));
     } catch (error) {
@@ -80,12 +84,17 @@ const useFlagStore = create((set) => ({
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      set((state) => ({
-        flags: state.flags.map((flag) =>
-          flag._id === id ? response.data : flag,
-        ),
-        loading: false,
-      }));
+      const updated = response.data?.data;
+      if (updated) {
+        set((state) => ({
+          flags: state.flags.map((flag) =>
+            flag._id === id ? updated : flag,
+          ),
+          loading: false,
+        }));
+      } else {
+        set({ loading: false });
+      }
     } catch (error) {
       set({
         error: error.response?.data?.message || 'Failed to update flag',

@@ -113,9 +113,10 @@ const useProductStore = create((set) => ({
         headers: { Authorization: `Bearer ${token}` },
       });
 
+      const updated = response.data?.data || response.data;
       set((state) => ({
         products: state.products.map((prod) =>
-          prod._id === id ? response.data : prod,
+          prod._id === id ? updated : prod,
         ),
         loading: false,
       }));

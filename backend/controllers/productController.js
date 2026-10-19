@@ -1,8 +1,14 @@
 const productService = require('../services/productService');
 const mongoose = require('mongoose');
-const redisClient = require('../config/redisClient');
+const { client: redisClient, clearCachePattern } = require('../config/redisClient');
 const ProductModel = require('../models/ProductModel');
 const { revalidateNext } = require('../utility/revalidateNext');
+
+// Invalidate every cached product listing (plain + query-key variants)
+const invalidateProductCache = () => {
+  clearCachePattern('/api/products*');
+};
+
 
 // Create a product
 const createProduct = async (req, res) => {
@@ -24,7 +30,7 @@ const createProduct = async (req, res) => {
     const product = await productService.createProduct(productData);
 
     // Invalidate the cache
-    redisClient.del('/api/products');
+    invalidateProductCache();
     revalidateNext({ tag: 'products' });
 
     res.status(201).json({
@@ -140,7 +146,7 @@ const deleteProduct = async (req, res) => {
     }
 
     // Invalidate the cache
-    redisClient.del('/api/products');
+    invalidateProductCache();
     revalidateNext({ tag: 'products' });
 
     res.status(200).json({
@@ -209,7 +215,7 @@ const updateProduct = async (req, res) => {
     const updatedProduct = await productService.updateProduct(productId, updatedData, files);
 
     // Invalidate the cache
-    redisClient.del('/api/products');
+    invalidateProductCache();
     revalidateNext({ tag: 'products' });
 
     return res.status(200).json({
@@ -218,7 +224,10 @@ const updateProduct = async (req, res) => {
       data: updatedProduct,
     });
   } catch (err) {
-    return res.status(500).json({
+    // Validation/user-data errors come back as 400 with the service message,
+    // so clients can show them inline; unexpected failures stay 500.
+    const isValidationError = /variant|attribute|option|price|stock|not found|requires/i.test(err.message);
+    return res.status(isValidationError ? 400 : 500).json({
       success: false,
       message: err.message,
     });
@@ -345,7 +354,7 @@ const duplicateProduct = async (req, res) => {
   try {
     const product = await productService.duplicateProduct(req.params.id);
 
-    redisClient.del('/api/products');
+    invalidateProductCache();
 
     res.status(201).json({
       success: true,

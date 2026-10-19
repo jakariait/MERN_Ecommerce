@@ -6,6 +6,7 @@ const CategoryModel = require('../models/CategoryModel');
 const SubCategoryModel = require('../models/SubCategoryModel');
 const ChildCategoryModel = require('../models/ChildCategoryModel');
 const mongoose = require('mongoose');
+const { toId } = require('../utils/toId');
 
 const uploadsDir = path.join(__dirname, '../uploads');
 
@@ -498,9 +499,10 @@ const updateProduct = async (productId, updatedData, files) => {
           if (v.attributes.length !== variantData.attributes.length) return false;
           return v.attributes.every((attr, i) => {
             const inputAttr = variantData.attributes[i];
-            // Compare both as strings to handle ObjectId vs string comparison
+            // Compare both as string ids via toId to handle populated docs,
+            // ObjectIds and raw strings uniformly
             return (
-              attr.option.toString() === String(inputAttr.option) &&
+              toId(attr.option) === toId(inputAttr.option) &&
               String(attr.value) === String(inputAttr.value)
             );
           });

@@ -46,8 +46,10 @@ const useCategoryStore = create((set) => ({
       const response = await axios.post(`${apiUrl}/category`, data, {
         headers: { Authorization: `Bearer ${token}` },
       });
+      // Backend returns { message, category } — use the data field
+      const created = response.data?.category;
       set((state) => ({
-        categories: [...state.categories, response.data],
+        categories: created ? [...state.categories, created] : state.categories,
         loading: false,
       }));
     } catch (error) {
@@ -67,12 +69,17 @@ const useCategoryStore = create((set) => ({
       const response = await axios.put(`${apiUrl}/category/${id}`, data, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      set((state) => ({
-        categories: state.categories.map((cat) =>
-          cat._id === id ? response.data : cat,
-        ),
-        loading: false,
-      }));
+      const updated = response.data?.category;
+      if (updated) {
+        set((state) => ({
+          categories: state.categories.map((cat) =>
+            cat._id === id ? updated : cat,
+          ),
+          loading: false,
+        }));
+      } else {
+        set({ loading: false });
+      }
     } catch (error) {
       set({
         error: error.response?.data?.message || 'Failed to update category',

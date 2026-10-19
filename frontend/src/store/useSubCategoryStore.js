@@ -45,8 +45,12 @@ const useSubCategoryStore = create((set) => ({
       const response = await axios.post(`${apiUrl}/sub-category`, data, {
         headers: { Authorization: `Bearer ${token}` },
       });
+      // Backend returns { message, subCategory } — use the data field
+      const created = response.data?.subCategory;
       set((state) => ({
-        subCategories: [...state.subCategories, response.data],
+        subCategories: created
+          ? [...state.subCategories, created]
+          : state.subCategories,
         loading: false,
       }));
     } catch (error) {
@@ -66,12 +70,17 @@ const useSubCategoryStore = create((set) => ({
       const response = await axios.put(`${apiUrl}/sub-category/${id}`, data, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      set((state) => ({
-        subCategories: state.subCategories.map((sub) =>
-          sub._id === id ? response.data : sub,
-        ),
-        loading: false,
-      }));
+      const updated = response.data?.subCategory;
+      if (updated) {
+        set((state) => ({
+          subCategories: state.subCategories.map((sub) =>
+            sub._id === id ? updated : sub,
+          ),
+          loading: false,
+        }));
+      } else {
+        set({ loading: false });
+      }
     } catch (error) {
       set({
         error: error.response?.data?.message || 'Failed to update subcategory',

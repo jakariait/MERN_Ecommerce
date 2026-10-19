@@ -33,7 +33,8 @@ const useChildCategoryStore = create((set) => ({
     set({ loading: true, error: null });
     try {
       const response = await axios.get(`${apiUrl}/child-category/${id}`);
-      set({ selectedChildCategory: response.data, loading: false });
+      // Backend returns { message, childCategory }
+      set({ selectedChildCategory: response.data?.childCategory || null, loading: false });
     } catch (error) {
       set({
         error:
@@ -54,8 +55,11 @@ const useChildCategoryStore = create((set) => ({
       const response = await axios.post(`${apiUrl}/child-category`, data, {
         headers: { Authorization: `Bearer ${token}` },
       });
+      const created = response.data?.childCategory;
       set((state) => ({
-        childCategories: [...state.childCategories, response.data],
+        childCategories: created
+          ? [...state.childCategories, created]
+          : state.childCategories,
         loading: false,
       }));
     } catch (error) {
@@ -77,12 +81,17 @@ const useChildCategoryStore = create((set) => ({
       const response = await axios.put(`${apiUrl}/child-category/${id}`, data, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      set((state) => ({
-        childCategories: state.childCategories.map((child) =>
-          child._id === id ? response.data : child,
-        ),
-        loading: false,
-      }));
+      const updated = response.data?.childCategory;
+      if (updated) {
+        set((state) => ({
+          childCategories: state.childCategories.map((child) =>
+            child._id === id ? updated : child,
+          ),
+          loading: false,
+        }));
+      } else {
+        set({ loading: false });
+      }
     } catch (error) {
       set({
         error:

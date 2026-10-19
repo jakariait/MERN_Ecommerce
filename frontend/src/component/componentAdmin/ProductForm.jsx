@@ -1,11 +1,9 @@
-import React, { useRef, useState, useEffect, lazy } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useRef, useState, useEffect, lazy } from 'react';import { useParams, useNavigate } from 'react-router-dom';
 import useCategoryStore from '../../store/useCategoryStore.js';
 import useSubCategoryStore from '../../store/useSubCategoryStore.js';
 import useChildCategoryStore from '../../store/useChildCategoryStore.js';
 import useFlagStore from '../../store/useFlagStore.js';
 import useProductOptionStore from '../../store/useProductOptionStore.js';
-import AuthAdminStore from '../../store/AuthAdminStore.js';
 import useProductStore from '../../store/useProductStore.js';
 const Editor = lazy(() =>
   import('primereact/editor').then((module) => ({ default: module.Editor })),
@@ -49,20 +47,20 @@ import {
   Loader2,
   ChevronDown,
 } from 'lucide-react';
-import axios from 'axios';
+import http from '../../lib/http.js';
+import { toId } from '../../utils/toId.js';
 import { SectionHeader } from '#component/componentAdmin/SectionHeader.jsx';
 
 const ProductForm = ({ isEdit: isEditMode }) => {
   const { slug } = useParams();
 
-  const { fetchProductBySlug, product } = useProductStore();
+  const { fetchProductBySlug, product, resetProduct } = useProductStore();
   const { categories } = useCategoryStore();
   const { subCategories } = useSubCategoryStore();
   const { childCategories } = useChildCategoryStore();
-  const { flags } = useFlagStore();
+  const { flags, fetchFlags } = useFlagStore();
   const { productOptions, fetchProductOptions } = useProductOptionStore();
   const apiUrl = import.meta.env.VITE_API_URL;
-  const { token } = AuthAdminStore();
   const navigate = useNavigate();
 
   const [name, setName] = useState('');
@@ -105,24 +103,82 @@ const ProductForm = ({ isEdit: isEditMode }) => {
 
   const [existingImages, setExistingImages] = useState([]);
   const [imagesToDelete, setImagesToDelete] = useState([]);
-  const [draggedImage, setDraggedImage] = useState(null);
   const [draggedIndex, setDraggedIndex] = useState(null);
   const [dragSource, setDragSource] = useState(null);
 
   const [errors, setErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
 
   const fileInputRef = useRef(null);
   const imagesInputRef = useRef(null);
 
   const imageUrl = `${apiUrl.replace('/api', '')}/uploads`;
 
+  // Confirm dialog so destructive actions aren't a single misclick away
+  const confirmAction = (message) => window.confirm(message);
+
+  const resetForm = () => {
+    setName('');
+    setShortDesc('');
+    setLongDesc('');
+    setProductCode('');
+    setRewardPoints('');
+    setVideoUrl('');
+    setMetaTitle('');
+    setMetaDescription('');
+    setMetaKeywords([]);
+    setSearchTags([]);
+    setFinalPrice('');
+    setFinalDiscount('');
+    setFinalStock('');
+    setPurchasePrice('');
+    setSelectedFlags([]);
+    setSelectedCategory('');
+    setSelectedSubCategory('');
+    setSelectedChildCategory('');
+    setFilteredSubCategories([]);
+    setFilteredChildCategories([]);
+    setThumbnailImage(null);
+    setImagePreview('');
+    setSelectedImages([]);
+    setImagePreviews([]);
+    setExistingImages([]);
+    setImagesToDelete([]);
+    setVariants([
+      {
+        attributes: [{ option: '', value: '' }],
+        stock: '',
+        price: '',
+        discount: '',
+      },
+    ]);
+    setHasVariant(true);
+    setIsActive('true');
+    setFreeShipping(false);
+    setErrors({});
+    if (fileInputRef.current) fileInputRef.current.value = '';
+    if (imagesInputRef.current) imagesInputRef.current.value = '';
+  };
+
   useEffect(() => {
+    // Stale data from a previously viewed/edited product would flash while
+    // the correct one loads — clear form state whenever we (re)load for a slug
+    resetForm();
     if (isEditMode && slug) {
+      resetProduct(); // avoid flashing a previously viewed product's data
       fetchProductBySlug(slug);
     }
     fetchProductOptions();
-  }, [isEditMode, slug, fetchProductBySlug, fetchProductOptions]);
+    fetchFlags();
+  }, [
+    isEditMode,
+    slug,
+    fetchProductBySlug,
+    fetchProductOptions,
+    fetchFlags,
+    resetProduct,
+  ]);
 
   useEffect(() => {
     if (isEditMode && product) {
@@ -140,7 +196,15 @@ const ProductForm = ({ isEdit: isEditMode }) => {
       setFinalDiscount(product.finalDiscount || '');
       setFinalStock(product.finalStock || '');
       setPurchasePrice(product.purchasePrice || '');
-      setSelectedFlags(product.flags?.map((f) => f._id) || []);
+      setSelectedFlags(
+        Array.from(
+          new Set(
+            (product.flags || [])
+              .map((f) => toId(f))
+              .filter((id) => Boolean(id)),
+          ),
+        ),
+      );
       setIsActive(String(product.isActive));
       setFreeShipping(product.freeShipping || false);
 
@@ -155,8 +219,15 @@ const ProductForm = ({ isEdit: isEditMode }) => {
           product.variants.map((v) => ({
             attributes: v.attributes
               ? v.attributes.map((attr) => ({
-                  option: attr.option?._id || attr.option || '',
-                  value: attr.value || '',
+                  option: toId(attr.option),
+                  value:
+                    attr.value != null
+                      ? String(
+                          typeof attr.value === 'object'
+                            ? (attr.value.value ?? '')
+                            : attr.value,
+                        )
+                      : '',
                 }))
               : [],
             stock: v.stock,
@@ -181,22 +252,30 @@ const ProductForm = ({ isEdit: isEditMode }) => {
 
   useEffect(() => {
     if (isEditMode && product && product.category) {
-      setSelectedCategory(product.category._id);
+      const categoryId = toId(product.category);
+      setSelectedCategory(categoryId);
       const filteredSubs = subCategories.filter(
-        (sub) => sub?.category?._id === product.category._id,
+        (sub) => toId(sub?.category) === categoryId,
       );
       setFilteredSubCategories(filteredSubs);
 
       if (product.subCategory) {
-        setSelectedSubCategory(product.subCategory._id);
+        const subCategoryId = toId(product.subCategory);
+        setSelectedSubCategory(subCategoryId);
         const filteredChilds = childCategories.filter(
-          (child) => child?.subCategory?._id === product.subCategory._id,
+          (child) => toId(child?.subCategory) === subCategoryId,
         );
         setFilteredChildCategories(filteredChilds);
 
         if (product.childCategory) {
-          setSelectedChildCategory(product.childCategory._id);
+          setSelectedChildCategory(toId(product.childCategory));
+        } else {
+          setSelectedChildCategory('');
         }
+      } else {
+        setSelectedSubCategory('');
+        setSelectedChildCategory('');
+        setFilteredChildCategories([]);
       }
     }
   }, [product, subCategories, childCategories, isEditMode]);
@@ -206,8 +285,8 @@ const ProductForm = ({ isEdit: isEditMode }) => {
   };
 
   const handleAddVariant = () => {
-    setVariants([
-      ...variants,
+    setVariants((prev) => [
+      ...prev,
       {
         attributes: [{ option: '', value: '' }],
         stock: '',
@@ -218,19 +297,53 @@ const ProductForm = ({ isEdit: isEditMode }) => {
   };
 
   const handleRemoveVariant = (index) => {
-    setVariants(variants.filter((_, i) => i !== index));
+    setVariants((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const updateVariant = (index, updater) => {
+    setVariants((prev) =>
+      prev.map((variant, i) =>
+        i === index ? { ...variant, ...updater } : variant,
+      ),
+    );
+  };
+
+  const updateAttribute = (index, attrIndex, field, value) => {
+    setVariants((prev) =>
+      prev.map((variant, i) =>
+        i === index
+          ? {
+              ...variant,
+              attributes: variant.attributes.map((attr, ai) =>
+                ai === attrIndex ? { ...attr, [field]: value } : attr,
+              ),
+            }
+          : variant,
+      ),
+    );
   };
 
   const handleAddAttribute = (variantIndex) => {
-    const updatedVariants = [...variants];
-    updatedVariants[variantIndex].attributes.push({ option: '', value: '' });
-    setVariants(updatedVariants);
+    setVariants((prev) =>
+      prev.map((variant, i) =>
+        i === variantIndex
+          ? { ...variant, attributes: [...variant.attributes, { option: '', value: '' }] }
+          : variant,
+      ),
+    );
   };
 
   const handleRemoveAttribute = (variantIndex, attributeIndex) => {
-    const updatedVariants = [...variants];
-    updatedVariants[variantIndex].attributes.splice(attributeIndex, 1);
-    setVariants(updatedVariants);
+    setVariants((prev) =>
+      prev.map((variant, i) =>
+        i === variantIndex
+          ? {
+              ...variant,
+              attributes: variant.attributes.filter((_, ai) => ai !== attributeIndex),
+            }
+          : variant,
+      ),
+    );
   };
 
   const handleMultipleImagesChange = (event) => {
@@ -243,6 +356,7 @@ const ProductForm = ({ isEdit: isEditMode }) => {
   };
 
   const handleRemoveImages = (index) => {
+    if (!confirmAction('Remove this image?')) return;
     setSelectedImages((prevImages) => prevImages.filter((_, i) => i !== index));
     setImagePreviews((prevPreviews) => {
       URL.revokeObjectURL(prevPreviews[index]);
@@ -255,12 +369,14 @@ const ProductForm = ({ isEdit: isEditMode }) => {
   };
 
   const handleRemoveExistingImage = (indexToRemove) => {
+    if (!confirmAction('Remove this image? It will be deleted on save.')) return;
     const imageNameToDelete = existingImages[indexToRemove];
     setImagesToDelete((prev) => [...prev, imageNameToDelete]);
     setExistingImages((prev) => prev.filter((_, i) => i !== indexToRemove));
   };
 
   const handleRemoveAllNewImages = () => {
+    if (!confirmAction('Remove all newly uploaded images?')) return;
     imagePreviews.forEach((url) => URL.revokeObjectURL(url));
     setSelectedImages([]);
     setImagePreviews([]);
@@ -331,6 +447,7 @@ const ProductForm = ({ isEdit: isEditMode }) => {
   };
 
   const handleRemoveThumbnail = () => {
+    if (imagePreview && !confirmAction('Remove the thumbnail image?')) return;
     setThumbnailImage(null);
     setImagePreview('');
     if (fileInputRef.current) {
@@ -390,6 +507,26 @@ const ProductForm = ({ isEdit: isEditMode }) => {
         ? prev.filter((id) => id !== flagId)
         : [...prev, flagId],
     );
+  };
+
+  // Values for a variant attribute — always includes the stored value so a
+  // saved variant never shows an empty Value dropdown (e.g. option edited or
+  // deleted after the product was saved)
+  const getAttributeValueList = (attr) => {
+    const selectedOption = productOptions.find((o) => o._id === attr.option);
+    const values = [...(selectedOption?.values || [])];
+    const storedValue =
+      attr.value != null
+        ? String(
+            typeof attr.value === 'object'
+              ? (attr.value.value ?? '')
+              : attr.value,
+          )
+        : '';
+    if (storedValue && !values.includes(storedValue)) {
+      values.unshift(storedValue);
+    }
+    return values;
   };
 
   const handleFinalPriceChange = (e) => {
@@ -462,6 +599,7 @@ const ProductForm = ({ isEdit: isEditMode }) => {
     }
 
     setSubmitting(true);
+    setUploadProgress(0);
     const formData = new FormData();
     formData.append('name', name);
     formData.append('shortDesc', shortDesc);
@@ -520,6 +658,17 @@ const ProductForm = ({ isEdit: isEditMode }) => {
         variant.stock != null,
     );
 
+    if (hasVariant && processedVariants.length < variants.length) {
+      const skipped = variants.length - processedVariants.length;
+      setErrors((prev) => ({
+        ...prev,
+        variants: `${skipped} incomplete variant(s) will not be saved. Every variant needs an option + value, stock, and price.`,
+      }));
+      toast.warning(
+        `${skipped} incomplete variant(s) were not saved. Fill stock, price and all attributes.`,
+      );
+    }
+
     if (hasVariant && processedVariants.length > 0) {
       processedVariants.forEach((variant, index) => {
         formData.append(`variants[${index}][stock]`, variant.stock);
@@ -539,56 +688,25 @@ const ProductForm = ({ isEdit: isEditMode }) => {
     }
 
     try {
+      const uploadOptions = {
+        headers: { 'Content-Type': 'multipart/form-data' },
+        onUploadProgress: (e) => {
+          if (e.total > 0) {
+            const percent = Math.round((e.loaded / e.total) * 100);
+            setUploadProgress(percent);
+          }
+        },
+      };
+
       if (isEditMode) {
         if (!product?._id) return;
-        await axios.put(`${apiUrl}/products/${product._id}`, formData, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'multipart/form-data',
-          },
-        });
+        await http.put(`/products/${product._id}`, formData, uploadOptions);
         toast.success('Product updated successfully!');
         setImagesToDelete([]);
       } else {
-        await axios.post(`${apiUrl}/products`, formData, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        await http.post('/products', formData, uploadOptions);
         toast.success('Product created successfully!');
-        setName('');
-        setShortDesc('');
-        setLongDesc('');
-        setProductCode('');
-        setRewardPoints('');
-        setVideoUrl('');
-        setMetaTitle('');
-        setMetaDescription('');
-        setFinalPrice('');
-        setFinalDiscount('');
-        setFinalStock('');
-        setPurchasePrice('');
-        setSelectedCategory('');
-        setSelectedSubCategory('');
-        setSelectedChildCategory('');
-        setSelectedFlags([]);
-        setSearchTags([]);
-        setMetaKeywords([]);
-        setThumbnailImage(null);
-        setImagePreview('');
-        setSelectedImages([]);
-        setImagePreviews([]);
-        setVariants([
-          {
-            attributes: [{ option: '', value: '' }],
-            stock: '',
-            price: '',
-            discount: '',
-          },
-        ]);
-        setHasVariant(true);
-        setIsActive('true');
-        setFreeShipping(false);
-        if (fileInputRef.current) fileInputRef.current.value = '';
-        if (imagesInputRef.current) imagesInputRef.current.value = '';
+        resetForm();
       }
 
       setTimeout(() => {
@@ -596,15 +714,23 @@ const ProductForm = ({ isEdit: isEditMode }) => {
       }, 3000);
     } catch (error) {
       toast.error(
-        isEditMode ? 'Failed to update product.' : 'Failed to create product.',
+        error?.response?.data?.message ||
+          (isEditMode
+            ? 'Failed to update product.'
+            : 'Failed to create product.'),
       );
-      if (error.response && error.response.data) {
-        setErrors(error.response.data);
-      } else {
+      const resErrors = error?.response?.data;
+      setErrors(
+        resErrors && Object.keys(resErrors).length > 0
+          ? resErrors
+          : {},
+      );
+      if (!error?.response) {
         console.error('An unexpected error occurred:', error);
       }
     } finally {
       setSubmitting(false);
+      setUploadProgress(0);
     }
   };
 
@@ -827,10 +953,10 @@ const ProductForm = ({ isEdit: isEditMode }) => {
                       onChange={handleFinalStockChange}
                       required={!hasVariant}
                     />
-                  </div>
-                </CardContent>
-              </Card>
-            )}
+                   </div>
+                 </CardContent>
+               </Card>
+             )}
 
             <Card className="shadow-md border-0">
               <CardHeader>
@@ -1035,11 +1161,11 @@ const ProductForm = ({ isEdit: isEditMode }) => {
                   <div className="flex flex-wrap gap-1.5 mt-3">
                     {selectedFlags.map((flagId) => {
                       const flag = flags.find((f) => f._id === flagId);
-                      return flag ? (
-                        <Badge key={flag._id} variant="secondary">
-                          {flag.name}
+                      return (
+                        <Badge key={flagId} variant="secondary">
+                          {flag ? flag.name : 'Unavailable flag'}
                         </Badge>
-                      ) : null;
+                      );
                     })}
                   </div>
                 )}
@@ -1231,19 +1357,23 @@ const ProductForm = ({ isEdit: isEditMode }) => {
                                        .filter((a, i) => i !== attrIndex && a.option)
                                        .map((a) => a.option);
                                      return (
-                                       <Select
-                                         value={attr.option}
-                                         onValueChange={(value) => {
-                                           const updatedVariants = [...variants];
-                                           updatedVariants[index].attributes[
-                                             attrIndex
-                                           ].option = value;
-                                           updatedVariants[index].attributes[
-                                             attrIndex
-                                           ].value = '';
-                                           setVariants(updatedVariants);
-                                         }}
-                                       >
+                                        <Select
+                                          value={attr.option}
+                                          onValueChange={(value) => {
+                                            updateAttribute(
+                                              index,
+                                              attrIndex,
+                                              'option',
+                                              value,
+                                            );
+                                            updateAttribute(
+                                              index,
+                                              attrIndex,
+                                              'value',
+                                              '',
+                                            );
+                                          }}
+                                        >
                                          <SelectTrigger className="w-[120px]">
                                            <SelectValue placeholder="Option" />
                                          </SelectTrigger>
@@ -1261,29 +1391,29 @@ const ProductForm = ({ isEdit: isEditMode }) => {
                                        </Select>
                                      );
                                    })()}
-                                  <Select
-                                    value={attr.value}
-                                    onValueChange={(value) => {
-                                      const updatedVariants = [...variants];
-                                      updatedVariants[index].attributes[
-                                        attrIndex
-                                      ].value = value;
-                                      setVariants(updatedVariants);
-                                    }}
-                                    disabled={!attr.option}
-                                  >
+                                   <Select
+                                     value={attr.value}
+                                     onValueChange={(value) => {
+                                       updateAttribute(
+                                         index,
+                                         attrIndex,
+                                         'value',
+                                         value,
+                                       );
+                                     }}
+                                     disabled={!attr.option}
+                                   >
                                     <SelectTrigger className="w-[120px]">
                                       <SelectValue placeholder="Value" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                      {attr.option &&
-                                        productOptions
-                                          .find((o) => o._id === attr.option)
-                                          ?.values?.map((val) => (
-                                            <SelectItem key={val} value={val}>
-                                              {val}
-                                            </SelectItem>
-                                          ))}
+                                      {getAttributeValueList(attr).map(
+                                        (val) => (
+                                          <SelectItem key={val} value={val}>
+                                            {val}
+                                          </SelectItem>
+                                        ),
+                                      )}
                                     </SelectContent>
                                   </Select>
                                   <Button
@@ -1318,9 +1448,7 @@ const ProductForm = ({ isEdit: isEditMode }) => {
                               onChange={(e) => {
                                 const value = e.target.value;
                                 if (value >= 0 || value === '') {
-                                  const updatedVariants = [...variants];
-                                  updatedVariants[index].stock = value;
-                                  setVariants(updatedVariants);
+                                  updateVariant(index, { stock: value });
                                 }
                               }}
                               className="w-20"
@@ -1334,9 +1462,7 @@ const ProductForm = ({ isEdit: isEditMode }) => {
                               onChange={(e) => {
                                 const value = e.target.value;
                                 if (value >= 0 || value === '') {
-                                  const updatedVariants = [...variants];
-                                  updatedVariants[index].price = value;
-                                  setVariants(updatedVariants);
+                                  updateVariant(index, { price: value });
                                 }
                               }}
                               className="w-20"
@@ -1349,9 +1475,7 @@ const ProductForm = ({ isEdit: isEditMode }) => {
                               onChange={(e) => {
                                 const value = e.target.value;
                                 if (value >= 0 || value === '') {
-                                  const updatedVariants = [...variants];
-                                  updatedVariants[index].discount = value;
-                                  setVariants(updatedVariants);
+                                  updateVariant(index, { discount: value });
                                 }
                               }}
                               className="w-20"
@@ -1385,6 +1509,11 @@ const ProductForm = ({ isEdit: isEditMode }) => {
                   </Button>
                 </div>
               </>
+            )}
+            {errors.variants && (
+              <p className="text-center text-xs text-destructive">
+                {errors.variants}
+              </p>
             )}
           </CardContent>
         </Card>
@@ -1451,7 +1580,7 @@ const ProductForm = ({ isEdit: isEditMode }) => {
           </CardContent>
         </Card>
 
-        <div className="flex justify-center">
+        <div className="flex flex-col items-center gap-2">
           <Button
             type="submit"
             size="lg"
@@ -1461,12 +1590,24 @@ const ProductForm = ({ isEdit: isEditMode }) => {
             {submitting ? (
               <>
                 <Loader2 className="size-4 mr-2 animate-spin" />
-                {isEditMode ? 'Updating...' : 'Adding...'}
+                {uploadProgress > 0
+                  ? `${isEditMode ? 'Uploading' : 'Creating'}… ${uploadProgress}%`
+                  : isEditMode
+                    ? 'Updating...'
+                    : 'Adding...'}
               </>
             ) : (
               <>{isEditMode ? 'Update Product' : 'Add Product'}</>
             )}
           </Button>
+          {submitting && (
+            <div className="h-1.5 w-[200px] overflow-hidden rounded-full bg-muted">
+              <div
+                className="h-full rounded-full bg-primary transition-all duration-300"
+                style={{ width: `${uploadProgress || 5}%` }}
+              />
+            </div>
+          )}
         </div>
       </form>
     </div>
