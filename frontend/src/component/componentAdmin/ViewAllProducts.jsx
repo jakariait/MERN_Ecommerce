@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import useProductStore from '../../store/useProductStore.js';
 import ImageComponent from '../componentGeneral/ImageComponent.jsx';
 import { Link, useNavigate } from 'react-router-dom';
@@ -34,7 +34,6 @@ import {
 import {
   Tooltip,
   TooltipContent,
-  TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { toast } from 'sonner';
@@ -72,22 +71,35 @@ const ViewAllProducts = () => {
     search: '',
   });
 
+  const [debouncedSearch, setDebouncedSearch] = useState('');
   const [filteredProducts, setFilteredProducts] = useState([]);
 
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedProductId, setSelectedProductId] = useState(null);
 
   useEffect(() => {
-    fetchProductsAdmin(filters);
-  }, [filters.page, filters.limit, fetchProductsAdmin]);
+    const timer = setTimeout(() => {
+      setDebouncedSearch(filters.search.trim());
+      setFilters((prev) => ({ ...prev, page: 1 }));
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [filters.search]);
 
   useEffect(() => {
+    fetchProductsAdmin({ ...filters, search: debouncedSearch });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filters.page, filters.limit, debouncedSearch, fetchProductsAdmin]);
+
+  useEffect(() => {
+    // Server already searched + sorted newest-first; this handles the live
+    // input lag before the debounced request lands. Guard against products
+    // with no name so a single bad row can never break the whole list.
     setFilteredProducts(
-      products
-        .filter((product) =>
-          product.name.toLowerCase().includes(filters.search.toLowerCase()),
-        )
-        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)),
+      products.filter((product) =>
+        (product?.name || '')
+          .toLowerCase()
+          .includes(filters.search.trim().toLowerCase()),
+      ),
     );
   }, [filters.search, products]);
 
@@ -105,10 +117,16 @@ const ViewAllProducts = () => {
   };
 
   const handleDelete = async () => {
+    if (!selectedProductId) return;
     try {
       await deleteProduct(selectedProductId);
       toast.success(`Product ID ${selectedProductId} deleted successfully!`);
-      fetchProductsAdmin(filters);
+      // If the deleted row was the last one on this page, step back a page
+      if (products.length === 1 && filters.page > 1) {
+        handlePageChange(filters.page - 1);
+      } else {
+        fetchProductsAdmin(filters);
+      }
     } catch (err) {
       toast.error(err.response?.data?.message || 'Failed to delete product.');
     } finally {
@@ -118,6 +136,7 @@ const ViewAllProducts = () => {
   };
 
   const handleDuplicate = async (id) => {
+    if (!id) return;
     try {
       await duplicateProduct(id);
       toast.success('Product duplicated successfully!');
@@ -130,10 +149,15 @@ const ViewAllProducts = () => {
   };
 
   const startItem =
-    products.length > 0 ? (currentPage - 1) * filters.limit + 1 : 0;
-  const endItem = Math.min(
-    currentPage * filters.limit,
-    (currentPage - 1) * filters.limit + filteredProducts.length,
+    products.length > 0 && totalProductsAdmin > 0
+      ? (currentPage - 1) * filters.limit + 1
+      : 0;
+  const endItem = Math.max(
+    startItem,
+    Math.min(
+      currentPage * filters.limit,
+      (currentPage - 1) * filters.limit + filteredProducts.length,
+    ),
   );
 
   if (loading) {
@@ -266,7 +290,9 @@ const ViewAllProducts = () => {
                 </TableRow>
               ) : (
                 filteredProducts.map((product, index) => (
-                  <TableRow key={product.id}>
+                  <TableRow
+                    key={product._id ?? product.productId ?? index}
+                  >
                     <TableCell className="text-muted-foreground text-sm">
                       {index + 1}
                     </TableCell>
@@ -401,7 +427,7 @@ const ViewAllProducts = () => {
                               <Button
                                 variant="ghost"
                                 size="icon-xs"
-                                onClick={() => handleDuplicate(product.id)}
+                                onClick={() => handleDuplicate(product._id)}
                               >
                                 <Copy className="size-3.5" />
                               </Button>
@@ -418,7 +444,7 @@ const ViewAllProducts = () => {
                               <Button
                                 variant="ghost"
                                 size="icon-xs"
-                                onClick={() => handleOpenDialog(product.id)}
+                                onClick={() => handleOpenDialog(product._id)}
                                 className="text-destructive hover:text-destructive"
                               >
                                 <Trash2 className="size-3.5" />

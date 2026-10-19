@@ -191,7 +191,7 @@ export function Route() {
   return null;
 }
 
-export default {
+const routerCompat = {
   Link,
   useNavigate,
   useLocation,
@@ -203,3 +203,5 @@ export default {
   Routes,
   Route,
 };
+
+export default routerCompat;
