@@ -55,9 +55,9 @@ const ProductForm = ({ isEdit: isEditMode }) => {
   const { slug } = useParams();
 
   const { fetchProductBySlug, product, resetProduct } = useProductStore();
-  const { categories } = useCategoryStore();
-  const { subCategories } = useSubCategoryStore();
-  const { childCategories } = useChildCategoryStore();
+  const { categories, fetchCategories } = useCategoryStore();
+  const { subCategories, fetchSubCategories } = useSubCategoryStore();
+  const { childCategories, fetchChildCategories } = useChildCategoryStore();
   const { flags, fetchFlags } = useFlagStore();
   const { productOptions, fetchProductOptions } = useProductOptionStore();
   const apiUrl = import.meta.env.VITE_API_URL;
@@ -169,12 +169,22 @@ const ProductForm = ({ isEdit: isEditMode }) => {
       resetProduct(); // avoid flashing a previously viewed product's data
       fetchProductBySlug(slug);
     }
+    // The category/sub-category/child-category selects depend on these stores.
+    // They are shared with other pages, but never assume they were populated
+    // elsewhere — e.g. a direct link into this page in production starts with
+    // empty zustand stores, so fetch them here.
+    fetchCategories();
+    fetchSubCategories();
+    fetchChildCategories();
     fetchProductOptions();
     fetchFlags();
   }, [
     isEditMode,
     slug,
     fetchProductBySlug,
+    fetchCategories,
+    fetchSubCategories,
+    fetchChildCategories,
     fetchProductOptions,
     fetchFlags,
     resetProduct,
@@ -478,7 +488,7 @@ const ProductForm = ({ isEdit: isEditMode }) => {
 
     if (value) {
       const filtered = subCategories.filter(
-        (sub) => sub.category._id === value,
+        (sub) => toId(sub?.category) === value,
       );
       setFilteredSubCategories(filtered);
     }
@@ -491,7 +501,7 @@ const ProductForm = ({ isEdit: isEditMode }) => {
 
     if (value) {
       const filtered = childCategories.filter(
-        (child) => child.subCategory._id === value,
+        (child) => toId(child?.subCategory) === value,
       );
       setFilteredChildCategories(filtered);
     }
