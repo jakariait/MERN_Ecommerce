@@ -288,7 +288,7 @@ const ProductForm = ({ isEdit: isEditMode }) => {
         setFilteredChildCategories([]);
       }
     }
-  }, [product, subCategories, childCategories, isEditMode]);
+  }, [product, subCategories, childCategories, categories, isEditMode]);
 
   const handleToggle = () => {
     setHasVariant(!hasVariant);
@@ -1083,9 +1083,9 @@ const ProductForm = ({ isEdit: isEditMode }) => {
                           </SelectItem>
                         ))
                       ) : (
-                        <SelectItem value="" disabled>
+                        <p className="px-2 py-1.5 text-sm text-muted-foreground">
                           No subcategories available
-                        </SelectItem>
+                        </p>
                       )}
                     </SelectContent>
                   </Select>
@@ -1115,9 +1115,9 @@ const ProductForm = ({ isEdit: isEditMode }) => {
                           </SelectItem>
                         ))
                       ) : (
-                        <SelectItem value="" disabled>
+                        <p className="px-2 py-1.5 text-sm text-muted-foreground">
                           No child categories available
-                        </SelectItem>
+                        </p>
                       )}
                     </SelectContent>
                   </Select>

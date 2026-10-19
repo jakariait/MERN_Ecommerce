@@ -473,9 +473,9 @@ const ChildCategoryAllinone = () => {
                       </SelectItem>
                     ))
                   ) : (
-                    <SelectItem value="" disabled>
+                    <p className="px-2 py-1.5 text-sm text-muted-foreground">
                       No subcategories available
-                    </SelectItem>
+                    </p>
                   )}
                 </SelectContent>
               </Select>
