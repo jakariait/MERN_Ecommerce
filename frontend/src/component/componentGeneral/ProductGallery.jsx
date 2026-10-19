@@ -9,7 +9,13 @@ import ImageComponent from './ImageComponent.jsx';
 import { IoIosArrowBack, IoIosArrowForward } from 'react-icons/io';
 import { BsArrowsFullscreen } from 'react-icons/bs';
 
-const ProductGallery = ({ images, discount, zoom = true, productName }) => {
+const ProductGallery = ({
+  images,
+  discount,
+  zoom = true,
+  productName,
+  focusImageName,
+}) => {
   const [imageUrls, setImageUrls] = useState([]);
   const [activeIndex, setActiveIndex] = useState(0);
   const thumbnailRefs = useRef([]);
@@ -22,8 +28,17 @@ const ProductGallery = ({ images, discount, zoom = true, productName }) => {
         (imageName) => `${apiUrl.replace('/api', '')}/uploads/${imageName}`,
       );
       setImageUrls(urls);
+      // New image list (e.g. new product) — start from the first image
+      setActiveIndex(0);
     }
   }, [images]);
+
+  // When a variant is selected, move the gallery to that variant's image
+  useEffect(() => {
+    if (!focusImageName) return;
+    const idx = images.findIndex((name) => name === focusImageName);
+    if (idx >= 0) setActiveIndex(idx);
+  }, [focusImageName, images]);
 
   useEffect(() => {
     if (thumbnailRefs.current[activeIndex]) {

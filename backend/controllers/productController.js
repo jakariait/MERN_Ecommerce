@@ -9,10 +9,33 @@ const invalidateProductCache = () => {
   clearCachePattern('/api/products*');
 };
 
+// Files uploaded under `variantImages` are mapped onto variants by their
+// positions sent in the parallel `variantImageIndices` body field, so the
+// frontend can attach a new image file to any variant row.
+const mergeVariantImages = (req) => {
+  const files = req.files;
+  const indices = req.body?.variantImageIndices;
+  if (!files || !files.variantImages || !indices) return;
+  const indexList = Array.isArray(indices) ? indices : [indices];
+  req.body.variantImages = undefined;
+  req.body.variantImageIndices = undefined;
+
+  const variants = req.body.variants;
+  if (!Array.isArray(variants)) return;
+
+  files.variantImages.forEach((file, i) => {
+    const idx = Number(indexList[i]);
+    if (!Number.isNaN(idx) && variants[idx]) {
+      variants[idx].image = file.filename;
+    }
+  });
+};
+
 
 // Create a product
 const createProduct = async (req, res) => {
   try {
+    mergeVariantImages(req);
     const productData = { ...req.body };
 
     // Check if thumbnailImage is uploaded
@@ -210,6 +233,8 @@ const updateProduct = async (req, res) => {
     const productId = req.params.id;
     const updatedData = req.body;
     const files = req.files; // Get uploaded files
+
+    mergeVariantImages(req);
 
     // Call the service with `files`
     const updatedProduct = await productService.updateProduct(productId, updatedData, files);

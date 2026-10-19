@@ -41,6 +41,7 @@ const productFixture = {
         stock: 5,
         price: 1200,
         discount: null,
+        image: 'variant1.jpg',
       },
     ],
   },
@@ -63,6 +64,11 @@ const optionsFixture = {
 };
 
 const categoriesFixture = { categories: [{ _id: 'cat123', name: 'Shirts' }] };
+
+const TINY_PNG = Buffer.from(
+  'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==',
+  'base64',
+);
 
 test.beforeEach(async ({ page }) => {
   // Logged-in admin so the permission route guard passes
@@ -100,6 +106,10 @@ test.beforeEach(async ({ page }) => {
   await page.route('**/api/category', (route) =>
     route.fulfill({ json: categoriesFixture }),
   );
+  // Mock the uploads host so variant/product image previews render
+  await page.route('**/uploads/**', (route) =>
+    route.fulfill({ contentType: 'image/png', body: TINY_PNG }),
+  );
 });
 
 test.describe('Product edit form robustness', () => {
@@ -131,6 +141,34 @@ test.describe('Product edit form robustness', () => {
 
     // Selection count still includes the missing flag
     await expect(page.getByText('2 flag(s) selected')).toBeVisible();
+  });
+
+  test('variant image always loads, can be removed and re-added', async ({
+    page,
+  }) => {
+    await page.goto(EDIT_URL, { waitUntil: 'networkidle' });
+
+    // Stored variant image renders in the variants table
+    await expect(
+      page.getByAltText('Variant 1'),
+    ).toBeVisible();
+
+    // Removing the stored image clears the preview and reveals the placeholder
+    await page
+      .locator('img[alt="Variant 1"]')
+      .locator('..')
+      .locator('button')
+      .click();
+    await expect(page.getByAltText('Variant 1')).toHaveCount(0);
+    await expect(page.locator('label[for="variant-image-0"]')).toBeVisible();
+
+    // Re-adding an image file shows a local preview again
+    await page.setInputFiles('#variant-image-0', {
+      name: 'new-variant.png',
+      mimeType: 'image/png',
+      buffer: TINY_PNG,
+    });
+    await expect(page.getByAltText('Variant 1')).toBeVisible();
   });
 
   test('variant edits are isolated: adding rows never disturbs neighbouring values', async ({

@@ -112,6 +112,9 @@ const deleteProduct = async (productId) => {
     if (deletedProduct.images && deletedProduct.images.length > 0) {
       deleteOldFiles(deletedProduct.images);
     }
+    deletedProduct.variants.forEach((variant) => {
+      if (variant.image) deleteOldFile(variant.image);
+    });
 
     return deletedProduct;
   } catch (error) {
@@ -509,9 +512,17 @@ const updateProduct = async (productId, updatedData, files) => {
         });
 
         if (existingVariant) {
+          // Variant images: '' means the user cleared it, a changed filename
+          // means a freshly uploaded replacement (merged by the controller).
+          // Unchanged/removed images are reconciled by the orphan cleanup
+          // below, which deletes files no longer present in the new list.
           return {
             _id: existingVariant._id,
             attributes: existingVariant.attributes,
+            image:
+              variantData.image !== undefined
+                ? variantData.image
+                : existingVariant.image || '',
             stock:
               variantData.stock !== undefined ? Number(variantData.stock) : existingVariant.stock,
             price:
@@ -535,6 +546,7 @@ const updateProduct = async (productId, updatedData, files) => {
             option: new mongoose.Types.ObjectId(attr.option),
             value: String(attr.value),
           })),
+          image: variantData.image || '',
           price: Number(variantData.price),
           stock: Number(variantData.stock),
           discount: variantData.discount === '' ? null : Number(variantData.discount) || null,
@@ -547,6 +559,20 @@ const updateProduct = async (productId, updatedData, files) => {
 
     // Handle other updates and save...
     delete updatedData.hasVariant;
+
+    // Remove files of variant images that are no longer in the new list
+    // (cleared by the user or belonging to variants that were removed)
+    if (Array.isArray(updatedData.variants)) {
+      const keptVariantImages = new Set(
+        updatedData.variants.map((v) => v.image).filter(Boolean),
+      );
+      product.variants.forEach((variant) => {
+        if (variant.image && !keptVariantImages.has(variant.image)) {
+          deleteOldFile(variant.image);
+        }
+      });
+    }
+
     Object.assign(product, updatedData);
 
     await product.save();
@@ -654,6 +680,7 @@ const getProductDetailsService = async ({ productId, variantId }) => {
         selectedVariant: {
           _id: selectedVariant._id,
           attributes: selectedVariant.attributes,
+          image: selectedVariant.image ?? '',
           price: selectedVariant.price,
           stock: selectedVariant.stock,
           discount: selectedVariant.discount ?? 0,
@@ -762,6 +789,8 @@ const duplicateProduct = async (productId) => {
     if (variantsData && variantsData.length > 0) {
       newProduct.variants = variantsData.map((v) => {
         const { _id, ...rest } = v;
+        // Copy the variant image file under a new name like other images
+        if (rest.image) rest.image = copyImage(rest.image);
         return rest;
       });
     }

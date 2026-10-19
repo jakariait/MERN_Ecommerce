@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { FaPlus } from 'react-icons/fa6';
 import { FiMinus } from 'react-icons/fi';
 import { FaTruck } from 'react-icons/fa';
@@ -8,7 +8,7 @@ import useCartStore from '../../store/useCartStore.js';
 import WishlistButton from './WishlistButton.jsx';
 import sanitizeHtml from '../../utils/sanitizeHtml.js';
 
-const ProductAddToCart = ({ product }) => {
+const ProductAddToCart = ({ product, onVariantChange }) => {
   const [quantity, setQuantity] = useState(1);
   const MAX_QUANTITY = 5; // Set the limit for Cart Quantity
   const { addToCart } = useCartStore();
@@ -18,6 +18,15 @@ const ProductAddToCart = ({ product }) => {
   const [selectedOptions, setSelectedOptions] = useState({});
   const [selectedVariant, setSelectedVariant] = useState(null);
   const [validationMessage, setValidationMessage] = useState(''); // New state for validation messages
+
+  // Optional parent hook so e.g. the gallery can react to variant changes
+  const handleVariantChange = useCallback(
+    (variant) => {
+      setSelectedVariant(variant);
+      onVariantChange?.(variant);
+    },
+    [onVariantChange],
+  );
 
   // Effect 1: Initialize selectedOptions and handle single variant product auto-selection
   useEffect(() => {
@@ -33,17 +42,17 @@ const ProductAddToCart = ({ product }) => {
         }
       });
       setSelectedOptions(initialSelected);
-      setSelectedVariant(singleVariant);
+      handleVariantChange(singleVariant);
     } else {
-      setSelectedVariant(null);
+      handleVariantChange(null);
     }
-  }, [product]);
+  }, [product, handleVariantChange]);
 
   // Effect 2: Main logic for updating options and variant selection
   useEffect(() => {
     if (!product || !product.variants || product.variants.length === 0) {
       setOptions([]);
-      setSelectedVariant(null);
+      handleVariantChange(null);
       return;
     }
 
@@ -140,13 +149,13 @@ const ProductAddToCart = ({ product }) => {
           ),
         ),
       );
-      setSelectedVariant(newVariant);
+      handleVariantChange(newVariant);
       setValidationMessage(''); // Clear validation message
     } else {
-      setSelectedVariant(null);
+      handleVariantChange(null);
       setValidationMessage('Please select all variant options.'); // Set validation message
     }
-  }, [product, selectedOptions]);
+  }, [product, selectedOptions, handleVariantChange]);
 
   const handleOptionChange = (optionName, value) => {
     const allOptionNames = options.map((o) => o.name);

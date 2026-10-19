@@ -28,6 +28,11 @@ const productVariantSchema = new mongoose.Schema({
       message: 'At least one attribute is required',
     },
   },
+  image: {
+    type: String,
+    trim: true,
+    default: '',
+  },
   stock: {
     type: Number,
     required: true,

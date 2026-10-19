@@ -96,6 +96,9 @@ const ProductForm = ({ isEdit: isEditMode }) => {
       stock: '',
       price: '',
       discount: '',
+      image: '',
+      imageFile: null,
+      imagePreview: '',
     },
   ]);
   const [isActive, setIsActive] = useState('true');
@@ -151,6 +154,9 @@ const ProductForm = ({ isEdit: isEditMode }) => {
         stock: '',
         price: '',
         discount: '',
+        image: '',
+        imageFile: null,
+        imagePreview: '',
       },
     ]);
     setHasVariant(true);
@@ -240,10 +246,14 @@ const ProductForm = ({ isEdit: isEditMode }) => {
                       : '',
                 }))
               : [],
-            stock: v.stock,
-            price: v.price,
-            discount: v.discount || '',
-          })),
+             stock: v.stock,
+             price: v.price,
+             discount: v.discount || '',
+             image: v.image || '',
+             imageFile: null,
+             imagePreview:
+               v.image ? `${imageUrl}/${v.image}` : '',
+           })),
         );
         setHasVariant(true);
       } else {
@@ -253,6 +263,9 @@ const ProductForm = ({ isEdit: isEditMode }) => {
             stock: '',
             price: '',
             discount: '',
+            image: '',
+            imageFile: null,
+            imagePreview: '',
           },
         ]);
         setHasVariant(false);
@@ -302,12 +315,41 @@ const ProductForm = ({ isEdit: isEditMode }) => {
         stock: '',
         price: '',
         discount: '',
+        image: '',
+        imageFile: null,
+        imagePreview: '',
       },
     ]);
   };
 
   const handleRemoveVariant = (index) => {
+    const removed = variants[index];
+    if (removed?.imageFile) URL.revokeObjectURL(removed.imagePreview);
     setVariants((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const handleVariantImageChange = (variantIndex, event) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    const prev = variants[variantIndex];
+    if (prev?.imageFile) URL.revokeObjectURL(prev.imagePreview);
+    updateVariant(variantIndex, {
+      image: '',
+      imageFile: file,
+      imagePreview: URL.createObjectURL(file),
+    });
+  };
+
+  const handleRemoveVariantImage = (variantIndex) => {
+    const v = variants[variantIndex];
+    if (v?.imageFile) URL.revokeObjectURL(v.imagePreview);
+    updateVariant(variantIndex, {
+      image: '',
+      imageFile: null,
+      imagePreview: '',
+    });
+    const input = document.getElementById(`variant-image-${variantIndex}`);
+    if (input) input.value = '';
   };
 
   const updateVariant = (index, updater) => {
@@ -684,6 +726,15 @@ const ProductForm = ({ isEdit: isEditMode }) => {
         formData.append(`variants[${index}][stock]`, variant.stock);
         formData.append(`variants[${index}][price]`, variant.price);
         formData.append(`variants[${index}][discount]`, variant.discount);
+        // '' means the image was cleared server-side; the saved image name
+        // means it is kept as-is
+        formData.append(`variants[${index}][image]`, variant.image);
+        // New uploads are sent as a flat field together with the variant
+        // index it belongs to, so the backend can map them
+        if (variant.imageFile instanceof File) {
+          formData.append('variantImages', variant.imageFile);
+          formData.append('variantImageIndices', index);
+        }
         variant.attributes.forEach((attr, attrIndex) => {
           formData.append(
             `variants[${index}][attributes][${attrIndex}][option]`,
@@ -1346,6 +1397,7 @@ const ProductForm = ({ isEdit: isEditMode }) => {
                     <TableHeader>
                       <TableRow>
                         <TableHead>Attributes</TableHead>
+                        <TableHead className="w-20">Image</TableHead>
                         <TableHead className="w-24">Stock *</TableHead>
                         <TableHead className="w-24">Price *</TableHead>
                         <TableHead className="w-28">Disc. Price</TableHead>
@@ -1449,6 +1501,41 @@ const ProductForm = ({ isEdit: isEditMode }) => {
                                 Add Attribute
                               </Button>
                             </div>
+                          </TableCell>
+                          <TableCell>
+                            <input
+                              type="file"
+                              accept="image/*"
+                              className="hidden"
+                              id={`variant-image-${index}`}
+                              onChange={(e) =>
+                                handleVariantImageChange(index, e)
+                              }
+                            />
+                            {variant.imagePreview ? (
+                              <div className="relative w-16 h-16 rounded-md overflow-hidden bg-muted/50">
+                                <img
+                                  src={variant.imagePreview}
+                                  alt={`Variant ${index + 1}`}
+                                  className="w-full h-full object-cover"
+                                />
+                                <button
+                                  type="button"
+                                  onClick={() => handleRemoveVariantImage(index)}
+                                  className="absolute top-0 right-0 bg-destructive text-destructive-foreground rounded-bl-md w-4 h-4 flex items-center justify-center text-[10px] leading-none"
+                                >
+                                  ×
+                                </button>
+                              </div>
+                            ) : (
+                              <Label
+                                htmlFor={`variant-image-${index}`}
+                                className="w-16 h-16 rounded-md border-2 border-dashed border-muted-foreground/30 flex flex-col items-center justify-center gap-0.5 text-muted-foreground hover:border-muted-foreground/50 transition-colors cursor-pointer"
+                              >
+                                <Image className="size-4" />
+                                <span className="text-[10px]">Add</span>
+                              </Label>
+                            )}
                           </TableCell>
                           <TableCell>
                             <Input

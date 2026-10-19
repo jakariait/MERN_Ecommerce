@@ -1,4 +1,11 @@
-import React, { useEffect, useRef, useState, lazy, Suspense } from 'react';
+import React, {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  lazy,
+  Suspense,
+} from 'react';
 import { useLocation, useParams } from 'react-router-dom';
 import axios from 'axios';
 import useProductStore from '../../store/useProductStore.js';
@@ -37,6 +44,7 @@ const ProductDetails = () => {
   const [currentProductSlug, setCurrentProductSlug] = useState(null);
   const [recentlyViewed, setRecentlyViewed] = useState([]);
   const [freeDeliveryAmount, setFreeDeliveryAmount] = useState(null);
+  const [selectedVariant, setSelectedVariant] = useState(null);
 
   useEffect(() => {
     if (slug !== currentProductSlug) {
@@ -87,6 +95,32 @@ const ProductDetails = () => {
   const location = useLocation();
   const url = `${window.location.origin}${location.pathname}`;
   const title = product?.name;
+
+  // Gallery order: every variant image first (in variant order), then the
+  // product images. Duplicated names are shown only once, and a variant image
+  // that is also part of the product images is not repeated.
+  const displayImages = useMemo(() => {
+    const base = product?.images || [];
+    const variantImageNames = new Set();
+    (product?.variants || []).forEach((v) => {
+      if (v?.image && !variantImageNames.has(v.image)) {
+        variantImageNames.add(v.image);
+      }
+    });
+    const variantImages = Array.from(variantImageNames);
+    const rest = base.filter((img) => !variantImages.includes(img));
+    return [...variantImages, ...rest];
+  }, [product]);
+
+  // Selecting a variant moves the gallery focus to that variant's image; only
+  // variants of the CURRENT product count, so a stale selection from a
+  // previously viewed product is ignored.
+  const focusedVariantImage = useMemo(() => {
+    const belongsToProduct = product?.variants?.some(
+      (v) => v?._id && v._id === selectedVariant?._id,
+    );
+    return belongsToProduct ? selectedVariant?.image : undefined;
+  }, [product, selectedVariant]);
 
   const discountPercentage =
     product?.finalPrice && product?.finalDiscount
@@ -223,13 +257,17 @@ const ProductDetails = () => {
           <div className="md:grid md:grid-cols-8 lg:grid-cols-9 xl:grid-cols-9 gap-8">
             <div className="md:col-span-4 lg:col-span-6 xl:col-span-5 relative">
               <ProductGallery
-                images={product.images}
+                images={displayImages}
+                focusImageName={focusedVariantImage}
                 discount={discountPercentage}
                 productName={product.name}
               />
             </div>
             <div className="flex flex-col gap-3 md:col-span-4 lg:col-span-3 xl:col-span-4 pt-4 md:pt-0">
-              <ProductAddToCart product={product} />
+              <ProductAddToCart
+                product={product}
+                onVariantChange={setSelectedVariant}
+              />
 
               {/*Free Delivery Tracker*/}
               {freeDeliveryAmount > 1 && (

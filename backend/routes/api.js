@@ -140,6 +140,10 @@ const upload = multer({ storage, fileFilter }).fields([
     maxCount: 10,
   },
   {
+    name: 'variantImages',
+    maxCount: 50,
+  },
+  {
     name: 'userImage',
     maxCount: 1,
   },
