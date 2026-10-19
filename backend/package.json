@@ -5,7 +5,6 @@
   "scripts": {
     "test": "jest --forceExit --detectOpenHandles",
     "test:watch": "jest --watch --forceExit --detectOpenHandles",
-    "clean-unused-images": "node scripts/cleanUnusedImages.js",
     "dev": "node --watch index.js",
     "format": "prettier --write .",
     "format:check": "prettier --check ."

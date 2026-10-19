@@ -33,6 +33,9 @@ const createProduct = async (data) => {
     await product.save();
     return product;
   } catch (error) {
+    // The save failed — uploads (variant images) would be orphaned on disk,
+    // so remove the files this request had just created
+    (data.variants || []).forEach((variant) => deleteOldFile(variant.image));
     throw new Error(error.message);
   }
 };
@@ -560,22 +563,28 @@ const updateProduct = async (productId, updatedData, files) => {
     // Handle other updates and save...
     delete updatedData.hasVariant;
 
-    // Remove files of variant images that are no longer in the new list
-    // (cleared by the user or belonging to variants that were removed)
-    if (Array.isArray(updatedData.variants)) {
-      const keptVariantImages = new Set(
-        updatedData.variants.map((v) => v.image).filter(Boolean),
-      );
-      product.variants.forEach((variant) => {
-        if (variant.image && !keptVariantImages.has(variant.image)) {
-          deleteOldFile(variant.image);
-        }
-      });
-    }
+    // Variant images currently referenced by the article in the database,
+    // to be reconciled against the new list after the save succeeds
+    const oldVariantImages = product.variants.map((v) => v.image).filter(Boolean);
 
     Object.assign(product, updatedData);
 
     await product.save();
+
+    // Unlink files that are no longer referenced by the saved document:
+    // cleared by the user (''), replaced by a freshly uploaded image, or
+    // belonging to variants that were removed. Shared names (same image on
+    // several variants) survive until their last reference goes.
+    if (Array.isArray(updatedData.variants)) {
+      const keptVariantImages = new Set(
+        updatedData.variants.map((v) => v.image).filter(Boolean),
+      );
+      oldVariantImages.forEach((oldImage) => {
+        if (!keptVariantImages.has(oldImage)) {
+          deleteOldFile(oldImage);
+        }
+      });
+    }
 
     return product;
   } catch (error) {
