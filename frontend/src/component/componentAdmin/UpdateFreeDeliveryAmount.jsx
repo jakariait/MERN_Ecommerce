@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import axios from 'axios';
 import useAuthAdminStore from '../../store/AuthAdminStore';
 import { Input } from '@/components/ui/input';
@@ -46,7 +46,7 @@ const UpdateFreeDeliveryAmount = () => {
       setCurrentValue(Number(amount));
       setAmount('');
       toast.success('Free delivery amount updated successfully');
-    } catch (err) {
+    } catch {
       toast.error('Something went wrong while updating');
     } finally {
       setLoading(false);

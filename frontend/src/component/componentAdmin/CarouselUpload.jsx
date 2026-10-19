@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Upload, Trash2 } from 'lucide-react';
@@ -25,7 +25,7 @@ const CarouselUpload = () => {
     const fetchImages = async () => {
       try {
         const response = await axios.get(`${apiUrl}/getallcarousel`);
-        setImages(response.data);
+        setImages(response.data || []);
       } catch (error) {
         console.error('Error fetching images', error);
       }

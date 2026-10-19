@@ -1,4 +1,4 @@
-import React, { Suspense, lazy, useEffect, useState } from 'react';
+import { Suspense, lazy, useEffect, useState } from 'react';
 const Editor = lazy(() =>
   import('primereact/editor').then((module) => ({
     default: module.Editor,

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import axios from 'axios';
 import useAuthAdminStore from '../../store/AuthAdminStore.js';
 import { Input } from '@/components/ui/input';
@@ -84,7 +84,7 @@ const AdminMetaForm = () => {
         },
       });
       toast.success('Meta information updated successfully!');
-    } catch (error) {
+    } catch {
       toast.error('Failed to update meta info.');
     } finally {
       setSaving(false);

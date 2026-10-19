@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import axios from 'axios';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -49,7 +49,7 @@ const AdminFAQSection = () => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [faqToDelete, setFaqToDelete] = useState(null);
 
-  const fetchFAQs = async () => {
+  const fetchFAQs = useCallback(async () => {
     try {
       setLoading(true);
       const res = await axios.get(`${apiUrl}/faq`);
@@ -60,11 +60,11 @@ const AdminFAQSection = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [apiUrl]);
 
   useEffect(() => {
     fetchFAQs();
-  }, [apiUrl]);
+  }, [fetchFAQs]);
 
   const handleOpen = (faq = null) => {
     if (faq) {

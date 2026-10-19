@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ResponsivePie } from '@nivo/pie';
 import { Button } from '@/components/ui/button';
 import useOrderStore from '../../store/useOrderStore.js';
@@ -22,7 +22,7 @@ const MostSoldProductsPieChart = () => {
   }, [fetchAllOrdersWithoutPagination]);
 
   useEffect(() => {
-    if (allOrders.length > 0) {
+    if (allOrders?.length > 0) {
       const now = dayjs();
       let filteredOrders = [];
 

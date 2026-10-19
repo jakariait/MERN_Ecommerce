@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ResponsiveBar } from '@nivo/bar';
 import useOrderStore from '../../store/useOrderStore';
 import dayjs from 'dayjs';
@@ -12,7 +12,7 @@ const MonthlyOrderStatusGroupedChart = () => {
   }, [fetchAllOrdersWithoutPagination]);
 
   useEffect(() => {
-    if (allOrders.length === 0) return;
+    if (!allOrders || allOrders.length === 0) return;
 
     const now = dayjs();
     const monthlyData = {};

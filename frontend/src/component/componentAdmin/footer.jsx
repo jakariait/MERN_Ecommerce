@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import useGeneralInfoStore from '../../store/GeneralInfoStore';
 
 const Footer = () => {

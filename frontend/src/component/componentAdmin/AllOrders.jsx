@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import axios from 'axios';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import useOrderStore from '../../store/useOrderStore.js';
@@ -97,7 +97,7 @@ const AllOrders = ({ title, status = '' }) => {
         setActiveStatus(urlStatus);
       }
     }
-  }, [searchParams]);
+  }, [activeStatus, searchParams]);
 
   const handleTabChange = useCallback(
     (newStatus) => {
@@ -111,7 +111,7 @@ const AllOrders = ({ title, status = '' }) => {
 
   const allOrdersTotal = useMemo(
     () =>
-      Object.values(totalByStatus).reduce(
+      Object.values(totalByStatus || {}).reduce(
         (sum, count) => sum + (count || 0),
         0,
       ),
@@ -120,7 +120,9 @@ const AllOrders = ({ title, status = '' }) => {
 
   const allOrders = useMemo(
     () =>
-      activeStatus ? orderListByStatus[activeStatus] : allOrdersFromStore || [],
+      activeStatus
+        ? orderListByStatus[activeStatus] || []
+        : allOrdersFromStore || [],
     [activeStatus, orderListByStatus, allOrdersFromStore],
   );
 
@@ -175,6 +177,7 @@ const AllOrders = ({ title, status = '' }) => {
   useEffect(() => {
     fetchOrders();
   }, [
+    fetchOrders,
     searchQuery,
     currentPage,
     itemsPerPage,

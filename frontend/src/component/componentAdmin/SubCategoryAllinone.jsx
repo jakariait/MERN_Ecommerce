@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo, useCallback } from 'react';
 import axios from 'axios';
 import useAuthAdminStore from '../../store/AuthAdminStore.js';
 import { Input } from '@/components/ui/input';
@@ -19,7 +19,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import {
   Dialog,
   DialogContent,
@@ -28,7 +28,6 @@ import {
   DialogDescription,
   DialogFooter,
 } from '@/components/ui/dialog';
-import { Separator } from '@/components/ui/separator';
 import { toast } from 'sonner';
 import {
   Plus,
@@ -65,7 +64,7 @@ const SubCategoryAllinone = () => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [subCategoryToDelete, setSubCategoryToDelete] = useState(null);
 
-  const fetchSubCategories = () => {
+  const fetchSubCategories = useCallback(() => {
     setLoading(true);
     axios
       .get(`${apiUrl}/sub-category`, {
@@ -79,21 +78,21 @@ const SubCategoryAllinone = () => {
         toast.error('Error fetching subcategories.');
         setLoading(false);
       });
-  };
+  }, [apiUrl, token]);
 
-  const fetchCategories = () => {
+  const fetchCategories = useCallback(() => {
     axios
       .get(`${apiUrl}/category`, {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((res) => setCategories(res.data.categories || []))
       .catch(() => {});
-  };
+  }, [apiUrl, token]);
 
   useEffect(() => {
     fetchSubCategories();
     fetchCategories();
-  }, []);
+  }, [fetchSubCategories, fetchCategories]);
 
   const handleOpenCreate = () => {
     setIsEdit(false);
@@ -114,7 +113,7 @@ const SubCategoryAllinone = () => {
   };
 
   const handleSave = async () => {
-    if (!formData.name.trim() || !formData.category) {
+    if (!formData.name?.trim() || !formData.category) {
       toast.warning('Name and category are required.');
       return;
     }
@@ -356,7 +355,7 @@ const SubCategoryAllinone = () => {
                 placeholder="e.g. Smartphones"
                 required
               />
-              {!formData.name.trim() && (
+              {!formData.name?.trim() && (
                 <p className="text-xs text-destructive">
                   Subcategory name is required
                 </p>

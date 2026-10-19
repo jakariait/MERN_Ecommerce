@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import axios from 'axios';
 import { Card, CardContent } from '@/components/ui/card';
 import {
@@ -32,7 +32,7 @@ const OrderStats = () => {
     cancelled: 0,
   });
 
-  const fetchOrders = async () => {
+  const fetchOrders = useCallback(async () => {
     try {
       const res = await axios.get(`${apiUrl}/orders`, {
         headers: {
@@ -55,7 +55,7 @@ const OrderStats = () => {
         const status = order.orderStatus?.toLowerCase();
         const amount = order.totalAmount || 0;
 
-        if (totals.hasOwnProperty(status)) {
+        if (Object.prototype.hasOwnProperty.call(totals, status)) {
           totals[status] += amount;
         }
       });
@@ -64,11 +64,11 @@ const OrderStats = () => {
     } catch (error) {
       console.error('Failed to fetch orders', error);
     }
-  };
+  }, [apiUrl, token]);
 
   useEffect(() => {
     fetchOrders();
-  }, []);
+  }, [fetchOrders]);
 
   return (
     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-6 gap-3 my-6">

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import axios from 'axios';
 import {
   FaTruck,
@@ -40,7 +40,7 @@ const CourierStats = ({ phone }) => {
     };
 
     fetchCourierStats();
-  }, [phone]);
+  }, [phone, apiUrl]);
 
   const StatCard = ({ name, data }) => (
     <div className="bg-white rounded shadow p-5 hover:shadow-md transition duration-300 ">

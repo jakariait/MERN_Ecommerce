@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import axios from 'axios';
 import useAuthAdminStore from '../../store/AuthAdminStore.js';
 import { Input } from '@/components/ui/input';
@@ -60,7 +60,7 @@ const CouponTable = () => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [couponToDelete, setCouponToDelete] = useState(null);
 
-  const fetchCoupons = async () => {
+  const fetchCoupons = useCallback(async () => {
     try {
       const response = await axios.get(`${apiURL}/getAllCoupons`, {
         headers: { Authorization: `Bearer ${token}` },
@@ -71,11 +71,11 @@ const CouponTable = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [token]);
 
   useEffect(() => {
     fetchCoupons();
-  }, []);
+  }, [fetchCoupons]);
 
   const handleEdit = (coupon) => {
     setIsEdit(true);
@@ -189,8 +189,8 @@ const CouponTable = () => {
                       {coupon.code}
                     </TableCell>
                     <TableCell className="text-center">
-                      {coupon.type.charAt(0).toUpperCase() +
-                        coupon.type.slice(1)}
+                      {(coupon.type || '').charAt(0).toUpperCase() +
+                        (coupon.type || '').slice(1)}
                     </TableCell>
                     <TableCell className="text-center">
                       {coupon.type === 'percentage'
@@ -212,8 +212,8 @@ const CouponTable = () => {
                           coupon.status === 'active' ? 'default' : 'secondary'
                         }
                       >
-                        {coupon.status.charAt(0).toUpperCase() +
-                          coupon.status.slice(1)}
+                        {(coupon.status || '').charAt(0).toUpperCase() +
+                          (coupon.status || '').slice(1)}
                       </Badge>
                     </TableCell>
                     <TableCell className="text-center">

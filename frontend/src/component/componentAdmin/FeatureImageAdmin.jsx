@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import axios from 'axios';
 import { Pencil, Trash2, Loader2 } from 'lucide-react';
@@ -34,7 +34,7 @@ const FeatureImageAdmin = () => {
     const fetchFeatureImages = async () => {
       try {
         const { data } = await axios.get(`${apiUrl}/feature-images`);
-        setFeatureImages(data.data);
+        setFeatureImages(data.data || []);
       } catch (error) {
         console.error('Error fetching images:', error);
       }
@@ -75,7 +75,7 @@ const FeatureImageAdmin = () => {
       }
 
       const { data: refreshData } = await axios.get(`${apiUrl}/feature-images`);
-      setFeatureImages(refreshData.data);
+      setFeatureImages(refreshData.data || []);
 
       setEditingFeature(null);
       setPreview(null);

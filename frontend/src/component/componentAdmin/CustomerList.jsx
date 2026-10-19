@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -34,8 +34,6 @@ import {
   Trash2,
   ChevronLeft,
   ChevronRight,
-  Loader2,
-  ArrowUpDown,
 } from 'lucide-react';
 import axios from 'axios';
 import useAuthAdminStore from '../../store/AuthAdminStore';
@@ -58,23 +56,23 @@ const CustomerList = () => {
   const [loading, setLoading] = useState(false);
   const [sortOrder, setSortOrder] = useState('desc');
 
-  const fetchCustomers = async () => {
+  const fetchCustomers = useCallback(async () => {
     setLoading(true);
     try {
       const res = await axios.get(`${apiUrl}/getAllUsers`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      setCustomers(res.data.users);
+      setCustomers(res.data.users || []);
     } catch (err) {
       toast.error(err.response?.data?.message || 'Failed to fetch customers');
     } finally {
       setLoading(false);
     }
-  };
+  }, [apiUrl, token]);
 
   useEffect(() => {
     fetchCustomers();
-  }, []);
+  }, [fetchCustomers]);
 
   useEffect(() => {
     const filtered = customers.filter(

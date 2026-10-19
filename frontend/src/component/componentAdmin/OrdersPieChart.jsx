@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ResponsivePie } from '@nivo/pie';
 import useOrderStore from '../../store/useOrderStore.js';
 import { Button } from '@/components/ui/button';
@@ -34,23 +34,23 @@ const OrdersPieChart = () => {
     let filteredOrders = [];
 
     if (timeframe === 'weekly') {
-      filteredOrders = allOrders.filter((order) =>
+      filteredOrders = allOrders?.filter((order) =>
         dayjs(order.createdAt).isAfter(now.subtract(7, 'day')),
       );
     } else if (timeframe === 'monthly') {
-      filteredOrders = allOrders.filter((order) =>
+      filteredOrders = allOrders?.filter((order) =>
         dayjs(order.createdAt).isAfter(now.startOf('month')),
       );
     } else if (timeframe === 'yearly') {
-      filteredOrders = allOrders.filter((order) =>
+      filteredOrders = allOrders?.filter((order) =>
         dayjs(order.createdAt).isAfter(now.startOf('year')),
       );
     } else if (timeframe === 'lifetime') {
-      filteredOrders = allOrders;
+      filteredOrders = allOrders || [];
     }
 
     const counts = {};
-    filteredOrders.forEach((order) => {
+    filteredOrders?.forEach((order) => {
       const status = order.orderStatus || 'unknown';
       if (!counts[status]) counts[status] = 0;
       counts[status]++;
@@ -60,7 +60,7 @@ const OrdersPieChart = () => {
   }, [allOrders, timeframe]);
 
   const pieData = Object.entries(statusCounts)
-    .filter(([_, value]) => value > 0)
+    .filter(([, value]) => value > 0)
     .map(([key, value]) => ({
       id: statusLabels[key] || key,
       label: statusLabels[key] || key,

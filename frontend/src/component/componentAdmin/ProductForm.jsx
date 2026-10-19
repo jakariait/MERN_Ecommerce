@@ -248,7 +248,7 @@ const ProductForm = ({ isEdit: isEditMode }) => {
         setHasVariant(false);
       }
     }
-  }, [product, isEditMode, apiUrl]);
+  }, [product, isEditMode, apiUrl, imageUrl]);
 
   useEffect(() => {
     if (isEditMode && product && product.category) {

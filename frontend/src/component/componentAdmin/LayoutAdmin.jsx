@@ -1,4 +1,4 @@
-import React, { lazy, Suspense } from 'react';
+import { lazy, Suspense } from 'react';
 import { Outlet } from 'react-router-dom';
 import Footer from './footer.jsx';
 import { Toaster } from '@/components/ui/sonner';

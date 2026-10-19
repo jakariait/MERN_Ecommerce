@@ -1,6 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Skeleton } from '@/components/ui/skeleton';
 import {
   Table,
   TableBody,
@@ -34,23 +33,23 @@ const AdminList = () => {
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [selectedAdminId, setSelectedAdminId] = useState(null);
 
-  useEffect(() => {
-    fetchAdmins();
-  }, []);
-
-  const fetchAdmins = async () => {
+  const fetchAdmins = useCallback(async () => {
     setLoading(true);
     try {
       const response = await axios.get(`${apiUrl}/admin/getall`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      setAdmins(response.data.admins);
-    } catch (error) {
+      setAdmins(response.data.admins || []);
+    } catch {
       toast.error('Failed to fetch admins');
     } finally {
       setLoading(false);
     }
-  };
+  }, [apiUrl, token]);
+
+  useEffect(() => {
+    fetchAdmins();
+  }, [fetchAdmins]);
 
   const handleDeleteConfirm = async () => {
     try {
@@ -59,7 +58,7 @@ const AdminList = () => {
       });
       toast.success('Admin deleted successfully');
       fetchAdmins();
-    } catch (error) {
+    } catch {
       toast.error('Failed to delete admin');
     } finally {
       setOpenDeleteDialog(false);

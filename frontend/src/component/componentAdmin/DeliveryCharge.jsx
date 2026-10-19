@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import axios from 'axios';
 import useAuthAdminStore from '../../store/AuthAdminStore.js';
 import { Input } from '@/components/ui/input';
@@ -50,18 +50,18 @@ const DeliveryCharge = () => {
         handleShippingCreated,
       );
     };
-  }, []);
+  }, [fetchShippingMethods]);
 
-  const fetchShippingMethods = async () => {
+  const fetchShippingMethods = useCallback(async () => {
     try {
       const res = await axios.get(`${apiUrl}/getAllShipping`);
       setShippingMethods(res.data.data || []);
-    } catch (err) {
+    } catch {
       toast.error('Failed to load shipping methods');
     } finally {
       setLoading(false);
     }
-  };
+  }, [apiUrl]);
 
   const handleEditOpen = (method) => {
     setCurrentMethod(method);

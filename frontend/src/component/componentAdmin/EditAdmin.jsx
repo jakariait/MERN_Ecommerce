@@ -2,10 +2,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent } from '@/components/ui/card';
-import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from 'sonner';
 import { Loader2 } from 'lucide-react';
-import React, { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import useAuthAdminStore from '../../store/AuthAdminStore';
@@ -22,7 +21,7 @@ const EditAdmin = () => {
   const [updating, setUpdating] = useState(false);
   const [selectedPermissions, setSelectedPermissions] = useState([]);
 
-  const fetchAdmin = async () => {
+  const fetchAdmin = useCallback(async () => {
     try {
       const res = await axios.get(`${apiUrl}/admin/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
@@ -30,16 +29,16 @@ const EditAdmin = () => {
       const adminData = { ...res.data.admin, password: '' };
       setAdmin(adminData);
       setSelectedPermissions(res.data.admin.permissions || []);
-    } catch (error) {
+    } catch {
       toast.error('Failed to fetch admin data');
     } finally {
       setLoading(false);
     }
-  };
+  }, [apiUrl, token, id]);
 
   useEffect(() => {
     fetchAdmin();
-  }, []);
+  }, [fetchAdmin]);
 
   const handleChange = (e) => {
     setAdmin({ ...admin, [e.target.name]: e.target.value });

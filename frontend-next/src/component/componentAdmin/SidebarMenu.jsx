@@ -353,15 +353,15 @@ function MenuAccordion({ item, countValue, expanded, onChange }) {
 }
 
 export default function SidebarMenu() {
-  const { totalProductsAdmin, fetchProductsAdmin } = useProductStore();
+  const { totalProductsAdmin, fetchProductsCount } = useProductStore();
   const { logout } = useAuthAdminStore();
   const { totalByStatus, fetchAllStatusCounts } = useOrderStore();
   const { loading } = useAuthAdminStore();
 
   useEffect(() => {
-    fetchProductsAdmin({ page: 1, limit: 1 });
+    fetchProductsCount();
     fetchAllStatusCounts();
-  }, [fetchProductsAdmin, fetchAllStatusCounts]);
+  }, [fetchProductsCount, fetchAllStatusCounts]);
 
   const totalOrders = Object.values(totalByStatus).reduce(
     (acc, count) => acc + count,

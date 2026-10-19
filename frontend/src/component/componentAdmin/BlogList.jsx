@@ -1,8 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import axios from 'axios';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Skeleton } from '@/components/ui/skeleton';
 import {
   Table,
   TableBody,
@@ -46,26 +44,29 @@ const BlogList = () => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedBlogId, setSelectedBlogId] = useState(null);
 
-  const fetchBlogs = async (page = 1) => {
-    try {
-      setLoading(true);
-      const res = await axios.get(`${apiURL}/blog?page=${page}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setBlogs(res.data.data || []);
-      setCurrentPage(res.data.currentPage || 1);
-      setTotalPages(res.data.totalPages || 1);
-    } catch (error) {
-      console.error('Failed to fetch blogs', error);
-      toast.error('Failed to fetch blogs.');
-    } finally {
-      setLoading(false);
-    }
-  };
+  const fetchBlogs = useCallback(
+    async (page = 1) => {
+      try {
+        setLoading(true);
+        const res = await axios.get(`${apiURL}/blog?page=${page}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setBlogs(res.data.data || []);
+        setCurrentPage(res.data.currentPage || 1);
+        setTotalPages(res.data.totalPages || 1);
+      } catch (error) {
+        console.error('Failed to fetch blogs', error);
+        toast.error('Failed to fetch blogs.');
+      } finally {
+        setLoading(false);
+      }
+    },
+    [apiURL, token],
+  );
 
   useEffect(() => {
     fetchBlogs(currentPage);
-  }, [currentPage]);
+  }, [currentPage, fetchBlogs]);
 
   const handleEdit = (id) => {
     navigate(`/admin/blogs/${id}`);

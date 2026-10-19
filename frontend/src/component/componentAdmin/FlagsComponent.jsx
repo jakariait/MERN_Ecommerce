@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import useFlagStore from '../../store/useFlagStore';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -15,7 +15,6 @@ import {
   DialogDescription,
   DialogFooter,
 } from '@/components/ui/dialog';
-import { Separator } from '@/components/ui/separator';
 import { toast } from 'sonner';
 import { GripVertical, Plus, Pencil, Trash2, Loader2 } from 'lucide-react';
 import {

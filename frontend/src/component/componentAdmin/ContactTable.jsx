@@ -1,7 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Skeleton } from '@/components/ui/skeleton';
 import {
   Select,
   SelectContent,
@@ -60,7 +58,7 @@ const ContactTable = () => {
         if (!response.ok) throw new Error('Failed to fetch contacts');
 
         const data = await response.json();
-        const sortedData = data.sort(
+        const sortedData = (data || []).sort(
           (a, b) => new Date(b.createdAt) - new Date(a.createdAt),
         );
         setContacts(sortedData);

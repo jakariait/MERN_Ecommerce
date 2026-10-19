@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -37,8 +37,7 @@ const COLOR_FIELDS = [
 
 const ColorUpdater = () => {
   const { token } = useAuthAdminStore();
-  const { colors, isLoading, error, fetchColors, updateColors } =
-    useColorStore();
+  const { colors, fetchColors, updateColors } = useColorStore();
 
   const [localColors, setLocalColors] = useState({ ...DEFAULT_COLORS });
   const [saving, setSaving] = useState(false);

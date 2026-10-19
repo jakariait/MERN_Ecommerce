@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import {
   FaFacebook,
   FaTwitter,
@@ -118,7 +118,7 @@ const SocialMediaLinks = () => {
         const response = await fetch(`${apiUrl}/socialmedia`);
         if (!response.ok) throw new Error('Failed to fetch data');
         const result = await response.json();
-        const { _id, ...socialLinks } = result.data;
+        const socialLinks = result.data;
         setLinks((prev) => ({ ...prev, ...socialLinks }));
       } catch (error) {
         toast.error(error.message);
@@ -149,7 +149,7 @@ const SocialMediaLinks = () => {
       if (!response.ok) throw new Error('Failed to update data');
 
       const result = await response.json();
-      const { _id, ...socialLinks } = result.data;
+      const socialLinks = result.data;
       setLinks((prev) => ({ ...prev, ...socialLinks }));
       toast.success(result.message || 'Social media links updated!');
     } catch (error) {

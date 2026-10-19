@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import { useCallback, useEffect, useState, useMemo } from 'react';
 import axios from 'axios';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -108,23 +108,7 @@ const AdminNewOrderCreate = () => {
     selectedShipping: false,
   });
 
-  useEffect(() => {
-    fetchProducts();
-    fetchShippingOptions();
-    fetchVatPercentage();
-  }, []);
-
-  useEffect(() => {
-    if (!isGuest) {
-      fetchCustomers();
-    }
-  }, [isGuest]);
-
-  useEffect(() => {
-    calculateTotals();
-  }, [orderItems, selectedShipping, specialDiscount, vatPercentage]);
-
-  const fetchProducts = async () => {
+  const fetchProducts = useCallback(async () => {
     try {
       const res = await axios.get(`${apiUrl}/getAllProductsAdmin`, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
@@ -137,9 +121,9 @@ const AdminNewOrderCreate = () => {
     } catch (err) {
       toast.error(err.response?.data?.message || 'Failed to fetch products');
     }
-  };
+  }, [apiUrl]);
 
-  const fetchCustomers = async () => {
+  const fetchCustomers = useCallback(async () => {
     try {
       const res = await axios.get(`${apiUrl}/getAllUsers`, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
@@ -150,20 +134,20 @@ const AdminNewOrderCreate = () => {
     } catch (err) {
       toast.error(err.response?.data?.message || 'Failed to fetch customers');
     }
-  };
+  }, [apiUrl]);
 
-  const fetchShippingOptions = async () => {
+  const fetchShippingOptions = useCallback(async () => {
     try {
       const res = await axios.get(`${apiUrl}/getAllShipping`);
       if (res.data?.success) {
-        setShippingOptions(res.data.data);
+        setShippingOptions(res.data.data || []);
       }
-    } catch (err) {
+    } catch {
       toast.error('Failed to fetch shipping options');
     }
-  };
+  }, [apiUrl]);
 
-  const fetchVatPercentage = async () => {
+  const fetchVatPercentage = useCallback(async () => {
     try {
       const res = await axios.get(`${apiUrl}/getVatPercentage`);
       if (res.data?.success && res.data.data) {
@@ -172,10 +156,22 @@ const AdminNewOrderCreate = () => {
       } else {
         setVatPercentage(0);
       }
-    } catch (err) {
+    } catch {
       setVatPercentage(0);
     }
-  };
+  }, [apiUrl]);
+
+  useEffect(() => {
+    fetchProducts();
+    fetchShippingOptions();
+    fetchVatPercentage();
+  }, [fetchProducts, fetchShippingOptions, fetchVatPercentage]);
+
+  useEffect(() => {
+    if (!isGuest) {
+      fetchCustomers();
+    }
+  }, [isGuest, fetchCustomers]);
 
   const getVariantName = (variant) => {
     if (!variant) return 'Unknown';
@@ -260,7 +256,7 @@ const AdminNewOrderCreate = () => {
     setOrderItems(orderItems.filter((_, i) => i !== index));
   };
 
-  const calculateTotals = () => {
+  const calculateTotals = useCallback(() => {
     const hasFreeShipping = orderItems.some(
       (item) => item.freeShipping === true,
     );
@@ -286,7 +282,17 @@ const AdminNewOrderCreate = () => {
       deliveryCharge: Math.round(deliveryCharge * 100) / 100,
       total: Math.round(total * 100) / 100,
     });
-  };
+  }, [orderItems, selectedShipping, specialDiscount, vatPercentage]);
+
+  useEffect(() => {
+    calculateTotals();
+  }, [
+    orderItems,
+    selectedShipping,
+    specialDiscount,
+    vatPercentage,
+    calculateTotals,
+  ]);
 
   const handleCreateOrder = async () => {
     try {
@@ -410,7 +416,7 @@ const AdminNewOrderCreate = () => {
     });
   };
 
-  const validateForm = () => {
+  const validateForm = useCallback(() => {
     const errors = {
       fullName: false,
       mobileNo: false,
@@ -435,7 +441,15 @@ const AdminNewOrderCreate = () => {
 
     setFormErrors(errors);
     return !Object.values(errors).some((error) => error);
-  };
+  }, [
+    isGuest,
+    guestInfo.fullName,
+    guestInfo.mobileNo,
+    guestInfo.address,
+    selectedCustomer,
+    hasFreeShippingProduct,
+    selectedShipping,
+  ]);
 
   useEffect(() => {
     if (openDialog) {
@@ -450,6 +464,7 @@ const AdminNewOrderCreate = () => {
     selectedShipping,
     orderItems,
     openDialog,
+    validateForm,
   ]);
 
   const hasFormErrors = Object.values(formErrors).some((error) => error);

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import axios from 'axios';
 import useAuthAdminStore from '../../store/AuthAdminStore.js';
 import { Input } from '@/components/ui/input';
@@ -63,7 +63,7 @@ const AdminCategoryAllinone = () => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [categoryToDelete, setCategoryToDelete] = useState(null);
 
-  const fetchCategories = () => {
+  const fetchCategories = useCallback(() => {
     setLoading(true);
     axios
       .get(`${apiUrl}/category`, {
@@ -77,11 +77,11 @@ const AdminCategoryAllinone = () => {
         toast.error('Error fetching categories.');
         setLoading(false);
       });
-  };
+  }, [apiUrl, token]);
 
   useEffect(() => {
     fetchCategories();
-  }, []);
+  }, [fetchCategories]);
 
   const handleOpenCreate = () => {
     setIsEdit(false);
@@ -158,7 +158,7 @@ const AdminCategoryAllinone = () => {
   const filteredCategories = useMemo(() => {
     return categories
       .filter((cat) =>
-        cat.name.toLowerCase().includes(searchTerm.toLowerCase()),
+        (cat.name || '').toLowerCase().includes(searchTerm.toLowerCase()),
       )
       .reverse();
   }, [categories, searchTerm]);

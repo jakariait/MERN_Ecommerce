@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import ImageComponent from '../componentGeneral/ImageComponent.jsx';
 import useAuthAdminStore from '../../store/AuthAdminStore.js';
 import useGeneralInfoStore from '../../store/GeneralInfoStore.js';
@@ -11,9 +11,101 @@ import { Switch } from '@/components/ui/switch';
 import { Plus, Trash2, ImagePlus } from 'lucide-react';
 import { SectionHeader } from '@/component/componentAdmin/SectionHeader.jsx';
 
+const ImageUploadCard = ({ label, name, preview, existing, onFileChange }) => (
+  <div className="space-y-3">
+    <div className="aspect-video rounded-lg border-2 border-dashed border-muted-foreground/25 flex items-center justify-center overflow-hidden bg-muted/20">
+      {preview || existing ? (
+        <ImageComponent
+          imageName={preview || existing}
+          className="w-full h-full object-contain"
+          altName={label}
+          skeletonHeight={140}
+        />
+      ) : (
+        <div className="flex flex-col items-center gap-1 text-muted-foreground">
+          <ImagePlus className="size-8" />
+          <span className="text-xs">No image</span>
+        </div>
+      )}
+    </div>
+    <div>
+      <Label htmlFor={name}>{label}</Label>
+      <Input
+        id={name}
+        type="file"
+        name={name}
+        onChange={onFileChange}
+        accept="image/*"
+        className="mt-1"
+      />
+    </div>
+  </div>
+);
+
+const ArrayFieldSection = ({
+  label,
+  fields,
+  fieldName,
+  handleArrayChange,
+  addArrayField,
+  removeArrayField,
+}) => (
+  <Card>
+    <CardHeader>
+      <CardTitle className="text-base">{label}</CardTitle>
+    </CardHeader>
+    <CardContent className="space-y-3">
+      {(fields || ['']).map((value, index) => (
+        <div key={index} className="flex items-center gap-2">
+          <Input
+            value={value ?? ''}
+            onChange={(e) =>
+              handleArrayChange(index, fieldName, e.target.value)
+            }
+            placeholder={`Enter ${label.toLowerCase()}`}
+          />
+          {index > 0 && (
+            <Button
+              type="button"
+              variant="destructive"
+              size="icon"
+              onClick={() => removeArrayField(index, fieldName)}
+            >
+              <Trash2 className="size-4" />
+            </Button>
+          )}
+        </div>
+      ))}
+      <Button
+        type="button"
+        variant="outline"
+        size="sm"
+        onClick={() => addArrayField(fieldName)}
+      >
+        <Plus className="size-4 mr-1" />
+        Add More
+      </Button>
+    </CardContent>
+  </Card>
+);
+
+const TextField = ({ label, name, value, handleChange, placeholder }) => (
+  <div className="space-y-2">
+    <Label htmlFor={name}>{label}</Label>
+    <Input
+      id={name}
+      name={name}
+      value={value ?? ''}
+      onChange={handleChange}
+      placeholder={placeholder || `Enter ${label.toLowerCase()}`}
+    />
+  </div>
+);
+
 export default function GeneralInfoForm() {
   const { token } = useAuthAdminStore();
-  const { GeneralInfoList, GeneralInfoUpdate } = useGeneralInfoStore();
+  const { GeneralInfoList, GeneralInfoUpdate, GeneralInfoListRequest } =
+    useGeneralInfoStore();
 
   const [formData, setFormData] = useState({
     CompanyName: '',
@@ -75,6 +167,8 @@ export default function GeneralInfoForm() {
         return next;
       });
     }
+    // Allow re-selecting the same file later
+    e.target.value = '';
   };
 
   useEffect(() => {
@@ -109,126 +203,53 @@ export default function GeneralInfoForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!token) {
+      toast.error('You must be signed in to update General Info.');
+      return;
+    }
     setSubmitting(true);
 
-    const form = new FormData();
+    try {
+      const form = new FormData();
 
-    Object.keys(formData).forEach((key) => {
-      if (Array.isArray(formData[key])) {
-        form.append(key, formData[key].join(','));
-      } else if (typeof formData[key] === 'boolean') {
-        form.append(key, formData[key]);
-      } else if (formData[key]) {
-        form.append(key, formData[key]);
-      }
-    });
+      Object.entries(formData).forEach(([key, rawValue]) => {
+        if (Array.isArray(rawValue)) {
+          // Drop blank rows produced by "Add More"; backend splits on ','
+          form.append(
+            key,
+            rawValue.filter((item) => (item ?? '').trim()).join(','),
+          );
+        } else if (typeof rawValue === 'boolean') {
+          form.append(key, rawValue);
+        } else if (String(rawValue).trim()) {
+          form.append(key, rawValue.trim());
+        }
+      });
 
-    Object.keys(files).forEach((key) => {
-      if (files[key] && files[key] instanceof File) {
-        form.append(key, files[key]);
-      }
-    });
+      Object.keys(files).forEach((key) => {
+        if (files[key] && files[key] instanceof File) {
+          form.append(key, files[key]);
+        }
+      });
 
-    const result = await GeneralInfoUpdate(form, token);
+      const result = await GeneralInfoUpdate(form, token);
 
-    if (result.success) {
-      toast.success('General information updated successfully!');
-    } else {
-      if (result.status === 403) {
+      if (result?.success) {
+        toast.success('General information updated successfully!');
+        // Re-fetch so stored image filenames coming back from the server
+        // replace the locally picked File objects
+        await GeneralInfoListRequest();
+      } else if (result?.status === 403) {
         toast.warning(
           'You do not have permission to perform this action. (403 Forbidden)',
         );
       } else {
-        toast.error('Failed to update general information.');
+        toast.error(result?.message || 'Failed to update general information.');
       }
+    } finally {
+      setSubmitting(false);
     }
-
-    setSubmitting(false);
   };
-
-  const ImageUploadCard = ({ label, name, preview, existing }) => (
-    <div className="space-y-3">
-      <div className="aspect-video rounded-lg border-2 border-dashed border-muted-foreground/25 flex items-center justify-center overflow-hidden bg-muted/20">
-        {preview || existing ? (
-          <ImageComponent
-            imageName={preview || existing}
-            className="w-full h-full object-contain"
-            altName={label}
-            skeletonHeight={140}
-          />
-        ) : (
-          <div className="flex flex-col items-center gap-1 text-muted-foreground">
-            <ImagePlus className="size-8" />
-            <span className="text-xs">No image</span>
-          </div>
-        )}
-      </div>
-      <div>
-        <Label htmlFor={name}>{label}</Label>
-        <Input
-          id={name}
-          type="file"
-          name={name}
-          onChange={handleFileChange}
-          accept="image/*"
-          className="mt-1"
-        />
-      </div>
-    </div>
-  );
-
-  const ArrayFieldSection = ({ label, fields, fieldName }) => (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-base">{label}</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-3">
-        {fields.map((value, index) => (
-          <div key={index} className="flex items-center gap-2">
-            <Input
-              value={value}
-              onChange={(e) =>
-                handleArrayChange(index, fieldName, e.target.value)
-              }
-              placeholder={`Enter ${label.toLowerCase()}`}
-            />
-            {index > 0 && (
-              <Button
-                type="button"
-                variant="destructive"
-                size="icon"
-                onClick={() => removeArrayField(index, fieldName)}
-              >
-                <Trash2 className="size-4" />
-              </Button>
-            )}
-          </div>
-        ))}
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          onClick={() => addArrayField(fieldName)}
-        >
-          <Plus className="size-4 mr-1" />
-          Add More
-        </Button>
-      </CardContent>
-    </Card>
-  );
-
-  const TextField = ({ label, name, placeholder }) => (
-    <div className="space-y-2">
-      <Label htmlFor={name}>{label}</Label>
-      <Input
-        id={name}
-        name={name}
-        value={formData[name]}
-        onChange={handleChange}
-        placeholder={placeholder || `Enter ${label.toLowerCase()}`}
-      />
-    </div>
-  );
 
   return (
     <div className="space-y-6">
@@ -250,19 +271,22 @@ export default function GeneralInfoForm() {
                 label="Primary Logo"
                 name="PrimaryLogo"
                 preview={previews.PrimaryLogo}
-                existing={formData.PrimaryLogo}
+                existing={files.PrimaryLogo}
+                onFileChange={handleFileChange}
               />
               <ImageUploadCard
                 label="Secondary Logo"
                 name="SecondaryLogo"
                 preview={previews.SecondaryLogo}
-                existing={formData.SecondaryLogo}
+                existing={files.SecondaryLogo}
+                onFileChange={handleFileChange}
               />
               <ImageUploadCard
                 label="Favicon"
                 name="Favicon"
                 preview={previews.Favicon}
-                existing={formData.Favicon}
+                existing={files.Favicon}
+                onFileChange={handleFileChange}
               />
             </div>
           </CardContent>
@@ -273,11 +297,17 @@ export default function GeneralInfoForm() {
             label="Phone Numbers"
             fields={formData.PhoneNumber}
             fieldName="PhoneNumber"
+            handleArrayChange={handleArrayChange}
+            addArrayField={addArrayField}
+            removeArrayField={removeArrayField}
           />
           <ArrayFieldSection
             label="Company Emails"
             fields={formData.CompanyEmail}
             fieldName="CompanyEmail"
+            handleArrayChange={handleArrayChange}
+            addArrayField={addArrayField}
+            removeArrayField={removeArrayField}
           />
         </div>
 
@@ -290,22 +320,30 @@ export default function GeneralInfoForm() {
               <TextField
                 label="Company Name"
                 name="CompanyName"
+                value={formData.CompanyName}
+                handleChange={handleChange}
                 placeholder="Your company name"
               />
               <TextField
                 label="Short Description"
                 name="ShortDescription"
+                value={formData.ShortDescription}
+                handleChange={handleChange}
                 placeholder="Brief description of your company"
               />
             </div>
             <TextField
               label="Company Address"
               name="CompanyAddress"
+              value={formData.CompanyAddress}
+              handleChange={handleChange}
               placeholder="Full company address"
             />
             <TextField
               label="Google Map Link"
               name="GoogleMapLink"
+              value={formData.GoogleMapLink}
+              handleChange={handleChange}
               placeholder="Google Maps embed URL"
             />
           </CardContent>

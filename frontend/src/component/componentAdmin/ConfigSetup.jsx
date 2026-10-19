@@ -1,4 +1,3 @@
-import React from 'react';
 import UpdateFreeDeliveryAmount from './UpdateFreeDeliveryAmount.jsx';
 import UpdateTaxPercentage from './UpdateTaxPercentage.jsx';
 import UpdateGTM from './UpdateGTM.jsx';

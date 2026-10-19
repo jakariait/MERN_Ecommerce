@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -61,6 +61,7 @@ const CustomerListFromOrder = () => {
 
   const [customers, setCustomers] = useState([]);
   const [search, setSearch] = useState('');
+  const [committedSearch, setCommittedSearch] = useState('');
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
@@ -71,14 +72,14 @@ const CustomerListFromOrder = () => {
   const [ordersLoading, setOrdersLoading] = useState(false);
   const [orderDialogOpen, setOrderDialogOpen] = useState(false);
 
-  const fetchCustomers = async () => {
+  const fetchCustomers = useCallback(async () => {
     setLoading(true);
     try {
       const res = await axios.get(`${apiUrl}/orders/customers`, {
-        params: { search, page, limit },
+        params: { search: committedSearch, page, limit },
         headers: { Authorization: `Bearer ${token}` },
       });
-      setCustomers(res.data.customers);
+      setCustomers(res.data.customers || []);
       setTotalCustomers(res.data.totalCustomers);
       setTotalPages(res.data.totalPages);
     } catch (err) {
@@ -86,15 +87,15 @@ const CustomerListFromOrder = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [committedSearch, page, limit, token, apiUrl]);
 
   useEffect(() => {
     fetchCustomers();
-  }, [page, limit]);
+  }, [fetchCustomers]);
 
   const handleSearch = () => {
+    setCommittedSearch(search);
     setPage(1);
-    fetchCustomers();
   };
 
   const handleKeyDown = (e) => {
@@ -152,7 +153,7 @@ const CustomerListFromOrder = () => {
         `${apiUrl}/orders/customer/${encodeURIComponent(customer.phone)}`,
         { headers: { Authorization: `Bearer ${token}` } },
       );
-      setCustomerOrders(res.data.orders);
+      setCustomerOrders(res.data.orders || []);
     } catch (err) {
       toast.error(
         err.response?.data?.message || 'Failed to fetch customer orders',

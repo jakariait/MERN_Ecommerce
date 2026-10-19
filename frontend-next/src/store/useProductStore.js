@@ -18,6 +18,24 @@ const useProductStore = create((set) => ({
   loading: false,
   error: null,
 
+  // Counts only — must never touch the shared products list state, so the
+  // SidebarMenu badge cannot race with the admin product table on reload
+  fetchProductsCount: async () => {
+    try {
+      const response = await axios.get(
+        `${apiUrl}/getAllProductsAdmin?page=1&limit=1`,
+      );
+      const data = response.data || {};
+      set({
+        totalProductsAdmin: data.totalProducts || 0,
+        activeCount: data.activeCount || 0,
+        inactiveCount: data.inactiveCount || 0,
+      });
+    } catch {
+      // Count refresh is best-effort; keep last known values
+    }
+  },
+
   // ✅ Fetch all products with filters (pagination, sorting, categories, flags, stock)
   fetchProducts: async (params) => {
     set({ loading: true, error: null });

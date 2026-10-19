@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import axios from 'axios';
 import useAuthAdminStore from '../../store/AuthAdminStore.js';
 import { Input } from '@/components/ui/input';
@@ -6,7 +6,6 @@ import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
 import { toast } from 'sonner';
 import { Plus, X, Loader2, MessagesSquare } from 'lucide-react';
 import { SectionHeader } from '@/component/componentAdmin/SectionHeader.jsx';
@@ -35,7 +34,7 @@ const MarqueeAdmin = () => {
     };
 
     if (token) fetchMarquee();
-  }, [token]);
+  }, [token, API_URL]);
 
   const handleInputChange = (index, value) => {
     const updated = [...messages];

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import ImageComponent from '../componentGeneral/ImageComponent.jsx';
 import CourierSummery from './CourierSummery.jsx';
 import useAuthAdminStore from '../../store/AuthAdminStore.js';
@@ -46,11 +46,9 @@ const AbandonedCartsList = ({
   onToggleSelect,
   onSelectAll,
 }) => {
-  const { totalCount, carts, page, limit, totalPages } = data;
+  const { totalCount, carts, page, totalPages } = data;
   const allSelected =
     carts.length > 0 && carts.every((cart) => selectedCarts.includes(cart._id));
-  const someSelected =
-    carts.some((cart) => selectedCarts.includes(cart._id)) && !allSelected;
 
   return (
     <div className="space-y-4">
@@ -189,9 +187,9 @@ const AbandonedCartsList = ({
                   </div>
                 </div>
 
-                {cart.cartItems.length > 0 ? (
+                {(cart.cartItems || []).length > 0 ? (
                   <div className="grid md:grid-cols-2 gap-3 mt-3 pt-3 border-t border-muted-foreground/10">
-                    {cart.cartItems.map((item) => (
+                    {(cart.cartItems || []).map((item) => (
                       <div
                         key={item._id}
                         className="flex items-center gap-3 rounded-md border border-muted-foreground/10 p-2"
@@ -568,60 +566,60 @@ const AbandonedCartsContainer = () => {
   const [openConvertDialog, setOpenConvertDialog] = useState(false);
   const [convertingCart, setConvertingCart] = useState(null);
 
-  const fetchAbandonedCarts = async (
-    page = 1,
-    limit = 10,
-    filterStatus = null,
-  ) => {
-    try {
-      setLoading(true);
-      const currentStatus = filterStatus !== null ? filterStatus : statusFilter;
-      const params = new URLSearchParams({
-        page: page.toString(),
-        limit: limit.toString(),
-        sort,
-        status: currentStatus,
-      });
-
-      if (searchQuery) params.append('search', searchQuery);
-      if (startDate) params.append('startDate', startDate);
-      if (endDate) params.append('endDate', endDate);
-
-      const response = await fetch(
-        `${apiUrl}/abandoned-cart?${params.toString()}`,
-        {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
-        },
-      );
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const json = await response.json();
-      if (json.success) {
-        setData({
-          carts: json.data.carts,
-          totalCount: json.data.totalCount,
-          page,
-          limit,
-          totalPages: json.data.totalPages,
+  const fetchAbandonedCarts = useCallback(
+    async (page = 1, limit = 10, filterStatus = null, search = '') => {
+      try {
+        setLoading(true);
+        const currentStatus =
+          filterStatus !== null ? filterStatus : statusFilter;
+        const params = new URLSearchParams({
+          page: page.toString(),
+          limit: limit.toString(),
+          sort,
+          status: currentStatus,
         });
-        setError(null);
-        setSelectedCarts([]);
-      } else {
-        throw new Error(json.message || 'Failed to fetch abandoned carts');
-      }
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
 
-  const fetchStats = async () => {
+        if (search) params.append('search', search);
+        if (startDate) params.append('startDate', startDate);
+        if (endDate) params.append('endDate', endDate);
+
+        const response = await fetch(
+          `${apiUrl}/abandoned-cart?${params.toString()}`,
+          {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`,
+            },
+          },
+        );
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const json = await response.json();
+        if (json.success) {
+          setData({
+            carts: json.data.carts || [],
+            totalCount: json.data.totalCount,
+            page,
+            limit,
+            totalPages: json.data.totalPages,
+          });
+          setError(null);
+          setSelectedCarts([]);
+        } else {
+          throw new Error(json.message || 'Failed to fetch abandoned carts');
+        }
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [apiUrl, token, statusFilter, sort, startDate, endDate],
+  );
+
+  const fetchStats = useCallback(async () => {
     try {
       const response = await fetch(`${apiUrl}/abandoned-cart/stats`, {
         headers: {
@@ -635,9 +633,9 @@ const AbandonedCartsContainer = () => {
     } catch (err) {
       console.error('Failed to fetch stats:', err);
     }
-  };
+  }, [apiUrl, token]);
 
-  const fetchShippingOptions = async () => {
+  const fetchShippingOptions = useCallback(async () => {
     try {
       const response = await fetch(`${apiUrl}/getAllShipping`, {
         headers: {
@@ -646,18 +644,18 @@ const AbandonedCartsContainer = () => {
       });
       const json = await response.json();
       if (json.success) {
-        setShippingOptions(json.data);
+        setShippingOptions(json.data || []);
       }
     } catch (err) {
       console.error('Failed to fetch shipping options:', err);
     }
-  };
+  }, [apiUrl, token]);
 
   useEffect(() => {
     fetchAbandonedCarts(1, itemsPerPage);
     fetchShippingOptions();
     fetchStats();
-  }, []);
+  }, [itemsPerPage, fetchAbandonedCarts, fetchShippingOptions, fetchStats]);
 
   const handleToggleSelect = (cartId) => {
     setSelectedCarts((prev) =>
@@ -710,7 +708,7 @@ const AbandonedCartsContainer = () => {
       toast.success(json.message);
       setOpenDeleteDialog(false);
       setSelectedCartId(null);
-      fetchAbandonedCarts(data.page, itemsPerPage, statusFilter);
+      fetchAbandonedCarts(data.page, itemsPerPage, statusFilter, searchQuery);
       fetchStats();
     } catch (err) {
       toast.error('Error: ' + err.message);
@@ -741,7 +739,7 @@ const AbandonedCartsContainer = () => {
       toast.success(json.message);
       setOpenEditDialog(false);
       setEditingCart(null);
-      fetchAbandonedCarts(data.page, itemsPerPage, statusFilter);
+      fetchAbandonedCarts(data.page, itemsPerPage, statusFilter, searchQuery);
       fetchStats();
     } catch (err) {
       toast.error('Error: ' + err.message);
@@ -776,7 +774,7 @@ const AbandonedCartsContainer = () => {
       toast.success(json.message);
       setOpenConvertDialog(false);
       setConvertingCart(null);
-      fetchAbandonedCarts(data.page, itemsPerPage, statusFilter);
+      fetchAbandonedCarts(data.page, itemsPerPage, statusFilter, searchQuery);
       fetchStats();
     } catch (err) {
       toast.error('Error: ' + err.message);
@@ -784,22 +782,22 @@ const AbandonedCartsContainer = () => {
   };
 
   const handlePageChange = (newPage) => {
-    fetchAbandonedCarts(newPage, itemsPerPage, statusFilter);
+    fetchAbandonedCarts(newPage, itemsPerPage, statusFilter, searchQuery);
   };
 
   const handleSortChange = (value) => {
     setSort(value);
-    fetchAbandonedCarts(1, itemsPerPage, statusFilter);
+    fetchAbandonedCarts(1, itemsPerPage, statusFilter, searchQuery);
   };
 
   const handleStatusFilterChange = (value) => {
     setStatusFilter(value);
-    fetchAbandonedCarts(1, itemsPerPage, value);
+    fetchAbandonedCarts(1, itemsPerPage, value, searchQuery);
   };
 
   const handleItemsPerPageChange = (value) => {
     setItemsPerPage(Number(value));
-    fetchAbandonedCarts(1, Number(value), statusFilter);
+    fetchAbandonedCarts(1, Number(value), statusFilter, searchQuery);
   };
 
   const handleSearchChange = (e) => {
@@ -808,17 +806,17 @@ const AbandonedCartsContainer = () => {
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
-    fetchAbandonedCarts(1, itemsPerPage, statusFilter);
+    fetchAbandonedCarts(1, itemsPerPage, statusFilter, searchQuery);
   };
 
   const handleStartDateChange = (e) => {
     setStartDate(e.target.value);
-    fetchAbandonedCarts(1, itemsPerPage, statusFilter);
+    fetchAbandonedCarts(1, itemsPerPage, statusFilter, searchQuery);
   };
 
   const handleEndDateChange = (e) => {
     setEndDate(e.target.value);
-    fetchAbandonedCarts(1, itemsPerPage, statusFilter);
+    fetchAbandonedCarts(1, itemsPerPage, statusFilter, searchQuery);
   };
 
   const handleResetFilters = () => {

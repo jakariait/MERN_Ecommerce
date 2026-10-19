@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import useGeneralInfoStore from '../../store/GeneralInfoStore';
@@ -28,7 +28,7 @@ import OrderStatusUpdate from './OrderStatusUpdate.jsx';
 import CourierStats from './CourierStats.jsx';
 import RequirePermission from './RequirePermission.jsx';
 import { debounce } from 'lodash';
-import { Printer, Pencil, X, Plus, FileDown, Save } from 'lucide-react';
+import { Printer, Pencil, X, Plus, Save } from 'lucide-react';
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
@@ -133,7 +133,7 @@ const ViewOrder = () => {
       home_delivery: 'Home Delivery',
     })[method] || 'Unknown Method';
 
-  const fetchOrder = async () => {
+  const fetchOrder = useCallback(async () => {
     try {
       setLoading(true);
       const token = localStorage.getItem('token');
@@ -154,11 +154,11 @@ const ViewOrder = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [orderId]);
 
   useEffect(() => {
     fetchOrder();
-  }, [orderId]);
+  }, [fetchOrder]);
 
   const handleEditToggle = () => {
     if (isEditMode) {
@@ -206,7 +206,7 @@ const ViewOrder = () => {
           const res = await axios.get(
             `${apiUrl}/getAllProductsAdmin?search=${query}`,
           );
-          setSearchedProducts(res.data.products);
+          setSearchedProducts(res.data.products || []);
         } catch (error) {
           console.error('Failed to search products:', error);
         }
@@ -357,15 +357,15 @@ const ViewOrder = () => {
                 </div>
               ) : (
                 <div className="space-y-0.5">
-                  <p>{currentOrderData.shippingInfo.fullName}</p>
+                  <p>{currentOrderData.shippingInfo?.fullName}</p>
                   <p className="text-muted-foreground">
-                    {currentOrderData.shippingInfo.mobileNo}
+                    {currentOrderData.shippingInfo?.mobileNo}
                   </p>
                   <p className="text-muted-foreground">
-                    {currentOrderData.shippingInfo.email}
+                    {currentOrderData.shippingInfo?.email}
                   </p>
                   <p className="text-muted-foreground">
-                    {currentOrderData.shippingInfo.address}
+                    {currentOrderData.shippingInfo?.address}
                   </p>
                 </div>
               )}
@@ -530,11 +530,11 @@ const ViewOrder = () => {
                 <>
                   <p>
                     {currentOrderData.billingInfo?.fullName ||
-                      currentOrderData.shippingInfo.fullName}
+                      currentOrderData.shippingInfo?.fullName}
                   </p>
                   <p className="text-muted-foreground">
                     {currentOrderData.billingInfo?.address ||
-                      currentOrderData.shippingInfo.address}
+                      currentOrderData.shippingInfo?.address}
                   </p>
                 </>
               )}

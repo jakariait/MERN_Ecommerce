@@ -1,4 +1,4 @@
-import React, {
+import {
   lazy,
   Suspense,
   useEffect,
@@ -20,7 +20,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Card, CardContent } from '@/components/ui/card';
 import { toast } from 'sonner';
-import { X, Upload } from 'lucide-react';
+import { X } from 'lucide-react';
 import axios from 'axios';
 import useAuthAdminStore from '../../store/AuthAdminStore.js';
 import ImageComponent from '../componentGeneral/ImageComponent.jsx';

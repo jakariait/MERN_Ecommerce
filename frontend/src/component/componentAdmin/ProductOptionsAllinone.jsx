@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useCallback, useMemo } from 'react';
 import axios from 'axios';
 import useAuthAdminStore from '../../store/AuthAdminStore.js';
 import { Input } from '@/components/ui/input';
@@ -52,7 +52,7 @@ const ProductOptionsAllinone = () => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [optionToDelete, setOptionToDelete] = useState(null);
 
-  const fetchProductOptions = () => {
+  const fetchProductOptions = useCallback(() => {
     setLoading(true);
     axios
       .get(`${apiUrl}/product-options`, {
@@ -66,11 +66,11 @@ const ProductOptionsAllinone = () => {
         toast.error('Error fetching product options.');
         setLoading(false);
       });
-  };
+  }, [apiUrl, token]);
 
   useEffect(() => {
     fetchProductOptions();
-  }, []);
+  }, [fetchProductOptions]);
 
   const handleOpenCreate = () => {
     setIsEdit(false);
@@ -151,7 +151,7 @@ const ProductOptionsAllinone = () => {
       });
       toast.success('Product option deleted successfully!');
       fetchProductOptions();
-    } catch (err) {
+    } catch {
       toast.error('Failed to delete product option.');
     } finally {
       setDeleteDialogOpen(false);

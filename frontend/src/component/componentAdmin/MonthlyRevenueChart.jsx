@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ResponsiveLine } from '@nivo/line';
 import useOrderStore from '../../store/useOrderStore';
 import dayjs from 'dayjs';
@@ -12,7 +12,7 @@ const MonthlyRevenueChart = () => {
   }, [fetchAllOrdersWithoutPagination]);
 
   useEffect(() => {
-    if (allOrders.length === 0) return;
+    if (!allOrders || allOrders.length === 0) return;
 
     const now = dayjs();
     const revenueMap = {};

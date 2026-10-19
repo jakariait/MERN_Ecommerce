@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import { useCallback, useEffect, useState, useMemo } from 'react';
 import axios from 'axios';
 import useAuthAdminStore from '../../store/AuthAdminStore.js';
 import { Input } from '@/components/ui/input';
@@ -66,7 +66,7 @@ const ChildCategoryAllinone = () => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [childCategoryToDelete, setChildCategoryToDelete] = useState(null);
 
-  const fetchChildCategories = () => {
+  const fetchChildCategories = useCallback(() => {
     setLoading(true);
     axios
       .get(`${apiUrl}/child-category`, {
@@ -80,31 +80,31 @@ const ChildCategoryAllinone = () => {
         toast.error('Error fetching child categories.');
         setLoading(false);
       });
-  };
+  }, [apiUrl, token]);
 
-  const fetchCategories = () => {
+  const fetchCategories = useCallback(() => {
     axios
       .get(`${apiUrl}/category`, {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((res) => setCategories(res.data.categories || []))
       .catch(() => {});
-  };
+  }, [apiUrl, token]);
 
-  const fetchSubCategories = () => {
+  const fetchSubCategories = useCallback(() => {
     axios
       .get(`${apiUrl}/sub-category`, {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((res) => setSubCategories(res.data.subCategories || []))
       .catch(() => {});
-  };
+  }, [apiUrl, token]);
 
   useEffect(() => {
     fetchChildCategories();
     fetchCategories();
     fetchSubCategories();
-  }, []);
+  }, [fetchChildCategories, fetchCategories, fetchSubCategories]);
 
   const filteredSubCategories = useMemo(() => {
     if (!formData.category) return [];
