@@ -1,4 +1,4 @@
-import { Suspense, lazy, useEffect, useState } from 'react';
+import { Suspense, lazy, useEffect, useRef, useState } from 'react';
 const Editor = lazy(() =>
   import('primereact/editor').then((module) => ({
     default: module.Editor,
@@ -14,22 +14,30 @@ import { SectionHeader } from '#component/componentAdmin/SectionHeader.jsx';
 const PageEditor = ({ title, endpoint }) => {
   const [content, setContent] = useState('');
   const [loading, setLoading] = useState(false);
+  const htmlRef = useRef('');
   const { token } = useAuthAdminStore();
 
   useEffect(() => {
+    let cancelled = false;
+    htmlRef.current = '';
+    setContent('');
     const fetchContent = async () => {
       try {
         const res = await axios.get(
           `${import.meta.env.VITE_API_URL}/pagecontent/${endpoint}`,
         );
-        if (res.data?.content) {
+        if (!cancelled && res.data?.content) {
           setContent(res.data.content);
+          htmlRef.current = res.data.content;
         }
       } catch (err) {
         console.error(`Error fetching ${title} content:`, err);
       }
     };
     fetchContent();
+    return () => {
+      cancelled = true;
+    };
   }, [endpoint, title]);
 
   const handleSave = async () => {
@@ -37,7 +45,7 @@ const PageEditor = ({ title, endpoint }) => {
     try {
       await axios.patch(
         `${import.meta.env.VITE_API_URL}/pagecontent/${endpoint}`,
-        { content },
+        { content: htmlRef.current },
         {
           headers: { Authorization: `Bearer ${token}` },
         },
@@ -65,8 +73,11 @@ const PageEditor = ({ title, endpoint }) => {
             }
           >
             <Editor
+              key={`${endpoint}-${content || 'initial'}`}
               value={content}
-              onTextChange={(e) => setContent(e.htmlValue)}
+              onTextChange={(e) => {
+                htmlRef.current = e.htmlValue ?? '';
+              }}
               style={{ height: '500px' }}
               readOnly={loading}
             />

@@ -5,7 +5,7 @@
   "scripts": {
     "test": "jest --forceExit --detectOpenHandles",
     "test:watch": "jest --watch --forceExit --detectOpenHandles",
-    "dev": "node --watch index.js",
+    "dev-backend": "node --watch index.js",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
   },
