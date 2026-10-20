@@ -1,25 +1,56 @@
 import { useRef, useState, useEffect, Suspense } from 'react';
-import { Outlet } from 'react-router-dom';
+import { Outlet, useLocation } from 'react-router-dom';
 import Layout from './Layout.jsx';
 import UserMenu from './UserMenu.jsx';
 import { FaUser } from 'react-icons/fa';
 import { MdClose } from 'react-icons/md';
-import Skeleton from 'react-loading-skeleton';
 import { preloadUserRoutes } from '../../utils/routePreloader.js';
 
-const UserLoadingFallback = () => (
-  <div className="space-y-4 p-4">
-    <Skeleton className="h-8 w-48" />
-    <Skeleton className="h-4 w-full" />
-    <Skeleton className="h-4 w-3/4" />
-    <Skeleton className="h-4 w-1/2" />
-    <Skeleton className="h-32 w-full" />
+// Heights of this fallback must match the real page it reserves,
+// so the document height (and scrollbar) never moves on load.
+const OrdersFallback = () => (
+  <div className="space-y-5">
+    <div>
+      <div className="h-7 w-24 bg-muted rounded" />
+      <div className="h-5 mt-1 w-20 bg-muted/70 rounded" />
+    </div>
+    <div className="rounded-xl border border-border/60 bg-card shadow-xs overflow-hidden">
+      <div className="border-b border-border/50 px-4 h-[45px]" />
+      {Array.from({ length: 8 }, (_, i) => (
+        <div
+          key={i}
+          className="border-b border-border/30 h-[61px]"
+        />
+      ))}
+      <div className="px-4 h-[57px]" />
+    </div>
+  </div>
+);
+
+const HomeFallback = () => (
+  <div>
+    <div className="pt-5 pb-5 grid grid-cols-1 lg:grid-cols-2 gap-5">
+      {Array.from({ length: 4 }, (_, i) => (
+        <div
+          key={i}
+          className="h-[94px] rounded-xl border border-border/60 bg-card"
+        />
+      ))}
+    </div>
+    <div className="space-y-4">
+      <div className="h-12 flex items-center justify-between">
+        <div className="h-9 w-40 bg-muted rounded" />
+        <div className="h-8 w-28 bg-muted rounded" />
+      </div>
+      <div className="h-[612px] rounded-xl border border-border/60 bg-card" />
+    </div>
   </div>
 );
 
 const UserLayout = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef(null);
+  const location = useLocation();
 
   useEffect(() => {
     preloadUserRoutes();
@@ -74,7 +105,15 @@ const UserLayout = () => {
         </div>
         {/*Children Component Append Here*/}
         <main className="w-full">
-          <Suspense fallback={<UserLoadingFallback />}>
+          <Suspense
+            fallback={
+              location.pathname === '/user/home' ? (
+                <HomeFallback />
+              ) : (
+                <OrdersFallback />
+              )
+            }
+          >
             <Outlet />
           </Suspense>
         </main>

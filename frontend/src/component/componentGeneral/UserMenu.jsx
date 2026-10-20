@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import useAuthUserStore from '../../store/AuthUserStore';
 import ImageComponent from './ImageComponent.jsx';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
@@ -11,7 +11,6 @@ import {
   FaKey,
   FaHeart,
 } from 'react-icons/fa';
-import Skeleton from 'react-loading-skeleton';
 
 const menuItems = [
   { icon: <FaTachometerAlt />, label: 'Dashboard', path: '/user/home' },
@@ -25,7 +24,7 @@ const menuItems = [
   { icon: <FaKey />, label: 'Change password', path: '/user/change-password' },
 ];
 const UserMenu = () => {
-  const { initialize, user, loading, error, logout } = useAuthUserStore();
+  const { initialize, user, error, logout } = useAuthUserStore();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -45,39 +44,33 @@ const UserMenu = () => {
   return (
     <div>
       <div className="bg-white md:shadow-md rounded-xl p-4">
-        {loading ? (
-          <div className={'grid gap-2'}>
-            <Skeleton height={200} width={'100%'} />
-            <Skeleton height={50} width={'100%'} />
-            <Skeleton height={50} width={'100%'} />
-            <Skeleton height={50} width={'100%'} />
-            <Skeleton height={50} width={'100%'} />
-            <Skeleton height={50} width={'100%'} />
-            <Skeleton height={50} width={'100%'} />
-            <Skeleton height={50} width={'100%'} />
-            <Skeleton height={50} width={'100%'} />
-          </div>
-        ) : (
-          <div>
-            {/* Profile Box */}
-            <div className="primaryBgColor accentTextColor rounded-xl p-2 py-5 flex flex-col items-center">
-              {user?.userImage ? (
-                <ImageComponent
-                  imageName={user?.userImage}
-                  className={
-                    'w-24 h-24 rounded-full object-cover border-white border-4'
-                  }
-                />
-              ) : (
-                <span className="accentTextColor text-xl font-semibold w-24 h-24 rounded-full border-4 border-white flex items-center justify-center text-center">
-                  {user?.fullName || 'User'}
-                </span>
-              )}
-              <h2 className="text-xl font-bold mt-2">
-                {user?.fullName || 'User'}
-              </h2>
-              <p className="text-sm mt-1">{user?.phone || user?.email}</p>
-              <p className="text-sm">Reward Points: {user?.rewardPoints}</p>
+        <div>
+          {/* Profile Box */}
+          <div className="primaryBgColor accentTextColor rounded-xl p-2 py-5 flex flex-col items-center">
+            {user?.userImage ? (
+              <ImageComponent
+                imageName={user?.userImage}
+                className={
+                  'w-24 h-24 rounded-full object-cover border-white border-4'
+                }
+                skeletonHeight={96}
+              />
+            ) : (
+              <span className="accentTextColor text-xl font-semibold w-24 h-24 rounded-full border-4 border-white flex items-center justify-center text-center">
+                {user?.fullName ? (
+                  user?.fullName
+                ) : (
+                  <span className="animate-pulse w-16 h-6 rounded-full bg-white/40" />
+                )}
+              </span>
+            )}
+            <h2 className="text-xl font-bold mt-2">
+              {user?.fullName || '—'}
+            </h2>
+            <p className="text-sm mt-1">{user?.phone || user?.email || '—'}</p>
+            <p className="text-sm">
+              Reward Points: {user?.rewardPoints ?? '—'}
+            </p>
 
               <button
                 onClick={handleLogout}
@@ -110,8 +103,7 @@ const UserMenu = () => {
                 );
               })}
             </nav>
-          </div>
-        )}
+      </div>
       </div>
     </div>
   );

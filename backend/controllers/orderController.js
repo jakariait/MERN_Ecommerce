@@ -222,6 +222,32 @@ const getOrdersForUser = async (req, res) => {
   }
 };
 
+const getOrderSummariesForUser = async (req, res) => {
+  try {
+    const userId = req.params.userId;
+
+    if (!userId) {
+      return res
+        .status(400)
+        .json({ success: false, message: 'User ID is required' });
+    }
+
+    const result = await orderService.getOrderSummariesByUserId(userId);
+
+    return res.status(200).json({
+      success: true,
+      totalOrders: result.totalOrders,
+      orders: result.orders,
+    });
+  } catch (error) {
+    console.error('Fetch error:', error.message);
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
 const trackOrderByOrderNoAndPhone = async (req, res) => {
   try {
     const { orderNo, phone } = req.body;
@@ -327,6 +353,7 @@ module.exports = {
   deleteOrder,
   getOrderByOrderNo,
   getOrdersForUser,
+  getOrderSummariesForUser,
   trackOrderByOrderNoAndPhone,
   updateMultipleOrderStatuses,
   bulkDeleteOrders,

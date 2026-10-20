@@ -1,10 +1,31 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useAuthUserStore from '../../store/AuthUserStore.js';
-import axios from 'axios';
+import useOrderSummaryStore from '../../store/OrderSummaryStore.js';
 import { Button } from '@/components/ui/button';
-import { CircularProgress } from '@/components/ui/circular-progress';
+import Skeleton from 'react-loading-skeleton';
 import { Package, Eye, ShoppingBag } from 'lucide-react';
+
+const RecentTableSkeleton = () => (
+  <div className="rounded-xl border border-border/60 bg-card shadow-xs overflow-hidden">
+    <div className="border-b border-border/50 px-4 h-[41px] flex items-center">
+      <Skeleton className="inline-block h-3 w-2/5" />
+    </div>
+    {Array.from({ length: 10 }, (_, i) => (
+      <div
+        key={i}
+        className="flex items-center justify-between px-4 h-[57px] border-b border-border/30"
+      >
+        <Skeleton className="inline-block h-3.5 w-24" />
+        <Skeleton className="inline-block h-3.5 w-24" />
+        <Skeleton className="inline-block h-3.5 w-20" />
+        <Skeleton className="inline-block h-3.5 w-8" />
+        <Skeleton className="inline-block h-3.5 w-16" />
+        <Skeleton className="inline-block h-7 w-20" />
+      </div>
+    ))}
+  </div>
+);
 
 const statusStyles = {
   pending: 'bg-amber-50 text-amber-700 ring-1 ring-amber-600/20',
@@ -17,35 +38,18 @@ const statusStyles = {
 };
 
 const RecentOrders = () => {
-  const apiUrl = import.meta.env.VITE_API_URL;
   const { user, token } = useAuthUserStore();
-  const [orders, setOrders] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const { summaries, loading, fetchSummaries } = useOrderSummaryStore();
   const navigate = useNavigate();
 
   useEffect(() => {
     if (!user?._id) return;
 
-    const fetchOrders = async () => {
-      try {
-        const response = await axios.get(`${apiUrl}/ordersbyUser/${user._id}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        if (response.data.success) {
-          const sortedOrders = response.data.orders
-            .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-            .slice(0, 10);
-          setOrders(sortedOrders);
-        }
-      } catch (error) {
-        console.error('Failed to fetch orders:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
+    fetchSummaries({ userId: user._id, token });
+  }, [user?._id, token, fetchSummaries]);
 
-    fetchOrders();
-  }, [user?._id]);
+  const orders = (summaries?.orders || []).slice(0, 10);
+  const initialLoading = loading || !summaries;
 
   return (
     <div className="space-y-4">
@@ -59,7 +63,7 @@ const RecentOrders = () => {
               Recent Orders
             </h2>
             <p className="text-sm text-muted-foreground">
-              {loading
+              {initialLoading
                 ? 'Loading...'
                 : `Last ${orders.length} order${orders.length !== 1 ? 's' : ''}`}
             </p>
@@ -76,10 +80,8 @@ const RecentOrders = () => {
         )}
       </div>
 
-      {loading ? (
-        <div className="flex items-center justify-center py-24 rounded-xl border border-dashed border-muted-foreground/20">
-          <CircularProgress className="text-muted-foreground/40" size={24} />
-        </div>
+      {initialLoading ? (
+        <RecentTableSkeleton />
       ) : orders.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-24 rounded-xl border border-dashed border-muted-foreground/20">
           <div className="mb-4 flex size-12 items-center justify-center rounded-full bg-muted/50">
@@ -120,7 +122,9 @@ const RecentOrders = () => {
               </thead>
               <tbody className="divide-y divide-border/30">
                 {orders.map((order) => {
-                  const qty = order.items?.reduce((s, i) => s + i.quantity, 0);
+                  const qty =
+                    order.totalQuantity ??
+                    order.items?.reduce((s, i) => s + i.quantity, 0);
                   const date = new Date(order.createdAt).toLocaleDateString(
                     'en-US',
                     {

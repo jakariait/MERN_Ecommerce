@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { MdEmail, MdClose } from 'react-icons/md';
 import { TfiTruck } from 'react-icons/tfi';
@@ -6,7 +6,6 @@ import { CiShoppingCart, CiHeart } from 'react-icons/ci';
 import { IoPersonOutline } from 'react-icons/io5';
 import { GiHamburgerMenu } from 'react-icons/gi';
 import { IoIosLogOut } from 'react-icons/io';
-import Skeleton from 'react-loading-skeleton';
 
 import GeneralInfoStore from '../../store/GeneralInfoStore';
 import useCartStore from '../../store/useCartStore';
@@ -148,10 +147,10 @@ const Headers = () => {
 
   if (GeneralInfoListLoading) {
     return (
-      <div className="xl:container xl:mx-auto p-3">
-        <Skeleton height={40} />
-        <Skeleton height={60} />
-        <Skeleton height={40} />
+      <div className="h-[165px]" aria-hidden>
+        <div className="h-12 primaryBgColor" />
+        <div className="h-[77px] bg-white border-b border-gray-200" />
+        <div className="h-10 lg:shadow lg:bg-white" />
       </div>
     );
   }
@@ -198,7 +197,7 @@ const Headers = () => {
           isSticky ? 'fixed top-0 left-0 right-0 z-40 ' : ''
         }`}
       >
-        <div className="xl:container xl:mx-auto py-3 px-3 flex gap-6 items-center justify-between">
+        <div className="xl:container xl:mx-auto h-[76px] px-3 flex gap-6 items-center justify-between">
           <div
             ref={hamburgerRef}
             onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -215,14 +214,15 @@ const Headers = () => {
               imageName={GeneralInfoList?.PrimaryLogo}
               className="w-30 h-10"
               altName={GeneralInfoList?.CompanyName}
-              skeletonHeight={'10'}
+              skeletonHeight={40}
+              fetchpriority="high"
             />
           </Link>
 
           <HeaderSearch />
 
           {/* Right Icons */}
-          <div className="flex items-center justify-center gap-2 relative">
+          <div className="flex items-center justify-center gap-2 relative lg:min-w-[205px]">
             {/* Wishlist */}
             <Link
               to="/user/wishlist"
@@ -279,6 +279,7 @@ const Headers = () => {
                     <ImageComponent
                       imageName={user.userImage}
                       className={avatarClass}
+                      skeletonHeight={48}
                     />
                   ) : (
                     <span className={avatarInitialClass}>

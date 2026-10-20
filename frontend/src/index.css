@@ -119,6 +119,10 @@
     font-weight: 400;
     font-style: normal;
   }
+
+  html {
+    scrollbar-gutter: stable;
+  }
 }
 :root {
   --primaryColor: #00395d;

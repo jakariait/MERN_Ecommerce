@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import Skeleton from 'react-loading-skeleton';
 
 const ImageComponent = ({
@@ -37,7 +37,11 @@ const ImageComponent = ({
       className="relative"
       style={{ minHeight: isLoading ? skeletonHeight || 100 : undefined }}
     >
-      {isLoading && <Skeleton height="100%" width="100%" />}
+      {isLoading && (
+        <div className="absolute inset-0">
+          <Skeleton height="100%" width="100%" />
+        </div>
+      )}
       {hasError && !isLoading && (
         <div
           className={`flex items-center justify-center bg-gray-100 text-gray-400 text-sm ${className}`}
@@ -54,7 +58,7 @@ const ImageComponent = ({
           width={width}
           height={height}
           loading={fetchpriority === 'high' ? 'eager' : 'lazy'}
-          fetchpriority={fetchpriority}
+          fetchPriority={fetchpriority}
           style={{
             opacity: isLoading ? 0 : 1,
             position: 'relative',

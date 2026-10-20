@@ -590,6 +590,33 @@ const getOrdersByUserId = async (userId) => {
   }
 };
 
+// Lightweight summary of every order of a user — only what the
+// orders-list/stats widgets need. No populates, one aggregation query.
+const getOrderSummariesByUserId = async (userId) => {
+  const orders = await Order.aggregate([
+    {
+      $match: { userId: new mongoose.Types.ObjectId(String(userId)) },
+    },
+    { $sort: { createdAt: -1 } },
+    {
+      $addFields: {
+        totalQuantity: { $sum: '$items.quantity' },
+      },
+    },
+    {
+      $project: {
+        _id: 1,
+        orderNo: 1,
+        orderStatus: 1,
+        totalAmount: 1,
+        totalQuantity: 1,
+        createdAt: 1,
+      },
+    },
+  ]);
+  return { totalOrders: orders.length, orders };
+};
+
 const trackOrderByOrderNoAndPhone = async (orderNo, phone) => {
   const order = await Order.findOne({ orderNo })
     .populate('userId', 'phone')
@@ -767,6 +794,7 @@ module.exports = {
   deleteOrder,
   getOrderByOrderNo,
   getOrdersByUserId,
+  getOrderSummariesByUserId,
   trackOrderByOrderNoAndPhone,
   updateMultipleOrderStatuses,
   bulkDeleteOrders,

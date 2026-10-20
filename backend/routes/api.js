@@ -615,6 +615,11 @@ router.delete(
 );
 router.get('/order-no/:orderNo', orderController.getOrderByOrderNo);
 router.get('/ordersbyUser/:userId', userProtect, orderController.getOrdersForUser);
+router.get(
+  '/orders-summary/:userId',
+  userProtect,
+  orderController.getOrderSummariesForUser
+);
 
 // // Order Tracking
 router.post('/track-order', orderController.trackOrderByOrderNoAndPhone);

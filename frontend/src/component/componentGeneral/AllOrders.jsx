@@ -1,16 +1,40 @@
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import { useEffect, useState } from 'react';
 import useAuthUserStore from '../../store/AuthUserStore.js';
+import useOrderSummaryStore from '../../store/OrderSummaryStore.js';
 import { Button } from '@/components/ui/button';
-import { CircularProgress } from '@/components/ui/circular-progress';
 import { useNavigate } from 'react-router-dom';
+import Skeleton from 'react-loading-skeleton';
 import {
-  Package,
   Eye,
   ShoppingBag,
   ChevronLeft,
   ChevronRight,
 } from 'lucide-react';
+
+const TableSkeleton = () => (
+  <div className="rounded-xl border border-border/60 bg-card shadow-xs overflow-hidden">
+    <div className="border-b border-border/50 px-4 h-[45px] flex items-center">
+      <Skeleton className="inline-block h-3 w-2/5" />
+    </div>
+    {Array.from({ length: 8 }, (_, i) => (
+      <div
+        key={i}
+        className="flex items-center justify-between px-4 h-[61px] border-b border-border/30"
+      >
+        <Skeleton className="inline-block h-3.5 w-24" />
+        <Skeleton className="inline-block h-3.5 w-24" />
+        <Skeleton className="inline-block h-3.5 w-20" />
+        <Skeleton className="inline-block h-3.5 w-8" />
+        <Skeleton className="inline-block h-3.5 w-16" />
+        <Skeleton className="inline-block h-7 w-20" />
+      </div>
+    ))}
+    <div className="px-4 h-[57px] flex items-center justify-between">
+      <Skeleton className="inline-block h-3 w-16" />
+      <Skeleton className="inline-block h-8 w-48" />
+    </div>
+  </div>
+);
 
 const statusStyles = {
   pending: 'bg-amber-50 text-amber-700 ring-1 ring-amber-600/20',
@@ -23,34 +47,22 @@ const statusStyles = {
 };
 
 const AllOrders = () => {
-  const apiUrl = import.meta.env.VITE_API_URL;
   const { user, token } = useAuthUserStore();
+  const { summaries, loading, fetchSummaries } = useOrderSummaryStore();
 
-  const [orders, setOrders] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const orders = summaries?.orders || [];
   const [page, setPage] = useState(0);
   const rowsPerPage = 8;
 
   const navigate = useNavigate();
 
-  const fetchOrders = async () => {
-    if (!user?._id) return;
-    setLoading(true);
-    try {
-      const { data } = await axios.get(`${apiUrl}/ordersbyUser/${user._id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (data.success) setOrders(data.orders || []);
-    } catch (err) {
-      console.error('Error fetching orders:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
-    fetchOrders();
-  }, [user?._id, token]);
+    fetchSummaries({ userId: user?._id, token });
+  }, [user?._id, token, fetchSummaries]);
+
+  // Only "initial" loading — when cached data already exists, never flash
+  // the skeleton back in (keeps the table height stable).
+  const initialLoading = loading || !summaries;
 
   const totalPages = Math.ceil(orders.length / rowsPerPage) || 1;
   const paginated = orders.slice(
@@ -64,17 +76,15 @@ const AllOrders = () => {
         <div>
           <h1 className="text-xl font-semibold tracking-tight">Orders</h1>
           <p className="text-sm text-muted-foreground mt-0.5">
-            {loading
+            {initialLoading
               ? 'Loading...'
               : `${orders.length} order${orders.length !== 1 ? 's' : ''}`}
           </p>
         </div>
       </div>
 
-      {loading ? (
-        <div className="flex items-center justify-center py-32">
-          <CircularProgress className="text-muted-foreground/40" size={28} />
-        </div>
+      {initialLoading ? (
+        <TableSkeleton />
       ) : orders.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-32 rounded-xl border border-dashed border-muted-foreground/20">
           <div className="mb-5 flex size-14 items-center justify-center rounded-full bg-muted/50">
@@ -115,7 +125,9 @@ const AllOrders = () => {
               </thead>
               <tbody className="divide-y divide-border/30">
                 {paginated.map((order) => {
-                  const qty = order.items?.reduce((s, i) => s + i.quantity, 0);
+                  const qty =
+                    order.totalQuantity ??
+                    order.items?.reduce((s, i) => s + i.quantity, 0);
                   const date = new Date(order.createdAt).toLocaleDateString(
                     'en-US',
                     {
