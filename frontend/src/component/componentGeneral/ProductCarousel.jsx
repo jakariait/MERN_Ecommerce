@@ -1,5 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Slider from 'react-slick';
+import { Link } from 'react-router-dom';
 import CarouselStore from '../../store/CarouselStore.js';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import Skeleton from 'react-loading-skeleton';
@@ -61,17 +62,21 @@ const ProductCarousel = () => {
       ) : (
         <>
           <Slider ref={sliderRef} {...settings}>
-            {products.map((product, index) => (
-              <div key={index} className="relative">
-                <ImageComponent
-                  imageName={product.imgSrc}
-                  className="w-full h-full object-contain"
-                  skeletonHeight={400}
-                  altName={`Banner ${index + 1}`}
-                  fetchpriority={index === 0 ? 'high' : undefined}
-                />
-              </div>
-            ))}
+            {products.map((product, index) => {
+              const isInternalLink = product.link?.startsWith('/');
+
+              return (
+                <div key={index} className="relative">
+                  <BannerSlide
+                    imgSrc={product.imgSrc}
+                    link={product.link}
+                    isInternalLink={isInternalLink}
+                    alt={`Banner ${index + 1}`}
+                    priority={index === 0}
+                  />
+                </div>
+              );
+            })}
           </Slider>
         </>
       )}
@@ -80,6 +85,34 @@ const ProductCarousel = () => {
 };
 
 // Custom Arrow Components
+const BannerSlide = ({ imgSrc, link, isInternalLink, alt, priority }) => {
+  const image = (
+    <ImageComponent
+      imageName={imgSrc}
+      className="w-full h-full object-contain"
+      skeletonHeight={400}
+      altName={alt}
+      fetchpriority={priority ? 'high' : undefined}
+    />
+  );
+
+  if (!link) return image;
+
+  // Internal path -> SPA navigation; external URL -> same tab by default
+  if (isInternalLink) {
+    return (
+      <Link to={link} className="block">
+        {image}
+      </Link>
+    );
+  }
+  return (
+    <a href={link} className="block">
+      {image}
+    </a>
+  );
+};
+
 const CustomPrevArrow = ({ onClick }) => (
   <button
     onClick={onClick}

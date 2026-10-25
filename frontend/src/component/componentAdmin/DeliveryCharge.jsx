@@ -38,6 +38,17 @@ const DeliveryCharge = () => {
   const [editedValue, setEditedValue] = useState('');
   const [saving, setSaving] = useState(false);
 
+  const fetchShippingMethods = useCallback(async () => {
+    try {
+      const res = await axios.get(`${apiUrl}/getAllShipping`);
+      setShippingMethods(res.data.data || []);
+    } catch {
+      toast.error('Failed to load shipping methods');
+    } finally {
+      setLoading(false);
+    }
+  }, [apiUrl]);
+
   useEffect(() => {
     fetchShippingMethods();
 
@@ -51,17 +62,6 @@ const DeliveryCharge = () => {
       );
     };
   }, [fetchShippingMethods]);
-
-  const fetchShippingMethods = useCallback(async () => {
-    try {
-      const res = await axios.get(`${apiUrl}/getAllShipping`);
-      setShippingMethods(res.data.data || []);
-    } catch {
-      toast.error('Failed to load shipping methods');
-    } finally {
-      setLoading(false);
-    }
-  }, [apiUrl]);
 
   const handleEditOpen = (method) => {
     setCurrentMethod(method);

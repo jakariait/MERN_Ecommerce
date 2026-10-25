@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   FaShoppingBag,
   FaBox,
@@ -7,44 +7,70 @@ import {
 } from 'react-icons/fa';
 import useCartStore from '../../store/useCartStore.js';
 import useAuthUserStore from '../../store/AuthUserStore.js';
-import useOrderSummaryStore from '../../store/OrderSummaryStore.js';
+import axios from 'axios';
 
 const UserStats = () => {
+  const apiUrl = import.meta.env.VITE_API_URL;
   const { cart } = useCartStore();
   const { user, token } = useAuthUserStore();
-  const { summaries, fetchSummaries } = useOrderSummaryStore();
 
-  // Delivered orders
-  const deliveredOrders = (summaries?.orders || []).filter(
-    (order) => order.orderStatus === 'delivered',
-  );
-
-  // Running orders: orders not delivered, not returned, and not cancelled
-  const runningOrders = (summaries?.orders || []).filter(
-    (order) =>
-      !['delivered', 'returned', 'cancelled'].includes(order.orderStatus),
-  );
-
-  // Sum total amounts of delivered orders
-  const totalDeliveredAmount = deliveredOrders.reduce((sum, order) => {
-    return sum + (order.totalAmount || 0);
-  }, 0);
-  const formattedAmount = totalDeliveredAmount.toFixed(2); // returns string "7087.80"
+  const [totalOrders, setTotalOrders] = useState(0);
+  const [deliveredAmount, setDeliveredAmount] = useState(0);
+  const [runningOrders, setRunningOrders] = useState(0);
 
   useEffect(() => {
     if (!user?._id) return;
 
-    fetchSummaries({ userId: user._id, token });
-  }, [user?._id, token, fetchSummaries]);
+    const fetchOrders = async () => {
+      try {
+        const response = await axios.get(`${apiUrl}/ordersbyUser/${user._id}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        if (response.data.success) {
+          const orders = response.data.orders;
+
+          setTotalOrders(response.data.totalOrders);
+
+          // Delivered orders
+          const deliveredOrders = orders.filter(
+            (order) => order.orderStatus === 'delivered',
+          );
+
+          // Running orders: orders not delivered, not returned, and not cancelled
+          const runningOrders = orders.filter(
+            (order) =>
+              !['delivered', 'returned', 'cancelled'].includes(
+                order.orderStatus,
+              ),
+          );
+
+          // Sum total amounts of delivered orders
+          const totalDeliveredAmount = deliveredOrders.reduce((sum, order) => {
+            return sum + (order.totalAmount || 0);
+          }, 0);
+          const formattedAmount = totalDeliveredAmount.toFixed(2); // returns string "7087.80"
+
+          setDeliveredAmount(formattedAmount);
+          setRunningOrders(runningOrders.length); // You'll need a new state for runningOrders
+        }
+      } catch (error) {
+        console.error('Failed to fetch orders:', error);
+      }
+    };
+
+    fetchOrders();
+  }, [user?._id]);
 
   const statsData = [
     {
-      value: summaries?.totalOrders || 0,
+      value: totalOrders,
       label: 'Total order placed',
       icon: <FaShoppingBag className="text-3xl text-blue-500" />,
     },
     {
-      value: runningOrders.length,
+      value: runningOrders,
       label: 'Running orders',
       icon: <FaBox className="text-3xl text-yellow-500" />,
     },
@@ -54,7 +80,7 @@ const UserStats = () => {
       icon: <FaShoppingCart className="text-3xl text-green-500" />,
     },
     {
-      value: formattedAmount,
+      value: deliveredAmount,
       label: 'Amount spent on delivered orders',
       icon: <FaMoneyBillWave className="text-3xl text-blue-600" />,
     },

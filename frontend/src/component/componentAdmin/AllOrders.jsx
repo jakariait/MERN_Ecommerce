@@ -607,46 +607,58 @@ const AllOrders = ({ title, status = '' }) => {
 
   const LoadingSkeleton = useMemo(
     () => (
-      <Card className="shadow-md border-0">
-        <CardContent className="p-0">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                {[
-                  'Order No',
-                  'Order Date & Time',
-                  'Customer',
-                  'Mobile No',
-                  'Courier',
-                  'Courier Status',
-                  'Status',
-                  'Payment Status',
-                  'Total Amount',
-                  'Source',
-                  'Actions',
-                ].map((header, i) => (
-                  <TableHead key={i}>
-                    <Skeleton className="h-4 w-24" />
-                  </TableHead>
-                ))}
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {[...Array(itemsPerPage)].map((_, index) => (
-                <TableRow key={index}>
-                  {Array(11)
-                    .fill()
-                    .map((_, cellIndex) => (
-                      <TableCell key={cellIndex}>
-                        <Skeleton className="h-4 w-full" />
-                      </TableCell>
+      <div>
+        <Card className="shadow-md border-0 min-h-[60vh]">
+          <CardContent className="p-0">
+            <div className="h-[60vh] overflow-y-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow className="sticky top-0 z-10 bg-background">
+                    {[
+                      'Order No',
+                      'Order Date & Time',
+                      'Customer',
+                      'Mobile No',
+                      'Courier',
+                      'Courier Status',
+                      'Status',
+                      'Payment Status',
+                      'Total Amount',
+                      'Source',
+                      'Actions',
+                    ].map((header, i) => (
+                      <TableHead key={i}>
+                        <Skeleton className="h-4 w-24" />
+                      </TableHead>
                     ))}
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {[...Array(itemsPerPage)].map((_, index) => (
+                    <TableRow key={index}>
+                      {Array(11)
+                        .fill()
+                        .map((_, cellIndex) => (
+                          <TableCell key={cellIndex}>
+                            <Skeleton className="h-4 w-full" />
+                          </TableCell>
+                        ))}
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          </CardContent>
+        </Card>
+        <div className="flex items-center justify-between bg-muted/30 rounded-lg p-3 mt-4">
+          <Skeleton className="h-4 w-44" />
+          <div className="flex items-center gap-1">
+            <Skeleton className="size-8 rounded-md" />
+            <Skeleton className="size-8 rounded-md" />
+            <Skeleton className="size-8 rounded-md" />
+          </div>
+        </div>
+      </div>
     ),
     [itemsPerPage],
   );
@@ -796,15 +808,15 @@ const AllOrders = ({ title, status = '' }) => {
       {orderListLoading ? (
         LoadingSkeleton
       ) : orderListError ? (
-        <Card className="border-destructive/50">
-          <CardContent className="py-4">
+        <Card className="border-destructive/50 min-h-[40vh]">
+          <CardContent className="py-4 flex items-center justify-center">
             <p className="text-destructive font-medium">{orderListError}</p>
           </CardContent>
         </Card>
       ) : (
         <>
           {allOrders.length === 0 ? (
-            <div className="text-center py-8">
+            <div className="text-center py-8 flex flex-col items-center justify-center min-h-[calc(60vh_+_72px)]">
               <p className="text-lg text-muted-foreground">
                 {searchQuery
                   ? 'No orders found matching your search.'
@@ -856,163 +868,168 @@ const AllOrders = ({ title, status = '' }) => {
                   className="p-0"
                   style={{ opacity: orderListLoading ? 0.6 : 1 }}
                 >
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead className="w-10">
-                          <Checkbox
-                            checked={allSelected}
-                            onCheckedChange={handleSelectAll}
-                          />
-                        </TableHead>
-                        <TableHead>
-                          <SortHeader column="orderNo" label="Order No" />
-                        </TableHead>
-                        <TableHead>
-                          <SortHeader
-                            column="orderDate"
-                            label="Order Date & Time"
-                          />
-                        </TableHead>
-                        <TableHead>
-                          <SortHeader
-                            column="shippingInfo.fullName"
-                            label="Customer"
-                          />
-                        </TableHead>
-                        <TableHead>
-                          <SortHeader
-                            column="shippingInfo.mobileNo"
-                            label="Mobile No"
-                          />
-                        </TableHead>
-                        <TableHead>Courier</TableHead>
-                        <TableHead>Courier Status</TableHead>
-                        <TableHead>
-                          <SortHeader column="orderStatus" label="Status" />
-                        </TableHead>
-                        <TableHead>
-                          <SortHeader column="orderSource" label="Source" />
-                        </TableHead>
-                        <TableHead>
-                          <SortHeader
-                            column="totalAmount"
-                            label="Total Amount"
-                          />
-                        </TableHead>
-                        <TableHead className="text-center w-[100px]">
-                          Actions
-                        </TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {sortedOrders.map((order) => (
-                        <TableRow key={order._id}>
-                          <TableCell>
+                  <div className="h-[60vh] overflow-y-auto">
+                    <Table>
+                      <TableHeader>
+                        <TableRow className="sticky top-0 z-10 bg-background">
+                          <TableHead className="w-10">
                             <Checkbox
-                              checked={selectedOrders.includes(order._id)}
-                              onCheckedChange={() =>
-                                handleSelectOrder(order._id)
-                              }
+                              checked={allSelected}
+                              onCheckedChange={handleSelectAll}
                             />
-                          </TableCell>
-                          <TableCell className="font-medium">
-                            {order.orderNo}
-                          </TableCell>
-                          <TableCell>
-                            {order.createdAt
-                              ? new Date(order.createdAt).toLocaleString()
-                              : ''}
-                          </TableCell>
-                          <TableCell>
-                            {order.shippingInfo?.fullName ?? ''}
-                          </TableCell>
-                          <TableCell>
-                            {order.shippingInfo?.mobileNo ?? ''}
-                          </TableCell>
-                          <TableCell>
-                            <SendToCourierButton
-                              orderData={{
-                                invoice: order.orderNo,
-                                recipient_name: order.shippingInfo?.fullName,
-                                recipient_phone: order.shippingInfo?.mobileNo,
-                                recipient_address: order.shippingInfo?.address,
-                                cod_amount: order.dueAmount ?? 0,
-                                note: order.note || '',
-                                order_id: order._id,
-                                courier_status: order.sentToCourier,
-                                items: order.items?.length ?? 0,
-                                courierProvider: order.courierProvider,
-                              }}
-                              onSuccess={handleSuccess}
+                          </TableHead>
+                          <TableHead>
+                            <SortHeader column="orderNo" label="Order No" />
+                          </TableHead>
+                          <TableHead>
+                            <SortHeader
+                              column="orderDate"
+                              label="Order Date & Time"
                             />
-                          </TableCell>
-                          <TableCell>
-                            <CourierSummary
-                              phone={order.shippingInfo?.mobileNo}
+                          </TableHead>
+                          <TableHead>
+                            <SortHeader
+                              column="shippingInfo.fullName"
+                              label="Customer"
                             />
-                          </TableCell>
-                          <TableCell>
-                            <OrderStatusSelector
-                              orderId={order._id}
-                              refetchOrders={fetchOrders}
+                          </TableHead>
+                          <TableHead>
+                            <SortHeader
+                              column="shippingInfo.mobileNo"
+                              label="Mobile No"
                             />
-                          </TableCell>
-                          <TableCell>
-                            <Badge
-                              variant={
-                                order.orderSource === 'admin'
-                                  ? 'default'
-                                  : 'secondary'
-                              }
-                            >
-                              {order.orderSource === 'admin' ? 'Admin' : 'Web'}
-                            </Badge>
-                          </TableCell>
-                          <TableCell>
-                            Tk. {order.totalAmount?.toFixed(2)}
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex items-center justify-center gap-1">
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <Button
-                                    variant="ghost"
-                                    size="icon-xs"
-                                    onClick={() => handleView(order._id)}
-                                  >
-                                    <Eye className="size-3.5" />
-                                  </Button>
-                                </TooltipTrigger>
-                                <TooltipContent>View</TooltipContent>
-                              </Tooltip>
-                              <RequirePermission
-                                permission="delete_orders"
-                                fallback={true}
+                          </TableHead>
+                          <TableHead>Courier</TableHead>
+                          <TableHead>Courier Status</TableHead>
+                          <TableHead>
+                            <SortHeader column="orderStatus" label="Status" />
+                          </TableHead>
+                          <TableHead>
+                            <SortHeader column="orderSource" label="Source" />
+                          </TableHead>
+                          <TableHead>
+                            <SortHeader
+                              column="totalAmount"
+                              label="Total Amount"
+                            />
+                          </TableHead>
+                          <TableHead className="text-center w-[100px]">
+                            Actions
+                          </TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {sortedOrders.map((order) => (
+                          <TableRow key={order._id}>
+                            <TableCell>
+                              <Checkbox
+                                checked={selectedOrders.includes(order._id)}
+                                onCheckedChange={() =>
+                                  handleSelectOrder(order._id)
+                                }
+                              />
+                            </TableCell>
+                            <TableCell className="font-medium">
+                              {order.orderNo}
+                            </TableCell>
+                            <TableCell>
+                              {order.createdAt
+                                ? new Date(order.createdAt).toLocaleString()
+                                : ''}
+                            </TableCell>
+                            <TableCell>
+                              {order.shippingInfo?.fullName ?? ''}
+                            </TableCell>
+                            <TableCell>
+                              {order.shippingInfo?.mobileNo ?? ''}
+                            </TableCell>
+                            <TableCell>
+                              <SendToCourierButton
+                                orderData={{
+                                  invoice: order.orderNo,
+                                  recipient_name: order.shippingInfo?.fullName,
+                                  recipient_phone: order.shippingInfo?.mobileNo,
+                                  recipient_address:
+                                    order.shippingInfo?.address,
+                                  cod_amount: order.dueAmount ?? 0,
+                                  note: order.note || '',
+                                  order_id: order._id,
+                                  courier_status: order.sentToCourier,
+                                  items: order.items?.length ?? 0,
+                                  courierProvider: order.courierProvider,
+                                }}
+                                onSuccess={handleSuccess}
+                              />
+                            </TableCell>
+                            <TableCell>
+                              <CourierSummary
+                                phone={order.shippingInfo?.mobileNo}
+                              />
+                            </TableCell>
+                            <TableCell>
+                              <OrderStatusSelector
+                                orderId={order._id}
+                                refetchOrders={fetchOrders}
+                              />
+                            </TableCell>
+                            <TableCell>
+                              <Badge
+                                variant={
+                                  order.orderSource === 'admin'
+                                    ? 'default'
+                                    : 'secondary'
+                                }
                               >
+                                {order.orderSource === 'admin'
+                                  ? 'Admin'
+                                  : 'Web'}
+                              </Badge>
+                            </TableCell>
+                            <TableCell>
+                              Tk. {order.totalAmount?.toFixed(2)}
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex items-center justify-center gap-1">
                                 <Tooltip>
                                   <TooltipTrigger asChild>
                                     <Button
                                       variant="ghost"
                                       size="icon-xs"
-                                      onClick={() => {
-                                        setDeleteId(order._id);
-                                        setDeleteDialogOpen(true);
-                                      }}
-                                      className="text-destructive hover:text-destructive"
+                                      onClick={() => handleView(order._id)}
                                     >
-                                      <Trash2 className="size-3.5" />
+                                      <Eye className="size-3.5" />
                                     </Button>
                                   </TooltipTrigger>
-                                  <TooltipContent>Delete</TooltipContent>
+                                  <TooltipContent>View</TooltipContent>
                                 </Tooltip>
-                              </RequirePermission>
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
+                                <RequirePermission
+                                  permission="delete_orders"
+                                  fallback={true}
+                                >
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <Button
+                                        variant="ghost"
+                                        size="icon-xs"
+                                        onClick={() => {
+                                          setDeleteId(order._id);
+                                          setDeleteDialogOpen(true);
+                                        }}
+                                        className="text-destructive hover:text-destructive"
+                                      >
+                                        <Trash2 className="size-3.5" />
+                                      </Button>
+                                    </TooltipTrigger>
+                                    <TooltipContent>Delete</TooltipContent>
+                                  </Tooltip>
+                                </RequirePermission>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
                 </CardContent>
               </Card>
 

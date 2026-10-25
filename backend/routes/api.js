@@ -192,6 +192,12 @@ router.post(
   CarouselController.createCarousel
 );
 router.get('/getallcarousel', CarouselController.getAllCarousel);
+router.patch(
+  '/updatecarousel/:id',
+  adminProtect,
+  checkPermission('sliders-banners'),
+  CarouselController.updateCarouselLink
+);
 router.delete(
   '/deletebyidcarousel/:id',
   adminProtect,
@@ -615,11 +621,6 @@ router.delete(
 );
 router.get('/order-no/:orderNo', orderController.getOrderByOrderNo);
 router.get('/ordersbyUser/:userId', userProtect, orderController.getOrdersForUser);
-router.get(
-  '/orders-summary/:userId',
-  userProtect,
-  orderController.getOrderSummariesForUser
-);
 
 // // Order Tracking
 router.post('/track-order', orderController.trackOrderByOrderNoAndPhone);

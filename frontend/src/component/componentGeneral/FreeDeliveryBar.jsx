@@ -5,10 +5,8 @@ import useCartStore from '../../store/useCartStore.js';
 
 const FreeDeliveryBar = () => {
   const [amount, setAmount] = useState(null);
-  const [loading, setLoading] = useState(true);
   const { cart } = useCartStore();
   const apiUrl = import.meta.env.VITE_API_URL;
-  const cachedActive = localStorage.getItem('freeDelivery:active');
 
   useEffect(() => {
     const fetchAmount = async () => {
@@ -16,26 +14,15 @@ const FreeDeliveryBar = () => {
         const res = await axios.get(`${apiUrl}/getFreeDeliveryAmount`);
         if (res.data?.success) {
           setAmount(res.data?.data?.value);
-          localStorage.setItem(
-            'freeDelivery:active',
-            res.data?.data?.value > 0 ? 'true' : 'false',
-          );
         }
       } catch (err) {
         console.error('Failed to fetch free delivery amount:', err.message);
-      } finally {
-        setLoading(false);
       }
     };
 
     fetchAmount();
   }, [apiUrl]);
 
-  if (loading && cachedActive !== 'false') {
-    return (
-      <div className="secondaryBgColor accentTextColor w-full h-10" aria-hidden="true" />
-    );
-  }
   if (!amount || amount <= 0) return null;
 
   const totalAmount = cart.reduce((total, item) => {
@@ -73,8 +60,8 @@ const FreeDeliveryBar = () => {
   }
 
   return (
-    <div className="secondaryBgColor accentTextColor w-full">
-      <div className="min-h-10 flex items-center justify-center gap-2 px-4 text-center text-xs font-medium sm:text-sm">
+    <div className="secondaryBgColor accentTextColor w-full py-2">
+      <div className="flex items-center justify-center gap-2 px-4 text-center text-xs font-medium sm:text-sm">
         <Truck className="size-4 shrink-0" />
         <span>{message}</span>
       </div>

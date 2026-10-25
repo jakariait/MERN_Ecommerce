@@ -1,13 +1,12 @@
-import { useState, useEffect, useRef } from 'react';
-import { useForm, Controller } from 'react-hook-form';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Pencil, Trash2, Loader2 } from 'lucide-react';
+import { Trash2, Loader2, Pencil, UploadCloud, ImageIcon } from 'lucide-react';
 import ImageComponent from '../componentGeneral/ImageComponent.jsx';
 import useAuthAdminStore from '../../store/AuthAdminStore.js';
-import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
 import {
   Dialog,
   DialogContent,
@@ -17,38 +16,58 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog';
 import { toast } from 'sonner';
+import { SectionHeader } from '@/component/componentAdmin/SectionHeader.jsx';
 
 const apiUrl = import.meta.env.VITE_API_URL;
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 
 const FeatureImageAdmin = () => {
+  const { token } = useAuthAdminStore();
+
   const [featureImages, setFeatureImages] = useState([]);
-  const [editingFeature, setEditingFeature] = useState(null);
+  const [initialLoading, setInitialLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState(null);
-  const [preview, setPreview] = useState(null);
-  const { register, handleSubmit, reset, setValue, control } = useForm();
-  const fileInputRef = useRef(null);
-  const { token } = useAuthAdminStore();
+  const [editingFeature, setEditingFeature] = useState(null);
+
+  // form state
+  const [title, setTitle] = useState('');
+  const [file, setFile] = useState(null);
+  const [filePreviewUrl, setFilePreviewUrl] = useState('');
+  const [dragActive, setDragActive] = useState(false);
 
   useEffect(() => {
     const fetchFeatureImages = async () => {
       try {
         const { data } = await axios.get(`${apiUrl}/feature-images`);
         setFeatureImages(data.data || []);
-      } catch (error) {
-        console.error('Error fetching images:', error);
+      } catch {
+        toast.error('Failed to load feature images');
+      } finally {
+        setInitialLoading(false);
       }
     };
     fetchFeatureImages();
   }, []);
 
-  const onSubmit = async (data) => {
-    const formData = new FormData();
-    formData.append('title', data.title);
+  useEffect(() => {
+    if (!filePreviewUrl) return;
+    return () => URL.revokeObjectURL(filePreviewUrl);
+  }, [filePreviewUrl]);
 
-    if (data.imgSrc && data.imgSrc.length > 0) {
-      formData.append('imgSrc', data.imgSrc[0]);
+  const applyImage = async () => {
+    if (!title.trim()) {
+      toast.error('Please enter a title');
+      return;
     }
+    if (!editingFeature && !file) {
+      toast.error('Please select an image');
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('title', title.trim());
+    if (file) formData.append('imgSrc', file);
 
     setSubmitting(true);
     try {
@@ -76,153 +95,248 @@ const FeatureImageAdmin = () => {
 
       const { data: refreshData } = await axios.get(`${apiUrl}/feature-images`);
       setFeatureImages(refreshData.data || []);
-
-      setEditingFeature(null);
-      setPreview(null);
-      reset();
-      if (fileInputRef.current) fileInputRef.current.value = '';
-    } catch (error) {
-      console.error('Error submitting form:', error);
+      resetForm();
+    } catch {
       toast.error('An error occurred. Please try again.');
     } finally {
       setSubmitting(false);
     }
   };
 
-  const handleEdit = (feature) => {
-    setEditingFeature(feature);
-    setPreview(null);
-    setValue('title', feature.title);
+  const resetForm = () => {
+    setEditingFeature(null);
+    setTitle('');
+    setFile(null);
+    if (filePreviewUrl) URL.revokeObjectURL(filePreviewUrl);
+    setFilePreviewUrl('');
+    setDragActive(false);
   };
 
-  const handleDelete = async (id) => {
+  const selectFile = (selectedFile) => {
+    if (!selectedFile) return;
+    if (!selectedFile.type.startsWith('image/')) {
+      toast.error('Please select an image file');
+      return;
+    }
+    if (selectedFile.size > MAX_FILE_SIZE) {
+      toast.error('Image must be smaller than 5MB');
+      return;
+    }
+    if (filePreviewUrl) URL.revokeObjectURL(filePreviewUrl);
+    setFile(selectedFile);
+    setFilePreviewUrl(URL.createObjectURL(selectedFile));
+  };
+
+  const handleFileChange = (e) => {
+    selectFile(e.target.files?.[0]);
+    e.target.value = '';
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    setDragActive(false);
+    selectFile(e.dataTransfer.files?.[0]);
+  };
+
+  const handleEdit = (feature) => {
+    setEditingFeature(feature);
+    setTitle(feature.title);
+    setFile(null);
+    if (filePreviewUrl) URL.revokeObjectURL(filePreviewUrl);
+    setFilePreviewUrl('');
+  };
+
+  const handleDelete = async () => {
+    const id = deleteTarget;
     try {
       await axios.delete(`${apiUrl}/feature-images/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      setFeatureImages(featureImages.filter((item) => item._id !== id));
+      setFeatureImages((prev) => prev.filter((item) => item._id !== id));
       toast.success('Feature image deleted successfully!');
-    } catch (error) {
-      console.error('Error deleting image:', error);
+    } catch {
       toast.error('Failed to delete image.');
     } finally {
       setDeleteTarget(null);
     }
   };
 
-  const handleCancelEdit = () => {
-    setEditingFeature(null);
-    setPreview(null);
-    reset();
-    if (fileInputRef.current) fileInputRef.current.value = '';
-  };
+  if (initialLoading) {
+    return (
+      <div className="space-y-6">
+        <SectionHeader
+          title="Feature Images"
+          description="Manage the feature images shown to customers"
+        />
+        <Skeleton className="h-80 rounded-lg" />
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+          {[0, 1].map((i) => (
+            <Skeleton key={i} className="h-72 rounded-lg" />
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
-      <Card>
-        <CardContent className="pt-6">
-          <h1 className="border-l-4 primaryBorderColor primaryTextColor mb-6 pl-2 text-lg font-semibold">
-            Feature Images
-          </h1>
+      <SectionHeader
+        title="Feature Images"
+        description={`${featureImages.length} feature image${featureImages.length === 1 ? '' : 's'}`}
+      />
 
-          <form
-            onSubmit={handleSubmit(onSubmit)}
-            className="space-y-4 max-w-md"
-          >
-            <div className="space-y-2">
-              <Label htmlFor="title">Title</Label>
-              <Input
-                id="title"
-                {...register('title', { required: true })}
-                placeholder="Enter feature title"
+      <div className="rounded-lg bg-card p-6 shadow-md">
+        <h2 className="text-base font-semibold">
+          {editingFeature ? (
+            <span className="flex items-center gap-2">
+              <Pencil className="size-4" />
+              Edit “{editingFeature.title}”
+            </span>
+          ) : (
+            'Add Feature Image'
+          )}
+        </h2>
+
+        <div className="mt-4 space-y-4 max-w-md">
+          <div className="space-y-2">
+            <Label htmlFor="title">Title</Label>
+            <Input
+              id="title"
+              placeholder="Enter feature title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+            />
+          </div>
+
+          {!filePreviewUrl && (
+            <label
+              onDragOver={(e) => {
+                e.preventDefault();
+                setDragActive(true);
+              }}
+              onDragLeave={() => setDragActive(false)}
+              onDrop={handleDrop}
+              className={`flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed py-8 text-center transition-colors ${
+                dragActive
+                  ? 'border-primary bg-primary/5'
+                  : 'border-border hover:border-primary/50 hover:bg-muted/50'
+              }`}
+            >
+              <UploadCloud
+                className={`size-7 ${dragActive ? 'text-primary' : 'text-muted-foreground/60'}`}
               />
-            </div>
+              <span className="mt-2 text-sm font-medium">
+                {editingFeature
+                  ? 'Drop to replace image (or keep the current one)'
+                  : 'Drag & drop an image here, or click to browse'}
+              </span>
+              <span className="mt-1 text-xs text-muted-foreground">
+                PNG, JPG or WEBP — up to 5MB
+              </span>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleFileChange}
+                className="hidden"
+              />
+            </label>
+          )}
+        </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="imgSrc">Image</Label>
-              <Controller
-                name="imgSrc"
-                control={control}
-                defaultValue={null}
-                render={({ field }) => (
-                  <Input
-                    id="imgSrc"
-                    type="file"
-                    accept="image/*"
-                    ref={fileInputRef}
-                    onChange={(e) => {
-                      field.onChange(e.target.files);
-                      if (e.target.files?.[0]) {
-                        setPreview(URL.createObjectURL(e.target.files[0]));
-                      }
-                    }}
+        {(filePreviewUrl || editingFeature?.imgSrc) && (
+          <div className="mt-4">
+            <p className="mb-1.5 text-xs text-muted-foreground">
+              {filePreviewUrl ? 'New image preview:' : 'Current image:'}
+            </p>
+            <div className="flex items-center gap-3">
+              <div className="h-40 w-72 overflow-hidden rounded-md bg-muted/30">
+                {filePreviewUrl ? (
+                  <img
+                    src={filePreviewUrl}
+                    alt="Preview"
+                    className="h-full w-full object-contain"
+                  />
+                ) : (
+                  <ImageComponent
+                    imageName={editingFeature.imgSrc}
+                    className="h-full w-full object-contain"
+                    skeletonHeight={160}
                   />
                 )}
-              />
-              {(preview || editingFeature) && (
-                <div className="mt-2">
-                  <p className="text-xs text-muted-foreground mb-1">
-                    {preview ? 'New image preview:' : 'Current image:'}
-                  </p>
-                  {preview ? (
-                    <img src={preview} alt="Preview" className=" " />
-                  ) : (
-                    <ImageComponent imageName={editingFeature.imgSrc} />
-                  )}
-                </div>
-              )}
+              </div>
+              <div className="min-w-0">
+                <Label className="text-muted-foreground">Title</Label>
+                <p className="mt-1 truncate text-sm font-semibold">
+                  {title || editingFeature?.title}
+                </p>
+              </div>
             </div>
+          </div>
+        )}
 
-            <div className="flex gap-2">
-              <Button type="submit" disabled={submitting}>
-                {submitting && <Loader2 className="size-4 mr-2 animate-spin" />}
-                {editingFeature ? 'Update Image' : 'Add Image'}
-              </Button>
-              {editingFeature && (
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={handleCancelEdit}
-                >
-                  Cancel
-                </Button>
-              )}
-            </div>
-          </form>
-        </CardContent>
-      </Card>
+        <div className="mt-5 flex gap-2">
+          <Button onClick={applyImage} disabled={submitting}>
+            {submitting && <Loader2 className="mr-1 size-4 animate-spin" />}
+            {editingFeature
+              ? submitting
+                ? 'Updating...'
+                : 'Update Image'
+              : submitting
+                ? 'Adding...'
+                : 'Add Image'}
+          </Button>
+          {editingFeature && (
+            <Button variant="outline" onClick={resetForm} disabled={submitting}>
+              Cancel
+            </Button>
+          )}
+        </div>
+      </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid h-100 auto-rows-fr grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6 overflow-hidden">
         {featureImages.map((feature) => (
-          <Card key={feature._id} className="relative overflow-hidden">
-            <CardContent className="p-0">
+          <div
+            key={feature._id}
+            className="group grid h-full min-h-0 grid-rows-[minmax(0,1fr)_auto] overflow-hidden rounded-lg bg-card shadow-md transition-shadow hover:shadow-lg"
+          >
+            <div className="relative min-h-0 overflow-hidden bg-muted/30">
               <ImageComponent
                 imageName={feature.imgSrc}
-                className="w-full h-60 object-contain"
-                skeletonHeight={200}
+                className="h-full w-full object-contain"
+                skeletonHeight={120}
               />
-              <div className="p-4">
-                <h3 className="text-center font-semibold">{feature.title}</h3>
+
+              <div className="absolute inset-0 flex items-center justify-center gap-2 bg-black/50 opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+                <Button size="sm" onClick={() => handleEdit(feature)}>
+                  <Pencil className="size-4" />
+                  Edit
+                </Button>
+                <Button
+                  size="sm"
+                  variant="destructive"
+                  onClick={() => setDeleteTarget(feature._id)}
+                >
+                  <Trash2 className="size-4" />
+                  Delete
+                </Button>
               </div>
-            </CardContent>
-            <div className="absolute top-2 right-2 flex gap-2">
-              <Button
-                size="icon"
-                variant="secondary"
-                onClick={() => handleEdit(feature)}
-              >
-                <Pencil size={16} />
-              </Button>
-              <Button
-                size="icon"
-                variant="destructive"
-                onClick={() => setDeleteTarget(feature._id)}
-              >
-                <Trash2 size={16} />
-              </Button>
             </div>
-          </Card>
+            <div className="self-end px-4 py-3">
+              <h3 className="truncate text-center text-sm font-semibold">
+                {feature.title}
+              </h3>
+            </div>
+          </div>
         ))}
+
+        {featureImages.length === 0 && (
+          <div className="col-span-full rounded-lg border border-dashed py-12 text-center">
+            <ImageIcon className="mx-auto size-10 text-muted-foreground/50" />
+            <p className="mt-3 text-sm text-muted-foreground">
+              No feature images yet. Add your first one above.
+            </p>
+          </div>
+        )}
       </div>
 
       <Dialog
@@ -241,10 +355,7 @@ const FeatureImageAdmin = () => {
             <Button variant="outline" onClick={() => setDeleteTarget(null)}>
               Cancel
             </Button>
-            <Button
-              variant="destructive"
-              onClick={() => deleteTarget && handleDelete(deleteTarget)}
-            >
+            <Button variant="destructive" onClick={handleDelete}>
               Delete
             </Button>
           </DialogFooter>

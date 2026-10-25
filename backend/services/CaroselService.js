@@ -15,14 +15,20 @@ const deleteOldFile = (filename) => {
 
 // Create Carousel
 
-const createCarousel = async (imgSrc) => {
-  return await CarouselModel.create({ imgSrc });
+const createCarousel = async (imgSrc, link) => {
+  return await CarouselModel.create({ imgSrc, link });
 };
 
 // Get All Carousel
 
 const getAllCarousels = async () => {
   return await CarouselModel.find();
+};
+
+// Update Carousel Link
+
+const updateCarouselLink = async (id, link) => {
+  return await CarouselModel.findByIdAndUpdate(id, { link }, { new: true });
 };
 
 // Delete Carousel
@@ -38,5 +44,6 @@ const deleteCarousel = async (id) => {
 module.exports = {
   createCarousel,
   getAllCarousels,
+  updateCarouselLink,
   deleteCarousel,
 };
