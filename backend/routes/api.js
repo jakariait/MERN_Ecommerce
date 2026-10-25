@@ -39,6 +39,7 @@ const pathaoController = require('../controllers/pathaoController');
 const pathaoConfigController = require('../controllers/pathaoConfigController');
 const productOptionController = require('../controllers/ProductOptionController');
 const customerFeedbackController = require('../controllers/customerFeedbackController');
+const brandController = require('../controllers/brandController');
 
 const { handleCourierCheck, getDynamicCourierStatus } = require('../controllers/courierController');
 const cacheMiddleware = require('../middlewares/redisCacheMiddleware');
@@ -150,6 +151,10 @@ const upload = multer({ storage, fileFilter }).fields([
   },
   {
     name: 'customerImage',
+    maxCount: 1,
+  },
+  {
+    name: 'logo',
     maxCount: 1,
   },
 ]);
@@ -862,5 +867,25 @@ router.get('/activecustomer-feedback', customerFeedbackController.getActiveFeedb
 
 // Routes for meta catalog
 router.get('/catalog', getMetaCatalog);
+
+// Brand Routes
+router.post(
+  '/brands',
+  adminProtect,
+  checkPermission('brands'),
+  upload,
+  brandController.createBrand
+);
+router.get('/brands', brandController.getBrands);
+router.get('/brands/slug/:slug', brandController.getBrandBySlug);
+router.get('/brands/:id', brandController.getBrandById);
+router.put(
+  '/brands/:id',
+  adminProtect,
+  checkPermission('brands'),
+  upload,
+  brandController.updateBrand
+);
+router.delete('/brands/:id', adminProtect, checkPermission('brands'), brandController.deleteBrand);
 
 module.exports = router;

@@ -53,7 +53,7 @@ const LayoutAdmin = () => {
           <Breadcrumb />
         </Suspense>
 
-        <main className="flex-1 p-2 lg:p-2">
+        <main className="flex flex-1 flex-col p-2 lg:p-2">
           <TooltipProvider>
             <Suspense fallback={<AdminLoading />}>
               <Outlet />

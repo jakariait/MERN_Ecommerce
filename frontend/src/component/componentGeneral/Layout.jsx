@@ -12,7 +12,7 @@ const Layout = ({ children }) => {
       <FreeDeliveryBar />
       <Headers />
       <Toaster position="top-right" />
-      <main className="flex-grow">{children}</main>
+      <main className="flex-grow flex flex-col">{children}</main>
       <WhatsAppButton />
       <Footer />
     </div>

@@ -9,6 +9,7 @@ import { useSearchParams } from 'react-router-dom';
 import useProductStore from '../../store/useProductStore.js';
 import useCategoryStore from '../../store/useCategoryStore.js';
 import useFlagStore from '../../store/useFlagStore.js';
+import axios from 'axios';
 import { FormControl } from '@/components/ui/form-control';
 import { InputLabel } from '@/components/ui/input-label';
 import { MenuItem } from '@/components/ui/menu-item';
@@ -75,9 +76,25 @@ const Product = () => {
       stock: searchParams.get('stock') || '',
       flags: searchParams.get('flags') || '',
       search: searchParams.get('search') || '',
+      brand: searchParams.get('brand') || '',
     }),
     [searchParams],
   );
+
+  // Brands for the brand filter dropdown (name is what's used in the query)
+  const [brands, setBrands] = useState([]);
+  useEffect(() => {
+    const fetchBrands = async () => {
+      try {
+        const apiUrl = import.meta.env.VITE_API_URL;
+        const response = await axios.get(`${apiUrl}/brands`);
+        setBrands(response.data.data || []);
+      } catch {
+        setBrands([]);
+      }
+    };
+    fetchBrands();
+  }, []);
 
   // Initialize search input from URL on component mount
   useEffect(() => {
@@ -338,6 +355,25 @@ const Product = () => {
                 </FormControl>
 
                 <FormControl fullWidth>
+                  <InputLabel>Brand</InputLabel>
+                  <Select
+                    name="brand"
+                    value={currentFilters.brand}
+                    onChange={handleFilterChange}
+                    label="Brand"
+                  >
+                    <MenuItem value="">
+                      <em>None</em>
+                    </MenuItem>
+                    {brands.map((brand) => (
+                      <MenuItem key={brand._id} value={brand.name}>
+                        {brand.name}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+
+                <FormControl fullWidth>
                   <InputLabel>Stock</InputLabel>
                   <Select
                     name="stock"
@@ -452,7 +488,7 @@ const Product = () => {
           {/* Desktop Filters */}
           <div className="hidden md:block mb-6">
             <div className="grid grid-cols-12 gap-2">
-              <div className="col-span-4 md:col-span-3">
+              <div className="col-span-6 md:col-span-2">
                 <FormControl fullWidth>
                   <InputLabel>Category</InputLabel>
                   <Select
@@ -473,7 +509,7 @@ const Product = () => {
                 </FormControl>
               </div>
 
-              <div className="col-span-4 md:col-span-3">
+              <div className="col-span-6 md:col-span-2">
                 <FormControl fullWidth>
                   <InputLabel>Flag</InputLabel>
                   <Select
@@ -494,7 +530,28 @@ const Product = () => {
                 </FormControl>
               </div>
 
-              <div className="col-span-4 md:col-span-2">
+              <div className="col-span-6 md:col-span-2">
+                <FormControl fullWidth>
+                  <InputLabel>Brand</InputLabel>
+                  <Select
+                    name="brand"
+                    value={currentFilters.brand}
+                    onChange={handleFilterChange}
+                    label="Brand"
+                  >
+                    <MenuItem value="">
+                      <em>None</em>
+                    </MenuItem>
+                    {brands.map((brand) => (
+                      <MenuItem key={brand._id} value={brand.name}>
+                        {brand.name}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </div>
+
+              <div className="col-span-6 md:col-span-2">
                 <FormControl fullWidth>
                   <InputLabel>Stock</InputLabel>
                   <Select
@@ -557,6 +614,7 @@ const Product = () => {
           {(currentFilters.search ||
             currentFilters.category ||
             currentFilters.flags ||
+            currentFilters.brand ||
             currentFilters.stock !== '' ||
             currentFilters.sort) && (
             <div className="mb-4 flex flex-wrap gap-2">
@@ -581,6 +639,11 @@ const Product = () => {
               {currentFilters.flags && (
                 <div className="bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-sm">
                   Flag: {currentFilters.flags}
+                </div>
+              )}
+              {currentFilters.brand && (
+                <div className="bg-pink-100 text-pink-800 px-3 py-1 rounded-full text-sm">
+                  Brand: {currentFilters.brand}
                 </div>
               )}
               {currentFilters.stock && (

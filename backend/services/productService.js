@@ -2,6 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const ProductModel = require('../models/ProductModel');
 const FlagModel = require('../models/FlagModel');
+const BrandModel = require('../models/BrandModel');
 const CategoryModel = require('../models/CategoryModel');
 const SubCategoryModel = require('../models/SubCategoryModel');
 const ChildCategoryModel = require('../models/ChildCategoryModel');
@@ -53,6 +54,7 @@ const getProducts = async () => {
         { path: 'subCategory', select: '-createdAt -updatedAt' },
         { path: 'childCategory', select: '-createdAt -updatedAt' },
         { path: 'flags', select: '-createdAt -updatedAt' },
+      { path: 'brand', select: '-createdAt -updatedAt' },
         { path: 'variants.attributes.option', select: '-createdAt -updatedAt' },
       ]);
 
@@ -72,6 +74,7 @@ const getProductById = async (productId) => {
       { path: 'subCategory', select: '-createdAt -updatedAt' },
       { path: 'childCategory', select: '-createdAt -updatedAt' },
       { path: 'flags', select: '-createdAt -updatedAt' },
+      { path: 'brand', select: '-createdAt -updatedAt' },
       { path: 'variants.attributes.option', select: '-createdAt -updatedAt' },
     ]);
     if (!product) throw new Error('Product not found');
@@ -90,6 +93,7 @@ const getProductBySlug = async (slug) => {
       { path: 'subCategory', select: '-createdAt -updatedAt' },
       { path: 'childCategory', select: '-createdAt -updatedAt' },
       { path: 'flags', select: '-createdAt -updatedAt' },
+      { path: 'brand', select: '-createdAt -updatedAt' },
       { path: 'variants.attributes.option', select: '-createdAt -updatedAt' },
     ]);
 
@@ -308,10 +312,11 @@ const getAllProducts = async ({
   flags,
   isActive,
   search,
+  brand,
 }) => {
   try {
-    // Fetch category, subcategory, childCategory, and flags independently
-    const [categoryDoc, subCategoryDoc, childCategoryDoc, flagDocs] = await Promise.all([
+    // Fetch category, subcategory, childCategory, flags, and brand independently
+    const [categoryDoc, subCategoryDoc, childCategoryDoc, flagDocs, brandDoc] = await Promise.all([
       category ? CategoryModel.findOne({ name: category }).select('_id') : null,
       subcategory
         ? SubCategoryModel.findOne({
@@ -331,14 +336,19 @@ const getAllProducts = async ({
             isActive: true,
           }).select('_id')
         : [],
+      // Brand is filtered by name (case-insensitive), matching /shop?brand=Samsung
+      brand
+        ? BrandModel.findOne({ name: { $regex: `^${brand}$`, $options: 'i' } }).select('_id')
+        : null,
     ]);
 
-    // If any provided category, subcategory, childCategory, or flags are invalid, return empty result
+    // If any provided category, subcategory, childCategory, flags or brand is invalid, return empty result
     if (
       (category && !categoryDoc) ||
       (subcategory && !subCategoryDoc) ||
       (childCategory && !childCategoryDoc) ||
-      (flags && flagDocs.length === 0)
+      (flags && flagDocs.length === 0) ||
+      (brand && !brandDoc)
     ) {
       return {
         products: [],
@@ -358,6 +368,7 @@ const getAllProducts = async ({
     if (categoryDoc) query.category = categoryDoc._id;
     if (subCategoryDoc) query.subCategory = subCategoryDoc._id;
     if (childCategoryDoc) query.childCategory = childCategoryDoc._id;
+    if (brandDoc) query.brand = brandDoc._id;
 
     if (stock === 'in') query.finalStock = { $gt: 0 };
     if (stock === 'out') query.finalStock = { $lte: 0 };
@@ -427,11 +438,12 @@ const getAllProducts = async ({
       .skip((page - 1) * limit)
       .limit(limit)
       .select(
-        'name slug finalDiscount finalPrice finalStock thumbnailImage isActive images productId category variants flags productCode freeShipping'
+        'name slug finalDiscount finalPrice finalStock thumbnailImage isActive images productId category variants flags brand productCode freeShipping'
       )
       .populate([
         { path: 'category', select: '-createdAt -updatedAt' },
         { path: 'flags', select: '-createdAt -updatedAt' },
+      { path: 'brand', select: '-createdAt -updatedAt' },
         { path: 'variants.attributes.option', select: '-createdAt -updatedAt' },
       ]);
 
@@ -642,6 +654,7 @@ const getSimilarProducts = async (category, excludeId) => {
       .populate([
         { path: 'category', select: '-createdAt -updatedAt' },
         { path: 'flags', select: '-createdAt -updatedAt' },
+      { path: 'brand', select: '-createdAt -updatedAt' },
         { path: 'variants.attributes.option', select: '-createdAt -updatedAt' },
       ]);
 
@@ -763,6 +776,7 @@ const getHomePageProducts = async () => {
         .populate([
           { path: 'category', select: '-createdAt -updatedAt' },
           { path: 'flags', select: '-createdAt -updatedAt' },
+      { path: 'brand', select: '-createdAt -updatedAt' },
           { path: 'variants.attributes.option', select: '-createdAt -updatedAt' },
         ]);
 

@@ -77,6 +77,9 @@ const Footer = () => {
                       <Link to="/blog">Blog</Link>
                     </li>
                     <li className="hover:text-gray-300">
+                      <Link to="/brands">Brands</Link>
+                    </li>
+                    <li className="hover:text-gray-300">
                       <Link to="/contact-us">Contact</Link>
                     </li>
                     <li className="hover:text-gray-300">
@@ -148,6 +151,9 @@ const Footer = () => {
                   </li>
                   <li className={'hover:text-gray-300'}>
                     <Link to="/blog">Blog</Link>
+                  </li>
+                  <li className={'hover:text-gray-300'}>
+                    <Link to="/brands">Brands</Link>
                   </li>
                   <li className={'hover:text-gray-300'}>
                     <Link to="/contact-us">Contact</Link>

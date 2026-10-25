@@ -43,6 +43,7 @@ const PermissionsCheckboxGroup = ({
     { value: 'blogs', label: 'Blogs' },
     { value: 'pathao_api', label: 'Pathao API' },
     { value: 'customer_feedback', label: 'Customer Feedback' },
+    { value: 'brands', label: 'Brands' },
   ];
 
   const handleChange = (value) => {

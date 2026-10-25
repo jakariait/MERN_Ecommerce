@@ -6,6 +6,7 @@ import ProductCarousel from '../component/componentGeneral/ProductCarousel.jsx';
 import Feature from '../component/componentGeneral/Feature.jsx';
 import ProductByFlag from '../component/componentGeneral/ProductByFlag.jsx';
 import CustomerFeedback from '@/component/componentGeneral/CustomerFeedback.jsx';
+import Brands from '@/component/componentGeneral/Brands.jsx';
 
 const HomePage = () => {
   const { CarouselStoreListRequest } = CarouselStore();
@@ -25,6 +26,7 @@ const HomePage = () => {
       <Feature />
       <ProductByFlag />
       <CustomerFeedback />
+      <Brands topBrandsOnly={true} />
     </>
   );
 };

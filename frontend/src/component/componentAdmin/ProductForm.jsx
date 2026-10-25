@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect, lazy } from 'react';
+import { useRef, useState, useEffect, lazy, useCallback } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import useCategoryStore from '../../store/useCategoryStore.js';
 import useSubCategoryStore from '../../store/useSubCategoryStore.js';
@@ -47,6 +47,8 @@ import {
   Image,
   Loader2,
   ChevronDown,
+  Pencil,
+  Check,
 } from 'lucide-react';
 import http from '../../lib/http.js';
 import { toId } from '../../utils/toId.js';
@@ -80,6 +82,12 @@ const ProductForm = ({ isEdit: isEditMode }) => {
   const [selectedSubCategory, setSelectedSubCategory] = useState('');
   const [filteredChildCategories, setFilteredChildCategories] = useState([]);
   const [selectedChildCategory, setSelectedChildCategory] = useState('');
+  const [brands, setBrands] = useState([]);
+  const [selectedBrand, setSelectedBrand] = useState('');
+  const [newBrandName, setNewBrandName] = useState('');
+  const [editingBrandId, setEditingBrandId] = useState(null);
+  const [editingBrandName, setEditingBrandName] = useState('');
+  const [brandBusy, setBrandBusy] = useState(false);
   const [videoUrl, setVideoUrl] = useState('');
   const [metaTitle, setMetaTitle] = useState('');
   const [metaDescription, setMetaDescription] = useState('');
@@ -125,6 +133,16 @@ const ProductForm = ({ isEdit: isEditMode }) => {
 
   const imageUrl = `${apiUrl.replace('/api', '')}/uploads`;
 
+  // --- In-place brand management (optional field on the product) ---
+  const fetchBrands = useCallback(async () => {
+    try {
+      const { data } = await http.get('/brands');
+      setBrands(data.data || []);
+    } catch {
+      toast.error('Failed to load brands');
+    }
+  }, []);
+
   // Confirm dialog so destructive actions aren't a single misclick away
   const confirmAction = (message) => window.confirm(message);
 
@@ -149,6 +167,10 @@ const ProductForm = ({ isEdit: isEditMode }) => {
     setSelectedChildCategory('');
     setFilteredSubCategories([]);
     setFilteredChildCategories([]);
+    setSelectedBrand('');
+    setNewBrandName('');
+    setEditingBrandId(null);
+    setEditingBrandName('');
     setThumbnailImage(null);
     setImagePreview('');
     setSelectedImages([]);
@@ -191,6 +213,7 @@ const ProductForm = ({ isEdit: isEditMode }) => {
     fetchChildCategories();
     fetchProductOptions();
     fetchFlags();
+    fetchBrands();
   }, [
     isEditMode,
     slug,
@@ -200,6 +223,7 @@ const ProductForm = ({ isEdit: isEditMode }) => {
     fetchChildCategories,
     fetchProductOptions,
     fetchFlags,
+    fetchBrands,
     resetProduct,
   ]);
 
@@ -228,6 +252,7 @@ const ProductForm = ({ isEdit: isEditMode }) => {
           ),
         ),
       );
+      setSelectedBrand(product.brand ? toId(product.brand) : '');
       setIsActive(String(product.isActive));
       setFreeShipping(product.freeShipping || false);
 
@@ -427,7 +452,8 @@ const ProductForm = ({ isEdit: isEditMode }) => {
     });
 
     if (selectedImages.length === 1 && !isEditMode) {
-      document.getElementById('multi-image-upload').value = '';
+      const multiInput = document.getElementById('multi-image-upload');
+      if (multiInput) multiInput.value = '';
     }
   };
 
@@ -573,6 +599,78 @@ const ProductForm = ({ isEdit: isEditMode }) => {
     );
   };
 
+  const handleAddBrand = async () => {
+    const name = newBrandName.trim();
+    if (!name) return;
+    setBrandBusy(true);
+    try {
+      const fd = new FormData();
+      fd.append('name', name);
+      const { data } = await http.post('/brands', fd);
+      setBrands((prev) => [...prev, data.data]);
+      setSelectedBrand((prev) => prev || data.data._id);
+      setNewBrandName('');
+      toast.success('Brand added!');
+    } catch (error) {
+      toast.error(
+        error?.response?.data?.message || 'Failed to add brand (may already exist).',
+      );
+    } finally {
+      setBrandBusy(false);
+    }
+  };
+
+  const startBrandEdit = (brand) => {
+    setEditingBrandId(brand._id);
+    setEditingBrandName(brand.name);
+  };
+
+  const cancelBrandEdit = () => {
+    setEditingBrandId(null);
+    setEditingBrandName('');
+  };
+
+  const handleUpdateBrand = async () => {
+    const name = editingBrandName.trim();
+    if (!name) return;
+    const brand = brands.find((b) => b._id === editingBrandId);
+
+    setBrandBusy(true);
+    try {
+      const fd = new FormData();
+      fd.append('name', name);
+      fd.append('isTopBrand', String(brand?.isTopBrand || false));
+      const { data } = await http.put(`/brands/${editingBrandId}`, fd);
+      setBrands((prev) =>
+        prev.map((b) => (b._id === editingBrandId ? data.data : b)),
+      );
+      toast.success('Brand updated!');
+      cancelBrandEdit();
+    } catch (error) {
+      toast.error(
+        error?.response?.data?.message || 'Failed to update brand.',
+      );
+    } finally {
+      setBrandBusy(false);
+    }
+  };
+
+  const handleDeleteBrand = async (brand) => {
+    if (!confirmAction(`Delete brand "${brand.name}"?`)) return;
+
+    setBrandBusy(true);
+    try {
+      await http.delete(`/brands/${brand._id}`);
+      setBrands((prev) => prev.filter((b) => b._id !== brand._id));
+      if (selectedBrand === brand._id) setSelectedBrand('');
+      toast.success('Brand deleted!');
+    } catch (error) {
+      toast.error(error?.response?.data?.message || 'Failed to delete brand.');
+    } finally {
+      setBrandBusy(false);
+    }
+  };
+
   // Values for a variant attribute — always includes the stored value so a
   // saved variant never shows an empty Value dropdown (e.g. option edited or
   // deleted after the product was saved)
@@ -688,6 +786,7 @@ const ProductForm = ({ isEdit: isEditMode }) => {
       formData.append('childCategory', selectedChildCategory);
 
     selectedFlags.forEach((flag) => formData.append('flags', flag));
+    formData.append('brand', selectedBrand);
     searchTags.forEach((tag) => formData.append('searchTags', tag));
     metaKeywords.forEach((keyword) => formData.append('metaKeywords', keyword));
 
@@ -1036,12 +1135,18 @@ const ProductForm = ({ isEdit: isEditMode }) => {
                   <div className="space-y-2">
                     <Label>Status</Label>
                     <Select value={isActive} onValueChange={setIsActive}>
-                      <SelectTrigger>
+                      <SelectTrigger
+                        className="border border-border/60 hover:border-ring/60 focus-visible:border-ring focus-visible:ring-[2px] focus-visible:ring-ring/30"
+                      >
                         <SelectValue />
                       </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="true">Active</SelectItem>
-                        <SelectItem value="false">Inactive</SelectItem>
+                      <SelectContent className="border border-border/60 shadow-sm">
+                        <SelectItem value="true" className="text-foreground">
+                          Active
+                        </SelectItem>
+                        <SelectItem value="false" className="text-foreground">
+                          Inactive
+                        </SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -1100,12 +1205,18 @@ const ProductForm = ({ isEdit: isEditMode }) => {
                     value={selectedCategory}
                     onValueChange={handleCategoryChange}
                   >
-                    <SelectTrigger>
+                    <SelectTrigger
+                      className="border border-border/60 hover:border-ring/60 focus-visible:border-ring focus-visible:ring-[2px] focus-visible:ring-ring/30"
+                    >
                       <SelectValue placeholder="Select a category" />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="border border-border/60 shadow-sm">
                       {categories.map((category) => (
-                        <SelectItem key={category._id} value={category._id}>
+                        <SelectItem
+                          key={category._id}
+                          value={category._id}
+                          className="text-foreground"
+                        >
                           {category.name}
                         </SelectItem>
                       ))}
@@ -1125,7 +1236,9 @@ const ProductForm = ({ isEdit: isEditMode }) => {
                     onValueChange={handleSubCategoryChange}
                     disabled={!selectedCategory}
                   >
-                    <SelectTrigger>
+                    <SelectTrigger
+                      className="border border-border/60 hover:border-ring/60 focus-visible:border-ring focus-visible:ring-[2px] focus-visible:ring-ring/30"
+                    >
                       <SelectValue
                         placeholder={
                           selectedCategory
@@ -1134,10 +1247,14 @@ const ProductForm = ({ isEdit: isEditMode }) => {
                         }
                       />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="border border-border/60 shadow-sm">
                       {filteredSubCategories.length > 0 ? (
                         filteredSubCategories.map((sub) => (
-                          <SelectItem key={sub._id} value={sub._id}>
+                          <SelectItem
+                            key={sub._id}
+                            value={sub._id}
+                            className="text-foreground"
+                          >
                             {sub.name}
                           </SelectItem>
                         ))
@@ -1157,7 +1274,9 @@ const ProductForm = ({ isEdit: isEditMode }) => {
                     onValueChange={handleChildCategoryChange}
                     disabled={!selectedSubCategory}
                   >
-                    <SelectTrigger>
+                    <SelectTrigger
+                      className="border border-border/60 hover:border-ring/60 focus-visible:border-ring focus-visible:ring-[2px] focus-visible:ring-ring/30"
+                    >
                       <SelectValue
                         placeholder={
                           selectedSubCategory
@@ -1166,10 +1285,14 @@ const ProductForm = ({ isEdit: isEditMode }) => {
                         }
                       />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="border border-border/60 shadow-sm">
                       {filteredChildCategories.length > 0 ? (
                         filteredChildCategories.map((child) => (
-                          <SelectItem key={child._id} value={child._id}>
+                          <SelectItem
+                            key={child._id}
+                            value={child._id}
+                            className="text-foreground"
+                          >
                             {child.name}
                           </SelectItem>
                         ))
@@ -1186,15 +1309,156 @@ const ProductForm = ({ isEdit: isEditMode }) => {
 
             <Card className="shadow-md border-0">
               <CardHeader>
+                <CardTitle>
+                  Brand{' '}
+                  <span className="text-sm font-normal text-muted-foreground">
+                    (optional)
+                  </span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      role="combobox"
+                      variant="secondary"
+                      disabled={brandBusy}
+                      className="w-full justify-between shadow-xs"
+                    >
+                      {brands.find((b) => b._id === selectedBrand)?.name ||
+                        'No brand'}
+                      <ChevronDown className="size-4 opacity-50" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-80 border-0 p-2 shadow-md" align="start">
+                    {/* Add new brand */}
+                    <div className="flex items-center gap-1 px-1 pb-2">
+                      <Input
+                        placeholder="New brand name"
+                        value={newBrandName}
+                        onChange={(e) => setNewBrandName(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault();
+                            handleAddBrand();
+                          }
+                        }}
+                      />
+                      <Button
+                        type="button"
+                        size="icon-xs"
+                        onClick={handleAddBrand}
+                        disabled={brandBusy || !newBrandName.trim()}
+                      >
+                        <Plus className="size-4" />
+                      </Button>
+                    </div>
+
+                    {/* Clear selection */}
+                    <div
+                      className="flex items-center gap-2 px-2 py-1.5 rounded-md hover:bg-muted cursor-pointer"
+                      onClick={() => setSelectedBrand('')}
+                    >
+                      <Checkbox checked={!selectedBrand} />
+                      <Label className="cursor-pointer">No brand</Label>
+                    </div>
+
+                    {brands.map((brand) =>
+                      editingBrandId === brand._id ? (
+                        <div
+                          key={brand._id}
+                          className="flex items-center gap-1 px-1 py-1"
+                        >
+                          <Input
+                            value={editingBrandName}
+                            onChange={(e) => setEditingBrandName(e.target.value)}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') {
+                                e.preventDefault();
+                                handleUpdateBrand();
+                              }
+                              if (e.key === 'Escape') cancelBrandEdit();
+                            }}
+                            className="h-7 text-sm"
+                          />
+                          <Button
+                            type="button"
+                            size="icon-xs"
+                            variant="ghost"
+                            onClick={handleUpdateBrand}
+                          >
+                            <Check className="size-3.5" />
+                          </Button>
+                          <Button
+                            type="button"
+                            size="icon-xs"
+                            variant="ghost"
+                            onClick={cancelBrandEdit}
+                          >
+                            <X className="size-3.5" />
+                          </Button>
+                        </div>
+                      ) : (
+                        <div
+                          key={brand._id}
+                          className="flex items-center gap-2 px-2 py-1.5 rounded-md hover:bg-muted cursor-pointer"
+                          onClick={() => setSelectedBrand(brand._id)}
+                        >
+                          <Checkbox
+                            checked={selectedBrand === brand._id}
+                            onCheckedChange={() => setSelectedBrand(brand._id)}
+                          />
+                          <Label className="cursor-pointer flex-1 truncate">
+                            {brand.name}
+                          </Label>
+                          <Button
+                            type="button"
+                            size="icon-xs"
+                            variant="ghost"
+                            className="hover:text-foreground"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              startBrandEdit(brand);
+                            }}
+                          >
+                            <Pencil className="size-3.5" />
+                          </Button>
+                          <Button
+                            type="button"
+                            size="icon-xs"
+                            variant="ghost"
+                            className="text-destructive hover:text-destructive"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDeleteBrand(brand);
+                            }}
+                          >
+                            <Trash2 className="size-3.5" />
+                          </Button>
+                        </div>
+                      ),
+                    )}
+                    {brands.length === 0 && (
+                      <p className="text-sm text-muted-foreground px-2">
+                        No brands yet — add one above.
+                      </p>
+                    )}
+                  </PopoverContent>
+                </Popover>
+              </CardContent>
+            </Card>
+
+            <Card className="shadow-md border-0">
+              <CardHeader>
                 <CardTitle>Flags</CardTitle>
               </CardHeader>
               <CardContent>
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button
-                      variant="outline"
                       role="combobox"
-                      className="w-full justify-between"
+                      variant="secondary"
+                      className="w-full justify-between shadow-xs"
                     >
                       {selectedFlags.length > 0
                         ? `${selectedFlags.length} flag(s) selected`
@@ -1202,7 +1466,7 @@ const ProductForm = ({ isEdit: isEditMode }) => {
                       <ChevronDown className="size-4 opacity-50" />
                     </Button>
                   </PopoverTrigger>
-                  <PopoverContent className="w-full p-2" align="start">
+                  <PopoverContent className="w-full border-0 p-2 shadow-md" align="start">
                     <div className="space-y-1">
                       {flags.map((flag) => (
                         <div
@@ -1446,24 +1710,29 @@ const ProductForm = ({ isEdit: isEditMode }) => {
                                           );
                                         }}
                                       >
-                                        <SelectTrigger className="w-[120px]">
-                                          <SelectValue placeholder="Option" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                          {productOptions.map((option) => (
-                                            <SelectItem
-                                              key={option._id}
-                                              value={option._id}
-                                              disabled={
-                                                usedOptionIds.includes(
-                                                  option._id,
-                                                ) && option._id !== attr.option
-                                              }
-                                            >
-                                              {option.name}
-                                            </SelectItem>
-                                          ))}
-                                        </SelectContent>
+                                      <SelectTrigger
+                                        className="w-[120px] border border-border/60 hover:border-ring/60 focus-visible:border-ring focus-visible:ring-[2px] focus-visible:ring-ring/30"
+                                      >
+                                        <SelectValue placeholder="Option" />
+                                      </SelectTrigger>
+                                      <SelectContent
+                                        className="border border-border/60 shadow-sm"
+                                      >
+                                        {productOptions.map((option) => (
+                                          <SelectItem
+                                            key={option._id}
+                                            value={option._id}
+                                            disabled={
+                                              usedOptionIds.includes(
+                                                option._id,
+                                              ) && option._id !== attr.option
+                                            }
+                                            className="text-foreground"
+                                          >
+                                            {option.name}
+                                          </SelectItem>
+                                        ))}
+                                      </SelectContent>
                                       </Select>
                                     );
                                   })()}
@@ -1479,13 +1748,21 @@ const ProductForm = ({ isEdit: isEditMode }) => {
                                     }}
                                     disabled={!attr.option}
                                   >
-                                    <SelectTrigger className="w-[120px]">
+                                    <SelectTrigger
+                                      className="w-[120px] border border-border/60 hover:border-ring/60 focus-visible:border-ring focus-visible:ring-[2px] focus-visible:ring-ring/30"
+                                    >
                                       <SelectValue placeholder="Value" />
                                     </SelectTrigger>
-                                    <SelectContent>
+                                    <SelectContent
+                                      className="border border-border/60 shadow-sm"
+                                    >
                                       {getAttributeValueList(attr).map(
                                         (val) => (
-                                          <SelectItem key={val} value={val}>
+                                          <SelectItem
+                                            key={val}
+                                            value={val}
+                                            className="text-foreground"
+                                          >
                                             {val}
                                           </SelectItem>
                                         ),

@@ -18,6 +18,7 @@ import {
   Tags,
   UserRound,
   MessageSquareQuote,
+  Award,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import useAuthAdminStore from '../../store/AuthAdminStore.js';
@@ -162,6 +163,13 @@ const MENU_CONFIG = [
         icon: List,
         path: '/admin/childcategory',
         permission: 'child_category',
+      },
+      {
+        type: 'link',
+        label: 'Brands',
+        icon: Award,
+        path: '/admin/brands',
+        permission: 'brands',
       },
     ],
   },

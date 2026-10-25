@@ -99,6 +99,11 @@ const productSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: 'ChildCategory',
     },
+    brand: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Brand',
+      default: null,
+    },
 
     flags: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Flag' }],
 

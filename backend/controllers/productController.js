@@ -32,10 +32,21 @@ const mergeVariantImages = (req) => {
 };
 
 
+// An empty string/unselected brand means "no brand" — normalize it so the
+// schema keeps Brand as an optional (null) reference
+const normalizeBrand = (body) => {
+  if (body.brand === '' || body.brand === 'null') {
+    body.brand = null;
+  } else if (body.brand && !mongoose.Types.ObjectId.isValid(body.brand)) {
+    delete body.brand;
+  }
+};
+
 // Create a product
 const createProduct = async (req, res) => {
   try {
     mergeVariantImages(req);
+    normalizeBrand(req.body);
     const productData = { ...req.body };
 
     // Check if thumbnailImage is uploaded
@@ -198,6 +209,7 @@ const getAllProducts = async (req, res) => {
       stock,
       flags,
       search,
+      brand,
     } = req.query;
 
     const productsData = await productService.getAllProducts({
@@ -211,6 +223,7 @@ const getAllProducts = async (req, res) => {
       flags,
       isActive: true,
       search,
+      brand,
     });
 
     res.status(200).json({
@@ -235,6 +248,7 @@ const updateProduct = async (req, res) => {
     const files = req.files; // Get uploaded files
 
     mergeVariantImages(req);
+    normalizeBrand(updatedData);
 
     // Call the service with `files`
     const updatedProduct = await productService.updateProduct(productId, updatedData, files);
@@ -300,6 +314,7 @@ const getAllProductsAdmin = async (req, res) => {
       stock,
       flags,
       search,
+      brand,
     } = req.query;
 
     // Call the service without the isActive filter (to get all products)
@@ -313,6 +328,7 @@ const getAllProductsAdmin = async (req, res) => {
       stock,
       flags,
       search,
+      brand,
       // Don't pass isActive filter here, meaning it will return all products
     });
 

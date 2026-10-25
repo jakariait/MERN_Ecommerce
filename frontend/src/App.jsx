@@ -26,6 +26,8 @@ import AdminLoading from './component/skeleton/AdminLoading.jsx';
 
 import UserLayout from './component/componentGeneral/UserLayout.jsx';
 import CustomerFeedbackPage from '@/pagesAdmin/CustomerFeedbackPage.jsx';
+import BrandsPage from '@/pagesAdmin/BrandsPage.jsx';
+import BrandsPageUser from '@/pagesUser/BrandsPageUser.jsx';
 const LayoutAdmin = lazy(
   () => import('./component/componentAdmin/LayoutAdmin.jsx'),
 );
@@ -241,6 +243,8 @@ function App() {
             <Route path="/blogs/:slug" element={<BlogDetailsPage />} />
             <Route path="/forgot-password" element={<ForgetPasswordPage />} />
             <Route path="/reset-password" element={<ResetPasswordPage />} />
+            <Route path="/brands" element={<BrandsPageUser />} />
+
             <Route path="*" element={<NotFoundPage />} />
           </Route>
         </Route>
@@ -348,6 +352,7 @@ function App() {
                 path="/admin/customer-feedback"
                 element={<CustomerFeedbackPage />}
               />
+              <Route path="/admin/brands" element={<BrandsPage />} />
             </Route>
           </Route>
         </Route>

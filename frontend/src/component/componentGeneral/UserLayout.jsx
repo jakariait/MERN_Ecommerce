@@ -27,7 +27,11 @@ const UserLayout = () => {
 
   return (
     <Layout>
-      <div className={'xl:container xl:mx-auto p-3 flex gap-4 relative'}>
+      <div
+        className={
+          'xl:container xl:mx-auto p-3 flex gap-4 relative min-h-full flex-1'
+        }
+      >
         {/*User Menu*/}
         <div className={'w-[350px] hidden lg:block'}>
           <UserMenu />
@@ -73,7 +77,7 @@ const UserLayout = () => {
           </div>
         </div>
         {/*Children Component Append Here*/}
-        <main className="w-full">
+        <main className="w-full flex flex-col">
           <Suspense fallback={<UserLoadingFallback />}>
             <Outlet />
           </Suspense>
