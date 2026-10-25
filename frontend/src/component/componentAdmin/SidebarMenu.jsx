@@ -1,24 +1,24 @@
 import {
-  FaHome,
-  FaCog,
-  FaThLarge,
-  FaBoxes,
-  FaList,
-  FaTags,
-  FaCreditCard,
-  FaUsers,
-  FaEnvelope,
-  FaUserFriends,
-  FaSlidersH,
-  FaFileAlt,
-  FaQuestionCircle,
-  FaUserShield,
-  FaSignOutAlt,
-  FaShoppingBag,
-  FaInfo,
-  FaClipboardList,
-  FaBlog,
-} from 'react-icons/fa';
+  Boxes,
+  ClipboardList,
+  CreditCard,
+  FileText,
+  HelpCircle,
+  Home,
+  Info,
+  LayoutGrid,
+  List,
+  LogOut,
+  Mail,
+  Newspaper,
+  Settings,
+  ShieldCheck,
+  ShoppingBag,
+  SlidersHorizontal,
+  Tags,
+  UserRound,
+  MessageSquareQuote,
+} from 'lucide-react';
 import { Link } from 'react-router-dom';
 import useAuthAdminStore from '../../store/AuthAdminStore.js';
 import { useNavigate } from 'react-router-dom';
@@ -28,6 +28,9 @@ import React, { useEffect, useState, useCallback } from 'react';
 import RequirePermission from './RequirePermission.jsx';
 import { ChevronDown } from 'lucide-react';
 
+// Single source of truth for the size of every menu icon
+const ICON_CLASS = 'size-4';
+
 const MENU_CONFIG = [
   {
     section: 'dashboard',
@@ -35,7 +38,7 @@ const MENU_CONFIG = [
       {
         type: 'link',
         label: 'Dashboard',
-        icon: FaHome,
+        icon: Home,
         path: '/admin/dashboard',
         permission: 'dashboard',
       },
@@ -44,7 +47,7 @@ const MENU_CONFIG = [
   {
     section: 'websiteConfig',
     label: 'Website Config',
-    icon: FaThLarge,
+    icon: LayoutGrid,
     permission: ['website_theme_color', 'general_info', 'home_page_seo'],
     match: 'any',
     items: [
@@ -77,7 +80,7 @@ const MENU_CONFIG = [
   {
     section: 'config',
     label: 'Config',
-    icon: FaCog,
+    icon: Settings,
     permission: [
       'setup_config',
       'product_size',
@@ -132,7 +135,7 @@ const MENU_CONFIG = [
       {
         type: 'link',
         label: 'Category',
-        icon: FaThLarge,
+        icon: LayoutGrid,
         path: '/admin/category',
         permission: 'category',
       },
@@ -144,7 +147,7 @@ const MENU_CONFIG = [
       {
         type: 'link',
         label: 'Subcategory',
-        icon: FaBoxes,
+        icon: Boxes,
         path: '/admin/subcategory',
         permission: 'sub_category',
       },
@@ -156,7 +159,7 @@ const MENU_CONFIG = [
       {
         type: 'link',
         label: 'Child Category',
-        icon: FaList,
+        icon: List,
         path: '/admin/childcategory',
         permission: 'child_category',
       },
@@ -168,7 +171,7 @@ const MENU_CONFIG = [
       {
         type: 'link',
         label: 'Manage Products',
-        icon: FaTags,
+        icon: Tags,
         path: '/admin/manage-products',
         permission: 'view_products',
         showCount: 'allProductsCount',
@@ -181,7 +184,7 @@ const MENU_CONFIG = [
       {
         type: 'link',
         label: 'Manage Orders',
-        icon: FaShoppingBag,
+        icon: ShoppingBag,
         path: '/admin/manage-orders',
         permission: 'view_orders',
         showCount: 'totalOrders',
@@ -194,7 +197,7 @@ const MENU_CONFIG = [
       {
         type: 'link',
         label: 'Incomplete Order',
-        icon: FaClipboardList,
+        icon: ClipboardList,
         path: '/admin/incomplete-order',
         permission: 'incomplete_orders',
       },
@@ -206,7 +209,7 @@ const MENU_CONFIG = [
       {
         type: 'link',
         label: 'Gateway & API',
-        icon: FaCreditCard,
+        icon: CreditCard,
         path: '/admin/gateway-api',
         permission: ['bkash_api', 'steadfast_api', 'pathao_api'],
       },
@@ -218,9 +221,16 @@ const MENU_CONFIG = [
       {
         type: 'link',
         label: 'Customers',
-        icon: FaUsers,
+        icon: UserRound,
         path: '/admin/customers',
         permission: 'view_customers',
+      },
+      {
+        type: 'link',
+        label: 'Customers Feedback',
+        icon: MessageSquareQuote,
+        path: '/admin/customer-feedback',
+        permission: 'customer_feedback',
       },
     ],
   },
@@ -230,21 +240,21 @@ const MENU_CONFIG = [
       {
         type: 'link',
         label: 'Contact Request',
-        icon: FaEnvelope,
+        icon: Mail,
         path: '/admin/contact-request',
         permission: 'contact_request',
       },
       {
         type: 'link',
         label: 'Subscribed Users',
-        icon: FaUserFriends,
+        icon: UserRound,
         path: '/admin/subscribed-users',
         permission: 'subscribed_users',
       },
       {
         type: 'link',
         label: 'Blogs',
-        icon: FaBlog,
+        icon: Newspaper,
         path: '/admin/blogs',
         permission: 'blogs',
       },
@@ -256,28 +266,28 @@ const MENU_CONFIG = [
       {
         type: 'link',
         label: 'Sliders & Banners',
-        icon: FaSlidersH,
+        icon: SlidersHorizontal,
         path: '/admin/sliders-banners',
         permission: 'sliders-banners',
       },
       {
         type: 'link',
         label: 'Terms & Policies',
-        icon: FaFileAlt,
+        icon: FileText,
         path: '/admin/terms-policies',
         permission: 'about_terms-policies',
       },
       {
         type: 'link',
         label: 'FAQs',
-        icon: FaQuestionCircle,
+        icon: HelpCircle,
         path: '/admin/faqs',
         permission: 'faqs',
       },
       {
         type: 'link',
         label: 'About Us',
-        icon: FaInfo,
+        icon: Info,
         path: '/admin/about-us',
         permission: 'about_terms-policies',
       },
@@ -289,7 +299,7 @@ const MENU_CONFIG = [
       {
         type: 'link',
         label: 'System Users',
-        icon: FaUserShield,
+        icon: ShieldCheck,
         path: '/admin/adminlist',
         permission: 'admin-users',
       },
@@ -309,7 +319,7 @@ function MenuItem({ item, countValue }) {
         to={item.path}
         className="flex items-center gap-2 px-2 py-1.5 rounded-md hover:bg-white/5 transition-colors"
       >
-        {Icon && <Icon />}
+        {Icon && <Icon className={ICON_CLASS} />}
         <span>{item.label}</span>
         {count !== undefined && (
           <span className="ml-auto bg-white/20 px-2 py-0.5 rounded-full text-xs">
@@ -330,10 +340,10 @@ function MenuAccordion({ item, countValue, expanded, onChange }) {
         onClick={onChange}
         className="flex items-center gap-2 w-full px-2 py-1.5 rounded-md hover:bg-white/5 transition-colors text-left"
       >
-        {Icon && <Icon />}
+        {Icon && <Icon className={ICON_CLASS} />}
         <span className="flex-1">{item.label}</span>
         <ChevronDown
-          className={`size-4 transition-transform duration-200 ${expanded ? 'rotate-180' : ''}`}
+          className={`${ICON_CLASS} transition-transform duration-200 ${expanded ? 'rotate-180' : ''}`}
         />
       </button>
       <div
@@ -424,7 +434,7 @@ export default function SidebarMenu() {
                     to={item.path}
                     className="flex items-center gap-2 px-2 py-1.5 rounded-md hover:bg-white/5 transition-colors"
                   >
-                    {Icon && <Icon />}
+                    {Icon && <Icon className={ICON_CLASS} />}
                     <span>{item.label}</span>
                     {count !== undefined && (
                       <span className="ml-auto bg-white/20 px-2 py-0.5 rounded-full text-xs">
@@ -470,7 +480,7 @@ export default function SidebarMenu() {
                       to={item.path}
                       className="flex items-center gap-2 px-2 py-1.5 rounded-md hover:bg-white/5 transition-colors"
                     >
-                      {item.icon && <item.icon />}
+                      {item.icon && <item.icon className={ICON_CLASS} />}
                       <span>{item.label}</span>
                       {item.showCount &&
                         countValues[item.showCount] !== undefined && (
@@ -492,7 +502,7 @@ export default function SidebarMenu() {
           onClick={handleLogout}
           className="flex items-center gap-2 w-full px-2 py-1.5 rounded-md text-red-500 hover:bg-white/5 transition-colors mt-4"
         >
-          <FaSignOutAlt />
+          <LogOut className={ICON_CLASS} />
           <span>Logout</span>
         </button>
       </li>

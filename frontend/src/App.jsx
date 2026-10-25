@@ -25,6 +25,7 @@ import Loading from './component/skeleton/Loading.jsx';
 import AdminLoading from './component/skeleton/AdminLoading.jsx';
 
 import UserLayout from './component/componentGeneral/UserLayout.jsx';
+import CustomerFeedbackPage from '@/pagesAdmin/CustomerFeedbackPage.jsx';
 const LayoutAdmin = lazy(
   () => import('./component/componentAdmin/LayoutAdmin.jsx'),
 );
@@ -342,6 +343,11 @@ function App() {
               <Route path="/admin/create-blog" element={<CreateBlogPage />} />
               <Route path="/admin/blogs" element={<BlogsListPage />} />
               <Route path="/admin/blogs/:id" element={<EditBlogPage />} />
+
+              <Route
+                path="/admin/customer-feedback"
+                element={<CustomerFeedbackPage />}
+              />
             </Route>
           </Route>
         </Route>
