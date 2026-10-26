@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState, useMemo } from 'react';
+import { useCallback, useEffect, useState, useMemo, useRef } from 'react';
 import axios from 'axios';
 import useAuthAdminStore from '../../store/AuthAdminStore.js';
 import { Input } from '@/components/ui/input';
@@ -42,6 +42,7 @@ import { SectionHeader } from '@/component/componentAdmin/SectionHeader.jsx';
 
 const ChildCategoryAllinone = () => {
   const apiUrl = import.meta.env.VITE_API_URL;
+  const imageBaseUrl = apiUrl.replace('/api', '') + '/uploads';
   const { token } = useAuthAdminStore();
 
   const [childCategories, setChildCategories] = useState([]);
@@ -60,7 +61,11 @@ const ChildCategoryAllinone = () => {
     category: '',
     subCategory: '',
     isActive: true,
+    showOnHomePage: false,
   });
+  const [imageFile, setImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
+  const fileInputRef = useRef(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -116,7 +121,16 @@ const ChildCategoryAllinone = () => {
   const handleOpenCreate = () => {
     setIsEdit(false);
     setEditId(null);
-    setFormData({ name: '', category: '', subCategory: '', isActive: true });
+    setFormData({
+      name: '',
+      category: '',
+      subCategory: '',
+      isActive: true,
+      showOnHomePage: false,
+    });
+    setImageFile(null);
+    setImagePreview(null);
+    if (fileInputRef.current) fileInputRef.current.value = '';
     setDialogOpen(true);
   };
 
@@ -128,7 +142,10 @@ const ChildCategoryAllinone = () => {
       category: childCat.category?._id || '',
       subCategory: childCat.subCategory?._id || '',
       isActive: childCat.isActive,
+      showOnHomePage: childCat.showOnHomePage,
     });
+    setImagePreview(childCat.image ? `${imageBaseUrl}/${childCat.image}` : null);
+    setImageFile(null);
     setDialogOpen(true);
   };
 
@@ -143,36 +160,30 @@ const ChildCategoryAllinone = () => {
     }
     setIsSubmitting(true);
     try {
+      const fd = new FormData();
+      fd.append('name', formData.name);
+      fd.append('category', formData.category);
+      fd.append('subCategory', formData.subCategory);
+      fd.append('isActive', formData.isActive);
+      fd.append('showOnHomePage', formData.showOnHomePage);
+      if (imageFile) {
+        fd.append('image', imageFile);
+      }
       if (isEdit) {
         await axios.put(
           `${apiUrl}/child-category/${editId}`,
+          fd,
           {
-            name: formData.name,
-            category: formData.category,
-            subCategory: formData.subCategory,
-            isActive: formData.isActive,
-          },
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              'Content-Type': 'application/json',
-            },
+            headers: { Authorization: `Bearer ${token}` },
           },
         );
         toast.success('Child category updated successfully!');
       } else {
         await axios.post(
           `${apiUrl}/child-category`,
+          fd,
           {
-            name: formData.name,
-            category: formData.category,
-            subCategory: formData.subCategory,
-          },
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              'Content-Type': 'application/json',
-            },
+            headers: { Authorization: `Bearer ${token}` },
           },
         );
         toast.success('Child category added successfully!');
@@ -271,6 +282,9 @@ const ChildCategoryAllinone = () => {
                 <TableHeader>
                   <TableRow>
                     <TableHead>Name</TableHead>
+                    <TableHead className="text-center w-[100px]">
+                      Image
+                    </TableHead>
                     <TableHead className="text-center w-[180px]">
                       Category
                     </TableHead>
@@ -279,6 +293,9 @@ const ChildCategoryAllinone = () => {
                     </TableHead>
                     <TableHead className="text-center w-[100px]">
                       Active
+                    </TableHead>
+                    <TableHead className="text-center w-[140px]">
+                      Show on Home Page
                     </TableHead>
                     <TableHead className="text-center w-[100px]">
                       Actions
@@ -289,7 +306,7 @@ const ChildCategoryAllinone = () => {
                   {paginated.length === 0 ? (
                     <TableRow>
                       <TableCell
-                        colSpan={5}
+                        colSpan={7}
                         className="text-center text-muted-foreground py-8"
                       >
                         No child categories found.
@@ -300,6 +317,19 @@ const ChildCategoryAllinone = () => {
                       <TableRow key={childCat._id}>
                         <TableCell className="font-medium">
                           {childCat.name || 'N/A'}
+                        </TableCell>
+                        <TableCell className="text-center">
+                          {childCat.image ? (
+                            <img
+                              src={`${imageBaseUrl}/${childCat.image}`}
+                              alt={childCat.name}
+                              className="h-10 w-10 object-contain rounded"
+                            />
+                          ) : (
+                            <span className="text-xs text-muted-foreground">
+                              No Image
+                            </span>
+                          )}
                         </TableCell>
                         <TableCell className="text-center">
                           <Badge variant="outline">
@@ -318,6 +348,15 @@ const ChildCategoryAllinone = () => {
                             }
                           >
                             {childCat.isActive ? 'Yes' : 'No'}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="text-center">
+                          <Badge
+                            variant={
+                              childCat.showOnHomePage ? 'default' : 'secondary'
+                            }
+                          >
+                            {childCat.showOnHomePage ? 'Yes' : 'No'}
                           </Badge>
                         </TableCell>
                         <TableCell className="text-center">
@@ -478,8 +517,68 @@ const ChildCategoryAllinone = () => {
                     </p>
                   )}
                 </SelectContent>
-              </Select>
-            </div>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Show on Home Page</label>
+                <Select
+                  value={String(formData.showOnHomePage)}
+                  onValueChange={(value) =>
+                    setFormData({
+                      ...formData,
+                      showOnHomePage: value === 'true',
+                    })
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="true">Yes</SelectItem>
+                    <SelectItem value="false">No</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">
+                  Image <span className="text-muted-foreground">(optional)</span>
+                </label>
+                <div className="flex items-center gap-3">
+                  <Input
+                    type="file"
+                    accept="image/*"
+                    ref={fileInputRef}
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        setImageFile(file);
+                        setImagePreview(URL.createObjectURL(file));
+                      }
+                    }}
+                    className="flex-1"
+                  />
+                  {imagePreview && (
+                    <button
+                      type="button"
+                      className="text-xs text-destructive hover:underline"
+                    onClick={() => {
+                      setImageFile(null);
+                      setImagePreview(null);
+                      if (fileInputRef.current) fileInputRef.current.value = '';
+                    }}
+                    >
+                      Remove
+                    </button>
+                  )}
+                </div>
+                {imagePreview && (
+                  <img
+                    src={imagePreview}
+                    alt="Preview"
+                    className="mt-1 h-32 w-32 object-contain rounded border"
+                  />
+                )}
+              </div>
             {isEdit && (
               <div className="space-y-2">
                 <label className="text-sm font-medium">Active</label>

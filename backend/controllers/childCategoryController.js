@@ -1,15 +1,21 @@
 const childCategoryService = require('../services/childCategoryService');
 const mongoose = require('mongoose');
+const fs = require('fs');
+const path = require('path');
 
 // Create a new child category
 const createChildCategory = async (req, res) => {
   try {
-    const childCategoryData = req.body;
+    const childCategoryData = { ...req.body };
 
     if (!childCategoryData.name || !childCategoryData.category || !childCategoryData.subCategory) {
       return res.status(400).json({
         message: 'Name, category, and subcategory are required fields.',
       });
+    }
+
+    if (req.files && req.files.image) {
+      childCategoryData.image = req.files.image[0].filename;
     }
 
     const childCategory = await childCategoryService.createChildCategory(childCategoryData);
@@ -18,6 +24,12 @@ const createChildCategory = async (req, res) => {
       childCategory,
     });
   } catch (error) {
+    if (req.files && req.files.image) {
+      const uploadedPath = path.join(__dirname, '..', 'uploads', req.files.image[0].filename);
+      if (fs.existsSync(uploadedPath)) {
+        fs.unlinkSync(uploadedPath);
+      }
+    }
     res.status(500).json({
       message: 'Error creating child category: ' + error.message,
     });
@@ -75,7 +87,7 @@ const getChildCategoryById = async (req, res) => {
 // Update a child category
 const updateChildCategory = async (req, res) => {
   const { id } = req.params;
-  const updatedData = req.body;
+  const childCategoryData = { ...req.body };
 
   if (!mongoose.Types.ObjectId.isValid(id)) {
     return res.status(400).json({
@@ -84,7 +96,24 @@ const updateChildCategory = async (req, res) => {
   }
 
   try {
-    const childCategory = await childCategoryService.updateChildCategory(id, updatedData);
+    const existingChildCategory = await childCategoryService.getChildCategoryById(id);
+    if (!existingChildCategory) {
+      return res.status(404).json({
+        message: `Child category with ID ${id} not found`,
+      });
+    }
+
+    if (req.files && req.files.image) {
+      if (existingChildCategory.image) {
+        const oldImagePath = path.join(__dirname, '..', 'uploads', existingChildCategory.image);
+        if (fs.existsSync(oldImagePath)) {
+          fs.unlinkSync(oldImagePath);
+        }
+      }
+      childCategoryData.image = req.files.image[0].filename;
+    }
+
+    const childCategory = await childCategoryService.updateChildCategory(id, childCategoryData);
     if (!childCategory) {
       return res.status(404).json({
         message: `Child category with ID ${id} not found`,
@@ -95,6 +124,12 @@ const updateChildCategory = async (req, res) => {
       childCategory,
     });
   } catch (error) {
+    if (req.files && req.files.image) {
+      const uploadedPath = path.join(__dirname, '..', 'uploads', req.files.image[0].filename);
+      if (fs.existsSync(uploadedPath)) {
+        fs.unlinkSync(uploadedPath);
+      }
+    }
     res.status(500).json({
       message: 'Error updating child category: ' + error.message,
     });
@@ -112,6 +147,20 @@ const deleteChildCategory = async (req, res) => {
   }
 
   try {
+    const childCategory = await childCategoryService.getChildCategoryById(id);
+    if (!childCategory) {
+      return res.status(404).json({
+        message: `Child category with ID ${id} not found`,
+      });
+    }
+
+    if (childCategory.image) {
+      const imagePath = path.join(__dirname, '..', 'uploads', childCategory.image);
+      if (fs.existsSync(imagePath)) {
+        fs.unlinkSync(imagePath);
+      }
+    }
+
     const response = await childCategoryService.deleteChildCategory(id);
     if (!response) {
       return res.status(404).json({

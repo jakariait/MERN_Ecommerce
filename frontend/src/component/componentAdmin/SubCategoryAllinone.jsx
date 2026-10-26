@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo, useCallback } from 'react';
+import { useEffect, useState, useMemo, useCallback, useRef } from 'react';
 import axios from 'axios';
 import useAuthAdminStore from '../../store/AuthAdminStore.js';
 import { Input } from '@/components/ui/input';
@@ -42,6 +42,7 @@ import { SectionHeader } from '@/component/componentAdmin/SectionHeader.jsx';
 
 const SubCategoryAllinone = () => {
   const apiUrl = import.meta.env.VITE_API_URL;
+  const imageBaseUrl = apiUrl.replace('/api', '') + '/uploads';
   const { token } = useAuthAdminStore();
 
   const [subCategories, setSubCategories] = useState([]);
@@ -58,7 +59,11 @@ const SubCategoryAllinone = () => {
     name: '',
     category: '',
     isActive: true,
+    showOnHomePage: false,
   });
+  const [imageFile, setImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
+  const fileInputRef = useRef(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -97,7 +102,10 @@ const SubCategoryAllinone = () => {
   const handleOpenCreate = () => {
     setIsEdit(false);
     setEditId(null);
-    setFormData({ name: '', category: '', isActive: true });
+    setFormData({ name: '', category: '', isActive: true, showOnHomePage: false });
+    setImageFile(null);
+    setImagePreview(null);
+    if (fileInputRef.current) fileInputRef.current.value = '';
     setDialogOpen(true);
   };
 
@@ -108,7 +116,10 @@ const SubCategoryAllinone = () => {
       name: subCat.name,
       category: subCat.category?._id || '',
       isActive: subCat.isActive,
+      showOnHomePage: subCat.showOnHomePage,
     });
+    setImagePreview(subCat.image ? `${imageBaseUrl}/${subCat.image}` : null);
+    setImageFile(null);
     setDialogOpen(true);
   };
 
@@ -119,31 +130,29 @@ const SubCategoryAllinone = () => {
     }
     setIsSubmitting(true);
     try {
+      const fd = new FormData();
+      fd.append('name', formData.name);
+      fd.append('category', formData.category);
+      fd.append('isActive', formData.isActive);
+      fd.append('showOnHomePage', formData.showOnHomePage);
+      if (imageFile) {
+        fd.append('image', imageFile);
+      }
       if (isEdit) {
         await axios.put(
           `${apiUrl}/sub-category/${editId}`,
+          fd,
           {
-            name: formData.name,
-            category: formData.category,
-            isActive: formData.isActive,
-          },
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              'Content-Type': 'application/json',
-            },
+            headers: { Authorization: `Bearer ${token}` },
           },
         );
         toast.success('Subcategory updated successfully!');
       } else {
         await axios.post(
           `${apiUrl}/sub-category`,
-          { name: formData.name, category: formData.category },
+          fd,
           {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              'Content-Type': 'application/json',
-            },
+            headers: { Authorization: `Bearer ${token}` },
           },
         );
         toast.success('Subcategory added successfully!');
@@ -236,11 +245,17 @@ const SubCategoryAllinone = () => {
                 <TableHeader>
                   <TableRow>
                     <TableHead>Subcategory Name</TableHead>
+                    <TableHead className="text-center w-[100px]">
+                      Image
+                    </TableHead>
                     <TableHead className="text-center w-[200px]">
                       Category
                     </TableHead>
                     <TableHead className="text-center w-[100px]">
                       Active
+                    </TableHead>
+                    <TableHead className="text-center w-[140px]">
+                      Show on Home Page
                     </TableHead>
                     <TableHead className="text-center w-[100px]">
                       Actions
@@ -251,7 +266,7 @@ const SubCategoryAllinone = () => {
                   {paginated.length === 0 ? (
                     <TableRow>
                       <TableCell
-                        colSpan={4}
+                        colSpan={6}
                         className="text-center text-muted-foreground py-8"
                       >
                         No subcategories found.
@@ -264,6 +279,19 @@ const SubCategoryAllinone = () => {
                           {subCat.name || 'N/A'}
                         </TableCell>
                         <TableCell className="text-center">
+                          {subCat.image ? (
+                            <img
+                              src={`${imageBaseUrl}/${subCat.image}`}
+                              alt={subCat.name}
+                              className="h-10 w-10 object-contain rounded"
+                            />
+                          ) : (
+                            <span className="text-xs text-muted-foreground">
+                              No Image
+                            </span>
+                          )}
+                        </TableCell>
+                        <TableCell className="text-center">
                           <Badge variant="outline">
                             {subCat.category?.name || 'N/A'}
                           </Badge>
@@ -273,6 +301,15 @@ const SubCategoryAllinone = () => {
                             variant={subCat.isActive ? 'default' : 'secondary'}
                           >
                             {subCat.isActive ? 'Yes' : 'No'}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="text-center">
+                          <Badge
+                            variant={
+                              subCat.showOnHomePage ? 'default' : 'secondary'
+                            }
+                          >
+                            {subCat.showOnHomePage ? 'Yes' : 'No'}
                           </Badge>
                         </TableCell>
                         <TableCell className="text-center">
@@ -379,8 +416,68 @@ const SubCategoryAllinone = () => {
                     </SelectItem>
                   ))}
                 </SelectContent>
-              </Select>
-            </div>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Show on Home Page</label>
+                <Select
+                  value={String(formData.showOnHomePage)}
+                  onValueChange={(value) =>
+                    setFormData({
+                      ...formData,
+                      showOnHomePage: value === 'true',
+                    })
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="true">Yes</SelectItem>
+                    <SelectItem value="false">No</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">
+                  Image <span className="text-muted-foreground">(optional)</span>
+                </label>
+                <div className="flex items-center gap-3">
+                  <Input
+                    type="file"
+                    accept="image/*"
+                    ref={fileInputRef}
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        setImageFile(file);
+                        setImagePreview(URL.createObjectURL(file));
+                      }
+                    }}
+                    className="flex-1"
+                  />
+                  {imagePreview && (
+                    <button
+                      type="button"
+                      className="text-xs text-destructive hover:underline"
+                    onClick={() => {
+                      setImageFile(null);
+                      setImagePreview(null);
+                      if (fileInputRef.current) fileInputRef.current.value = '';
+                    }}
+                    >
+                      Remove
+                    </button>
+                  )}
+                </div>
+                {imagePreview && (
+                  <img
+                    src={imagePreview}
+                    alt="Preview"
+                    className="mt-1 h-32 w-32 object-contain rounded border"
+                  />
+                )}
+              </div>
             {isEdit && (
               <div className="space-y-2">
                 <label className="text-sm font-medium">Active</label>

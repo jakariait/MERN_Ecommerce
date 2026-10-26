@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import useCartStore from '../../store/useCartStore.js';
 import WishlistButton from './WishlistButton.jsx';
 import sanitizeHtml from '../../utils/sanitizeHtml.js';
+import ProductBrand from '@/component/componentGeneral/ProductBrand.jsx';
 
 const ProductAddToCart = ({ product, onVariantChange }) => {
   const [quantity, setQuantity] = useState(1);
@@ -248,6 +249,10 @@ const ProductAddToCart = ({ product, onVariantChange }) => {
     <div>
       <div>
         <div className="flex flex-col gap-1.5 md:gap-3 pt-1 md:pt-0">
+          {/*Brand  Button*/}
+          <div className={'flex justify-between items-center'}>
+            <ProductBrand product={product} />
+          </div>
           <h2 className="text-base md:text-2xl leading-tight">
             {product.name}
           </h2>

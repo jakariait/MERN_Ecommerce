@@ -18,6 +18,8 @@ const childCategorySchema = new mongoose.Schema(
     },
     categoryId: { type: Number }, // Auto-increment field
     slug: { type: String, trim: true, unique: true },
+    image: { type: String },
+    showOnHomePage: { type: Boolean, default: false },
   },
   {
     timestamps: true,

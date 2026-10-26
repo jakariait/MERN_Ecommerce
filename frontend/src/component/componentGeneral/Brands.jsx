@@ -6,7 +6,7 @@ import ImageComponent from './ImageComponent.jsx';
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
-const Brands = ({ topBrandsOnly = false }) => {
+const Brands = ({ topBrandsOnly = false, showEmptyState = false }) => {
   const [brands, setBrands] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -37,8 +37,14 @@ const Brands = ({ topBrandsOnly = false }) => {
     fetchBrands();
   }, []);
 
-  if (!loading && brands.length === 0) return null;
-  if (!loading && topBrandsOnly && displayBrands.length === 0) return null;
+  if (!loading && !showEmptyState && brands.length === 0) return null;
+  if (
+    !loading &&
+    !showEmptyState &&
+    topBrandsOnly &&
+    displayBrands.length === 0
+  )
+    return null;
 
   return (
     <section
@@ -56,7 +62,7 @@ const Brands = ({ topBrandsOnly = false }) => {
             </h2>
             {!topBrandsOnly && (
               <p className="text-sm text-gray-500 mt-1">
-                Shop from top brands at MM Computer.
+                Shop from top brands.
               </p>
             )}
           </div>

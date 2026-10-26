@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import axios from 'axios';
 import useAuthAdminStore from '../../store/AuthAdminStore.js';
 import { Input } from '@/components/ui/input';
@@ -42,6 +42,7 @@ import { SectionHeader } from '@/component/componentAdmin/SectionHeader.jsx';
 
 const AdminCategoryAllinone = () => {
   const apiUrl = import.meta.env.VITE_API_URL;
+  const imageBaseUrl = apiUrl.replace('/api', '') + '/uploads';
   const { token } = useAuthAdminStore();
 
   const [categories, setCategories] = useState([]);
@@ -55,9 +56,12 @@ const AdminCategoryAllinone = () => {
   const [editId, setEditId] = useState(null);
   const [formData, setFormData] = useState({
     name: '',
-    featureCategory: true,
     showOnNavbar: true,
+    showOnHomePage: false,
   });
+  const [imageFile, setImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
+  const fileInputRef = useRef(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -86,7 +90,10 @@ const AdminCategoryAllinone = () => {
   const handleOpenCreate = () => {
     setIsEdit(false);
     setEditId(null);
-    setFormData({ name: '', featureCategory: true, showOnNavbar: true });
+    setFormData({ name: '', showOnNavbar: true, showOnHomePage: false });
+    setImageFile(null);
+    setImagePreview(null);
+    if (fileInputRef.current) fileInputRef.current.value = '';
     setDialogOpen(true);
   };
 
@@ -95,9 +102,11 @@ const AdminCategoryAllinone = () => {
     setEditId(cat._id);
     setFormData({
       name: cat.name,
-      featureCategory: cat.featureCategory,
       showOnNavbar: cat.showOnNavbar,
+      showOnHomePage: cat.showOnHomePage,
     });
+    setImagePreview(cat.image ? `${imageBaseUrl}/${cat.image}` : null);
+    setImageFile(null);
     setDialogOpen(true);
   };
 
@@ -108,20 +117,21 @@ const AdminCategoryAllinone = () => {
     }
     setIsSubmitting(true);
     try {
+      const fd = new FormData();
+      fd.append('name', formData.name);
+      fd.append('showOnNavbar', formData.showOnNavbar);
+      fd.append('showOnHomePage', formData.showOnHomePage);
+      if (imageFile) {
+        fd.append('image', imageFile);
+      }
       if (isEdit) {
-        await axios.put(`${apiUrl}/category/${editId}`, formData, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
+        await axios.put(`${apiUrl}/category/${editId}`, fd, {
+          headers: { Authorization: `Bearer ${token}` },
         });
         toast.success('Category updated successfully!');
       } else {
-        await axios.post(`${apiUrl}/category`, formData, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
+        await axios.post(`${apiUrl}/category`, fd, {
+          headers: { Authorization: `Bearer ${token}` },
         });
         toast.success('Category added successfully!');
       }
@@ -207,11 +217,14 @@ const AdminCategoryAllinone = () => {
                 <TableHeader>
                   <TableRow>
                     <TableHead>Category Name</TableHead>
-                    <TableHead className="text-center w-[120px]">
-                      Featured
+                    <TableHead className="text-center w-[100px]">
+                      Image
                     </TableHead>
                     <TableHead className="text-center w-[140px]">
                       Show on Navbar
+                    </TableHead>
+                    <TableHead className="text-center w-[140px]">
+                      Show on Home Page
                     </TableHead>
                     <TableHead className="text-center w-[100px]">
                       Actions
@@ -222,7 +235,7 @@ const AdminCategoryAllinone = () => {
                   {paginatedCategories.length === 0 ? (
                     <TableRow>
                       <TableCell
-                        colSpan={4}
+                        colSpan={5}
                         className="text-center text-muted-foreground py-8"
                       >
                         No categories found.
@@ -235,19 +248,30 @@ const AdminCategoryAllinone = () => {
                           {cat.name}
                         </TableCell>
                         <TableCell className="text-center">
-                          <Badge
-                            variant={
-                              cat.featureCategory ? 'default' : 'secondary'
-                            }
-                          >
-                            {cat.featureCategory ? 'Yes' : 'No'}
-                          </Badge>
+                          {cat.image ? (
+                            <img
+                              src={`${imageBaseUrl}/${cat.image}`}
+                              alt={cat.name}
+                              className="h-10 w-10 object-contain rounded"
+                            />
+                          ) : (
+                            <span className="text-xs text-muted-foreground">
+                              No Image
+                            </span>
+                          )}
                         </TableCell>
                         <TableCell className="text-center">
                           <Badge
                             variant={cat.showOnNavbar ? 'default' : 'secondary'}
                           >
                             {cat.showOnNavbar ? 'Yes' : 'No'}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="text-center">
+                          <Badge
+                            variant={cat.showOnHomePage ? 'default' : 'secondary'}
+                          >
+                            {cat.showOnHomePage ? 'Yes' : 'No'}
                           </Badge>
                         </TableCell>
                         <TableCell className="text-center">
@@ -267,7 +291,7 @@ const AdminCategoryAllinone = () => {
                             >
                               <Trash2 className="size-3.5" />
                             </Button>
-                          </div>
+            </div>
                         </TableCell>
                       </TableRow>
                     ))
@@ -342,26 +366,6 @@ const AdminCategoryAllinone = () => {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <label className="text-sm font-medium">Feature Category</label>
-                <Select
-                  value={String(formData.featureCategory)}
-                  onValueChange={(value) =>
-                    setFormData({
-                      ...formData,
-                      featureCategory: value === 'true',
-                    })
-                  }
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="true">Yes</SelectItem>
-                    <SelectItem value="false">No</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
                 <label className="text-sm font-medium">Show on Navbar</label>
                 <Select
                   value={String(formData.showOnNavbar)}
@@ -380,6 +384,66 @@ const AdminCategoryAllinone = () => {
                     <SelectItem value="false">No</SelectItem>
                   </SelectContent>
                 </Select>
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Show on Home Page</label>
+                <Select
+                  value={String(formData.showOnHomePage)}
+                  onValueChange={(value) =>
+                    setFormData({
+                      ...formData,
+                      showOnHomePage: value === 'true',
+                    })
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="true">Yes</SelectItem>
+                    <SelectItem value="false">No</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">
+                  Image <span className="text-muted-foreground">(optional)</span>
+                </label>
+                <div className="flex items-center gap-3">
+                  <Input
+                    type="file"
+                    accept="image/*"
+                    ref={fileInputRef}
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        setImageFile(file);
+                        setImagePreview(URL.createObjectURL(file));
+                      }
+                    }}
+                    className="flex-1"
+                  />
+                  {imagePreview && (
+                    <button
+                      type="button"
+                      className="text-xs text-destructive hover:underline"
+                    onClick={() => {
+                      setImageFile(null);
+                      setImagePreview(null);
+                      if (fileInputRef.current) fileInputRef.current.value = '';
+                    }}
+                    >
+                      Remove
+                    </button>
+                  )}
+                </div>
+                {imagePreview && (
+                  <img
+                    src={imagePreview}
+                    alt="Preview"
+                    className="mt-1 h-32 w-32 object-contain rounded border"
+                  />
+                )}
               </div>
             </div>
           </div>

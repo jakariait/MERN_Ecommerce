@@ -7,6 +7,7 @@ import Feature from '../component/componentGeneral/Feature.jsx';
 import ProductByFlag from '../component/componentGeneral/ProductByFlag.jsx';
 import CustomerFeedback from '@/component/componentGeneral/CustomerFeedback.jsx';
 import Brands from '@/component/componentGeneral/Brands.jsx';
+import ShopByCategory from '@/component/componentGeneral/ShopByCategory.jsx';
 
 const HomePage = () => {
   const { CarouselStoreListRequest } = CarouselStore();
@@ -23,6 +24,7 @@ const HomePage = () => {
     <>
       <h1 className="sr-only">Welcome to Our Store</h1>
       <ProductCarousel />
+      <ShopByCategory />
       <Feature />
       <ProductByFlag />
       <CustomerFeedback />
