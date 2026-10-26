@@ -8,8 +8,9 @@ import useCartStore from '../../store/useCartStore.js';
 import WishlistButton from './WishlistButton.jsx';
 import sanitizeHtml from '../../utils/sanitizeHtml.js';
 import ProductBrand from '@/component/componentGeneral/ProductBrand.jsx';
+import OrderByPhoneWhatsapp from '@/component/componentGeneral/OrderByPhoneWhatsapp.jsx';
 
-const ProductAddToCart = ({ product, onVariantChange }) => {
+const ProductAddToCart = ({ product, onVariantChange, onAddToCart }) => {
   const [quantity, setQuantity] = useState(1);
   const MAX_QUANTITY = 5; // Set the limit for Cart Quantity
   const { addToCart } = useCartStore();
@@ -188,6 +189,7 @@ const ProductAddToCart = ({ product, onVariantChange }) => {
     }
     addToCart(product, quantity, selectedVariant);
     setValidationMessage(''); // Clear message on success
+    onAddToCart?.();
 
     window.dataLayer = window.dataLayer || [];
     window.dataLayer.push({
@@ -244,6 +246,12 @@ const ProductAddToCart = ({ product, onVariantChange }) => {
   const cleanHtml = (html) => sanitizeHtml(html);
 
   const variantForPrice = selectedVariant || product.variants?.[0];
+
+  const unitPrice =
+    variantForPrice?.discount > 0
+      ? variantForPrice.discount
+      : variantForPrice?.price || product.finalDiscount || product.finalPrice;
+  const orderTotal = Number(unitPrice || 0) * quantity;
 
   return (
     <div>
@@ -441,6 +449,7 @@ const ProductAddToCart = ({ product, onVariantChange }) => {
                     return;
                   }
                   addToCart(product, quantity, selectedVariant);
+                  onAddToCart?.();
                   navigate('/checkout');
                   setValidationMessage('');
                 }}
@@ -451,6 +460,13 @@ const ProductAddToCart = ({ product, onVariantChange }) => {
           )}
         </div>
       </div>
+      {(!product.variants?.length || selectedVariant) && (
+        <OrderByPhoneWhatsapp
+          product={product}
+          quantity={quantity}
+          price={orderTotal}
+        />
+      )}
     </div>
   );
 };

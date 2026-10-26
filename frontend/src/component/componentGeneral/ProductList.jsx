@@ -164,7 +164,10 @@ const ProductList = ({ products }) => {
                     zoom={false}
                   />
                   <div>
-                    <ProductAddToCart product={selectedProduct} />
+                    <ProductAddToCart
+                      product={selectedProduct}
+                      onAddToCart={handleClose}
+                    />
                   </div>
                 </div>
               </DialogContent>
