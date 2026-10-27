@@ -460,13 +460,13 @@ const ProductAddToCart = ({ product, onVariantChange, onAddToCart }) => {
           )}
         </div>
       </div>
-      {(!product.variants?.length || selectedVariant) && (
-        <OrderByPhoneWhatsapp
-          product={product}
-          quantity={quantity}
-          price={orderTotal}
-        />
-      )}
+
+      <OrderByPhoneWhatsapp
+        product={product}
+        quantity={quantity}
+        price={orderTotal}
+        selectedVariant={selectedVariant}
+      />
     </div>
   );
 };
