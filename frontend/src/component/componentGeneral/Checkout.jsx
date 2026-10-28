@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { Snackbar } from '@/components/ui/snackbar';
@@ -54,6 +54,8 @@ const Checkout = () => {
   const [isProcessingOrder, setIsProcessingOrder] = useState(false);
 
   // Handle data received from AddressForm
+  const addressFormRef = useRef(null);
+
   const handleAddressChange = (data) => {
     setAddressData(data);
   };
@@ -167,6 +169,15 @@ const Checkout = () => {
 
   const handleOrderSubmit = async (e) => {
     e.preventDefault();
+
+    if (!addressFormRef.current?.validate()) {
+      showSnackbar(
+        'Please enter a valid mobile number (11 digits, starting with 01).',
+        'error',
+      );
+      return;
+    }
+
     setIsProcessingOrder(true); // Disable button immediately
 
     const orderPayload = {
@@ -278,7 +289,11 @@ const Checkout = () => {
           {/* Left Column - Address & Shipping */}
           <div className="space-y-8">
             {/* Address Option */}
-            <AddressForm user={user} onAddressChange={handleAddressChange} />
+            <AddressForm
+              ref={addressFormRef}
+              user={user}
+              onAddressChange={handleAddressChange}
+            />
 
             {/* Shipping Options */}
             <ShippingOptions onShippingChange={setSelectedShipping} />
@@ -398,11 +413,7 @@ const Checkout = () => {
         onClose={handleCloseSnackbar}
         anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
       >
-        <Alert
-          onClose={handleCloseSnackbar}
-          severity={snackbar.severity}
-          sx={{ width: '100%' }}
-        >
+        <Alert severity={snackbar.severity} sx={{ width: '100%' }}>
           {snackbar.message}
         </Alert>
       </Snackbar>
