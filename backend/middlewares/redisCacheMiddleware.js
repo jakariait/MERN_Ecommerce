@@ -1,26 +1,28 @@
-const redisClient = require('../config/redisClient');
+const { client } = require('../config/redisClient');
 
-const cacheMiddleware = (req, res, next) => {
+const cacheMiddleware = async (req, res, next) => {
   const key = req.originalUrl;
 
-  redisClient.get(key, (err, data) => {
-    if (err) {
-      console.error('Redis error:', err);
-      return next();
+  try {
+    const data = await client.get(key);
+
+    if (data !== null && data !== undefined) {
+      res.setHeader('Content-Type', 'application/json');
+      return res.status(200).send(data);
     }
 
-    if (data !== null) {
-      res.setHeader('Content-Type', 'application/json');
-      res.status(200).send(data);
-    } else {
-      const originalSend = res.send;
-      res.send = (body) => {
-        redisClient.set(key, body, 'EX', 3600); // Cache for 1 hour
-        originalSend.call(res, body);
-      };
-      next();
-    }
-  });
+    const originalSend = res.send;
+    res.send = (body) => {
+      client
+        .set(key, body, { EX: 3600 }) // Cache for 1 hour
+        .catch((err) => console.error('Redis cache set error:', err));
+      return originalSend.call(res, body);
+    };
+    next();
+  } catch (err) {
+    console.error('Redis error:', err);
+    next();
+  }
 };
 
 module.exports = cacheMiddleware;
