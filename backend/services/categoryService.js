@@ -1,4 +1,5 @@
 const CategoryModel = require('../models/CategoryModel');
+const ProductModel = require('../models/ProductModel');
 
 const createCategory = async (categoryData) => {
   const category = new CategoryModel(categoryData);
@@ -6,7 +7,19 @@ const createCategory = async (categoryData) => {
 };
 
 const getCategories = async () => {
-  return await CategoryModel.find();
+  const [categories, counts] = await Promise.all([
+    CategoryModel.find(),
+    ProductModel.aggregate([
+      { $match: { isActive: true } },
+      { $group: { _id: '$category', count: { $sum: 1 } } },
+    ]),
+  ]);
+
+  const countMap = new Map(counts.map((c) => [String(c._id), c.count]));
+  return categories.map((category) => ({
+    ...category.toObject(),
+    productsCount: countMap.get(String(category._id)) || 0,
+  }));
 };
 
 const getCategoryById = async (id) => {
