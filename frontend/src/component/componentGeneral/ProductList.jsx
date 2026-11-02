@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Typography } from '@/components/ui/typography';
 import { Link } from 'react-router-dom';
@@ -39,7 +39,7 @@ const ProductList = ({ products }) => {
   };
   return (
     <div>
-      {products.filter((product) => product.isActive).length === 0 ? (
+      {products.length === 0 ? (
         <Typography
           variant="body1"
           className="text-center text-gray-500 p-20 md:p-70 shadow rounded-lg"

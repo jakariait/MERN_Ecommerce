@@ -1,31 +1,9 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import useWishlistStore from '../store/useWishlistStore.js';
 import useAuthUserStore from '../store/AuthUserStore.js';
-import WishlistButton from '../component/componentGeneral/WishlistButton.jsx';
-import ImageComponent from '../component/componentGeneral/ImageComponent.jsx';
-import BuyNowButton from '../component/componentGeneral/BuyNowButton.jsx';
+import ProductList from '../component/componentGeneral/ProductList.jsx';
 import { Heart } from 'lucide-react';
-
-const formatPrice = (price) => {
-  if (isNaN(price)) return price;
-  return price.toLocaleString();
-};
-
-const calculateDiscountPercentage = (
-  priceBeforeDiscount,
-  priceAfterDiscount,
-) => {
-  if (
-    !priceBeforeDiscount ||
-    !priceAfterDiscount ||
-    priceBeforeDiscount <= priceAfterDiscount
-  ) {
-    return 0;
-  }
-  const discountAmount = priceBeforeDiscount - priceAfterDiscount;
-  return Math.ceil((discountAmount / priceBeforeDiscount) * 100);
-};
 
 const styles = `
   @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600&family=DM+Sans:wght@300;400;500&display=swap');
@@ -122,20 +100,20 @@ const styles = `
 
 const WishlistPage = () => {
   const { user } = useAuthUserStore();
-  const { wishlist, getWishlist, removeFromWishlist, loading, removing } =
-    useWishlistStore();
+  const { wishlist, getWishlist, loading, removing } = useWishlistStore();
 
   useEffect(() => {
     if (user) {
       getWishlist();
     }
-  }, [user]);
+  }, [user, getWishlist]);
 
   const displayWishlist = wishlist.filter(
     (item) =>
       item.product &&
       (item.product.finalPrice || item.product.finalPrice === 0),
   );
+  const wishlistProducts = displayWishlist.map((item) => item.product);
 
   const showLoading = loading && wishlist.length === 0;
   const isEmpty = displayWishlist.length === 0;
@@ -172,101 +150,7 @@ const WishlistPage = () => {
             </Link>
           </div>
         ) : (
-          <div className="grid grid-cols-2 md:grid-cols-3  gap-3 mt-4">
-            {displayWishlist.map((item) => {
-              const product = item.product;
-              if (!product || !product.finalPrice) return null;
-
-              return (
-                <div key={item._id} className="relative min-h-[250px]">
-                  <Link to={`/product/${product.slug}`}>
-                    <ImageComponent
-                      imageName={product.thumbnailImage}
-                      className="w-full aspect-square object-cover"
-                      altName={product.name}
-                      skeletonHeight={250}
-                    />
-                  </Link>
-                  <Link to={`/product/${product.slug}`}>
-                    <div className="text-center mt-2 mb-1 hover:underline truncate">
-                      {product.name}
-                    </div>
-                  </Link>
-
-                  <div className="flex gap-2 justify-center">
-                    {product.variants?.length ? (
-                      product.variants[0].discount > 0 ? (
-                        <div className="line-through">
-                          Tk. {formatPrice(Number(product.variants[0].price))}
-                        </div>
-                      ) : (
-                        <div>
-                          Tk. {formatPrice(Number(product.variants[0].price))}
-                        </div>
-                      )
-                    ) : product.finalDiscount > 0 ? (
-                      <div className="line-through">
-                        Tk. {formatPrice(Number(product.finalPrice))}
-                      </div>
-                    ) : (
-                      <div>Tk. {formatPrice(Number(product.finalPrice))}</div>
-                    )}
-
-                    {product.variants?.length
-                      ? product.variants[0].discount > 0 && (
-                          <div className="text-red-800">
-                            Tk.{' '}
-                            {formatPrice(Number(product.variants[0].discount))}
-                          </div>
-                        )
-                      : product.finalDiscount > 0 && (
-                          <div className="text-red-800">
-                            Tk. {formatPrice(Number(product.finalDiscount))}
-                          </div>
-                        )}
-                  </div>
-
-                  <div className="absolute top-1 z-10">
-                    {product.variants?.length > 0
-                      ? product.variants[0].discount > 0 && (
-                          <span className="bg-red-400 px-2 py-1 text-white">
-                            -
-                            {calculateDiscountPercentage(
-                              product.variants[0].price,
-                              product.variants[0].discount,
-                            )}
-                            %
-                          </span>
-                        )
-                      : product.finalDiscount > 0 && (
-                          <span className="bg-red-400 px-2 py-1 text-white">
-                            -
-                            {calculateDiscountPercentage(
-                              product.finalPrice,
-                              product.finalDiscount,
-                            )}
-                            %
-                          </span>
-                        )}
-                  </div>
-
-                  <div
-                    className={'py-3 flex gap-2 justify-center items-center'}
-                  >
-                    <BuyNowButton product={product} />
-                  </div>
-
-                  <div className="absolute top-1 right-1 z-10">
-                    <WishlistButton
-                      product={product}
-                      size={18}
-                      className="!p-1.5 shadow-md"
-                    />
-                  </div>
-                </div>
-              );
-            })}
-          </div>
+          <ProductList products={wishlistProducts} />
         )}
       </div>
     </>
