@@ -470,8 +470,15 @@ const AdminNewOrderCreate = () => {
   const hasFormErrors = Object.values(formErrors).some((error) => error);
 
   return (
-    <div>
-      <Button onClick={handleOpenDialog}>+ Create New Order</Button>
+    <div className="w-full sm:w-auto">
+      <Button
+        type="button"
+        onClick={handleOpenDialog}
+        className="h-11 w-full gap-1.5 px-4 sm:h-10 sm:w-auto"
+      >
+        <Plus className="size-4" aria-hidden="true" />
+        Create New Order
+      </Button>
 
       <Dialog open={openDialog} onOpenChange={setOpenDialog}>
         <DialogContent className="max-w-[95vw] sm:max-w-3xl lg:max-w-5xl">

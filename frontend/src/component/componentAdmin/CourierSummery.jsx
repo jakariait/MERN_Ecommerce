@@ -39,21 +39,33 @@ const CourierSummery = ({ phone }) => {
   return (
     <div className="flex flex-col items-center">
       {!courierData && !loading && (
-        <Button onClick={handleFetch} size="sm">
+        <Button
+          type="button"
+          onClick={handleFetch}
+          size="sm"
+          className="h-11 sm:h-9"
+        >
           Check Courier
         </Button>
       )}
 
       {loading && (
-        <div className="mt-1">
-          <Loader2 className="size-4 animate-spin text-muted-foreground" />
+        <div className="mt-1" role="status" aria-label="Checking courier">
+          <Loader2
+            className="size-4 animate-spin text-muted-foreground"
+            aria-hidden="true"
+          />
         </div>
       )}
 
-      {error && <p className="text-destructive text-xs mt-1">{error}</p>}
+      {error && (
+        <p className="mt-1 text-xs text-destructive" role="alert">
+          {error}
+        </p>
+      )}
 
       {courierData && (
-        <div className="grid grid-cols-2 gap-x-2 gap-y-1 w-44 text-xs mt-2">
+        <div className="mt-2 grid w-44 grid-cols-2 gap-x-2 gap-y-1 text-xs">
           <p>Total: {courierData.summary.total_parcel}</p>
           <p>Success: {courierData.summary.success_parcel}</p>
           <p>Cancelled: {courierData.summary.cancelled_parcel}</p>

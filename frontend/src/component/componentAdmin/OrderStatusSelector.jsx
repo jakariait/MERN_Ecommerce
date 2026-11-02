@@ -9,6 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 
 const statusOptions = [
@@ -20,16 +21,20 @@ const statusOptions = [
   { value: 'cancelled', label: 'Cancelled' },
 ];
 
-const OrderStatusSelector = ({ orderId, refetchOrders }) => {
+const OrderStatusSelector = ({ orderId, initialStatus, refetchOrders }) => {
   const { token } = useAuthAdminStore();
   const apiUrl = import.meta.env.VITE_API_URL;
 
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!initialStatus);
   const [submitting, setSubmitting] = useState(false);
-  const [orderStatus, setOrderStatus] = useState('pending');
+  const [orderStatus, setOrderStatus] = useState(initialStatus || 'pending');
 
   useEffect(() => {
-    if (!orderId) return;
+    if (initialStatus) setOrderStatus(initialStatus);
+  }, [initialStatus]);
+
+  useEffect(() => {
+    if (!orderId || initialStatus) return;
 
     const fetchOrderStatus = async () => {
       setLoading(true);
@@ -54,7 +59,7 @@ const OrderStatusSelector = ({ orderId, refetchOrders }) => {
     };
 
     fetchOrderStatus();
-  }, [orderId, apiUrl, token]);
+  }, [orderId, apiUrl, token, initialStatus]);
 
   const handleSubmit = async () => {
     setSubmitting(true);
@@ -85,13 +90,16 @@ const OrderStatusSelector = ({ orderId, refetchOrders }) => {
   };
 
   if (loading) {
-    return <Skeleton className="h-10 w-[180px]" />;
+    return <Skeleton className="h-11 w-[180px]" />;
   }
 
   return (
-    <div className="flex items-center gap-3">
+    <div className="flex items-center gap-2">
       <Select value={orderStatus} onValueChange={setOrderStatus}>
-        <SelectTrigger className="min-w-[150px]">
+        <SelectTrigger
+          aria-label="Order status"
+          className="h-11 min-w-[150px] sm:h-9"
+        >
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
@@ -103,8 +111,18 @@ const OrderStatusSelector = ({ orderId, refetchOrders }) => {
         </SelectContent>
       </Select>
 
-      <Button onClick={handleSubmit} disabled={submitting} size="sm">
-        {submitting ? 'Saving...' : 'Save'}
+      <Button
+        type="button"
+        onClick={handleSubmit}
+        disabled={submitting}
+        aria-busy={submitting}
+        size="sm"
+        className="h-11 gap-1.5 sm:h-9"
+      >
+        {submitting && (
+          <Loader2 className="size-4 animate-spin" aria-hidden="true" />
+        )}
+        {submitting ? 'Saving…' : 'Save'}
       </Button>
     </div>
   );

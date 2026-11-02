@@ -42,7 +42,7 @@ const SendToCourierButton = ({ orderData, onSuccess }) => {
 
   useEffect(() => {
     const fetchPathaoConfig = async () => {
-      if (!token) return;
+      if (!token || !open || pathaoStoreId) return;
       try {
         const response = await axios.get(`${apiURL}/pathao-config`, {
           headers: { Authorization: `Bearer ${token}` },
@@ -55,7 +55,7 @@ const SendToCourierButton = ({ orderData, onSuccess }) => {
       }
     };
     fetchPathaoConfig();
-  }, [apiURL, token]);
+  }, [apiURL, token, open, pathaoStoreId]);
 
   const handleButtonClick = () => {
     if (sent) {
@@ -210,21 +210,28 @@ const SendToCourierButton = ({ orderData, onSuccess }) => {
   return (
     <>
       <Button
-        variant="default"
+        type="button"
+        variant={sent ? 'secondary' : 'default'}
         size="sm"
-        className={`w-48 ${sent ? 'opacity-50' : ''}`}
+        className="h-11 w-48 justify-start sm:h-9"
         onClick={handleButtonClick}
         disabled={statusLoading}
+        aria-busy={statusLoading}
+        aria-label={
+          sent
+            ? `Courier status for order ${orderData.invoice}`
+            : `Send order ${orderData.invoice} to courier`
+        }
       >
         {sent ? (
           statusLoading ? (
-            <Loader2 className="size-4 animate-spin" />
+            <Loader2 className="size-4 animate-spin" aria-hidden="true" />
           ) : (
-            <>
+            <span className="truncate">
               {showDeliveryStatus && deliveryStatus
                 ? `${deliveryStatus} | ${orderData.courierProvider}`
                 : 'Sent | Click to show status'}
-            </>
+            </span>
           )
         ) : (
           'Send to Courier'
@@ -238,12 +245,12 @@ const SendToCourierButton = ({ orderData, onSuccess }) => {
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label>Courier:</Label>
+              <Label htmlFor="courier-select">Courier:</Label>
               <Select
                 value={selectedCourier}
                 onValueChange={setSelectedCourier}
               >
-                <SelectTrigger>
+                <SelectTrigger id="courier-select" className="h-11">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -293,20 +300,25 @@ const SendToCourierButton = ({ orderData, onSuccess }) => {
           </div>
           <DialogFooter>
             <Button
+              type="button"
               variant="outline"
               onClick={() => setOpen(false)}
               disabled={loading}
+              className="h-11 sm:h-9"
             >
               Cancel
             </Button>
             <Button
+              type="button"
               onClick={handleSend}
               disabled={
                 loading || (selectedCourier === 'pathao' && !pathaoStoreId)
               }
+              aria-busy={loading}
+              className="h-11 gap-2 sm:h-9"
             >
-              {loading && <Loader2 className="size-4 animate-spin mr-2" />}
-              Send
+              {loading && <Loader2 className="size-4 animate-spin" />}
+              {loading ? 'Sending…' : 'Send'}
             </Button>
           </DialogFooter>
         </DialogContent>
