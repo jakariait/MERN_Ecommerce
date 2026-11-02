@@ -20,7 +20,7 @@ const useCartStore = create((set, get) => ({
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      const serverCartItems = res.data?.cart?.items.map((item) => ({
+      const serverCartItems = (res.data?.cart?.items || []).map((item) => ({
         productId: item.productId,
         contentId: item.contentId,
         name: item.name,
@@ -221,8 +221,8 @@ const useCartStore = create((set, get) => ({
         },
       });
 
-      const serverCartItems = res.data?.cart?.items.map((item) => ({
-        productId: item.product._id,
+      const serverCartItems = (res.data?.cart?.items || []).map((item) => ({
+        productId: item.product?._id || item.productId,
         contentId: item.contentId, // ✅ added here
         name: item.name,
         originalPrice: item.originalPrice,

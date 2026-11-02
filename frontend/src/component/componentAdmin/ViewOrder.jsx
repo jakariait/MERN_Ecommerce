@@ -32,7 +32,7 @@ import { Printer, Pencil, X, Plus, Save } from 'lucide-react';
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
-const ViewOrder = () => {
+const ViewOrder = ({ headerActions = null }) => {
   const printRef = useRef(null);
 
   const { GeneralInfoList } = useGeneralInfoStore();
@@ -294,9 +294,10 @@ const ViewOrder = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-2xl font-bold tracking-tight">Order Details</h1>
-        <div className="flex gap-2 no-print">
+        <div className="flex flex-wrap items-center gap-2 no-print">
+          {headerActions}
           <RequirePermission permission="edit_orders">
             <Button variant="outline" onClick={handleEditToggle}>
               <Pencil className="size-4 mr-1" />
@@ -440,24 +441,26 @@ const ViewOrder = () => {
                     <TableRow key={item._id || index}>
                       <TableCell>{index + 1}</TableCell>
                       <TableCell>
-                        {product.images?.[0] ? (
+                        {product?.images?.[0] ? (
                           <ImageComponent
                             imageName={product.images[0]}
                             className="size-12 rounded object-cover"
                             skeletonHeight={48}
-                            altName={product.name}
+                            altName={product?.name}
                           />
                         ) : (
                           <div className="size-12 rounded bg-muted" />
                         )}
                       </TableCell>
                       <TableCell>
-                        <div className="font-medium">{product.name}</div>
-                        <div className="text-sm text-muted-foreground">
-                          Category: {product.category?.name}
+                        <div className="font-medium">
+                          {product?.name || 'Unknown Product'}
                         </div>
                         <div className="text-sm text-muted-foreground">
-                          Code: {product.productCode || 'N/A'}
+                          Category: {product?.category?.name || 'N/A'}
+                        </div>
+                        <div className="text-sm text-muted-foreground">
+                          Code: {product?.productCode || 'N/A'}
                         </div>
                       </TableCell>
                       <TableCell>

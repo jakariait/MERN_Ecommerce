@@ -74,7 +74,7 @@ const ThankYou = () => {
                 tax: order.vat,
                 shipping: order.deliveryCharge,
                 coupon: order.promoCode || '',
-                items: order.items.map((item) => ({
+                items: (order.items || []).map((item) => ({
                   item_name: item.productId?.name || 'Unknown Product',
                   item_id: item.productId?.productId || 'N/A',
                   price: item.price,
@@ -283,7 +283,7 @@ const ThankYou = () => {
                   <div key={index} className="flex justify-between items-start">
                     <div className="flex-1">
                       <p className="text-gray-900 font-medium text-sm">
-                        {item.productId?.name}
+                        {item.productId?.name || 'Unknown Product'}
                       </p>
                       <p className="text-gray-500 text-xs mt-1">
                         Qty: {item.quantity}
@@ -384,7 +384,7 @@ const ThankYou = () => {
                 {/* Product Details */}
                 <div className="flex-1">
                   <h3 className="text-gray-900 font-bold mb-2">
-                    {item.productId?.name}
+                    {item.productId?.name || 'Unknown Product'}
                   </h3>
                   <p className="text-gray-600 text-sm mb-3">
                     {item.productId?.shortDesc && (

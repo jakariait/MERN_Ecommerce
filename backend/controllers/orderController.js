@@ -132,6 +132,17 @@ const getAllOrders = async (req, res) => {
   }
 };
 
+// Get previous and next order for navigation
+const getAdjacentOrders = async (req, res) => {
+  try {
+    const { orderId } = req.params;
+    const result = await orderService.getAdjacentOrders(orderId);
+    res.status(200).json({ success: true, ...result });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 // Get order by ID
 const getOrderById = async (req, res) => {
   const { orderId } = req.params;
@@ -322,6 +333,7 @@ module.exports = {
   createOrder,
   createAdminOrder,
   getAllOrders,
+  getAdjacentOrders,
   getOrderById,
   updateOrder,
   deleteOrder,

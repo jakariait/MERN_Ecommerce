@@ -620,6 +620,13 @@ router.get(
 );
 
 router.get(
+  '/orders/:orderId/adjacent',
+  adminProtect,
+  checkPermission('view_orders'),
+  orderController.getAdjacentOrders
+);
+
+router.get(
   '/orders/:orderId',
   adminProtect,
   checkPermission('view_orders'),

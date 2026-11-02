@@ -281,7 +281,7 @@ const TrackOrder = () => {
                   >
                     <div>
                       <p className="text-gray-900 font-medium">
-                        {item.productId?.name}
+                        {item.productId?.name || 'Unknown Product'}
                       </p>
                       <p className="text-gray-500 text-xs mt-1">
                         Qty: {item.quantity}
@@ -370,7 +370,7 @@ const TrackOrder = () => {
                     {/* Product Details */}
                     <div className="flex-1">
                       <h3 className="text-gray-900 font-bold mb-2 text-lg">
-                        {item.productId?.name}
+                        {item.productId?.name || 'Unknown Product'}
                       </h3>
                       <p className="text-gray-600 text-sm mb-4">
                         {item.productId?.shortDesc && (

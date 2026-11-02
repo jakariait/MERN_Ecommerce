@@ -212,6 +212,37 @@ const getAllOrders = async (filter = {}, page, limit, search = '', startDate, en
   }
 };
 
+// Get the previous (older) and next (newer) order relative to the given order
+const getAdjacentOrders = async (orderId) => {
+  try {
+    const order = await Order.findById(orderId)
+      .select('_id orderNo createdAt')
+      .lean();
+    if (!order) throw new Error('Order not found');
+
+    const [previous, next] = await Promise.all([
+      Order.findOne({
+        _id: { $ne: order._id },
+        createdAt: { $lt: order.createdAt },
+      })
+        .sort({ createdAt: -1 })
+        .select('_id orderNo')
+        .lean(),
+      Order.findOne({
+        _id: { $ne: order._id },
+        createdAt: { $gt: order.createdAt },
+      })
+        .sort({ createdAt: 1 })
+        .select('_id orderNo')
+        .lean(),
+    ]);
+
+    return { previous, next };
+  } catch (error) {
+    throw new Error('Error fetching adjacent orders: ' + error.message);
+  }
+};
+
 // Get order by ID
 const getOrderById = async (orderId) => {
   try {
@@ -762,6 +793,7 @@ const getOrdersByPhone = async (phone) => {
 module.exports = {
   createOrder,
   getAllOrders,
+  getAdjacentOrders,
   getOrderById,
   updateOrder,
   deleteOrder,
