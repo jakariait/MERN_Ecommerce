@@ -1,4 +1,4 @@
-import { forwardRef, useCallback, useImperativeHandle, useRef } from 'react';
+import { forwardRef, useCallback, useImperativeHandle, useMemo } from 'react';
 import ImageComponent from '../componentGeneral/ImageComponent.jsx';
 import {
   Table,
@@ -13,7 +13,6 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import sanitizeHtml from '../../utils/sanitizeHtml.js';
 import { getVariantDisplayName } from '../../utils/variantDisplay.js';
 import { Loader2, Plus, Save, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -59,6 +58,46 @@ const formatMoney = (value) =>
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   });
+
+const formatDate = (value) => {
+  if (!value) return 'N/A';
+
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return 'N/A';
+
+  return date.toLocaleDateString(undefined, {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+  });
+};
+
+const getFirstValue = (value) =>
+  Array.isArray(value) ? value.find(Boolean) : value;
+
+const HTML_ENTITIES = {
+  '&': '&amp;',
+  '<': '&lt;',
+  '>': '&gt;',
+  '"': '&quot;',
+  "'": '&#39;',
+};
+
+const escapeHtml = (value) =>
+  String(value ?? '').replace(
+    /[&<>"']/g,
+    (character) => HTML_ENTITIES[character],
+  );
+
+const getImageUrl = (imageName) => {
+  if (typeof imageName !== 'string' || !imageName) return '';
+  if (imageName.startsWith('blob:') || imageName.startsWith('data:')) {
+    return imageName;
+  }
+
+  const apiUrl = import.meta.env.VITE_API_URL ?? '';
+  return `${apiUrl.replace('/api', '')}/uploads/${imageName}`;
+};
 
 const InvoiceSectionHeading = ({ id, children, className }) => (
   <h2
@@ -135,10 +174,8 @@ const OrderInvoice = forwardRef(function OrderInvoice(
   },
   ref,
 ) {
-  const printAreaRef = useRef(null);
-
   const paymentStatus = getPaymentStatusMeta(order.paymentStatus);
-  const items = order.items ?? [];
+  const items = useMemo(() => order.items ?? [], [order.items]);
   const itemCount = items.reduce(
     (total, item) => total + (Number(item.quantity) || 0),
     0,
@@ -146,8 +183,144 @@ const OrderInvoice = forwardRef(function OrderInvoice(
   const columnCount = isEditMode ? 8 : 7;
 
   const handlePrint = useCallback(() => {
-    const content = printAreaRef.current;
-    if (!content) return;
+    const companyName = escapeHtml(generalInfo?.CompanyName || 'Company');
+    const companyPhone = escapeHtml(
+      getFirstValue(generalInfo?.PhoneNumber) || '',
+    );
+    const companyEmail = escapeHtml(
+      getFirstValue(generalInfo?.CompanyEmail) || '',
+    );
+    const companyAddress = escapeHtml(generalInfo?.CompanyAddress || '');
+    const companyContact = [companyPhone, companyEmail]
+      .filter(Boolean)
+      .join(' · ');
+    const logoUrl = getImageUrl(generalInfo?.PrimaryLogo);
+    const orderNo = escapeHtml(order?.orderNo ?? 'N/A');
+    const orderDate = formatDate(order?.orderDate);
+    const statusLabel = escapeHtml(orderStatusMeta?.label || 'Unknown');
+    const paymentLabel = escapeHtml(paymentStatus.label);
+    const paymentChipClass =
+      paymentStatus.label === 'Paid'
+        ? 'paid'
+        : paymentStatus.label === 'Unpaid'
+          ? 'unpaid'
+          : '';
+    const billingName = escapeHtml(
+      order?.billingInfo?.fullName || order?.shippingInfo?.fullName || 'N/A',
+    );
+    const billingAddress = escapeHtml(
+      order?.billingInfo?.address || order?.shippingInfo?.address || 'N/A',
+    );
+    const shippingMobile = escapeHtml(order?.shippingInfo?.mobileNo || 'N/A');
+    const shippingEmail = escapeHtml(order?.shippingInfo?.email || 'N/A');
+    const paymentMethod = escapeHtml(
+      getPaymentMethodText(order?.paymentMethod),
+    );
+    const deliveryMethod = escapeHtml(
+      getDeliveryMethodText(order?.deliveryMethod),
+    );
+    const paymentId = escapeHtml(order?.paymentId || '');
+    const transId = escapeHtml(order?.transId || '');
+    const dueAmount = Number(order?.dueAmount ?? 0);
+    const isSettled = dueAmount <= 0;
+
+    const itemRows = items.length
+      ? items
+          .map((item, index) => {
+            const product = item.product || item.productId;
+            const variant = product?.variants?.[0];
+            const imageUrl = getImageUrl(product?.images?.[0]);
+            const quantity = Number(item.quantity) || 0;
+            const unitPrice = Number(item.price) || 0;
+            const lineTotal = unitPrice * quantity;
+
+            return `<tr>
+              <td class="num">${index + 1}</td>
+              <td>
+                <div class="item-wrap">
+                  ${
+                    imageUrl
+                      ? `<img class="thumb" src="${escapeHtml(imageUrl)}" alt="" />`
+                      : '<span class="thumb-placeholder"></span>'
+                  }
+                  <div>
+                    <div class="item-name">${escapeHtml(product?.name || 'Unknown Product')}</div>
+                    <div class="item-meta">${escapeHtml(product?.productCode || 'N/A')} · ${escapeHtml(product?.category?.name || 'N/A')}</div>
+                  </div>
+                </div>
+              </td>
+              <td><span class="variant-pill">${escapeHtml(getVariantDisplayName(variant))}</span></td>
+              <td class="num">${quantity}</td>
+              <td class="num">Tk. ${formatMoney(unitPrice)}</td>
+              <td class="num"><strong>Tk. ${formatMoney(lineTotal)}</strong></td>
+            </tr>`;
+          })
+          .join('')
+      : '<tr class="empty-row"><td colspan="6">No items in this order.</td></tr>';
+
+    const summaryRow = (label, value, className = '') =>
+      `<div class="summary-row ${className}"><span>${label}</span><span class="value">${value}</span></div>`;
+
+    const summaryRows = [
+      summaryRow('Sub-total', `Tk. ${formatMoney(order?.subtotalAmount)}`),
+    ];
+
+    if ((order?.promoDiscount ?? 0) > 0) {
+      summaryRows.push(
+        summaryRow(
+          'Promo discount',
+          `Tk. ${formatMoney(order?.promoDiscount)}`,
+          'discount',
+        ),
+      );
+    }
+
+    if ((order?.rewardPointsUsed ?? 0) > 0) {
+      summaryRows.push(
+        summaryRow('Reward points used', order?.rewardPointsUsed ?? 0),
+      );
+    }
+
+    if ((order?.vat ?? 0) > 0) {
+      summaryRows.push(
+        summaryRow('VAT / tax', `Tk. ${formatMoney(order?.vat)}`),
+      );
+    }
+
+    summaryRows.push(
+      summaryRow(
+        'Delivery charge',
+        `Tk. ${formatMoney(order?.deliveryCharge)}`,
+      ),
+    );
+
+    if ((order?.specialDiscount ?? 0) > 0) {
+      summaryRows.push(
+        summaryRow(
+          'Special discount',
+          `Tk. ${formatMoney(order?.specialDiscount)}`,
+          'discount',
+        ),
+      );
+    }
+
+    summaryRows.push(
+      summaryRow(
+        'Total amount',
+        `Tk. ${formatMoney(order?.totalAmount)}`,
+        'total',
+      ),
+    );
+
+    if ((order?.advanceAmount ?? 0) > 0) {
+      summaryRows.push(
+        summaryRow(
+          'Advance paid',
+          `Tk. ${formatMoney(order?.advanceAmount)}`,
+          'discount',
+        ),
+      );
+    }
 
     const iframe = document.createElement('iframe');
     iframe.style.position = 'fixed';
@@ -171,21 +344,177 @@ const OrderInvoice = forwardRef(function OrderInvoice(
     };
 
     doc.open();
-    doc.write(`
-    <html><head><title>Print Invoice</title><style>
-    body { font-family: Arial, sans-serif; font-size: 12pt; line-height: 1; margin: 20px; }
-    h1 { font-size: 24px; margin-bottom: 20px; }
-    table { width: 100%; border-collapse: collapse; }
-    th, td { padding: 10px; border: 1px solid #ddd; text-align: left; }
-    img { width: 100px; }
-    #firstRow, #secondRow { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
-    #thirdRow { display: flex; justify-content: space-between; margin-top: 20px; }
-    button, .no-print { display: none !important; }
-    #thirdRowRight, #secondRowRight { text-align: right; }
-    </style></head><body>${sanitizeHtml(content.innerHTML)}</body></html>
-  `);
+    doc.write(`<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Invoice #${orderNo}</title>
+<style>
+    @page { size: A4; margin: 12mm; }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body { font-family: "Helvetica Neue", Arial, sans-serif; color: #111827; font-size: 9.5pt; line-height: 1.45; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    h1, h2, h3, p, dl, dd, dt { margin: 0; }
+    .invoice { display: flex; flex-direction: column; min-height: 273mm; }
+    .header { display: flex; justify-content: space-between; gap: 20mm; padding-bottom: 5mm; border-bottom: 1.5pt solid #111827; }
+    .brand { display: flex; align-items: center; gap: 4mm; min-width: 0; }
+    .logo { display: flex; align-items: center; justify-content: center; flex-shrink: 0; width: 17mm; height: 17mm; padding: 2mm; border: 1px solid #d1d5db; border-radius: 2.5mm; }
+    .logo img { max-width: 100%; max-height: 100%; object-fit: contain; }
+    .brand-name { font-size: 16pt; font-weight: 700; letter-spacing: -0.02em; }
+    .brand-meta { margin-top: 1.2mm; color: #6b7280; font-size: 7.5pt; line-height: 1.5; }
+    .document { flex-shrink: 0; min-width: 55mm; text-align: right; }
+    .document-title { font-size: 22pt; font-weight: 800; letter-spacing: 0.08em; line-height: 1; text-transform: uppercase; }
+    .document-subtitle { margin-top: 1.5mm; color: #6b7280; font-size: 7.5pt; letter-spacing: 0.16em; text-transform: uppercase; }
+    .meta { display: grid; gap: 1mm; margin-top: 4mm; font-size: 8.5pt; }
+    .meta-row { display: flex; justify-content: flex-end; gap: 3mm; }
+    .meta-label { color: #6b7280; }
+    .meta-value { font-weight: 600; }
+    .chips { display: flex; justify-content: flex-end; gap: 2mm; margin-top: 3mm; }
+    .chip { display: inline-block; padding: 0.8mm 2.5mm; border: 1px solid #d1d5db; border-radius: 999px; font-size: 7pt; font-weight: 700; }
+    .chip.paid { border-color: #86efac; background: #f0fdf4; color: #166534; }
+    .chip.unpaid { border-color: #fcd34d; background: #fffbeb; color: #92400e; }
+    .info-grid { display: grid; grid-template-columns: 1.2fr 1fr; gap: 8mm; padding: 5mm 0; border-bottom: 1px solid #e5e7eb; }
+    .section-label { margin-bottom: 2mm; color: #6b7280; font-size: 7pt; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; }
+    .info-name { font-size: 10pt; font-weight: 700; }
+    .info-line { margin-top: 1mm; color: #374151; font-size: 8.5pt; word-break: break-word; }
+    .info-list { display: grid; gap: 1.1mm; }
+    .info-pair { display: flex; justify-content: space-between; gap: 4mm; font-size: 8.5pt; }
+    .info-pair .label { color: #6b7280; }
+    .info-pair .value { font-weight: 600; text-align: right; word-break: break-word; }
+    .items { padding-top: 5mm; }
+    .items-header { display: flex; align-items: flex-end; justify-content: space-between; gap: 4mm; margin-bottom: 2.5mm; }
+    .items-title { font-size: 11pt; font-weight: 700; }
+    .items-count { color: #6b7280; font-size: 8pt; }
+    .items-table { width: 100%; border-collapse: collapse; }
+    .items-table thead { display: table-header-group; }
+    .items-table th { padding: 2.5mm 2mm; background: #111827; color: #ffffff; font-size: 7pt; letter-spacing: 0.08em; text-align: left; text-transform: uppercase; }
+    .items-table th.num, .items-table td.num { text-align: right; }
+    .items-table td { padding: 2.5mm 2mm; border-bottom: 1px solid #e5e7eb; font-size: 9pt; vertical-align: top; }
+    .items-table tr { page-break-inside: avoid; }
+    .item-wrap { display: flex; align-items: flex-start; gap: 2.5mm; }
+    .thumb, .thumb-placeholder { width: 10mm; height: 10mm; flex-shrink: 0; border: 1px solid #e5e7eb; border-radius: 1.5mm; object-fit: cover; }
+    .thumb-placeholder { display: block; background: #f3f4f6; }
+    .item-name { font-weight: 600; }
+    .item-meta { margin-top: 0.6mm; color: #6b7280; font-size: 7.5pt; }
+    .variant-pill { display: inline-block; padding: 0.6mm 2mm; border: 1px solid #e5e7eb; border-radius: 999px; background: #f9fafb; color: #4b5563; font-size: 7.5pt; }
+    .empty-row td { padding: 9mm 2mm; color: #6b7280; text-align: center; }
+    .bottom-grid { display: grid; grid-template-columns: 1fr 78mm; gap: 8mm; padding-top: 5mm; page-break-inside: avoid; }
+    .notes-title { margin-bottom: 1.5mm; color: #374151; font-size: 7.5pt; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; }
+    .notes p { color: #6b7280; font-size: 8pt; line-height: 1.55; }
+    .summary { padding: 4mm; border: 1px solid #e5e7eb; border-radius: 2mm; background: #f9fafb; page-break-inside: avoid; }
+    .summary-row { display: flex; justify-content: space-between; gap: 4mm; padding: 1mm 0; color: #4b5563; font-size: 8.5pt; }
+    .summary-row .value { color: #111827; font-weight: 600; font-variant-numeric: tabular-nums; }
+    .summary-row.discount .value { color: #b91c1c; }
+    .summary-row.total { margin-top: 1.5mm; padding-top: 2mm; border-top: 1px solid #d1d5db; color: #111827; font-size: 9.5pt; font-weight: 700; }
+    .summary-row.total .value { font-weight: 800; }
+    .due-box { display: flex; align-items: center; justify-content: space-between; gap: 4mm; margin-top: 2.5mm; padding: 3mm; border-radius: 1.5mm; background: #111827; color: #ffffff; }
+    .due-box.settled { background: #065f46; }
+    .due-label { color: #e5e7eb; font-size: 7.5pt; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; }
+    .due-amount { font-size: 13pt; font-weight: 800; font-variant-numeric: tabular-nums; }
+    .footer { display: flex; justify-content: space-between; gap: 6mm; margin-top: auto; padding-top: 5mm; border-top: 1px solid #e5e7eb; color: #6b7280; font-size: 7.5pt; }
+    .footer strong { color: #111827; }
+    .footer-right { text-align: right; }
+</style>
+</head>
+<body>
+  <div class="invoice">
+    <header class="header">
+      <div class="brand">
+        ${
+          logoUrl
+            ? `<span class="logo"><img src="${escapeHtml(logoUrl)}" alt="" /></span>`
+            : ''
+        }
+        <div>
+          <div class="brand-name">${companyName}</div>
+          <div class="brand-meta">
+            ${companyAddress ? `<div>${companyAddress}</div>` : ''}
+            ${companyContact ? `<div>${companyContact}</div>` : ''}
+          </div>
+        </div>
+      </div>
+      <div class="document">
+        <div class="document-title">Invoice</div>
+        <div class="document-subtitle">Order billing document</div>
+        <div class="meta">
+          <div class="meta-row"><span class="meta-label">Invoice no.</span><span class="meta-value">#${orderNo}</span></div>
+          <div class="meta-row"><span class="meta-label">Invoice date</span><span class="meta-value">${orderDate}</span></div>
+        </div>
+        <div class="chips">
+          <span class="chip">${statusLabel}</span>
+          <span class="chip ${paymentChipClass}">${paymentLabel}</span>
+        </div>
+      </div>
+    </header>
+
+    <section class="info-grid">
+      <div>
+        <div class="section-label">Billed &amp; shipped to</div>
+        <div class="info-name">${billingName}</div>
+        <div class="info-line">${billingAddress}</div>
+        <div class="info-line">${shippingMobile}</div>
+        <div class="info-line">${shippingEmail}</div>
+      </div>
+      <div>
+        <div class="section-label">Order details</div>
+        <div class="info-list">
+          <div class="info-pair"><span class="label">Order no.</span><span class="value">#${orderNo}</span></div>
+          <div class="info-pair"><span class="label">Order date</span><span class="value">${orderDate}</span></div>
+          <div class="info-pair"><span class="label">Payment</span><span class="value">${paymentMethod}</span></div>
+          <div class="info-pair"><span class="label">Delivery</span><span class="value">${deliveryMethod}</span></div>
+          ${paymentId ? `<div class="info-pair"><span class="label">Payment ID</span><span class="value">${paymentId}</span></div>` : ''}
+          ${transId ? `<div class="info-pair"><span class="label">Transaction ID</span><span class="value">${transId}</span></div>` : ''}
+        </div>
+      </div>
+    </section>
+
+    <section class="items">
+      <div class="items-header">
+        <div class="items-title">Order items</div>
+        <div class="items-count">${items.length} ${items.length === 1 ? 'line' : 'lines'} · ${itemCount} ${itemCount === 1 ? 'unit' : 'units'}</div>
+      </div>
+      <table class="items-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Item</th>
+            <th>Variant</th>
+            <th class="num">Qty</th>
+            <th class="num">Unit price</th>
+            <th class="num">Total</th>
+          </tr>
+        </thead>
+        <tbody>${itemRows}</tbody>
+      </table>
+    </section>
+
+    <section class="bottom-grid">
+      <div class="notes">
+        <div class="notes-title">Notes</div>
+        <p>Thank you for shopping with ${companyName}. Please retain this invoice for your records.</p>
+        ${companyContact ? `<p>For questions about this order, contact us at ${companyContact}.</p>` : ''}
+      </div>
+      <div class="summary">
+        ${summaryRows.join('')}
+        <div class="due-box ${isSettled ? 'settled' : ''}">
+          <span class="due-label">${isSettled ? 'Paid in full' : 'Amount due'}</span>
+          <span class="due-amount">Tk. ${formatMoney(dueAmount)}</span>
+        </div>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <div>
+        <strong>Thank you for your business.</strong>
+        <div>This invoice was generated for order #${orderNo}.</div>
+      </div>
+      <div class="footer-right">Invoice #${orderNo}<br />${orderDate}</div>
+    </footer>
+  </div>
+</body>
+</html>`);
     doc.close();
-  }, []);
+  }, [items, itemCount, order, generalInfo, orderStatusMeta, paymentStatus]);
 
   useImperativeHandle(ref, () => ({ print: handlePrint }), [handlePrint]);
 
@@ -195,11 +524,7 @@ const OrderInvoice = forwardRef(function OrderInvoice(
       aria-label="Order invoice"
       className="overflow-hidden border border-border/60 py-0 shadow-sm"
     >
-      <CardContent
-        className="space-y-8 p-4 sm:p-6 lg:p-8"
-        id="print-area"
-        ref={printAreaRef}
-      >
+      <CardContent className="space-y-8 p-4 sm:p-6 lg:p-8" id="print-area">
         <div
           id="firstRow"
           className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-4 border-b border-border/60 pb-6 sm:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] sm:items-center"
