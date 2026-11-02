@@ -298,6 +298,14 @@ const ViewOrder = ({ headerActions = null }) => {
     setSearchedProducts([]);
   };
 
+  const handleProductSelect = (product) => {
+    if (product.variants?.length > 0) {
+      setSelectedProduct(product);
+    } else {
+      handleAddProduct(product);
+    }
+  };
+
   const handleSave = async () => {
     setSaving(true);
     try {
@@ -442,15 +450,17 @@ const ViewOrder = ({ headerActions = null }) => {
           }
         }}
       >
-        <DialogContent className="sm:max-w-lg">
-          <DialogHeader>
-            <DialogTitle>Add Product to Order</DialogTitle>
+        <DialogContent className="flex max-h-[calc(100dvh-2rem)] flex-col gap-4 overflow-hidden p-4 sm:max-w-2xl sm:p-6">
+          <DialogHeader className="shrink-0 space-y-1.5 pr-8 text-left">
+            <DialogTitle className="text-lg leading-snug">
+              Add Product to Order
+            </DialogTitle>
             <DialogDescription>
               Search for a product by name or code.
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-4">
-            <div className="relative">
+          <div className="flex min-h-0 flex-1 flex-col gap-3">
+            <div className="relative shrink-0">
               <Search
                 className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
                 aria-hidden="true"
@@ -474,85 +484,108 @@ const ViewOrder = ({ headerActions = null }) => {
             <span role="status" className="sr-only">
               {productSearchLoading ? 'Searching products' : ''}
             </span>
-            <div className="max-h-[400px] overflow-auto rounded-lg border border-border/60">
-              <Table aria-label="Product search results">
-                <TableHeader className="bg-muted/50">
-                  <TableRow className="hover:bg-transparent">
-                    <TableHead>Product</TableHead>
-                    <TableHead>Stock</TableHead>
-                    <TableHead className="w-28 text-right">Action</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {productSearchLoading ? (
-                    <TableRow className="hover:bg-transparent">
-                      <TableCell
-                        colSpan={3}
-                        className="h-24 text-center text-muted-foreground"
-                      >
-                        Searching…
-                      </TableCell>
-                    </TableRow>
-                  ) : searchedProducts.length > 0 ? (
-                    searchedProducts.map((product) => (
-                      <TableRow key={product._id}>
-                        <TableCell className="font-medium">
-                          {product.name}
-                        </TableCell>
-                        <TableCell className="text-muted-foreground">
-                          {product.variants && product.variants.length > 0
-                            ? 'Multiple Variants'
-                            : `Stock: ${product.finalStock}`}
-                        </TableCell>
-                        <TableCell className="text-right">
+            <div className="min-h-0 flex-1 overflow-y-auto rounded-lg border border-border/60">
+              {productSearchLoading ? (
+                <div className="flex min-h-40 items-center justify-center gap-2 p-6 text-sm text-muted-foreground">
+                  <Loader2 className="size-4 animate-spin" aria-hidden="true" />
+                  Searching…
+                </div>
+              ) : searchedProducts.length > 0 ? (
+                <>
+                  <div className="divide-y divide-border/60 sm:hidden">
+                    {searchedProducts.map((product) => {
+                      const hasVariants = product.variants?.length > 0;
+                      const isUnavailable =
+                        !hasVariants && product.finalStock < 1;
+
+                      return (
+                        <div key={product._id} className="space-y-3 p-3">
+                          <div className="min-w-0 space-y-1">
+                            <p className="break-words text-sm font-semibold text-foreground">
+                              {product.name}
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              {product.productCode
+                                ? `${product.productCode} · `
+                                : ''}
+                              {hasVariants
+                                ? 'Multiple variants available'
+                                : `Stock: ${product.finalStock}`}
+                            </p>
+                          </div>
                           <Button
                             type="button"
                             size="sm"
-                            onClick={() => {
-                              if (
-                                product.variants &&
-                                product.variants.length > 0
-                              ) {
-                                setSelectedProduct(product);
-                              } else {
-                                handleAddProduct(product);
-                              }
-                            }}
-                            disabled={
-                              !product.variants?.length &&
-                              product.finalStock < 1
-                            }
-                            className="h-11 sm:h-8"
+                            onClick={() => handleProductSelect(product)}
+                            disabled={isUnavailable}
+                            className="h-11 w-full"
                           >
-                            {product.variants && product.variants.length > 0
-                              ? 'Select Variant'
-                              : 'Add'}
+                            {hasVariants ? 'Select Variant' : 'Add'}
                           </Button>
-                        </TableCell>
-                      </TableRow>
-                    ))
-                  ) : (
-                    <TableRow className="hover:bg-transparent">
-                      <TableCell
-                        colSpan={3}
-                        className="h-24 text-center text-muted-foreground"
-                      >
-                        {productSearchQuery.length > 1
-                          ? 'No products found.'
-                          : 'Type to search.'}
-                      </TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  <div className="hidden sm:block">
+                    <Table aria-label="Product search results">
+                      <TableHeader className="bg-muted/50">
+                        <TableRow className="hover:bg-transparent">
+                          <TableHead>Product</TableHead>
+                          <TableHead>Stock</TableHead>
+                          <TableHead className="w-28 text-right">
+                            Action
+                          </TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {searchedProducts.map((product) => {
+                          const hasVariants = product.variants?.length > 0;
+                          const isUnavailable =
+                            !hasVariants && product.finalStock < 1;
+
+                          return (
+                            <TableRow key={product._id}>
+                              <TableCell className="font-medium">
+                                {product.name}
+                              </TableCell>
+                              <TableCell className="text-muted-foreground">
+                                {hasVariants
+                                  ? 'Multiple Variants'
+                                  : `Stock: ${product.finalStock}`}
+                              </TableCell>
+                              <TableCell className="text-right">
+                                <Button
+                                  type="button"
+                                  size="sm"
+                                  onClick={() => handleProductSelect(product)}
+                                  disabled={isUnavailable}
+                                  className="h-11 sm:h-8"
+                                >
+                                  {hasVariants ? 'Select Variant' : 'Add'}
+                                </Button>
+                              </TableCell>
+                            </TableRow>
+                          );
+                        })}
+                      </TableBody>
+                    </Table>
+                  </div>
+                </>
+              ) : (
+                <div className="flex min-h-40 items-center justify-center p-6 text-center text-sm text-muted-foreground">
+                  {productSearchQuery.length > 1
+                    ? 'No products found.'
+                    : 'Type to search.'}
+                </div>
+              )}
             </div>
           </div>
-          <DialogFooter>
+          <DialogFooter className="shrink-0">
             <Button
               type="button"
               variant="outline"
               onClick={() => setAddProductModalOpen(false)}
-              className="h-11 sm:h-9"
+              className="h-11 w-full sm:h-9 sm:w-auto"
             >
               Close
             </Button>
