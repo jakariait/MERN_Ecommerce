@@ -177,7 +177,7 @@ const Headers = () => {
           </div>
           <div className="items-center gap-2 hidden md:flex">
             <MdEmail className="text-2xl" aria-hidden="true" />
-            {GeneralInfoList?.CompanyEmail?.map((email, index) => (
+            {Array.isArray(GeneralInfoList?.CompanyEmail) && GeneralInfoList?.CompanyEmail?.map((email, index) => (
               <a
                 key={index}
                 href={`mailto:${email}`}
@@ -395,7 +395,7 @@ const Headers = () => {
 
       {/* Cart Menu */}
       <div
-        className={`fixed inset-0 z-50 ß transition-opacity duration-300 ${
+        className={`fixed inset-0 z-50 transition-opacity duration-300 ${
           isCartMenuOpen
             ? 'opacity-100 pointer-events-auto'
             : 'opacity-0 pointer-events-none'

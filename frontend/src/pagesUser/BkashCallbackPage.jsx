@@ -1,7 +1,7 @@
 import React from 'react';
 import BkashCallback from '../component/componentGeneral/BkashCallback.jsx';
 
-const CheckoutPage = () => {
+const BkashCallbackPage = () => {
   return (
     <>
       <BkashCallback />
@@ -9,4 +9,4 @@ const CheckoutPage = () => {
   );
 };
 
-export default CheckoutPage;
+export default BkashCallbackPage;

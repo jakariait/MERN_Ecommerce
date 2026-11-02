@@ -18,7 +18,7 @@ const MetaProvider = () => {
     const fetchMeta = async () => {
       try {
         const { data } = await axios.get(`${apiURL}/meta`);
-        setMeta(data.data);
+        setMeta(data?.data ?? data ?? null);
       } catch (err) {
         console.error('Failed to fetch meta info', err);
       } finally {

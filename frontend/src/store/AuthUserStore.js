@@ -4,7 +4,7 @@ import useWishlistStore from './useWishlistStore';
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
-const useAuthUserStore = create((set, get) => ({
+const useAuthUserStore = create((set) => ({
   user: null,
   token: localStorage.getItem('user_token') || null,
   error: null,
@@ -27,7 +27,7 @@ const useAuthUserStore = create((set, get) => ({
       set({ user, token: user.token, loading: false });
 
       // Fetch wishlist after successful login
-      useWishlistStore.getState().getWishlist();
+      await useWishlistStore.getState().getWishlist();
     } catch (error) {
       console.error('Login error:', error.response || error);
       set({
@@ -54,23 +54,16 @@ const useAuthUserStore = create((set, get) => ({
       set({ user: res.data.user, token, loading: false });
 
       // Fetch wishlist on initialization
-      useWishlistStore.getState().getWishlist();
+      await useWishlistStore.getState().getWishlist();
     } catch (error) {
       console.error('Initialization error:', error.response || error);
       localStorage.removeItem('user_token');
-
-      set({
-        user: null,
-        token: null,
-        error: 'Session expired. Please log in again.',
-        loading: false,
-      });
+    set({ user: null, token: null });
     }
   },
 
   // Logout
   logout: () => {
-    const token = localStorage.getItem('user_token');
     localStorage.removeItem('user_token');
     set({ user: null, token: null });
 

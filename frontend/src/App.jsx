@@ -169,7 +169,15 @@ function App() {
     };
 
     fetchData();
-  }, []);
+  }, [
+    GeneralInfoListRequest,
+    fetchColors,
+    fetchSocialMediaLinks,
+    fetchCategories,
+    fetchSubCategories,
+    fetchChildCategories,
+    initialize,
+  ]);
 
   useEffect(() => {
     if (colors) {

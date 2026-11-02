@@ -219,7 +219,16 @@ const ProductDetails = () => {
   }
 
   if (product.slug !== slug) {
-    return <ProductDetailsSkeleton />;
+    return (
+      <div className="xl:container xl:mx-auto p-3">
+        <div className="flex flex-col items-center justify-center pt-40 text-gray-500">
+          <h1 className="text-2xl font-semibold mb-2">Product Not Found</h1>
+          <p>
+            The product you are looking for does not exist or has been removed.
+          </p>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -248,7 +257,7 @@ const ProductDetails = () => {
           <meta property="og:url" content={window.location.href} />
           <link
             rel="canonical"
-            href={`https://ecommerce.digiwebdigital.com/product/${slug}`}
+            href={`${import.meta.env.FRONTEND_URL || window.location.origin}/product/${slug}`}
           />
 
           {/*BreadCrumbs*/}

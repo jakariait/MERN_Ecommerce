@@ -90,6 +90,8 @@ const BkashCallback = () => {
 
           // Generate random tranxId
           orderPayload.transId =
+            execRes.data?.trxID ||
+            execRes.data?.transactionId ||
             'BKASH-' + Math.random().toString(36).substr(2, 9).toUpperCase();
 
           // Set the advanceAmount from the amount field in the bKash response

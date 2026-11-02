@@ -30,7 +30,7 @@ const LoginForm = () => {
         await syncCartToDB(token);
         await loadCartFromBackend(token);
         navigate('/user/home');
-      } catch (err) {
+      } catch {
         setSnackbarMessage(
           'There was a problem loading your cart. Please try again.',
         );

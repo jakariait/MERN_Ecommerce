@@ -32,7 +32,7 @@ const useWishlistStore = create((set, get) => ({
       set({
         error: error?.response?.data?.message || 'Failed to fetch wishlist',
         loading: false,
-        initialized: true,
+        initialized: false,
       });
     }
   },

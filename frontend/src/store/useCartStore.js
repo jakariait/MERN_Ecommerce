@@ -64,10 +64,11 @@ const useCartStore = create((set, get) => ({
             : 0;
 
       if (existingIndex !== -1) {
-        updatedCart[existingIndex].quantity += quantity;
-        if (updatedCart[existingIndex].quantity > 5) {
-          updatedCart[existingIndex].quantity = 5;
-        }
+        const existingItem = updatedCart[existingIndex];
+        updatedCart[existingIndex] = {
+          ...existingItem,
+          quantity: existingItem.quantity + quantity > 5 ? 5 : existingItem.quantity + quantity,
+        };
       } else {
         updatedCart.push({
           productId: product.id,
@@ -193,7 +194,7 @@ const useCartStore = create((set, get) => ({
     try {
       for (const item of localCart) {
         await axios.post(
-          `/api/addToCart`,
+          `${apiUrl}/addToCart`,
           {
             productId: item.productId,
             contentId: item.contentId, // ✅ added here
@@ -215,7 +216,7 @@ const useCartStore = create((set, get) => ({
         );
       }
 
-      const res = await axios.get(`/api/getCart`, {
+      const res = await axios.get(`${apiUrl}/getCart`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

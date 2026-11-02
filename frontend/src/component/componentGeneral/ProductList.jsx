@@ -54,7 +54,7 @@ const ProductList = ({ products }) => {
         >
           {/*Product Display Section*/}
           {products.map((product) => (
-            <div key={product.slug} className="relative min-h-[250px]">
+            <div key={product._id || product.slug} className="relative min-h-[250px]">
               <Link to={`/product/${product.slug}`} className="block">
                 <ImageComponent
                   imageName={product.thumbnailImage}

@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { CiSearch } from 'react-icons/ci';
 
@@ -8,7 +8,6 @@ const HeaderSearch = () => {
   const [searchInput, setSearchInput] = useState(
     searchParams.get('search') || '',
   );
-  const searchTimeoutRef = useRef(null);
 
   const handleSearch = () => {
     if (searchInput.trim()) {

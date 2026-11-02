@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import axios from 'axios';
-import useAuthStore from './AuthAdminStore'; // If required for authentication
+import http from '../lib/http.js';
 
 const apiUrl = import.meta.env.VITE_API_URL; // API base URL
 
@@ -126,12 +126,7 @@ const useProductStore = create((set) => ({
     set({ loading: true, error: null });
 
     try {
-      const token = useAuthStore.getState().token;
-      if (!token) throw new Error('Unauthorized: No token found');
-
-      const response = await axios.put(`${apiUrl}/products/${id}`, data, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await http.put(`${apiUrl}/products/${id}`, data);
 
       const updated = response.data?.data || response.data;
       set((state) => ({
@@ -153,12 +148,7 @@ const useProductStore = create((set) => ({
     set({ loading: true, error: null });
 
     try {
-      const token = useAuthStore.getState().token;
-      if (!token) throw new Error('Unauthorized: No token found');
-
-      await axios.delete(`${apiUrl}/products/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await http.delete(`${apiUrl}/products/${id}`);
 
       set((state) => ({
         products: state.products.filter((prod) => prod._id !== id),
@@ -176,14 +166,7 @@ const useProductStore = create((set) => ({
     set({ loading: true, error: null });
 
     try {
-      const token = useAuthStore.getState().token;
-      if (!token) throw new Error('Unauthorized: No token found');
-
-      await axios.post(
-        `${apiUrl}/products/${id}/duplicate`,
-        {},
-        { headers: { Authorization: `Bearer ${token}` } },
-      );
+      await http.post(`${apiUrl}/products/${id}/duplicate`, {});
 
       set({ loading: false });
     } catch (error) {

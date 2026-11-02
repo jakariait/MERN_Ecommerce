@@ -79,7 +79,7 @@ const RegisterForm = () => {
             await syncCartToDB(token);
             await loadCartFromBackend(token);
             navigate('/user/home');
-          } catch (cartError) {
+          } catch {
             setSnackbarMessage(
               'Registration successful, but there was a problem loading your cart. Please try again.',
             );
@@ -95,7 +95,7 @@ const RegisterForm = () => {
       } else {
         setRegistrationError(data.message || 'Registration failed!');
       }
-    } catch (error) {
+    } catch {
       setRegistrationError('Something went wrong. Please try again.');
     } finally {
       setRegistrationLoading(false);

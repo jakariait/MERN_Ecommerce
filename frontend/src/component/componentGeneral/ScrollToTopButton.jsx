@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { ChevronUp } from 'lucide-react'; // or any icon you like
 
-const ScrollToTop = () => {
+const ScrollToTopButton = () => {
   const [visible, setVisible] = useState(false);
 
   // Show/hide button on scroll
@@ -35,4 +35,4 @@ const ScrollToTop = () => {
   );
 };
 
-export default ScrollToTop;
+export default ScrollToTopButton;

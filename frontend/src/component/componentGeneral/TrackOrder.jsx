@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import OrderProgress from './OrderProgress';
-import ImageComponent from './ImageComponent';
 import {
   Search,
   Package,
@@ -13,6 +12,7 @@ import {
   AlertCircle,
 } from 'lucide-react';
 import sanitizeHtml from '../../utils/sanitizeHtml.js';
+import http from '../../lib/http.js';
 
 const TrackOrder = () => {
   const apiUrl = import.meta.env.VITE_API_URL;
@@ -50,10 +50,9 @@ const TrackOrder = () => {
     setOrder(null);
 
     try {
-      const response = await fetch(`${apiUrl}/track-order`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ orderNo, phone }),
+      const response = await http.post(`${apiUrl}/track-order`, {
+        orderNo,
+        phone,
       });
 
       if (!response.ok) {

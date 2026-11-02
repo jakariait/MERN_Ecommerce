@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import axios from 'axios';
-import { useNavigate, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { Snackbar } from '@/components/ui/snackbar';
 import { Alert as MuiAlert } from '@/components/ui/alert';
 import { CircularProgress } from '@/components/ui/circular-progress';
@@ -17,7 +17,6 @@ export default function ForgotPassword() {
     message: '',
     severity: 'success',
   });
-  const navigate = useNavigate();
 
   const handleSnackbarClose = () => {
     setSnackbar({ ...snackbar, open: false });
@@ -36,11 +35,6 @@ export default function ForgotPassword() {
         message: res.data.message || 'OTP sent successfully! Check your email.',
         severity: 'success',
       });
-
-      // Redirect after delay
-      setTimeout(() => {
-        navigate(`/reset-password?email=${encodeURIComponent(email)}`);
-      }, 2000);
     } catch (err) {
       setSnackbar({
         open: true,

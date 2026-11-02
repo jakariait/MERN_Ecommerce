@@ -8,6 +8,7 @@ import { Truck } from 'lucide-react';
 // Stores
 import useCartStore from '../../store/useCartStore.js';
 import useAuthUserStore from '../../store/AuthUserStore.js';
+import http from '../../lib/http.js';
 
 // Custom Components
 import AddressForm from './AddressForm.jsx';
@@ -46,7 +47,7 @@ const Checkout = () => {
   const [freeDelivery, setFreeDelivery] = useState(null);
 
   // Vat Percentage
-  const [vatPercentage, setVatPercentage] = useState(null);
+  const [vatPercentage, setVatPercentage] = useState(0);
 
   // Shipping Details Handler
   const [addressData, setAddressData] = useState({});
@@ -92,7 +93,7 @@ const Checkout = () => {
     };
 
     fetchAmount();
-  }, []);
+  }, [apiUrl]);
 
   // Price Calculations
   const totalAmount = cart.reduce((total, item) => {
@@ -137,7 +138,7 @@ const Checkout = () => {
     };
 
     fetchVatAmount();
-  }, []);
+  }, [apiUrl]);
 
   // Data Layer for Initiat Checkout
 
@@ -260,7 +261,7 @@ const Checkout = () => {
     // ---- Normal COD Flow ----
 
     try {
-      const res = await axios.post(`${apiUrl}/orders`, orderPayload);
+      const res = await http.post(`${apiUrl}/orders`, orderPayload);
 
       if (res.data.success) {
         setOrderPlaced(true);
