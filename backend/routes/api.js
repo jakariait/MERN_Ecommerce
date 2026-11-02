@@ -90,6 +90,14 @@ const passwordResetLimiter = rateLimit({
   },
 });
 
+const trackOrderLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 20,
+  message: {
+    message: 'Too many order tracking attempts, please try again after 15 minutes',
+  },
+});
+
 // Set Up Multer Storage
 const storage = multer.diskStorage({
   destination: (req, file, cb) => cb(null, 'uploads/'), // Ensure files are saved in the 'uploads' folder
@@ -540,7 +548,7 @@ router.patch(
 );
 
 // Coupon Routes
-router.post('/applyCoupon', couponController.applyCoupon);
+router.post('/applyCoupon', userProtect, couponController.applyCoupon);
 
 router.post(
   '/createCoupon',
@@ -650,10 +658,10 @@ router.get('/order-no/:orderNo', orderController.getOrderByOrderNo);
 router.get('/ordersbyUser/:userId', userProtect, orderController.getOrdersForUser);
 
 // // Order Tracking
-router.post('/track-order', orderController.trackOrderByOrderNoAndPhone);
+router.post('/track-order', trackOrderLimiter, orderController.trackOrderByOrderNoAndPhone);
 
 // bKash Payment Gateway Routes
-router.post('/bkashcreate', bkashController.createPayment);
+router.post('/bkashcreate', userProtect, bkashController.createPayment);
 router.post('/bkashexecute', bkashController.executePayment);
 router.post('/queryPaymentStatus', bkashController.queryPaymentStatus);
 

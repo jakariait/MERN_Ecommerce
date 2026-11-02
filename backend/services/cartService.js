@@ -1,4 +1,5 @@
 const CartModel = require('../models/CartModel');
+const ProductModel = require('../models/ProductModel');
 
 const getCart = async (userId) => {
   const cart = await CartModel.findOne({ user: userId });
@@ -10,26 +11,47 @@ const addToCart = async (userId, item) => {
     throw new Error('Missing productId or quantity');
   }
 
+  // Validate the product exists and compute unit prices server-side so the
+  // client cannot manipulate the cart unit price (which also flows into the
+  // bKash payment amount via the checkout grand total).
+  const product = await ProductModel.findById(item.productId);
+  if (!product) throw new Error('Product not found');
+
+  let originalPrice = product.finalPrice || 0;
+  let discountPrice = product.finalDiscount > 0 ? product.finalDiscount : 0;
+
+  if (item.variantId) {
+    const variant = product.variants.find(
+      (v) => v._id.toString() === item.variantId.toString(),
+    );
+    if (variant) {
+      originalPrice = variant.price;
+      discountPrice = variant.discount > 0 ? variant.discount : 0;
+    }
+  }
+
+  const serverItem = { ...item, originalPrice, discountPrice };
+
   let cart = await CartModel.findOne({ user: userId });
 
   if (!cart) {
-    cart = new CartModel({ user: userId, items: [item] });
+    cart = new CartModel({ user: userId, items: [serverItem] });
   } else {
     // Match by variantId if available, otherwise by variant field for backward compatibility
-    const matchKey = item.variantId || item.variant;
+    const matchKey = serverItem.variantId || serverItem.variant;
     const index = cart.items.findIndex(
       (i) =>
-        i.productId?.toString() === item.productId?.toString() &&
+        i.productId?.toString() === serverItem.productId?.toString() &&
         (i.variantId === matchKey || i.variant === matchKey)
     );
 
     if (index > -1) {
-      cart.items[index].quantity += item.quantity;
+      cart.items[index].quantity += serverItem.quantity;
       if (cart.items[index].quantity > 5) {
         cart.items[index].quantity = 5;
       }
     } else {
-      cart.items.push(item);
+      cart.items.push(serverItem);
     }
   }
 

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import http from '../../lib/http.js';
 import {
   Accordion,
   AccordionSummary,
@@ -16,7 +16,6 @@ const CouponSection = ({
   orderAmount,
   setAppliedCouponGlobal, // To send coupon back to parent
 }) => {
-  const apiUrl = import.meta.env.VITE_API_URL;
 
   const [coupon, setCoupon] = useState('');
   const [couponError, setCouponError] = useState('');
@@ -32,7 +31,7 @@ const CouponSection = ({
     }
 
     try {
-      const res = await axios.post(`${apiUrl}/applyCoupon`, {
+      const res = await http.post(`/applyCoupon`, {
         code: coupon,
         orderAmount,
       });

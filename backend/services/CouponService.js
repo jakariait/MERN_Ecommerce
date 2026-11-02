@@ -6,7 +6,7 @@ const createCoupon = async (data) => {
   return { message: 'Coupon created successfully.', data: saved };
 };
 
-const applyCoupon = async (code, orderAmount) => {
+const applyCoupon = async (code, orderAmount, userId) => {
   const coupon = await Coupon.findOne({
     code: code.toUpperCase(),
     status: 'active',
@@ -22,6 +22,23 @@ const applyCoupon = async (code, orderAmount) => {
   if (orderAmount < coupon.minimumOrder) {
     throw new Error(`Minimum order amount of Tk. ${coupon.minimumOrder} is required.`);
   }
+
+  // Per-user single-use enforcement
+  if (userId && coupon.usedBy.some((id) => id.toString() === userId.toString())) {
+    throw new Error('You have already used this coupon.');
+  }
+
+  // Global usage limit enforcement
+  if (coupon.usageLimit !== null && coupon.usedCount >= coupon.usageLimit) {
+    throw new Error('This coupon has reached its usage limit.');
+  }
+
+  // Record usage
+  coupon.usedCount += 1;
+  if (userId) {
+    coupon.usedBy.push(userId);
+  }
+  await coupon.save();
 
   return {
     message: 'Coupon applied successfully.',

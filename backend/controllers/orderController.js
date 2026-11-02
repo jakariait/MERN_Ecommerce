@@ -24,22 +24,40 @@ const createOrder = async (req, res) => {
       }
     }
 
-    // Proceed with creating the order (pass userId only if available)
-    const order = await orderService.createOrder(
-      { ...orderData, rewardPointsUsed },
-      userId || null
-    );
+    // Web (customer) orders must never trust client-supplied specialDiscount.
+    // Only admin-created orders may set a special discount.
+    const isAdminOrder = orderData.orderSource === 'admin';
+    const sanitizedOrderData = { ...orderData };
+    if (!isAdminOrder) {
+      delete sanitizedOrderData.specialDiscount;
+    }
 
+    // Deduct reward points BEFORE order creation so the deduction and the
+    // order are atomic. Refund if order creation fails.
     if (user && rewardPointsUsed > 0) {
       user.rewardPoints -= Number(rewardPointsUsed);
       await user.save();
     }
 
-    res.status(201).json({
-      success: true,
-      message: 'Order created successfully',
-      order,
-    });
+    try {
+      const order = await orderService.createOrder(
+        { ...sanitizedOrderData, rewardPointsUsed },
+        userId || null
+      );
+
+      res.status(201).json({
+        success: true,
+        message: 'Order created successfully',
+        order,
+      });
+    } catch (orderError) {
+      // Refund the deducted points if order creation failed
+      if (user && rewardPointsUsed > 0) {
+        user.rewardPoints += Number(rewardPointsUsed);
+        await user.save();
+      }
+      throw orderError;
+    }
   } catch (error) {
     console.error('Order Creation Error:', error);
     res.status(500).json({
@@ -207,13 +225,21 @@ const getOrderByOrderNo = async (req, res) => {
 // Get oder by Registered User
 const getOrdersForUser = async (req, res) => {
   try {
-    const userId = req.params.userId; // get userId from URL parameter
+    const requestedUserId = req.params.userId; // get userId from URL parameter
 
-    if (!userId) {
+    if (!requestedUserId) {
       return res.status(400).json({ success: false, message: 'User ID is required' });
     }
 
-    const result = await orderService.getOrdersByUserId(userId);
+    // Users can only fetch their own orders. Admin endpoints exist separately.
+    if (req.user._id.toString() !== requestedUserId) {
+      return res.status(403).json({
+        success: false,
+        message: 'Access denied. You can only view your own orders.',
+      });
+    }
+
+    const result = await orderService.getOrdersByUserId(requestedUserId);
 
     if (!result || result.totalOrders === 0) {
       return res.status(404).json({ success: false, message: 'No orders found for this user' });

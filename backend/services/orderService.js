@@ -8,6 +8,29 @@ const FreeDeliveryAmount = require('../models/FreeDeliveryAmount');
 const User = require('../models/UserModel');
 const Coupon = require('../models/CouponModel');
 
+// Restore previously deducted stock when order creation fails partway through.
+const restoreDeductedStock = async (deducted) => {
+  for (const d of deducted) {
+    try {
+      if (d.variantId) {
+        const variantObjectId = mongoose.Types.ObjectId(d.variantId);
+        await Product.findOneAndUpdate(
+          { _id: d.productId },
+          { $inc: { 'variants.$[elem].stock': d.quantity } },
+          { arrayFilters: [{ 'elem._id': variantObjectId }] },
+        );
+      } else {
+        await Product.findOneAndUpdate(
+          { _id: d.productId },
+          { $inc: { finalStock: d.quantity } },
+        );
+      }
+    } catch (rollbackErr) {
+      console.error('Stock rollback failed:', rollbackErr.message);
+    }
+  }
+};
+
 const createOrder = async (orderData, userId) => {
   try {
     // Get user (optional for guests)
@@ -33,6 +56,7 @@ const createOrder = async (orderData, userId) => {
     let subtotal = 0;
     const updatedItems = [];
     let hasFreeShippingProduct = false;
+    const deducted = []; // { productId, quantity, variantId } for rollback on failure
 
     for (const item of orderData.items) {
       const { productId, variantId, quantity } = item;
@@ -44,30 +68,53 @@ const createOrder = async (orderData, userId) => {
         hasFreeShippingProduct = true;
       }
 
-      let price, stock;
+      let price;
 
       if (product.variants.length === 0) {
-        price = product.finalDiscount > 0 ? product.finalDiscount : product.finalPrice;
-        stock = product.finalStock;
+        price =
+          product.finalDiscount > 0 ? product.finalDiscount : product.finalPrice;
 
-        if (stock < quantity) throw new Error(`Not enough stock for product ${productId}`);
-
-        product.finalStock -= quantity;
-        await product.save();
+        // Atomic conditional decrement: deducts only if stock is sufficient,
+        // preventing oversell and lost updates under concurrency.
+        const updated = await Product.findOneAndUpdate(
+          { _id: productId, finalStock: { $gte: quantity } },
+          { $inc: { finalStock: -quantity } },
+          { new: true },
+        );
+        if (!updated) {
+          throw new Error(`Not enough stock for product ${productId}`);
+        }
+        deducted.push({ productId, quantity, variantId: null });
       } else {
+        if (!mongoose.Types.ObjectId.isValid(variantId)) {
+          throw new Error('Invalid variant id');
+        }
         const variant = product.variants.find((v) => v._id.toString() === variantId);
         if (!variant) throw new Error('Variant not found');
 
-        if (variant.stock < quantity) throw new Error(`Not enough stock for variant ${variantId}`);
-
         price = variant.discount || variant.price;
 
-        variant.stock -= quantity;
-        await product.save();
+        const updated = await Product.findOneAndUpdate(
+          { _id: productId },
+          { $inc: { 'variants.$[elem].stock': -quantity } },
+          {
+            arrayFilters: [
+              {
+                'elem._id': mongoose.Types.ObjectId(variantId),
+                'elem.stock': { $gte: quantity },
+              },
+            ],
+            new: true,
+          },
+        );
+        if (!updated) {
+          throw new Error(`Not enough stock for variant ${variantId}`);
+        }
+        deducted.push({ productId, quantity, variantId });
       }
 
       subtotal += price * quantity;
-      updatedItems.push({ productId, variantId, quantity, price }); // Store price for each item
+      updatedItems.push({ productId, variantId, quantity, price });
     }
 
     // Handle shipping
@@ -140,6 +187,9 @@ const createOrder = async (orderData, userId) => {
 
     return savedOrder;
   } catch (error) {
+    // Roll back any stock already deducted so a failed order never leaves
+    // inventory depleted without an order.
+    await restoreDeductedStock(deducted);
     throw new Error(error.message);
   }
 };

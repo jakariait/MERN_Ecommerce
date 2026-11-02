@@ -12,7 +12,7 @@ const createCoupon = async (req, res) => {
 const applyCoupon = async (req, res) => {
   try {
     const { code, orderAmount } = req.body;
-    const { message, data } = await couponService.applyCoupon(code, orderAmount);
+    const { message, data } = await couponService.applyCoupon(code, orderAmount, req.user?._id);
     res.status(200).json({ success: true, message, data });
   } catch (err) {
     res.status(400).json({ success: false, message: err.message });
