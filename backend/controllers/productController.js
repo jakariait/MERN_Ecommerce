@@ -2,7 +2,6 @@ const productService = require('../services/productService');
 const mongoose = require('mongoose');
 const { client: redisClient, clearCachePattern } = require('../config/redisClient');
 const ProductModel = require('../models/ProductModel');
-const { revalidateNext } = require('../utility/revalidateNext');
 
 // Invalidate every cached product listing (plain + query-key variants)
 const invalidateProductCache = () => {
@@ -65,7 +64,6 @@ const createProduct = async (req, res) => {
 
     // Invalidate the cache
     invalidateProductCache();
-    revalidateNext({ tag: 'products' });
 
     res.status(201).json({
       success: true,
@@ -181,7 +179,6 @@ const deleteProduct = async (req, res) => {
 
     // Invalidate the cache
     invalidateProductCache();
-    revalidateNext({ tag: 'products' });
 
     res.status(200).json({
       success: true,
@@ -255,7 +252,6 @@ const updateProduct = async (req, res) => {
 
     // Invalidate the cache
     invalidateProductCache();
-    revalidateNext({ tag: 'products' });
 
     return res.status(200).json({
       success: true,
