@@ -4,7 +4,9 @@ import { useLocation } from 'react-router-dom';
 import axios from 'axios';
 import ReactGA from 'react-ga4';
 
-const CANONICAL_DOMAIN = 'https://ecommerce.digiwebdigital.com';
+const CANONICAL_DOMAIN = (
+  import.meta.env.VITE_FRONTEND_URL || window.location.origin
+).replace(/\/$/, '');
 
 const MetaProvider = () => {
   const [meta, setMeta] = useState(null);
