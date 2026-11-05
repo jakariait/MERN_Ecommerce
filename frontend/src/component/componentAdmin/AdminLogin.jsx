@@ -1,5 +1,17 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import { toast } from 'sonner';
+import { Eye, EyeOff, ShieldCheck } from 'lucide-react';
 import useAuthAdminStore from '../../store/AuthAdminStore.js';
 import GeneralInfoStore from '../../store/GeneralInfoStore.js';
 
@@ -8,6 +20,8 @@ const AdminLogin = () => {
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
   const [checkingAuth, setCheckingAuth] = useState(true);
 
   const { login, error, loading, token } = useAuthAdminStore();
@@ -35,79 +49,94 @@ const AdminLogin = () => {
     }
   }, [token, navigate]);
 
+  useEffect(() => {
+    if (error) {
+      toast.error(error);
+    }
+  }, [error]);
+
   if (checkingAuth) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gradient-to-tl primaryBgColor">
-        <div className="flex flex-col items-center">
-          <div className="h-10 w-10 animate-spin rounded-full border-4 border-white border-t-transparent"></div>
-          <p className="mt-4 text-white text-sm">Checking authentication...</p>
+      <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-primary to-primary/90">
+        <div className="flex flex-col items-center gap-2">
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-white border-t-transparent"></div>
+          <p className="text-white text-sm">Checking authentication...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-tl primaryBgColor">
-      <div className="rounded-lg bg-white p-6 shadow-lg">
-        <h2 className="text-center text-2xl font-semibold text-gray-700">
-          {GeneralInfoList?.CompanyName}
-        </h2>
-        <h2 className="mb-4 text-center text-2xl font-semibold text-gray-700">
-          Admin Panel
-        </h2>
-        <h2 className="text-gray-700">Welcome Back!</h2>
-        <h2 className="mb-4 text-gray-700">
-          Enter your email address and password to access admin panel.
-        </h2>
-
-        <div className="bg-yellow-100 text-yellow-800 p-4 rounded-md shadow-md text-sm flex flex-col items-center justify-center mb-5">
-          <p className={'mb-3'}>Use this to explore our admin panel.</p>
-        </div>
-
-        {error && (
-          <p className="mb-4 rounded-md bg-red-200 p-2 text-sm text-red-700">
-            {error}
-          </p>
-        )}
-
-        <form onSubmit={handleSubmit}>
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700">
-              Email
-            </label>
-            <input
-              type="email"
-              className="mt-1 w-full rounded-md border border-gray-300 p-2 focus:border-blue-500 focus:outline-none"
-              placeholder="Email Address"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-primary via-primary/90 to-primary px-4">
+      <Card className="w-full max-w-md bg-card shadow-2xl border border-border/50">
+        <CardHeader className="text-center space-y-2 pb-6">
+          <div className="flex items-center justify-center gap-2">
+            <ShieldCheck className="h-6 w-6 text-primary" />
+            <span className="text-xl font-bold text-primary">
+              {GeneralInfoList?.CompanyName ?? 'Admin'}
+            </span>
           </div>
-
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700">
-              Password
-            </label>
-            <input
-              type="password"
-              className="mt-1 w-full rounded-md border border-gray-300 p-2 focus:border-blue-500 focus:outline-none"
-              placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-          </div>
-
-          <button
-            type="submit"
-            className="w-full cursor-pointer rounded-md primaryBgColor px-4 py-2 accentTextColor hover:bg-blue-700"
-            disabled={loading}
-          >
-            {loading ? 'Logging in...' : 'Login'}
-          </button>
-        </form>
-      </div>
+          <CardTitle className="text-2xl">Welcome Back</CardTitle>
+          <CardDescription>
+            Sign in to your admin panel to continue
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-5">
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="email">Email address</Label>
+              <Input
+                id="email"
+                type="email"
+                placeholder="admin@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                className="pr-10"
+              />
+            </div>
+            <div className="relative space-y-2">
+              <Label htmlFor="password">Password</Label>
+              <div className="relative">
+                <Input
+                  id="password"
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder="••••••••"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  className="pr-12"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute inset-y-0 right-0 flex items-center pr-3 text-muted-foreground hover:text-primary transition-colors"
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                >
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
+            </div>
+            <div className="flex items-center justify-between text-sm">
+              <label className="flex items-center gap-2 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
+                  className="rounded border-primary text-primary bg-primary focus:ring-primary"
+                />
+                <span>Remember me</span>
+              </label>
+              <a href="#" className="text-primary font-medium hover:underline">
+                Forgot password?
+              </a>
+            </div>
+            <Button type="submit" className="w-full" disabled={loading}>
+              {loading ? 'Signing in...' : 'Sign in'}
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
     </div>
   );
 };
