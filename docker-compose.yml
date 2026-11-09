@@ -5,31 +5,23 @@ services:
     environment:
       CONTAINER_CONFIG: ${CONTAINER_CONFIG}
       RUN_AS_PREVIEW_SERVER: "true"
+    ports:
+      - "127.0.0.1:8081:8080"
 
-  tagging:
+  tagging1:
     image: gcr.io/cloud-tagging-10302018/gtm-cloud-image:stable
     restart: always
     environment:
       CONTAINER_CONFIG: ${CONTAINER_CONFIG}
       PREVIEW_SERVER_URL: "https://preview.digiwebdigital.com"
-    deploy:
-      replicas: 2
-
-  caddy:
-    image: caddy:2
-    restart: always
     ports:
-      - "80:80"
-      - "443:443"
-      - "443:443/udp"
-    volumes:
-      - ./Caddyfile:/etc/caddy/Caddyfile
-      - caddy_data:/data
-      - caddy_config:/config
-    depends_on:
-      - tagging
-      - preview
+      - "127.0.0.1:8080:8080"
 
-volumes:
-  caddy_data:
-  caddy_config:
+  tagging2:
+    image: gcr.io/cloud-tagging-10302018/gtm-cloud-image:stable
+    restart: always
+    environment:
+      CONTAINER_CONFIG: ${CONTAINER_CONFIG}
+      PREVIEW_SERVER_URL: "https://preview.digiwebdigital.com"
+    ports:
+      - "127.0.0.1:8082:8080"
