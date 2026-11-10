@@ -111,7 +111,7 @@ const ProductGallery = ({
                   imageName={images[index]}
                   altName={productName}
                   className="w-full aspect-square object-cover"
-                  skeletonHeight={'400px'}
+                  skeletonHeight={400}
                 />
                 <button
                   className="absolute md:bottom-4 bottom-1 left-1 p-3 md:left-3 bg-white rounded-full cursor-pointer"
@@ -128,7 +128,7 @@ const ProductGallery = ({
               imageName={images[activeIndex]}
               altName={productName}
               className="w-full aspect-square object-cover"
-              skeletonHeight={'200px'}
+              skeletonHeight={200}
             />
           </div>
         )}
@@ -162,7 +162,7 @@ const ProductGallery = ({
                     imageName={images[index]}
                     altName={productName}
                     className="w-full aspect-square object-cover"
-                    skeletonHeight={'200px'}
+                    skeletonHeight={200}
                   />
                 </div>
               ))}
