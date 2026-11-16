@@ -42,7 +42,7 @@ const SendToCourierButton = ({ orderData, onSuccess }) => {
 
   useEffect(() => {
     const fetchPathaoConfig = async () => {
-      if (!token || !open || pathaoStoreId) return;
+      if (!token) return;
       try {
         const response = await axios.get(`${apiURL}/pathao-config`, {
           headers: { Authorization: `Bearer ${token}` },
@@ -55,7 +55,7 @@ const SendToCourierButton = ({ orderData, onSuccess }) => {
       }
     };
     fetchPathaoConfig();
-  }, [apiURL, token, open, pathaoStoreId]);
+  }, [apiURL, token]);
 
   const handleButtonClick = () => {
     if (sent) {
@@ -119,13 +119,23 @@ const SendToCourierButton = ({ orderData, onSuccess }) => {
           }
           toast.error(errorMessage);
         } else {
-          toast.warning('Unknown status received from the server.');
+          toast.warning(
+            result.data?.message || 'Unknown status received from the server.',
+          );
         }
       } else {
-        toast.error('API call was not successful.');
+        toast.error(
+          result.message ||
+            result.data?.message ||
+            'API call was not successful.',
+        );
       }
     } catch (err) {
-      toast.error('Network error while sending order.');
+      const errorMessage =
+        err.response?.data?.message ||
+        err.message ||
+        'Network error while sending order.';
+      toast.error(errorMessage);
       console.error(err);
     } finally {
       setLoading(false);
@@ -135,17 +145,17 @@ const SendToCourierButton = ({ orderData, onSuccess }) => {
   const sendToPathao = async () => {
     try {
       const payload = {
-        store_id: pathaoStoreId,
-        recipient_name: orderData.recipient_name,
-        recipient_phone: orderData.recipient_phone,
-        merchant_order_id: orderData.invoice,
-        recipient_address: orderData.recipient_address,
-        delivery_type: '48',
-        item_type: '2',
-        item_quantity: orderData.items,
-        item_weight: '0.5',
-        amount_to_collect: orderData.cod_amount,
-        special_instruction: note,
+        storeId: pathaoStoreId,
+        merchantOrderId: orderData.invoice,
+        recipientName: orderData.recipient_name,
+        recipientPhone: orderData.recipient_phone,
+        recipientAddress: orderData.recipient_address,
+        deliveryType: '48',
+        itemType: '2',
+        itemQuantity: orderData.items,
+        itemWeight: '0.5',
+        amountToCollect: orderData.cod_amount,
+        specialInstruction: note,
       };
 
       const response = await axios.post(`${apiURL}/pathao/orders`, payload, {
@@ -210,28 +220,21 @@ const SendToCourierButton = ({ orderData, onSuccess }) => {
   return (
     <>
       <Button
-        type="button"
-        variant={sent ? 'secondary' : 'default'}
+        variant="default"
         size="sm"
-        className="h-11 w-48 justify-start sm:h-9"
+        className={`w-48 ${sent ? 'opacity-50' : ''}`}
         onClick={handleButtonClick}
         disabled={statusLoading}
-        aria-busy={statusLoading}
-        aria-label={
-          sent
-            ? `Courier status for order ${orderData.invoice}`
-            : `Send order ${orderData.invoice} to courier`
-        }
       >
         {sent ? (
           statusLoading ? (
-            <Loader2 className="size-4 animate-spin" aria-hidden="true" />
+            <Loader2 className="size-4 animate-spin" />
           ) : (
-            <span className="truncate">
+            <>
               {showDeliveryStatus && deliveryStatus
                 ? `${deliveryStatus} | ${orderData.courierProvider}`
                 : 'Sent | Click to show status'}
-            </span>
+            </>
           )
         ) : (
           'Send to Courier'
@@ -245,12 +248,12 @@ const SendToCourierButton = ({ orderData, onSuccess }) => {
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="courier-select">Courier:</Label>
+              <Label>Courier:</Label>
               <Select
                 value={selectedCourier}
                 onValueChange={setSelectedCourier}
               >
-                <SelectTrigger id="courier-select" className="h-11">
+                <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -300,25 +303,20 @@ const SendToCourierButton = ({ orderData, onSuccess }) => {
           </div>
           <DialogFooter>
             <Button
-              type="button"
               variant="outline"
               onClick={() => setOpen(false)}
               disabled={loading}
-              className="h-11 sm:h-9"
             >
               Cancel
             </Button>
             <Button
-              type="button"
               onClick={handleSend}
               disabled={
                 loading || (selectedCourier === 'pathao' && !pathaoStoreId)
               }
-              aria-busy={loading}
-              className="h-11 gap-2 sm:h-9"
             >
-              {loading && <Loader2 className="size-4 animate-spin" />}
-              {loading ? 'Sending…' : 'Send'}
+              {loading && <Loader2 className="size-4 animate-spin mr-2" />}
+              Send
             </Button>
           </DialogFooter>
         </DialogContent>
