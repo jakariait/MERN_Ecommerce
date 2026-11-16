@@ -110,6 +110,7 @@ const AdminSteadfastConfig = () => {
             <Label htmlFor="secretKey">Secret Key</Label>
             <Input
               id="secretKey"
+              type="text"
               name="secretKey"
               value={config.secretKey}
               onChange={handleChange}

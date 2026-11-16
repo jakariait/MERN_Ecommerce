@@ -115,7 +115,7 @@ const AdminPathaoConfig = () => {
             <Label htmlFor="clientSecret">Client Secret</Label>
             <Input
               id="clientSecret"
-              type="password"
+              type="text"
               name="clientSecret"
               value={config.clientSecret}
               onChange={handleChange}
@@ -140,7 +140,7 @@ const AdminPathaoConfig = () => {
             <Label htmlFor="password">Password</Label>
             <Input
               id="password"
-              type="password"
+              type="text"
               name="password"
               value={config.password}
               onChange={handleChange}
