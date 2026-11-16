@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { Snackbar } from '@/components/ui/snackbar';
@@ -8,7 +8,6 @@ import { Truck } from 'lucide-react';
 // Stores
 import useCartStore from '../../store/useCartStore.js';
 import useAuthUserStore from '../../store/AuthUserStore.js';
-import http from '../../lib/http.js';
 
 // Custom Components
 import AddressForm from './AddressForm.jsx';
@@ -47,7 +46,7 @@ const Checkout = () => {
   const [freeDelivery, setFreeDelivery] = useState(null);
 
   // Vat Percentage
-  const [vatPercentage, setVatPercentage] = useState(0);
+  const [vatPercentage, setVatPercentage] = useState(null);
 
   // Shipping Details Handler
   const [addressData, setAddressData] = useState({});
@@ -55,8 +54,6 @@ const Checkout = () => {
   const [isProcessingOrder, setIsProcessingOrder] = useState(false);
 
   // Handle data received from AddressForm
-  const addressFormRef = useRef(null);
-
   const handleAddressChange = (data) => {
     setAddressData(data);
   };
@@ -93,7 +90,7 @@ const Checkout = () => {
     };
 
     fetchAmount();
-  }, [apiUrl]);
+  }, []);
 
   // Price Calculations
   const totalAmount = cart.reduce((total, item) => {
@@ -109,8 +106,7 @@ const Checkout = () => {
   const hasFreeShippingProduct = cart.some((item) => item.freeShipping);
 
   const isFreeDeliveryUnlocked =
-    hasFreeShippingProduct ||
-    (freeDelivery > 1 && totalAmount >= freeDelivery);
+    hasFreeShippingProduct || (freeDelivery > 1 && totalAmount >= freeDelivery);
 
   const actualShippingCost =
     hasFreeShippingProduct || (freeDelivery > 1 && totalAmount >= freeDelivery)
@@ -138,7 +134,7 @@ const Checkout = () => {
     };
 
     fetchVatAmount();
-  }, [apiUrl]);
+  }, []);
 
   // Data Layer for Initiat Checkout
 
@@ -170,15 +166,6 @@ const Checkout = () => {
 
   const handleOrderSubmit = async (e) => {
     e.preventDefault();
-
-    if (!addressFormRef.current?.validate()) {
-      showSnackbar(
-        'Please enter a valid mobile number (11 digits, starting with 01).',
-        'error',
-      );
-      return;
-    }
-
     setIsProcessingOrder(true); // Disable button immediately
 
     const orderPayload = {
@@ -197,6 +184,10 @@ const Checkout = () => {
         if (item.variantId && item.variantId !== 'Default') {
           baseItem.variantId = item.variantId;
         }
+        if (item.comboSelections?.length > 0) {
+          baseItem.comboKey = item.comboKey || '';
+          baseItem.comboSelections = item.comboSelections;
+        }
         return baseItem;
       }),
       promoCode: appliedCoupon?.code || null,
@@ -205,6 +196,27 @@ const Checkout = () => {
 
     if (user?._id) {
       orderPayload.userId = user._id;
+    }
+
+    // ---- Validate required fields and report exactly what is missing ----
+    const missing = [];
+    if (!addressData.fullName) missing.push('Full name is required');
+    if (!addressData.phone) missing.push('Phone number is required');
+    else if (
+      addressData.phone.length !== 11 ||
+      !addressData.phone.startsWith('01')
+    ) {
+      missing.push('Phone number must be 11 digits starting with 01');
+    }
+    if (!addressData.address) missing.push('Address is required');
+    if (!selectedShipping.id) missing.push('Shipping method is required');
+    if (cart.length === 0) missing.push('Cart is empty');
+    if (!paymentMethod) missing.push('Payment method is required');
+
+    if (missing.length > 0) {
+      showSnackbar(missing[0] + '.', 'error');
+      setIsProcessingOrder(false);
+      return;
     }
 
     // // ---- Handle bKash Checkout ----
@@ -261,7 +273,7 @@ const Checkout = () => {
     // ---- Normal COD Flow ----
 
     try {
-      const res = await http.post(`${apiUrl}/orders`, orderPayload);
+      const res = await axios.post(`${apiUrl}/orders`, orderPayload);
 
       if (res.data.success) {
         setOrderPlaced(true);
@@ -290,11 +302,7 @@ const Checkout = () => {
           {/* Left Column - Address & Shipping */}
           <div className="space-y-8">
             {/* Address Option */}
-            <AddressForm
-              ref={addressFormRef}
-              user={user}
-              onAddressChange={handleAddressChange}
-            />
+            <AddressForm user={user} onAddressChange={handleAddressChange} />
 
             {/* Shipping Options */}
             <ShippingOptions onShippingChange={setSelectedShipping} />

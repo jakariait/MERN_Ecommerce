@@ -26,10 +26,32 @@ const deleteOldFiles = (filenames) => {
   }
 };
 
+// Multipart form fields arrive as strings, and a repeated `comboProducts`
+// field may be a single value or an array — normalize both before saving.
+const normalizeComboFields = (data) => {
+  const hasFlag = data.isCombo !== undefined;
+  if (hasFlag) {
+    data.isCombo = data.isCombo === true || data.isCombo === 'true';
+  }
+
+  if (hasFlag && !data.isCombo) {
+    data.comboProducts = [];
+    return;
+  }
+
+  if (data.comboProducts !== undefined) {
+    let ids = data.comboProducts;
+    if (ids == null) ids = [];
+    if (!Array.isArray(ids)) ids = [ids];
+    data.comboProducts = ids.filter((id) => mongoose.Types.ObjectId.isValid(id));
+  }
+};
+
 // Create a new product
 const createProduct = async (data) => {
   try {
     delete data.hasVariant;
+    normalizeComboFields(data);
     const product = new ProductModel(data); // Save product with image names
     await product.save();
     return product;
@@ -54,8 +76,21 @@ const getProducts = async () => {
         { path: 'subCategory', select: '-createdAt -updatedAt' },
         { path: 'childCategory', select: '-createdAt -updatedAt' },
         { path: 'flags', select: '-createdAt -updatedAt' },
-      { path: 'brand', select: '-createdAt -updatedAt' },
+        { path: 'brand', select: '-createdAt -updatedAt' },
         { path: 'variants.attributes.option', select: '-createdAt -updatedAt' },
+        {
+          path: 'comboProducts',
+          select:
+            'name slug productId finalPrice finalDiscount finalStock thumbnailImage isActive variants',
+          // Bundled products are Products too, so their variant options must be
+          // populated on the comboProducts entry itself — a separate
+          // `comboProducts.variants...` populate does not resolve for this
+          // self-referencing path and leaves every option name undefined.
+          populate: {
+            path: 'variants.attributes.option',
+            select: 'name values',
+          },
+        },
       ]);
 
     return products;
@@ -76,6 +111,15 @@ const getProductById = async (productId) => {
       { path: 'flags', select: '-createdAt -updatedAt' },
       { path: 'brand', select: '-createdAt -updatedAt' },
       { path: 'variants.attributes.option', select: '-createdAt -updatedAt' },
+      {
+        path: 'comboProducts',
+        select:
+          'name slug productId finalPrice finalDiscount finalStock thumbnailImage isActive variants',
+        populate: {
+          path: 'variants.attributes.option',
+          select: 'name values',
+        },
+      },
     ]);
     if (!product) throw new Error('Product not found');
     return product;
@@ -95,6 +139,15 @@ const getProductBySlug = async (slug) => {
       { path: 'flags', select: '-createdAt -updatedAt' },
       { path: 'brand', select: '-createdAt -updatedAt' },
       { path: 'variants.attributes.option', select: '-createdAt -updatedAt' },
+      {
+        path: 'comboProducts',
+        select:
+          'name slug productId finalPrice finalDiscount finalStock thumbnailImage isActive variants',
+        populate: {
+          path: 'variants.attributes.option',
+          select: 'name values',
+        },
+      },
     ]);
 
     if (!product) throw new Error('Product not found');
@@ -438,13 +491,22 @@ const getAllProducts = async ({
       .skip((page - 1) * limit)
       .limit(limit)
       .select(
-        'name slug finalDiscount finalPrice finalStock thumbnailImage isActive images productId category variants flags brand productCode freeShipping'
+        'name slug finalDiscount finalPrice finalStock thumbnailImage isActive images productId category variants flags brand productCode freeShipping isCombo comboProducts'
       )
       .populate([
         { path: 'category', select: '-createdAt -updatedAt' },
         { path: 'flags', select: '-createdAt -updatedAt' },
-      { path: 'brand', select: '-createdAt -updatedAt' },
+        { path: 'brand', select: '-createdAt -updatedAt' },
         { path: 'variants.attributes.option', select: '-createdAt -updatedAt' },
+        {
+          path: 'comboProducts',
+          select:
+            'name slug productId finalPrice finalDiscount finalStock thumbnailImage isActive variants',
+          populate: {
+            path: 'variants.attributes.option',
+            select: 'name values',
+          },
+        },
       ]);
 
     return {
@@ -465,6 +527,8 @@ const updateProduct = async (productId, updatedData, files) => {
     if (!product) {
       throw new Error('Product not found');
     }
+
+    normalizeComboFields(updatedData);
 
     // --- IMAGE HANDLING START ---
     // Handle thumbnail image update (only if a new file is uploaded)
@@ -556,9 +620,7 @@ const updateProduct = async (productId, updatedData, files) => {
             _id: existingVariant._id,
             attributes: existingVariant.attributes,
             image:
-              variantData.image !== undefined
-                ? variantData.image
-                : existingVariant.image || '',
+              variantData.image !== undefined ? variantData.image : existingVariant.image || '',
             stock:
               variantData.stock !== undefined ? Number(variantData.stock) : existingVariant.stock,
             price:
@@ -572,8 +634,9 @@ const updateProduct = async (productId, updatedData, files) => {
           };
         }
 
-        // New variant
-        if (!variantData.price || !variantData.stock) {
+        // New variant — a combo product derives its stock from the bundled
+        // products, so only the price is required from the user
+        if (!variantData.price || (!updatedData.isCombo && !variantData.stock)) {
           throw new Error(`New variant requires price and stock`);
         }
 
@@ -609,9 +672,7 @@ const updateProduct = async (productId, updatedData, files) => {
     // belonging to variants that were removed. Shared names (same image on
     // several variants) survive until their last reference goes.
     if (Array.isArray(updatedData.variants)) {
-      const keptVariantImages = new Set(
-        updatedData.variants.map((v) => v.image).filter(Boolean),
-      );
+      const keptVariantImages = new Set(updatedData.variants.map((v) => v.image).filter(Boolean));
       oldVariantImages.forEach((oldImage) => {
         if (!keptVariantImages.has(oldImage)) {
           deleteOldFile(oldImage);
@@ -654,7 +715,7 @@ const getSimilarProducts = async (category, excludeId) => {
       .populate([
         { path: 'category', select: '-createdAt -updatedAt' },
         { path: 'flags', select: '-createdAt -updatedAt' },
-      { path: 'brand', select: '-createdAt -updatedAt' },
+        { path: 'brand', select: '-createdAt -updatedAt' },
         { path: 'variants.attributes.option', select: '-createdAt -updatedAt' },
       ]);
 
@@ -776,7 +837,7 @@ const getHomePageProducts = async () => {
         .populate([
           { path: 'category', select: '-createdAt -updatedAt' },
           { path: 'flags', select: '-createdAt -updatedAt' },
-      { path: 'brand', select: '-createdAt -updatedAt' },
+          { path: 'brand', select: '-createdAt -updatedAt' },
           { path: 'variants.attributes.option', select: '-createdAt -updatedAt' },
         ]);
 

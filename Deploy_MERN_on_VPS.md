@@ -88,7 +88,7 @@ Installing pm2 to Start Backend
  npm install -g pm2
 ```
 ```bash
- pm2 start server.js --name project-backend
+ pm2 start index.js --name project-backend
 ```
 Start Backend on startup
 ```bash
