@@ -25,6 +25,8 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog';
 import OrderInvoice from './OrderInvoice.jsx';
+import ImageComponent from '../componentGeneral/ImageComponent.jsx';
+import ComboProductSelector from '../componentGeneral/ComboProductSelector.jsx';
 import { getVariantDisplayName } from '@/utils/variantDisplay.js';
 import OrderStatusUpdate from './OrderStatusUpdate.jsx';
 import CourierStats from './CourierStats.jsx';
@@ -133,6 +135,7 @@ const OrderErrorState = ({ message, onRetry }) => (
 const ViewOrder = ({ headerActions = null }) => {
   const invoiceRef = useRef(null);
   const productSearchRequestId = useRef(0);
+  const comboSelectorRef = useRef(null);
 
   const { GeneralInfoList } = useGeneralInfoStore();
   const { orderId } = useParams();
@@ -150,6 +153,16 @@ const ViewOrder = ({ headerActions = null }) => {
   const [searchedProducts, setSearchedProducts] = useState([]);
   const [productSearchLoading, setProductSearchLoading] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
+
+  const [comboProduct, setComboProduct] = useState(null);
+  const [comboVariant, setComboVariant] = useState(null);
+  const [comboState, setComboState] = useState({
+    availableStock: null,
+    stockOut: false,
+    isComplete: false,
+    selectedCount: 0,
+    requiredCount: 0,
+  });
 
   const handlePrint = useCallback(() => {
     invoiceRef.current?.print();
@@ -299,11 +312,93 @@ const ViewOrder = ({ headerActions = null }) => {
   };
 
   const handleProductSelect = (product) => {
+    if (product.isCombo && product.comboProducts?.length > 0) {
+      setAddProductModalOpen(false);
+      setProductSearchQuery('');
+      setSearchedProducts([]);
+      setComboProduct(product);
+      setComboVariant(null);
+      setComboState({
+        availableStock: null,
+        stockOut: false,
+        isComplete: false,
+        selectedCount: 0,
+        requiredCount: 0,
+      });
+      return;
+    }
+
     if (product.variants?.length > 0) {
       setSelectedProduct(product);
     } else {
       handleAddProduct(product);
     }
+  };
+
+  const closeComboDialog = () => {
+    setComboProduct(null);
+    setComboVariant(null);
+    setComboState({
+      availableStock: null,
+      stockOut: false,
+      isComplete: false,
+      selectedCount: 0,
+      requiredCount: 0,
+    });
+  };
+
+  const handleAddComboProduct = () => {
+    if (!comboProduct) return;
+
+    if (comboProduct.variants?.length > 0 && !comboVariant) {
+      toast.error('Select a combo pack option first.');
+      return;
+    }
+
+    if (!comboSelectorRef.current?.validate()) return;
+
+    const comboSelections = comboSelectorRef.current?.getPayload() || [];
+    if (comboSelections.length === 0) {
+      toast.error('Select the products for this combo.');
+      return;
+    }
+
+    const price = comboVariant
+      ? comboVariant.discount || comboVariant.price
+      : comboProduct.finalDiscount > 0
+        ? comboProduct.finalDiscount
+        : comboProduct.finalPrice;
+
+    const comboKey = comboSelections
+      .map(
+        (selection) =>
+          `${selection.productId}:${selection.variantId || 'Default'}:${selection.quantity || 1}`,
+      )
+      .sort()
+      .join('|');
+
+    const newItem = {
+      productId: comboProduct._id,
+      variantId: comboVariant ? comboVariant._id : undefined,
+      quantity: 1,
+      price,
+      comboKey,
+      comboSelections,
+      product: {
+        _id: comboProduct._id,
+        name: comboProduct.name,
+        productCode: comboProduct.productCode || comboProduct.code,
+        category: { name: comboProduct.category?.name },
+        variants: comboVariant ? [comboVariant] : [],
+      },
+    };
+
+    setEditableOrder((prev) => ({
+      ...prev,
+      items: [...prev.items, newItem],
+    }));
+    closeComboDialog();
+    toast.success('Combo product added to the order.');
   };
 
   const handleSave = async () => {
@@ -316,7 +411,14 @@ const ViewOrder = ({ headerActions = null }) => {
         shippingInfo: editableOrder.shippingInfo,
         billingInfo: editableOrder.billingInfo,
         items: editableOrder.items.map(
-          ({ productId, variantId, quantity, price }) => ({
+          ({
+            productId,
+            variantId,
+            quantity,
+            price,
+            comboKey,
+            comboSelections,
+          }) => ({
             productId:
               typeof productId === 'object' ? productId._id : productId,
             variantId:
@@ -325,6 +427,15 @@ const ViewOrder = ({ headerActions = null }) => {
                 : variantId,
             quantity,
             price,
+            comboKey: comboKey || '',
+            comboSelections: (comboSelections || []).map((selection) => ({
+              ...selection,
+              productId:
+                typeof selection.productId === 'object' &&
+                selection.productId !== null
+                  ? selection.productId._id
+                  : selection.productId,
+            })),
           }),
         ),
       };
@@ -495,6 +606,8 @@ const ViewOrder = ({ headerActions = null }) => {
                   <div className="divide-y divide-border/60 sm:hidden">
                     {searchedProducts.map((product) => {
                       const hasVariants = product.variants?.length > 0;
+                      const isCombo =
+                        product.isCombo && product.comboProducts?.length > 0;
                       const isUnavailable =
                         !hasVariants && product.finalStock < 1;
 
@@ -510,7 +623,9 @@ const ViewOrder = ({ headerActions = null }) => {
                                 : ''}
                               {hasVariants
                                 ? 'Multiple variants available'
-                                : `Stock: ${product.finalStock}`}
+                                : isCombo
+                                  ? `Combo pack · Stock: ${product.finalStock}`
+                                  : `Stock: ${product.finalStock}`}
                             </p>
                           </div>
                           <Button
@@ -520,7 +635,11 @@ const ViewOrder = ({ headerActions = null }) => {
                             disabled={isUnavailable}
                             className="h-11 w-full"
                           >
-                            {hasVariants ? 'Select Variant' : 'Add'}
+                            {isCombo
+                              ? 'Build Combo'
+                              : hasVariants
+                                ? 'Select Variant'
+                                : 'Add'}
                           </Button>
                         </div>
                       );
@@ -540,6 +659,9 @@ const ViewOrder = ({ headerActions = null }) => {
                       <TableBody>
                         {searchedProducts.map((product) => {
                           const hasVariants = product.variants?.length > 0;
+                          const isCombo =
+                            product.isCombo &&
+                            product.comboProducts?.length > 0;
                           const isUnavailable =
                             !hasVariants && product.finalStock < 1;
 
@@ -551,7 +673,9 @@ const ViewOrder = ({ headerActions = null }) => {
                               <TableCell className="text-muted-foreground">
                                 {hasVariants
                                   ? 'Multiple Variants'
-                                  : `Stock: ${product.finalStock}`}
+                                  : isCombo
+                                    ? `Combo · Stock: ${product.finalStock}`
+                                    : `Stock: ${product.finalStock}`}
                               </TableCell>
                               <TableCell className="text-right">
                                 <Button
@@ -561,7 +685,11 @@ const ViewOrder = ({ headerActions = null }) => {
                                   disabled={isUnavailable}
                                   className="h-11 sm:h-8"
                                 >
-                                  {hasVariants ? 'Select Variant' : 'Add'}
+                                  {isCombo
+                                    ? 'Build Combo'
+                                    : hasVariants
+                                      ? 'Select Variant'
+                                      : 'Add'}
                                 </Button>
                               </TableCell>
                             </TableRow>
@@ -618,7 +746,23 @@ const ViewOrder = ({ headerActions = null }) => {
               <TableBody>
                 {selectedProduct?.variants?.map((variant) => (
                   <TableRow key={variant._id}>
-                    <TableCell>{getVariantDisplayName(variant)}</TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        <div className="size-14 shrink-0 overflow-hidden rounded-md border border-border/60 bg-muted">
+                          <ImageComponent
+                            imageName={
+                              variant.image || selectedProduct.thumbnailImage
+                            }
+                            className="h-full w-full object-cover"
+                            skeletonHeight={56}
+                            width={56}
+                            height={56}
+                            altName={selectedProduct?.name}
+                          />
+                        </div>
+                        <span>{getVariantDisplayName(variant)}</span>
+                      </div>
+                    </TableCell>
                     <TableCell className="tabular-nums text-muted-foreground">
                       {variant.stock}
                     </TableCell>
@@ -649,6 +793,94 @@ const ViewOrder = ({ headerActions = null }) => {
               className="h-11 sm:h-9"
             >
               Cancel
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog
+        open={!!comboProduct}
+        onOpenChange={(open) => {
+          if (!open) closeComboDialog();
+        }}
+      >
+        <DialogContent className="flex max-h-[calc(100dvh-2rem)] flex-col gap-4 overflow-hidden p-4 sm:max-w-2xl sm:p-6">
+          <DialogHeader className="shrink-0 space-y-1.5 pr-8 text-left">
+            <DialogTitle className="text-lg leading-snug">
+              Add Combo Product: {comboProduct?.name}
+            </DialogTitle>
+            <DialogDescription>
+              {comboProduct?.variants?.length > 0
+                ? 'Select a combo pack option, then choose the included products.'
+                : 'Choose the products included in this combo.'}
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="min-h-0 flex-1 space-y-4 overflow-y-auto pr-1">
+            {comboProduct?.variants?.length > 0 && (
+              <div className="space-y-2">
+                <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                  Combo pack option
+                </h3>
+                <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                  {comboProduct.variants.map((variant) => {
+                    const isSelected =
+                      String(comboVariant?._id) === String(variant._id);
+                    const outOfStock = Number(variant.stock || 0) < 1;
+
+                    return (
+                      <button
+                        key={variant._id}
+                        type="button"
+                        disabled={outOfStock}
+                        onClick={() => setComboVariant(variant)}
+                        className={cn(
+                          'flex items-center justify-between gap-2 rounded-lg border px-3 py-2 text-left text-sm transition-colors disabled:cursor-not-allowed disabled:opacity-50',
+                          isSelected
+                            ? 'border-primary bg-primary/5 font-semibold text-primary'
+                            : 'border-border bg-background hover:border-primary/50',
+                        )}
+                      >
+                        <span>{getVariantDisplayName(variant)}</span>
+                        <span className="text-xs tabular-nums text-muted-foreground">
+                          {outOfStock
+                            ? 'Out of stock'
+                            : `Tk. ${Number(variant.discount || variant.price || 0).toLocaleString()}`}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            <ComboProductSelector
+              ref={comboSelectorRef}
+              product={comboProduct}
+              selectedVariant={comboVariant}
+              onChange={setComboState}
+            />
+          </div>
+
+          <DialogFooter className="shrink-0">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={closeComboDialog}
+              className="h-11 sm:h-9"
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              onClick={handleAddComboProduct}
+              disabled={
+                (comboProduct?.variants?.length > 0 && !comboVariant) ||
+                comboState.stockOut
+              }
+              className="h-11 sm:h-9"
+            >
+              Add to Order
             </Button>
           </DialogFooter>
         </DialogContent>

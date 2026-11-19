@@ -99,6 +99,24 @@ const getImageUrl = (imageName) => {
   return `${apiUrl.replace('/api', '')}/uploads/${imageName}`;
 };
 
+// Combo selections keep their own thumbnail, but older orders (or freshly
+// populated selections) may only carry the product id — resolve the image
+// from the populated product, preferring the selected variant's image.
+const getComboSelectionImage = (selection) => {
+  if (!selection) return '';
+  const product =
+    selection.productId && typeof selection.productId === 'object'
+      ? selection.productId
+      : null;
+  const variant = product?.variants?.find(
+    (item) => String(item._id) === String(selection.variantId),
+  );
+
+  return (
+    selection.thumbnailImage || variant?.image || product?.thumbnailImage || ''
+  );
+};
+
 const InvoiceSectionHeading = ({ id, children, className }) => (
   <h2
     id={id}
@@ -233,6 +251,23 @@ const OrderInvoice = forwardRef(function OrderInvoice(
             const quantity = Number(item.quantity) || 0;
             const unitPrice = Number(item.price) || 0;
             const lineTotal = unitPrice * quantity;
+            const comboSelections = Array.isArray(item.comboSelections)
+              ? item.comboSelections
+              : [];
+            const comboRows = comboSelections
+              .map((selection) => {
+                const thumbUrl = getImageUrl(getComboSelectionImage(selection));
+                return `<div class="combo-row">${
+                  thumbUrl
+                    ? `<img class="combo-thumb" src="${escapeHtml(thumbUrl)}" alt="" />`
+                    : ''
+                }<span>${escapeHtml(selection?.name || 'Item')}${
+                  selection?.variant && selection.variant !== 'Default'
+                    ? ` (${escapeHtml(selection.variant)})`
+                    : ''
+                }${Number(selection?.quantity) > 1 ? ` × ${Number(selection.quantity)}` : ''}</span></div>`;
+              })
+              .join('');
 
             return `<tr>
               <td class="num">${index + 1}</td>
@@ -249,7 +284,7 @@ const OrderInvoice = forwardRef(function OrderInvoice(
                   </div>
                 </div>
               </td>
-              <td><span class="variant-pill">${escapeHtml(getVariantDisplayName(variant))}</span></td>
+              <td><span class="variant-pill">${escapeHtml(getVariantDisplayName(variant))}</span>${comboRows}</td>
               <td class="num">${quantity}</td>
               <td class="num">Tk. ${formatMoney(unitPrice)}</td>
               <td class="num"><strong>Tk. ${formatMoney(lineTotal)}</strong></td>
@@ -397,6 +432,8 @@ const OrderInvoice = forwardRef(function OrderInvoice(
     .item-name { font-weight: 600; }
     .item-meta { margin-top: 0.6mm; color: #6b7280; font-size: 7.5pt; }
     .variant-pill { display: inline-block; padding: 0.6mm 2mm; border: 1px solid #e5e7eb; border-radius: 999px; background: #f9fafb; color: #4b5563; font-size: 7.5pt; }
+    .combo-row { display: flex; align-items: center; gap: 1.5mm; margin-top: 1mm; color: #6b7280; font-size: 7.5pt; }
+    .combo-thumb { width: 8mm; height: 8mm; flex-shrink: 0; border: 1px solid #e5e7eb; border-radius: 1.5mm; object-fit: cover; }
     .empty-row td { padding: 9mm 2mm; color: #6b7280; text-align: center; }
     .bottom-grid { display: grid; grid-template-columns: 1fr 78mm; gap: 8mm; padding-top: 5mm; page-break-inside: avoid; }
     .notes-title { margin-bottom: 1.5mm; color: #374151; font-size: 7.5pt; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; }
@@ -770,6 +807,40 @@ const OrderInvoice = forwardRef(function OrderInvoice(
                       </TableCell>
                       <TableCell className="text-muted-foreground">
                         {variant ? getVariantDisplayName(variant) : 'N/A'}
+                        {item.comboSelections?.length > 0 && (
+                          <ul className="mt-1 space-y-0.5 text-xs text-muted-foreground">
+                            {item.comboSelections.map((selection, sIndex) => {
+                              const comboImage = getImageUrl(
+                                getComboSelectionImage(selection),
+                              );
+
+                              return (
+                                <li
+                                  key={`${selection.productId || selection.variantId}-${sIndex}`}
+                                  className="flex items-center gap-1.5"
+                                >
+                                  {comboImage ? (
+                                    <img
+                                      src={comboImage}
+                                      alt=""
+                                      className="size-10 shrink-0 rounded border border-border/60 object-cover"
+                                    />
+                                  ) : null}
+                                  <span>
+                                    {selection.name || 'Item'}
+                                    {selection.variant &&
+                                    selection.variant !== 'Default'
+                                      ? ` (${selection.variant})`
+                                      : ''}
+                                    {Number(selection.quantity) > 1
+                                      ? ` × ${selection.quantity}`
+                                      : ''}
+                                  </span>
+                                </li>
+                              );
+                            })}
+                          </ul>
+                        )}
                       </TableCell>
                       <TableCell className="text-right">
                         {isEditMode ? (

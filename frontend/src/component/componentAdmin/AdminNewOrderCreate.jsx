@@ -1,4 +1,10 @@
-import { useCallback, useEffect, useState, useMemo } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useState,
+  useMemo,
+  useRef,
+} from 'react';
 import axios from 'axios';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -15,6 +21,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogFooter,
@@ -29,8 +36,23 @@ import {
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
-import { Plus, Trash2, Search, Loader2, Package } from 'lucide-react';
+import {
+  Plus,
+  Trash2,
+  Search,
+  Loader2,
+  Package,
+  X,
+  User,
+  ShoppingCart,
+  Truck,
+  StickyNote,
+  Layers,
+} from 'lucide-react';
 import ImageComponent from '../componentGeneral/ImageComponent.jsx';
+import ComboProductSelector from '../componentGeneral/ComboProductSelector.jsx';
+import { getVariantDisplayName } from '@/utils/variantDisplay.js';
+import { cn } from '@/lib/utils';
 import useOrderStore from '../../store/useOrderStore.js';
 
 const formatPrice = (price) => {
@@ -52,9 +74,29 @@ const calculateDiscountPercentage = (
   return Math.ceil((discountAmount / priceBeforeDiscount) * 100);
 };
 
+const getProductImage = (product) =>
+  product?.thumbnailImage || product?.images?.[0] || '';
+
+const SectionHeader = ({ icon: Icon, title, description, action = null }) => (
+  <div className="flex flex-wrap items-start justify-between gap-2">
+    <div className="min-w-0">
+      <h3 className="flex items-center gap-2 font-semibold">
+        <Icon className="size-4 text-muted-foreground" aria-hidden="true" />
+        {title}
+      </h3>
+      {description && (
+        <p className="mt-0.5 text-xs text-muted-foreground">{description}</p>
+      )}
+    </div>
+    {action}
+  </div>
+);
+
 const AdminNewOrderCreate = () => {
   const apiUrl = import.meta.env.VITE_API_URL;
   const { fetchAllOrders } = useOrderStore();
+
+  const comboSelectorRef = useRef(null);
 
   const [openDialog, setOpenDialog] = useState(false);
 
@@ -75,6 +117,17 @@ const AdminNewOrderCreate = () => {
   const [selectedVariant, setSelectedVariant] = useState(null);
   const [quantity, setQuantity] = useState(1);
   const [productSearch, setProductSearch] = useState('');
+
+  const [comboProduct, setComboProduct] = useState(null);
+  const [comboVariant, setComboVariant] = useState(null);
+  const [comboQuantity, setComboQuantity] = useState(1);
+  const [comboState, setComboState] = useState({
+    availableStock: null,
+    stockOut: false,
+    isComplete: false,
+    selectedCount: 0,
+    requiredCount: 0,
+  });
 
   const [orderItems, setOrderItems] = useState([]);
 
@@ -111,6 +164,7 @@ const AdminNewOrderCreate = () => {
   const fetchProducts = useCallback(async () => {
     try {
       const res = await axios.get(`${apiUrl}/getAllProductsAdmin`, {
+        params: { limit: 1000 },
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
       });
       if (res.data?.success) {
@@ -182,11 +236,25 @@ const AdminNewOrderCreate = () => {
   };
 
   const filteredProducts = useMemo(() => {
-    if (!productSearch) return products;
-    return products.filter((p) =>
-      p.name?.toLowerCase().includes(productSearch.toLowerCase()),
+    const term = productSearch.trim().toLowerCase();
+    if (!term) return products;
+    return products.filter(
+      (p) =>
+        p.name?.toLowerCase().includes(term) ||
+        p.productCode?.toLowerCase().includes(term),
     );
   }, [products, productSearch]);
+
+  const productImageMap = useMemo(() => {
+    const map = new Map();
+    products.forEach((p) => map.set(String(p._id), getProductImage(p)));
+    return map;
+  }, [products]);
+
+  const totalItemCount = useMemo(
+    () => orderItems.reduce((sum, item) => sum + (Number(item.quantity) || 0), 0),
+    [orderItems],
+  );
 
   const filteredCustomers = useMemo(() => {
     if (!customerSearch) return customers;
@@ -196,6 +264,33 @@ const AdminNewOrderCreate = () => {
         c.email?.toLowerCase().includes(customerSearch.toLowerCase()),
     );
   }, [customers, customerSearch]);
+
+  const resetSelectedProduct = () => {
+    setSelectedProduct(null);
+    setSelectedVariant(null);
+    setQuantity(1);
+  };
+
+  const handleProductSelect = (product) => {
+    if (product.isCombo && product.comboProducts?.length > 0) {
+      setSelectedProduct(null);
+      setSelectedVariant(null);
+      setComboProduct(product);
+      setComboVariant(null);
+      setComboQuantity(1);
+      setComboState({
+        availableStock: null,
+        stockOut: false,
+        isComplete: false,
+        selectedCount: 0,
+        requiredCount: 0,
+      });
+      return;
+    }
+
+    setSelectedProduct(product);
+    setSelectedVariant(null);
+  };
 
   const handleAddProduct = () => {
     if (!selectedProduct) {
@@ -211,7 +306,7 @@ const AdminNewOrderCreate = () => {
       return;
     }
 
-    if (quantity < 1) {
+    if (Number(quantity) < 1) {
       toast.error('Please enter a valid quantity');
       return;
     }
@@ -239,21 +334,89 @@ const AdminNewOrderCreate = () => {
       productName: selectedProduct.name,
       variantId,
       variantName,
-      quantity: parseInt(quantity),
+      quantity: Math.max(1, parseInt(quantity, 10) || 1),
       price,
       freeShipping: selectedProduct.freeShipping || false,
     };
 
-    setOrderItems([...orderItems, newItem]);
-    setSelectedProduct(null);
-    setSelectedVariant(null);
-    setQuantity(1);
+    setOrderItems((prev) => [...prev, newItem]);
+    resetSelectedProduct();
     setProductSearch('');
     toast.success('Product added to order');
   };
 
+  const closeComboDialog = () => {
+    setComboProduct(null);
+    setComboVariant(null);
+    setComboQuantity(1);
+    setComboState({
+      availableStock: null,
+      stockOut: false,
+      isComplete: false,
+      selectedCount: 0,
+      requiredCount: 0,
+    });
+  };
+
+  const handleAddComboProduct = () => {
+    if (!comboProduct) return;
+
+    if (comboProduct.variants?.length > 0 && !comboVariant) {
+      toast.error('Select a combo pack option first');
+      return;
+    }
+
+    if (!comboSelectorRef.current?.validate()) return;
+
+    const comboSelections = comboSelectorRef.current?.getPayload() || [];
+    if (comboSelections.length === 0) {
+      toast.error('Select the products for this combo');
+      return;
+    }
+
+    const price = comboVariant
+      ? comboVariant.discount || comboVariant.price || 0
+      : comboProduct.finalDiscount > 0
+        ? comboProduct.finalDiscount
+        : comboProduct.finalPrice || 0;
+
+    const comboKey = comboSelections
+      .map(
+        (selection) =>
+          `${selection.productId}:${selection.variantId || 'Default'}:${selection.quantity || 1}`,
+      )
+      .sort()
+      .join('|');
+
+    const newItem = {
+      productId: comboProduct._id,
+      productName: comboProduct.name,
+      variantId: comboVariant?._id || null,
+      variantName: comboVariant ? getVariantDisplayName(comboVariant) : 'Combo',
+      quantity: Math.max(1, parseInt(comboQuantity, 10) || 1),
+      price,
+      freeShipping: comboProduct.freeShipping || false,
+      comboKey,
+      comboSelections,
+    };
+
+    setOrderItems((prev) => [...prev, newItem]);
+    closeComboDialog();
+    setProductSearch('');
+    toast.success('Combo product added to order');
+  };
+
   const handleRemoveItem = (index) => {
-    setOrderItems(orderItems.filter((_, i) => i !== index));
+    setOrderItems((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const updateItemQuantity = (index, value) => {
+    const next = Math.max(1, parseInt(value, 10) || 1);
+    setOrderItems((prev) =>
+      prev.map((item, i) =>
+        i === index ? { ...item, quantity: next } : item,
+      ),
+    );
   };
 
   const calculateTotals = useCallback(() => {
@@ -400,6 +563,9 @@ const AdminNewOrderCreate = () => {
     setSelectedProduct(null);
     setSelectedVariant(null);
     setQuantity(1);
+    setComboProduct(null);
+    setComboVariant(null);
+    setComboQuantity(1);
     setSpecialDiscount(0);
     setPromoCode('');
     setAdminNote('');

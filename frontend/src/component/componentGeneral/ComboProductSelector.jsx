@@ -193,6 +193,7 @@ const ComboProductSelector = forwardRef(function ComboProductSelector(
         variantId,
         name: slotProduct.name,
         variant: getVariantLabel(variant),
+        thumbnailImage: variant?.image || slotProduct.thumbnailImage || '',
         quantity: 1,
       });
     });
@@ -368,6 +369,15 @@ const ComboProductSelector = forwardRef(function ComboProductSelector(
                 (_, slotIndex) => {
                   const pick = comboPicks[slotIndex];
                   const slotProduct = pick ? getPickProduct(pick) : null;
+                  const slotVariant =
+                    pick?.variantId && slotProduct
+                      ? slotProduct.variants?.find(
+                          (variant) =>
+                            String(variant._id) === String(pick.variantId),
+                        )
+                      : null;
+                  const slotImage =
+                    slotVariant?.image || slotProduct?.thumbnailImage;
 
                   if (!slotProduct) {
                     return (
@@ -396,10 +406,10 @@ const ComboProductSelector = forwardRef(function ComboProductSelector(
                       className="flex min-h-[108px] flex-col rounded-lg border border-[#2E7D31]/40 bg-white p-2"
                     >
                       <div className="flex items-start gap-2">
-                        <div className="h-12 w-12 shrink-0 overflow-hidden rounded bg-gray-50">
-                          {slotProduct.thumbnailImage ? (
+                        <div className="h-20 w-20 shrink-0 overflow-hidden rounded bg-gray-50">
+                          {slotImage ? (
                             <img
-                              src={`${imageUrl}/${slotProduct.thumbnailImage}`}
+                              src={`${imageUrl}/${slotImage}`}
                               alt={slotProduct.name}
                               className="h-full w-full object-cover"
                             />
