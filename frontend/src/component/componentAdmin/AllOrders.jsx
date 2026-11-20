@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import axios from 'axios';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import useOrderStore from '../../store/useOrderStore.js';
@@ -57,6 +57,7 @@ import {
   X,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { getVariantDisplayName } from '../../utils/variantDisplay.js';
 
 const STATUS_TABS = [
   { label: 'All', value: '' },
@@ -73,6 +74,16 @@ const formatAmount = (value) =>
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   });
+
+const getImageUrl = (imageName) => {
+  if (typeof imageName !== 'string' || !imageName) return '';
+  if (imageName.startsWith('blob:') || imageName.startsWith('data:')) {
+    return imageName;
+  }
+
+  const apiUrl = import.meta.env.VITE_API_URL ?? '';
+  return `${apiUrl.replace('/api', '')}/uploads/${imageName}`;
+};
 
 const SortableHead = ({
   column,
@@ -124,10 +135,10 @@ const OrdersLoadingSkeleton = ({ itemsPerPage }) => (
     <Card className="overflow-hidden border border-border/60 shadow-sm">
       <CardContent className="p-0">
         <div className="max-h-[60vh] overflow-hidden">
-          <Table className="min-w-[1100px]">
+          <Table className="min-w-[1000px]">
             <TableHeader>
               <TableRow className="bg-muted/50 hover:bg-muted/50">
-                {Array.from({ length: 11 }).map((_, index) => (
+                {Array.from({ length: 8 }).map((_, index) => (
                   <TableHead key={index}>
                     <Skeleton className="h-4 w-20" />
                   </TableHead>
@@ -137,7 +148,7 @@ const OrdersLoadingSkeleton = ({ itemsPerPage }) => (
             <TableBody>
               {Array.from({ length: itemsPerPage }).map((_, rowIndex) => (
                 <TableRow key={rowIndex}>
-                  {Array.from({ length: 11 }).map((_, cellIndex) => (
+                  {Array.from({ length: 8 }).map((_, cellIndex) => (
                     <TableCell key={cellIndex}>
                       <Skeleton className="h-4 w-full" />
                     </TableCell>
@@ -247,6 +258,8 @@ const AllOrders = ({
   const [sendingToCourier, setSendingToCourier] = useState(false);
   const [downloadingOrders, setDownloadingOrders] = useState(false);
   const [deletingOrder, setDeletingOrder] = useState(false);
+  const [productMap, setProductMap] = useState({});
+  const productCacheRef = useRef(new Map());
 
   const apiUrl = import.meta.env.VITE_API_URL;
   const navigate = useNavigate();
@@ -394,6 +407,52 @@ const AllOrders = ({
 
     return [...allOrders].sort(compare);
   }, [allOrders, orderBy, sortDirection]);
+
+  useEffect(() => {
+    const productIds = new Set();
+    sortedOrders.forEach((order) => {
+      order.items?.forEach((item) => {
+        if (item?.productId && typeof item.productId !== 'object') {
+          productIds.add(String(item.productId));
+        }
+      });
+    });
+
+    const missingIds = [...productIds].filter(
+      (id) => !productCacheRef.current.has(id),
+    );
+
+    if (missingIds.length === 0) {
+      setProductMap(Object.fromEntries(productCacheRef.current));
+      return undefined;
+    }
+
+    let cancelled = false;
+
+    const loadProducts = async () => {
+      const entries = await Promise.all(
+        missingIds.map((id) =>
+          axios
+            .get(`${apiUrl}/products/${id}`)
+            .then((response) => [id, response.data?.data ?? null])
+            .catch(() => [id, null]),
+        ),
+      );
+
+      if (cancelled) return;
+
+      entries.forEach(([id, product]) => {
+        productCacheRef.current.set(id, product);
+      });
+      setProductMap(Object.fromEntries(productCacheRef.current));
+    };
+
+    loadProducts();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [sortedOrders, apiUrl]);
 
   const { startEntry, endEntry } = useMemo(
     () => ({
@@ -1038,9 +1097,9 @@ const AllOrders = ({
                 role="region"
                 aria-label="Orders table"
                 tabIndex={0}
-                className="max-h-[60vh] overflow-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring/50"
+                className=" overflow-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring/50"
               >
-                <Table className="min-w-[1180px]">
+                <Table className="min-w-[1000px]">
                   <TableHeader>
                     <TableRow className="sticky top-0 z-10 bg-background hover:bg-background">
                       <TableHead className="h-12 w-12">
@@ -1057,48 +1116,28 @@ const AllOrders = ({
                       </TableHead>
                       <SortableHead
                         column="orderNo"
-                        label="Order No"
-                        orderBy={orderBy}
-                        sortDirection={sortDirection}
-                        onSort={handleSortRequest}
-                      />
-                      <SortableHead
-                        column="orderDate"
-                        label="Order Date & Time"
+                        label="Order No & Date"
                         orderBy={orderBy}
                         sortDirection={sortDirection}
                         onSort={handleSortRequest}
                       />
                       <SortableHead
                         column="shippingInfo.fullName"
-                        label="Customer"
+                        label="Customer Details"
                         orderBy={orderBy}
                         sortDirection={sortDirection}
                         onSort={handleSortRequest}
+                        className="pr-1 "
                       />
-                      <SortableHead
-                        column="shippingInfo.mobileNo"
-                        label="Mobile No"
-                        orderBy={orderBy}
-                        sortDirection={sortDirection}
-                        onSort={handleSortRequest}
-                      />
-                      <TableHead className="h-12 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                        Courier
+                      <TableHead className="h-12 pl-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                        Products
                       </TableHead>
                       <TableHead className="h-12 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                        Courier Status
+                        Courier
                       </TableHead>
                       <SortableHead
                         column="orderStatus"
                         label="Status"
-                        orderBy={orderBy}
-                        sortDirection={sortDirection}
-                        onSort={handleSortRequest}
-                      />
-                      <SortableHead
-                        column="orderSource"
-                        label="Source"
                         orderBy={orderBy}
                         sortDirection={sortDirection}
                         onSort={handleSortRequest}
@@ -1138,66 +1177,191 @@ const AllOrders = ({
                             />
                           </TableCell>
                           <TableCell>
-                            <span className="font-mono text-sm font-medium tabular-nums">
-                              #{order.orderNo}
-                            </span>
-                          </TableCell>
-                          <TableCell>
-                            {orderDate ? (
-                              <div className="flex flex-col">
-                                <span className="text-sm">
-                                  {new Date(orderDate).toLocaleDateString(
+                            <div className="flex flex-col">
+                              <div className="flex items-center gap-1.5">
+                                <span className="font-mono text-sm font-medium tabular-nums">
+                                  #{order.orderNo}
+                                </span>
+                                <Badge
+                                  variant="outline"
+                                  className={cn(
+                                    'h-4 px-1.5 text-[10px] font-medium',
+                                    order.orderSource === 'admin'
+                                      ? 'border-primary/20 bg-primary/5 text-primary'
+                                      : 'border-border bg-muted text-muted-foreground',
+                                  )}
+                                >
+                                  {order.orderSource === 'admin'
+                                    ? 'Admin'
+                                    : 'Web'}
+                                </Badge>
+                              </div>
+                              {orderDate ? (
+                                <span className="text-xs tabular-nums text-muted-foreground">
+                                  {new Date(orderDate).toLocaleString(
                                     undefined,
                                     {
                                       month: 'short',
                                       day: 'numeric',
                                       year: 'numeric',
-                                    },
-                                  )}
-                                </span>
-                                <span className="text-xs tabular-nums text-muted-foreground">
-                                  {new Date(orderDate).toLocaleTimeString(
-                                    undefined,
-                                    {
                                       hour: 'numeric',
                                       minute: '2-digit',
                                     },
                                   )}
                                 </span>
+                              ) : (
+                                <span className="text-xs text-muted-foreground">
+                                  N/A
+                                </span>
+                              )}
+                            </div>
+                          </TableCell>
+                          <TableCell className="min-w-50 pr-1">
+                            <div className="flex min-w-0 flex-col">
+                              <span className="font-medium">
+                                {order.shippingInfo?.fullName || 'N/A'}
+                              </span>
+                              <span className="text-sm tabular-nums text-muted-foreground">
+                                {order.shippingInfo?.mobileNo || 'N/A'}
+                              </span>
+                              <span
+                                className="whitespace-normal break-words text-sm text-muted-foreground"
+                                title={order.shippingInfo?.address || ''}
+                              >
+                                {order.shippingInfo?.address || 'N/A'}
+                              </span>
+                            </div>
+                          </TableCell>
+                          <TableCell className="max-w-100 pl-1">
+                            {order.items?.length ? (
+                              <div className="flex flex-col gap-1.5">
+                                {order.items.map((item, itemIndex) => {
+                                  const product =
+                                    item.productId &&
+                                    typeof item.productId === 'object'
+                                      ? item.productId
+                                      : productMap[String(item.productId)];
+                                  const variant = product?.variants?.find(
+                                    (entry) =>
+                                      String(entry._id) ===
+                                      String(item.variantId),
+                                  );
+                                  const variantName = variant
+                                    ? getVariantDisplayName(variant)
+                                    : '';
+                                  const comboSelections = Array.isArray(
+                                    item.comboSelections,
+                                  )
+                                    ? item.comboSelections
+                                    : [];
+                                  const productName =
+                                    product?.name ||
+                                    (comboSelections.length
+                                      ? 'Combo Pack'
+                                      : 'Product unavailable');
+                                  const imageName =
+                                    variant?.image ||
+                                    product?.thumbnailImage ||
+                                    product?.images?.[0] ||
+                                    comboSelections[0]?.thumbnailImage ||
+                                    '';
+                                  const imageUrl = getImageUrl(imageName);
+
+                                  return (
+                                    <div
+                                      key={item._id || itemIndex}
+                                      className="flex min-w-0 items-start gap-2"
+                                    >
+                                      <div className="size-10 shrink-0 overflow-hidden rounded-md border border-border/60 bg-muted">
+                                        {imageUrl ? (
+                                          <img
+                                            src={imageUrl}
+                                            alt={productName}
+                                            className="size-full object-cover"
+                                            loading="lazy"
+                                            onError={(event) => {
+                                              event.currentTarget.style.display =
+                                                'none';
+                                            }}
+                                          />
+                                        ) : null}
+                                      </div>
+                                      <div className="min-w-0">
+                                        <p
+                                          className="truncate text-sm font-medium"
+                                          title={productName}
+                                        >
+                                          {productName}
+                                        </p>
+                                        <p className="truncate text-xs text-muted-foreground">
+                                          {variantName && variantName !== 'N/A'
+                                            ? `${variantName} · `
+                                            : ''}
+                                          {item.quantity} × Tk.{' '}
+                                          {formatAmount(item.price)}
+                                        </p>
+                                        {comboSelections.length > 0 && (
+                                          <p
+                                            className="truncate text-xs text-muted-foreground"
+                                            title={comboSelections
+                                              .map(
+                                                (selection) =>
+                                                  `${selection.name || 'Item'}${
+                                                    Number(selection.quantity) >
+                                                    1
+                                                      ? ` ×${selection.quantity}`
+                                                      : ''
+                                                  }`,
+                                              )
+                                              .join(', ')}
+                                          >
+                                            {comboSelections
+                                              .map(
+                                                (selection) =>
+                                                  `${selection.name || 'Item'}${
+                                                    Number(selection.quantity) >
+                                                    1
+                                                      ? ` ×${selection.quantity}`
+                                                      : ''
+                                                  }`,
+                                              )
+                                              .join(', ')}
+                                          </p>
+                                        )}
+                                      </div>
+                                    </div>
+                                  );
+                                })}
                               </div>
                             ) : (
-                              <span className="text-muted-foreground">N/A</span>
+                              <span className="text-sm text-muted-foreground">
+                                N/A
+                              </span>
                             )}
                           </TableCell>
-                          <TableCell className="max-w-48">
-                            <span className="block truncate font-medium">
-                              {order.shippingInfo?.fullName || 'N/A'}
-                            </span>
-                          </TableCell>
-                          <TableCell className="tabular-nums text-muted-foreground">
-                            {order.shippingInfo?.mobileNo || 'N/A'}
-                          </TableCell>
                           <TableCell>
-                            <SendToCourierButton
-                              orderData={{
-                                invoice: order.orderNo,
-                                recipient_name: order.shippingInfo?.fullName,
-                                recipient_phone: order.shippingInfo?.mobileNo,
-                                recipient_address: order.shippingInfo?.address,
-                                cod_amount: order.dueAmount ?? 0,
-                                note: order.note || '',
-                                order_id: order._id,
-                                courier_status: order.sentToCourier,
-                                items: order.items?.length ?? 0,
-                                courierProvider: order.courierProvider,
-                              }}
-                              onSuccess={handleSuccess}
-                            />
-                          </TableCell>
-                          <TableCell>
-                            <CourierSummary
-                              phone={order.shippingInfo?.mobileNo}
-                            />
+                            <div className="flex flex-col  gap-2">
+                              <SendToCourierButton
+                                orderData={{
+                                  invoice: order.orderNo,
+                                  recipient_name: order.shippingInfo?.fullName,
+                                  recipient_phone: order.shippingInfo?.mobileNo,
+                                  recipient_address:
+                                    order.shippingInfo?.address,
+                                  cod_amount: order.dueAmount ?? 0,
+                                  note: order.note || '',
+                                  order_id: order._id,
+                                  courier_status: order.sentToCourier,
+                                  items: order.items?.length ?? 0,
+                                  courierProvider: order.courierProvider,
+                                }}
+                                onSuccess={handleSuccess}
+                              />
+
+                              <CourierSummary
+                                phone={order.shippingInfo?.mobileNo}
+                              />
+                            </div>
                           </TableCell>
                           <TableCell>
                             <OrderStatusSelector
@@ -1205,18 +1369,6 @@ const AllOrders = ({
                               initialStatus={order.orderStatus}
                               refetchOrders={fetchOrders}
                             />
-                          </TableCell>
-                          <TableCell>
-                            <Badge
-                              variant="outline"
-                              className={cn(
-                                order.orderSource === 'admin'
-                                  ? 'border-primary/20 bg-primary/5 text-primary'
-                                  : 'border-border bg-muted text-muted-foreground',
-                              )}
-                            >
-                              {order.orderSource === 'admin' ? 'Admin' : 'Web'}
-                            </Badge>
                           </TableCell>
                           <TableCell className="text-right font-medium tabular-nums">
                             Tk. {formatAmount(order.totalAmount)}

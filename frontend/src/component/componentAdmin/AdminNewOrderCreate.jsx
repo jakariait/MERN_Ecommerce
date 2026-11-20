@@ -1,10 +1,4 @@
-import {
-  useCallback,
-  useEffect,
-  useState,
-  useMemo,
-  useRef,
-} from 'react';
+import { useCallback, useEffect, useState, useMemo, useRef } from 'react';
 import axios from 'axios';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -105,7 +99,9 @@ const SectionHeader = ({ icon: Icon, title, description, action = null }) => (
 
 const Field = ({ children, label, error, errorMessage }) => (
   <div className="space-y-1.5 sm:space-y-2">
-    {label && <Label className="text-sm font-medium text-foreground">{label}</Label>}
+    {label && (
+      <Label className="text-sm font-medium text-foreground">{label}</Label>
+    )}
     {children}
     {error && errorMessage && (
       <p className="text-[10px] text-destructive flex items-center gap-1">
@@ -446,9 +442,7 @@ const AdminNewOrderCreate = () => {
   const updateItemQuantity = (index, value) => {
     const next = Math.max(1, parseInt(value, 10) || 1);
     setOrderItems((prev) =>
-      prev.map((item, i) =>
-        i === index ? { ...item, quantity: next } : item,
-      ),
+      prev.map((item, i) => (i === index ? { ...item, quantity: next } : item)),
     );
   };
 
@@ -688,9 +682,7 @@ const AdminNewOrderCreate = () => {
       </Button>
 
       <Dialog open={openDialog} onOpenChange={setOpenDialog}>
-        <DialogContent
-          className="max-w-[95vw] sm:max-w-4xl lg:max-w-[900px] bg-background border border-border"
-        >
+        <DialogContent className="max-w-[95vw] sm:max-w-4xl lg:max-w-[900px] bg-background border border-border">
           <DialogHeader className="pb-4 pr-8">
             <div className="flex items-center gap-2">
               <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-primary-foreground">
@@ -708,7 +700,7 @@ const AdminNewOrderCreate = () => {
             </div>
           </DialogHeader>
 
-          <div className="p-6 sm:p-8 space-y-6 overflow-y-auto max-h-[82vh] [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+          <div className="p-6 sm:p-8 space-y-6 overflow-y-auto max-h-[70vh] [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
             {/* Customer */}
             <Card className="shadow-sm border border-border">
               <CardContent className="p-5 sm:p-6 space-y-5">
@@ -744,232 +736,232 @@ const AdminNewOrderCreate = () => {
                     </Select>
                   </div>
 
-                {isGuest ? (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                    <Field
-                      label="Full Name"
-                      error={formErrors.fullName}
-                      errorMessage="Full Name is required"
-                    >
-                      <Input
-                        value={guestInfo.fullName}
-                        onChange={(e) =>
-                          setGuestInfo({
-                            ...guestInfo,
-                            fullName: e.target.value,
-                          })
-                        }
-                        className={cn(
-                          'w-full',
-                          formErrors.fullName ? 'border-destructive' : '',
-                        )}
-                      />
-                    </Field>
-                    <Field
-                      label="Mobile Number"
-                      error={formErrors.mobileNo}
-                      errorMessage="Mobile Number is required"
-                    >
-                      <Input
-                        value={guestInfo.mobileNo}
-                        onChange={(e) =>
-                          setGuestInfo({
-                            ...guestInfo,
-                            mobileNo: e.target.value,
-                          })
-                        }
-                        className={cn(
-                          'w-full',
-                          formErrors.mobileNo ? 'border-destructive' : '',
-                        )}
-                      />
-                    </Field>
-                    <Field label="Email">
-                      <Input
-                        type="email"
-                        value={guestInfo.email}
-                        onChange={(e) =>
-                          setGuestInfo({
-                            ...guestInfo,
-                            email: e.target.value,
-                          })
-                        }
-                      />
-                    </Field>
-                    <Field
-                      label="Address"
-                      error={formErrors.address}
-                      errorMessage="Address is required"
-                    >
-                      <Input
-                        value={guestInfo.address}
-                        onChange={(e) =>
-                          setGuestInfo({
-                            ...guestInfo,
-                            address: e.target.value,
-                          })
-                        }
-                        className={cn(
-                          'w-full',
-                          formErrors.address ? 'border-destructive' : '',
-                        )}
-                      />
-                    </Field>
-                  </div>
-                ) : (
-                  <div className="space-y-4">
-                    <div className="space-y-2">
-                      <Label>Select Customer</Label>
-                      <div className="relative">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+                  {isGuest ? (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                      <Field
+                        label="Full Name"
+                        error={formErrors.fullName}
+                        errorMessage="Full Name is required"
+                      >
                         <Input
-                          placeholder="Search customers..."
-                          value={customerSearch}
-                          onChange={(e) => setCustomerSearch(e.target.value)}
-                          className="pl-9"
+                          value={guestInfo.fullName}
+                          onChange={(e) =>
+                            setGuestInfo({
+                              ...guestInfo,
+                              fullName: e.target.value,
+                            })
+                          }
+                          className={cn(
+                            'w-full',
+                            formErrors.fullName ? 'border-destructive' : '',
+                          )}
                         />
-                      </div>
-                      <div className="max-h-48 overflow-y-auto border border-border rounded-xl">
-                        {filteredCustomers.length > 0 ? (
-                          filteredCustomers.map((cust) => (
-                            <button
-                              type="button"
-                              key={cust._id}
-                              className={`w-full text-left px-3 py-2.5 text-sm transition-colors rounded-lg ${
-                                selectedCustomer?._id === cust._id
-                                  ? 'bg-primary/5 font-medium text-primary border-l-2 border-primary'
-                                  : 'hover:bg-muted/50 border-transparent'
-                              }`}
-                              onClick={() => {
-                                setSelectedCustomer(cust);
-                                setGuestInfo({
-                                  fullName: cust.fullName || '',
-                                  mobileNo: cust.phone || '',
-                                  email: cust.email || '',
-                                  address: cust.address || '',
-                                });
-                                setCustomerSearch('');
-                              }}
-                            >
-                              <div className="flex items-center gap-2">
-                                <div className="flex h-6 w-6 items-center justify-center rounded-full bg-muted text-xs font-medium text-muted-foreground">
-                                  {cust.fullName?.charAt(0).toUpperCase()}
-                                </div>
-                                <div className="min-w-0">
-                                  <div className="font-medium truncate text-foreground">
-                                    {cust.fullName}
-                                  </div>
-                                  <div className="text-[10px] text-muted-foreground truncate">
-                                    {cust.email}
-                                  </div>
-                                </div>
-                              </div>
-                            </button>
-                          ))
-                        ) : (
-                          <div className="px-3 py-4 text-center">
-                            <AlertCircle className="size-4 mx-auto mb-1.5 text-muted-foreground opacity-50" />
-                            <p className="text-[10px] text-muted-foreground">
-                              No customers found
-                            </p>
-                          </div>
-                        )}
-                      </div>
+                      </Field>
+                      <Field
+                        label="Mobile Number"
+                        error={formErrors.mobileNo}
+                        errorMessage="Mobile Number is required"
+                      >
+                        <Input
+                          value={guestInfo.mobileNo}
+                          onChange={(e) =>
+                            setGuestInfo({
+                              ...guestInfo,
+                              mobileNo: e.target.value,
+                            })
+                          }
+                          className={cn(
+                            'w-full',
+                            formErrors.mobileNo ? 'border-destructive' : '',
+                          )}
+                        />
+                      </Field>
+                      <Field label="Email">
+                        <Input
+                          type="email"
+                          value={guestInfo.email}
+                          onChange={(e) =>
+                            setGuestInfo({
+                              ...guestInfo,
+                              email: e.target.value,
+                            })
+                          }
+                        />
+                      </Field>
+                      <Field
+                        label="Address"
+                        error={formErrors.address}
+                        errorMessage="Address is required"
+                      >
+                        <Input
+                          value={guestInfo.address}
+                          onChange={(e) =>
+                            setGuestInfo({
+                              ...guestInfo,
+                              address: e.target.value,
+                            })
+                          }
+                          className={cn(
+                            'w-full',
+                            formErrors.address ? 'border-destructive' : '',
+                          )}
+                        />
+                      </Field>
                     </div>
+                  ) : (
+                    <div className="space-y-4">
+                      <div className="space-y-2">
+                        <Label>Select Customer</Label>
+                        <div className="relative">
+                          <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+                          <Input
+                            placeholder="Search customers..."
+                            value={customerSearch}
+                            onChange={(e) => setCustomerSearch(e.target.value)}
+                            className="pl-9"
+                          />
+                        </div>
+                        <div className="max-h-48 overflow-y-auto border border-border rounded-xl">
+                          {filteredCustomers.length > 0 ? (
+                            filteredCustomers.map((cust) => (
+                              <button
+                                type="button"
+                                key={cust._id}
+                                className={`w-full text-left px-3 py-2.5 text-sm transition-colors rounded-lg ${
+                                  selectedCustomer?._id === cust._id
+                                    ? 'bg-primary/5 font-medium text-primary border-l-2 border-primary'
+                                    : 'hover:bg-muted/50 border-transparent'
+                                }`}
+                                onClick={() => {
+                                  setSelectedCustomer(cust);
+                                  setGuestInfo({
+                                    fullName: cust.fullName || '',
+                                    mobileNo: cust.phone || '',
+                                    email: cust.email || '',
+                                    address: cust.address || '',
+                                  });
+                                  setCustomerSearch('');
+                                }}
+                              >
+                                <div className="flex items-center gap-2">
+                                  <div className="flex h-6 w-6 items-center justify-center rounded-full bg-muted text-xs font-medium text-muted-foreground">
+                                    {cust.fullName?.charAt(0).toUpperCase()}
+                                  </div>
+                                  <div className="min-w-0">
+                                    <div className="font-medium truncate text-foreground">
+                                      {cust.fullName}
+                                    </div>
+                                    <div className="text-[10px] text-muted-foreground truncate">
+                                      {cust.email}
+                                    </div>
+                                  </div>
+                                </div>
+                              </button>
+                            ))
+                          ) : (
+                            <div className="px-3 py-4 text-center">
+                              <AlertCircle className="size-4 mx-auto mb-1.5 text-muted-foreground opacity-50" />
+                              <p className="text-[10px] text-muted-foreground">
+                                No customers found
+                              </p>
+                            </div>
+                          )}
+                        </div>
+                      </div>
 
-                    {selectedCustomer && (
-                      <Card className="bg-muted/40 border border-border/50">
-                        <CardContent className="p-4 sm:p-5 space-y-4">
-                          <div className="flex items-center gap-2">
-                            <MapPin className="size-4 text-primary" />
-                            <p className="font-medium text-sm text-foreground">
-                              Customer Details (Editable)
-                            </p>
-                          </div>
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                            <Field
-                              label="Full Name"
-                              error={formErrors.fullName}
-                              errorMessage="Full Name is required"
-                            >
-                              <Input
-                                value={guestInfo.fullName}
-                                onChange={(e) =>
-                                  setGuestInfo({
-                                    ...guestInfo,
-                                    fullName: e.target.value,
-                                  })
-                                }
-                                className={cn(
-                                  'w-full',
-                                  formErrors.fullName
-                                    ? 'border-destructive'
-                                    : '',
-                                )}
-                              />
-                            </Field>
-                            <Field
-                              label="Mobile Number"
-                              error={formErrors.mobileNo}
-                              errorMessage="Mobile Number is required"
-                            >
-                              <Input
-                                value={guestInfo.mobileNo}
-                                onChange={(e) =>
-                                  setGuestInfo({
-                                    ...guestInfo,
-                                    mobileNo: e.target.value,
-                                  })
-                                }
-                                className={cn(
-                                  'w-full',
-                                  formErrors.mobileNo
-                                    ? 'border-destructive'
-                                    : '',
-                                )}
-                              />
-                            </Field>
-                            <Field label="Email">
-                              <Input
-                                type="email"
-                                value={guestInfo.email}
-                                onChange={(e) =>
-                                  setGuestInfo({
-                                    ...guestInfo,
-                                    email: e.target.value,
-                                  })
-                                }
-                              />
-                            </Field>
-                            <Field
-                              label="Address"
-                              error={formErrors.address}
-                              errorMessage="Address is required"
-                            >
-                              <Input
-                                value={guestInfo.address}
-                                onChange={(e) =>
-                                  setGuestInfo({
-                                    ...guestInfo,
-                                    address: e.target.value,
-                                  })
-                                }
-                                className={cn(
-                                  'w-full',
-                                  formErrors.address
-                                    ? 'border-destructive'
-                                    : '',
-                                )}
-                              />
-                            </Field>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    )}
-                  </div>
-                )}
-              </div>
-            </CardContent>
+                      {selectedCustomer && (
+                        <Card className="bg-muted/40 border border-border/50">
+                          <CardContent className="p-4 sm:p-5 space-y-4">
+                            <div className="flex items-center gap-2">
+                              <MapPin className="size-4 text-primary" />
+                              <p className="font-medium text-sm text-foreground">
+                                Customer Details (Editable)
+                              </p>
+                            </div>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                              <Field
+                                label="Full Name"
+                                error={formErrors.fullName}
+                                errorMessage="Full Name is required"
+                              >
+                                <Input
+                                  value={guestInfo.fullName}
+                                  onChange={(e) =>
+                                    setGuestInfo({
+                                      ...guestInfo,
+                                      fullName: e.target.value,
+                                    })
+                                  }
+                                  className={cn(
+                                    'w-full',
+                                    formErrors.fullName
+                                      ? 'border-destructive'
+                                      : '',
+                                  )}
+                                />
+                              </Field>
+                              <Field
+                                label="Mobile Number"
+                                error={formErrors.mobileNo}
+                                errorMessage="Mobile Number is required"
+                              >
+                                <Input
+                                  value={guestInfo.mobileNo}
+                                  onChange={(e) =>
+                                    setGuestInfo({
+                                      ...guestInfo,
+                                      mobileNo: e.target.value,
+                                    })
+                                  }
+                                  className={cn(
+                                    'w-full',
+                                    formErrors.mobileNo
+                                      ? 'border-destructive'
+                                      : '',
+                                  )}
+                                />
+                              </Field>
+                              <Field label="Email">
+                                <Input
+                                  type="email"
+                                  value={guestInfo.email}
+                                  onChange={(e) =>
+                                    setGuestInfo({
+                                      ...guestInfo,
+                                      email: e.target.value,
+                                    })
+                                  }
+                                />
+                              </Field>
+                              <Field
+                                label="Address"
+                                error={formErrors.address}
+                                errorMessage="Address is required"
+                              >
+                                <Input
+                                  value={guestInfo.address}
+                                  onChange={(e) =>
+                                    setGuestInfo({
+                                      ...guestInfo,
+                                      address: e.target.value,
+                                    })
+                                  }
+                                  className={cn(
+                                    'w-full',
+                                    formErrors.address
+                                      ? 'border-destructive'
+                                      : '',
+                                  )}
+                                />
+                              </Field>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </CardContent>
             </Card>
 
             <Card className="shadow-sm">
@@ -1011,7 +1003,7 @@ const AdminNewOrderCreate = () => {
                         );
                         const stock = hasVariants
                           ? p.variants.reduce(
-                              (sum, v) => sum + (Number(v.stock || 0)),
+                              (sum, v) => sum + Number(v.stock || 0),
                               0,
                             )
                           : Number(p.finalStock || 0);
@@ -1053,7 +1045,8 @@ const AdminNewOrderCreate = () => {
                               )}
                               {hasVariants && (
                                 <span className="absolute bottom-2 right-2 z-10 bg-black/40 px-2 py-0.5 rounded text-xs text-white">
-                                  {p.variants.length} variant{p.variants.length === 1 ? '' : 's'}
+                                  {p.variants.length} variant
+                                  {p.variants.length === 1 ? '' : 's'}
                                 </span>
                               )}
                             </div>
@@ -1063,7 +1056,8 @@ const AdminNewOrderCreate = () => {
                               </div>
                               <div className="flex gap-1.5 justify-center mt-0.5">
                                 <span className="text-xs font-semibold">
-                                  Tk. {formatPrice(
+                                  Tk.{' '}
+                                  {formatPrice(
                                     discPrice > 0 ? discPrice : origPrice,
                                   )}
                                 </span>
@@ -1097,7 +1091,8 @@ const AdminNewOrderCreate = () => {
                 {selectedProduct && !selectedProduct.variants?.length && (
                   <div className="flex flex-col sm:flex-row items-end gap-3 p-3 rounded-xl bg-muted/40">
                     <div className="shrink-0 h-16 w-16 rounded-lg overflow-hidden bg-gray-100 flex items-center justify-center">
-                      {selectedProduct.thumbnailImage || selectedProduct.images?.[0] ? (
+                      {selectedProduct.thumbnailImage ||
+                      selectedProduct.images?.[0] ? (
                         <ImageComponent
                           imageName={
                             selectedProduct.thumbnailImage ||
@@ -1132,7 +1127,8 @@ const AdminNewOrderCreate = () => {
                     </div>
                     <div className="flex items-end gap-2">
                       <span className="text-sm font-semibold text-right whitespace-nowrap">
-                        ৳{formatPrice(
+                        ৳
+                        {formatPrice(
                           (selectedProduct.finalDiscount > 0
                             ? selectedProduct.finalDiscount
                             : selectedProduct.finalPrice || 0) *
@@ -1186,8 +1182,7 @@ const AdminNewOrderCreate = () => {
                         <TableBody>
                           {orderItems.map((item, index) => {
                             const itemImage =
-                              productImageMap.get(String(item.productId)) ||
-                              '';
+                              productImageMap.get(String(item.productId)) || '';
                             const isComboItem = !!item.comboKey;
                             return (
                               <TableRow key={index}>
@@ -1366,7 +1361,9 @@ const AdminNewOrderCreate = () => {
                         max={calculatedTotals.subtotal}
                         className={cn(
                           'pl-8',
-                          formErrors.specialDiscount ? 'border-destructive' : '',
+                          formErrors.specialDiscount
+                            ? 'border-destructive'
+                            : '',
                         )}
                       />
                     </div>
@@ -1453,7 +1450,11 @@ const AdminNewOrderCreate = () => {
           </div>
 
           <DialogFooter className="px-6 sm:p-8 gap-3 border-t border-border bg-muted/50 justify-end">
-            <Button variant="outline" onClick={handleCloseDialog} className="h-10">
+            <Button
+              variant="outline"
+              onClick={handleCloseDialog}
+              className="h-10"
+            >
               Cancel
             </Button>
             <Button
@@ -1479,9 +1480,7 @@ const AdminNewOrderCreate = () => {
           if (!open) closeComboDialog();
         }}
       >
-        <DialogContent
-          className="flex max-h-[calc(100dvh-2rem)] flex-col gap-4 overflow-hidden p-4 sm:max-w-2xl sm:p-6"
-        >
+        <DialogContent className="flex max-h-[calc(100dvh-2rem)] flex-col gap-4 overflow-hidden p-4 sm:max-w-2xl sm:p-6">
           <DialogHeader className="shrink-0 space-y-1.5 pr-8 text-left">
             <DialogTitle className="text-lg leading-snug">
               Build Combo: {comboProduct?.name}
@@ -1518,9 +1517,7 @@ const AdminNewOrderCreate = () => {
                             : 'border-border bg-background hover:border-primary/50',
                         )}
                       >
-                        <span>
-                          {getVariantDisplayName(variant)}
-                        </span>
+                        <span>{getVariantDisplayName(variant)}</span>
                         <span className="text-xs tabular-nums text-muted-foreground">
                           {outOfStock
                             ? 'Out of stock'
@@ -1623,9 +1620,7 @@ const AdminNewOrderCreate = () => {
                       </span>
                       {variant.discount > 0 && (
                         <span className="text-xs text-muted-foreground line-through">
-                          Tk. {formatPrice(
-                            variant.price || 0,
-                          )}
+                          Tk. {formatPrice(variant.price || 0)}
                         </span>
                       )}
                       {outOfStock && (
@@ -1651,13 +1646,13 @@ const AdminNewOrderCreate = () => {
 
             <div className="flex items-end gap-2 pt-2">
               <span className="text-sm font-semibold text-right whitespace-nowrap">
-                ৳{formatPrice(
+                ৳
+                {formatPrice(
                   (selectedVariant
                     ? selectedVariant.discount > 0
                       ? selectedVariant.discount
                       : selectedVariant.price || 0
-                    : 0) *
-                    Math.max(1, parseInt(quantity, 10) || 1),
+                    : 0) * Math.max(1, parseInt(quantity, 10) || 1),
                 )}
               </span>
             </div>
